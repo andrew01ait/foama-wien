@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import {CITY_PROFILES} from '../pwa/src/city-profiles.mjs';
-import {lineHasCurrentDeparture} from '../pwa/src/connection-detail.mjs';
+import {lineHasCurrentDeparture,connectionDepartures} from '../pwa/src/connection-detail.mjs';
+import {availableDeparts,favoriteMatches} from '../pwa/src/core.mjs';
+import {connectionsAtStation} from '../pwa/src/station-search.mjs';
 const app=await readFile(new URL('../pwa/src/app.mjs',import.meta.url),'utf8');
 
 test('a city switch clears prior cards and timestamps immediately; a late catalogue cannot overwrite a newer city or its favorites',async()=>{
@@ -20,4 +22,11 @@ test('tomorrow-only regional schedules remain available but do not make a curren
  const row={...line,provider:'transitous',stopId:stop.id,towards:'LKH',actual:new Date(now+6*3600000).toISOString(),fetchedAt:new Date(now).toISOString(),quality:'schedule'};
  assert.equal(lineHasCurrentDeparture(stop,line,[row],{now}),false);
  assert.equal(lineHasCurrentDeparture(stop,line,[{...row,actual:new Date(now+300000).toISOString()}],{now}),true);
+});
+test('same numeric route and destination on bus and suburban rail remain separate, including focused details and known favorite modes',()=>{
+ const now=Date.parse('2026-11-09T22:00Z'),stop={id:'salzburg:at:45:50002',provider:'transitous'},base={provider:'transitous',stopId:stop.id,route:'3',towards:'Hauptbahnhof',actual:new Date(now+300000).toISOString(),fetchedAt:new Date(now).toISOString(),quality:'schedule'};
+ const rows=[{...base,id:'bus',mode:'bus'},{...base,id:'rail',mode:'sbahn'}];
+ assert.equal(availableDeparts(rows,{modes:{}},now).length,2);assert.equal(connectionsAtStation(rows,stop,now).length,2);
+ assert.deepEqual(connectionDepartures(stop,{route:'3',towards:'Hauptbahnhof',mode:'bus'},rows,now).map(d=>d.id),['bus']);
+ assert.equal(favoriteMatches({route:'3',mode:'bus'},rows[1]),false);assert.equal(lineHasCurrentDeparture(stop,{route:'3',mode:'sbahn'},[rows[0]],{now}),false);
 });

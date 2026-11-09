@@ -1,12 +1,12 @@
-import {directionEquivalent} from './core.mjs?v=0.7.1';
-import {departureIsFresh} from './departure-cache.mjs?v=0.7.1';
+import {directionEquivalent} from './core.mjs?v=0.7.2';
+import {departureIsFresh} from './departure-cache.mjs?v=0.7.2';
 
 export function departureAtStation(stop,departure){
  return !!stop&&(departure.source==='gtfs'?departure.stopId===stop.id:departure.provider==='wl'?stop.provider==='wl'&&(stop.rbl||[]).map(String).includes(String(departure.rbl)):departure.provider==='transitous'?stop.provider==='transitous'&&departure.stopId===stop.id:departure.provider==='rail'&&stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId));
 }
 export function connectionDepartures(stop,target,departures,now=Date.now()){
  const seen=new Set();
- return departures.filter(d=>departureAtStation(stop,d)&&d.route===target.route&&(!target.towards||d.towards===target.towards||(['gtfs','transitous','linz-efa'].includes(d.source)&&directionEquivalent(target.towards,d.towards)))&&Date.parse(d.actual)>=now-30_000)
+ return departures.filter(d=>departureAtStation(stop,d)&&d.route===target.route&&(!target.mode||d.mode===target.mode)&&(!target.towards||d.towards===target.towards||(['gtfs','transitous','linz-efa'].includes(d.source)&&directionEquivalent(target.towards,d.towards)))&&Date.parse(d.actual)>=now-30_000)
   .sort((a,b)=>Date.parse(a.actual)-Date.parse(b.actual)).filter(d=>{const key=[d.route,d.towards,d.actual].join('|');if(seen.has(key))return false;seen.add(key);return true;});
 }
 // The operator accepts platform IDs, not a route/destination query. Reuse the

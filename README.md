@@ -14,7 +14,7 @@
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
 - Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.7.1 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.7.2 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

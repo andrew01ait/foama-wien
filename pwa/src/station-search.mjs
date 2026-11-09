@@ -16,7 +16,7 @@ export function connectionsAtStation(departures,stop,now=Date.now()){
       departure.provider==='transitous'?stop.provider==='transitous'&&departure.stopId===stop.id:stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId);
     const departureAt=Date.parse(departure.actual);
     if(!belongs||!departure.route||!Number.isFinite(departureAt)||departureAt<now-30_000)continue;
-    const key=departure.route+'|'+departure.towards;
+    const key=(departure.mode||'')+'|'+departure.route+'|'+departure.towards;
     if(!groups.has(key))groups.set(key,{route:departure.route,towards:departure.towards,mode:departure.mode});
   }
   return [...groups.values()].sort((a,b)=>a.route.localeCompare(b.route,'de-AT',{numeric:true})||a.towards.localeCompare(b.towards,'de-AT'));

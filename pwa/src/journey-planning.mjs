@@ -1,7 +1,7 @@
-import {providerStationIdentity} from './regional-departures.mjs?v=0.7.1';
+import {providerStationIdentity} from './regional-departures.mjs?v=0.7.2';
 // Provider-independent journey model and fixed-service MOTIS adapter.
 // Production UI uses the bounded, same-origin journey-service endpoint.
-import {coordinate} from './journey-geometry.mjs?v=0.7.1';
+import {coordinate} from './journey-geometry.mjs?v=0.7.2';
 const MODES={SUBWAY:'metro',TRAM:'tram',BUS:'bus',ODM:'bus',SUBURBAN:'sbahn',REGIONAL_RAIL:'regional',LONG_DISTANCE:'long',HIGHSPEED_RAIL:'long',WALK:'walk'};
 const PROVIDER_MODES={metro:'SUBWAY',tram:'TRAM',bus:'BUS',sbahn:'SUBURBAN',regional:'REGIONAL_RAIL',long:'LONG_DISTANCE,HIGHSPEED_RAIL'};
 const text=(value,length=160)=>String(value??'').trim().slice(0,length);

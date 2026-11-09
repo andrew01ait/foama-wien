@@ -1,4 +1,4 @@
-# Störungs-Push · PWA 0.7.1
+# Störungs-Push · PWA 0.7.2
 
 Aktuelle Nutzerentscheidung (09.11.2026): Push ausschließlich für die PWA, kein direkter Uhr-Push. Kein eigenes Firebase-Projekt oder Firebase-SDK nötig. Die native App 0.6.1/21 bleibt unverändert; vorhandene FCM-Vorbereitung bleibt deaktiviert. Der Browser wählt seinen Pushdienst; Chrome/Android kann darunter Google-Infrastruktur verwenden.
 
