@@ -37,6 +37,10 @@ Der erste öffentliche GitHub-Import 0.6.0 umfasst 296 geprüfte Dateien; sein G
 
 Die Störungsquelle wird im Hintergrund stündlich geprüft, bei ohnehin aktiver App ungefähr alle fünf Minuten zusätzlich. Kein Echtzeitversprechen. Serverlauf, Unit-Tests und providerseitige Annahme sind jeweils von tatsächlichem Geräteempfang zu unterscheiden.
 
+## Weitere Städte: Analyse, noch keine Implementierung
+
+Eine gemeinsame PWA mit automatischem Stadtkontext ist machbar. Eigene öffentliche Stichproben bestätigten Linzer EFA-Echtzeit und Grazer Echtzeit über Transitous; Salzburg lieferte im Test Sollzeiten. Stadtprofile, Provideradapter und ein gemeinsamer unabhängiger Fahrplan-Fallback sind noch zu bauen. Quellen, Zugangsbedingungen und Vorschlag: [Machbarkeitsanalyse](docs/multi-city-feasibility.md).
+
 ## Offene Arbeiten
 
 - Nutzerentscheidung: Push ausschließlich für die PWA; keine weitere Firebase-/Uhr-Push-Einrichtung. Die vorhandene native Vorbereitung bleibt deaktiviert.

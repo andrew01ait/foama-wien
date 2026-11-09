@@ -13,6 +13,7 @@ Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Reposito
 | Wie bleiben GitHub und interne Quellen abgestimmt? | [GitHub und Quellabgleich](github.md) |
 | Wie funktionieren Routen, QR und Push? | [Routenplanung](journey-planning.md), [QR-Übertragung](qr-transfer.md), [Push](push-notifications.md) |
 | Wie werden Zeitkorrekturen und Fahrzeug-Barrierefreiheit gezeigt? | [Abfahrtshinweise](departure-indicators.md) |
+| Wie können weitere Städte hinzukommen? | [Machbarkeit Linz, Graz und Salzburg](multi-city-feasibility.md) |
 | Was wurde tatsächlich geprüft? | [Prüfprotokoll](tests.md), [native Release-Protokolle](wear-os-release-0.6.1.md) |
 | Welche Rechte gelten für Code und Daten? | [Lizenzen](licenses.md), [Quellen](../LICENSE-SOURCES.md) |
 

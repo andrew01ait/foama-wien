@@ -4,6 +4,8 @@
 
 Lokale HTTP-Browseransicht: Equipment-Auswahl entfernt, Nachtruhe und Start-/Favoritenwahl erhalten; mangels HTTPS dort keine Push-Freigabe. Echte Telefonanzeige muss am optierten Zielgerät geprüft werden. Native Quellen und ursprüngliche 0.6.1/21-APK unverändert; Originalbytes, Größe, SHA-256 und Signatur beim Wiederherstellen bestätigt. Direkter Uhr-Push wird auf Nutzerwunsch nicht weiter eingerichtet.
 
+Produktionsabnahme 0.6.7: Bereitstellung erfolgreich, Runtime-Revision 4 und bestehende Schlüssel erhalten. Eine bewusst ungültige, zufällig erzeugte technische Testadresse wurde registriert; der echte Workers-Transport lief bis zur Anbieterantwort für den abgelaufenen/ungültigen Endpoint (API HTTP 410). Der technische Testdatensatz wurde anschließend entfernt. Das prüft Verschlüsselung/HTTP im realen Runtimepfad, keine physische Telefonanzeige. Öffentliche HTTPS-Einstellungen zeigen die neuen Filter und den echten 60-Minuten-Takt; Notification-Freigabe ist im Cloud-Testbrowser blockiert und wurde nicht umgangen.
+
 ## PWA 0.6.6 · Meine Orte · 09.11.2026
 
 261 Web-/Server-Prüfungen erfolgreich, geänderte JavaScript-Module und Service Worker syntaktisch geprüft; 96 eindeutige Journey-IDs. Vier neue UI-Regressionsprüfungen umfassen Abbrechen samt verspäteter Adressantwort, erste leere Liste, Adress-/Koordinaten-/ID-Erhalt beim Umbenennen sowie Start-/Zielauswahl und ausdrücklich bestätigte Entfernung des richtigen Datensatzes. Gemeinsame Menüprüfungen für Wechsel, Außenklick, Escape und Fokus weiter erfolgreich. Native Wear 0.6.1/21 unverändert.
