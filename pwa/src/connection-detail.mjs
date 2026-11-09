@@ -1,5 +1,5 @@
-import {directionEquivalent} from './core.mjs?v=0.7.0';
-import {departureIsFresh} from './departure-cache.mjs?v=0.7.0';
+import {directionEquivalent} from './core.mjs?v=0.7.1';
+import {departureIsFresh} from './departure-cache.mjs?v=0.7.1';
 
 export function departureAtStation(stop,departure){
  return !!stop&&(departure.source==='gtfs'?departure.stopId===stop.id:departure.provider==='wl'?stop.provider==='wl'&&(stop.rbl||[]).map(String).includes(String(departure.rbl)):departure.provider==='transitous'?stop.provider==='transitous'&&departure.stopId===stop.id:departure.provider==='rail'&&stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId));
@@ -22,7 +22,7 @@ export function connectionRequestIds(stop,target,departures,limit=24){
  return [...new Set(ids)].filter(id=>valid.has(id)&&/^\d+$/.test(id)).slice(0,Math.max(1,Math.min(24,limit)));
 }
 export function lineHasCurrentDeparture(stop,line,departures,{now=Date.now(),hasError=false}={}){
- return connectionDepartures(stop,line,departures,now).some(d=>d.source==='gtfs'||d.provider==='rail'||(!hasError&&departureIsFresh(d,now)));
+ return connectionDepartures(stop,line,departures,now).some(d=>Date.parse(d.actual)<=now+2*3600000&&(d.source==='gtfs'||d.provider==='rail'||(!hasError&&departureIsFresh(d,now))));
 }
 export function connectionTarget(value){
  if(!value||typeof value.stopId!=='string'||!value.stopId||value.stopId.length>100||typeof value.route!=='string'||!value.route||value.route.length>30)return null;

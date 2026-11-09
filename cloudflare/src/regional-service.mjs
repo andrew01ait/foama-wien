@@ -1,7 +1,7 @@
 import {reserveJourneyRequest} from './journey-service.mjs';
 import {normalizeRegionalBoard,normalizeLinzBoard} from '../../pwa/src/regional-departures.mjs';
 
-const UA='foama-wien/0.7.0 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
+const UA='foama-wien/0.7.1 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
 const inflight=new Map();
 const answer=(body,status=200)=>Response.json(body,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 async function boundedJson(response){
@@ -17,7 +17,7 @@ async function publicJson(url,fetcher,signal){
  }finally{clearTimeout(timer);signal.removeEventListener('abort',abort);}
 }
 async function stationBoard(stop,env,{fetcher,now,cache,origin,signal}){
- const key=new Request(new URL('/_cache/regional-board-v1/'+encodeURIComponent(stop.id),origin));
+ const key=new Request(new URL('/_cache/regional-board-v2/'+encodeURIComponent(stop.id),origin));
  if(cache){const hit=await cache.match(key);if(hit){const body=await hit.json();if(body.checkedAt<=now+1000&&now-body.checkedAt<30000)return body;}}
  const flightKey=origin+'|'+stop.id;if(inflight.has(flightKey))return inflight.get(flightKey);
  if(inflight.size>=8)throw Error('overloaded');
@@ -33,7 +33,7 @@ async function stationBoard(stop,env,{fetcher,now,cache,origin,signal}){
   if(!departures?.length){
    // An additional fallback request is accounted separately as well.
    if(stop.city==='linz'&&!await reserveJourneyRequest(env.DB,{now,kind:'plan'}))throw Error('budget');
-   const url=new URL('https://api.transitous.org/api/v6/stoptimes');url.search=new URLSearchParams({stopId:stop.providerStopId,n:'64',language:'de',arriveBy:'false',exactRadius:'true'}).toString();
+   const url=new URL('https://api.transitous.org/api/v6/stoptimes');url.search=new URLSearchParams({stopId:stop.providerStopId,n:'64',language:'de',arriveBy:'false',exactRadius:'false'}).toString();
    departures=normalizeRegionalBoard(await publicJson(url.href,fetcher,signal),stop,now);
   }
   const body={station:stop.id,checkedAt:now,source,departures};

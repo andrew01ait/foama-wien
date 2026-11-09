@@ -1,9 +1,9 @@
 {
-  "version": "0.7.0",
+  "version": "0.7.1",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Unabhängiger Wiener Fahrplan-Fallback bei fehlenden Live-Daten. Automatische Stadtprofile für Graz, Linz und Salzburg; manuelle Wahl nur in Einstellungen. Salzburg zunächst im Fahrplanmodus. Testnachricht, Zustellstatus und lokaler Anzeigetest unter Debug Push.",
+  "changelog": "Fahrplan-Fallback und Stadtprofile: Wien als Standard, manuelle Auswahl nur in Einstellungen. Korrigierter Bahnsteigabruf für Salzburg Hauptbahnhof und saubere Ladeansicht beim Stadtwechsel. Testnachricht, Zustellstatus und lokaler Anzeigetest unter Debug Push.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,

@@ -28,7 +28,7 @@ export function retainDepartures(previous=[],incoming=[],replacedIds=[],now=Date
   const replaced=new Set(replacedIds),all=[...previous.filter(d=>!replaced.has(d.rbl)&&!replaced.has(d.stopId)),...incoming];
   const unique=new Map();
   for(const d of all){const fetched=Date.parse(d.fetchedAt),actual=Date.parse(d.actual);
-    if(!['wl','transitous'].includes(d.provider)||!Number.isFinite(fetched)||fetched>now+30_000||now-fetched>MAX_AGE||!Number.isFinite(actual)||actual<now-30_000)continue;
+    if(d.source==='linz-efa'&&d.towards==='0'||!['wl','transitous'].includes(d.provider)||!Number.isFinite(fetched)||fetched>now+30_000||now-fetched>MAX_AGE||!Number.isFinite(actual)||actual<now-30_000)continue;
     unique.set(d.id,d);
   }
   return [...unique.values()].sort((a,b)=>Date.parse(b.fetchedAt)-Date.parse(a.fetchedAt)).slice(0,MAX_RECORDS);

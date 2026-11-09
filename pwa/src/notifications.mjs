@@ -1,5 +1,5 @@
-import './push-storage.js?v=0.7.0';
-import {pushPreferences,favoritePushTargets} from './push-policy.mjs?v=0.7.0';
+import './push-storage.js?v=0.7.1';
+import {pushPreferences,favoritePushTargets} from './push-policy.mjs?v=0.7.1';
 const KEY='foama.push.v1';
 const decode=value=>Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(value.length/4)*4,'=')),c=>c.charCodeAt(0));
 const token=cryptoApi=>btoa(String.fromCharCode(...cryptoApi.getRandomValues(new Uint8Array(24)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');

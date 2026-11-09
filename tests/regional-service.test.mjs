@@ -28,6 +28,7 @@ test('Salzburg always displays planned times in its initial timetable profile, i
 });
 test('Linz resolves the actual IFOPT identity reported by EFA, distinguishes realtime and rejects a wrong station or nonexistent DST wall time',()=>{
  const now=Date.parse(efaDate(linzer.departureList[0].dateTime))-1000,rows=normalizeLinzBoard(linzer,linz,now);assert.ok(rows.length);assert.ok(rows.some(d=>d.quality==='live'));assert.ok(rows.every(d=>d.stopId===linz.id));
+ const placeholder=structuredClone(linzer);placeholder.departureList.forEach(row=>row.servingLine.direction='0');assert.deepEqual(normalizeLinzBoard(placeholder,linz,now),[]);
  assert.throws(()=>normalizeLinzBoard(linzer,{...linz,ifopt:'at:44:99999'},now));assert.equal(efaDate({year:'2026',month:'03',day:'29',hour:'02',minute:'30'}),null);
 });
 test('regional relay permits only catalog identities and fixed providers, coalesces and caches without renewing timestamps, and shares the plan budget',async()=>{
@@ -36,11 +37,20 @@ test('regional relay permits only catalog identities and fixed providers, coales
  const options={now:reference,cache,fetcher:async(url,settings)=>{calls.push({url,settings});return Response.json(grazer);}};
  try{
   const [a,b]=await Promise.all([regionalApi(request(),env,options),regionalApi(request(),env,options)]);assert.equal(a.status,200);assert.equal(b.status,200);assert.equal(calls.length,1);
-  assert.equal(new URL(calls[0].url).origin,'https://api.transitous.org');assert.equal(calls[0].settings.redirect,'manual');
+  assert.equal(new URL(calls[0].url).origin,'https://api.transitous.org');assert.equal(calls[0].settings.redirect,'manual');assert.equal(new URL(calls[0].url).searchParams.get('exactRadius'),'false');
   const second=await (await regionalApi(request(),env,{...options,now:reference+10000})).json();assert.equal(calls.length,1);assert.equal(second.checkedAt,reference);
   assert.equal((await db.prepare("SELECT SUM(count) AS n FROM foama_journey_budget WHERE kind='plan'").first()).n,1);
   const bad=await regionalApi(new Request('https://regional-test.example/api/regional/board?station=https://evil.example/&lat=PRIVATE'),env,options);assert.equal(bad.status,400);assert.equal(calls.length,1);
   assert.equal((await regionalApi(request(),{REGIONAL_STOPS:[graz]},{...options,cache:null})).status,429);assert.equal(calls.length,1);
+ }finally{db.close();}
+});
+test('a Salzburg parent station includes its own real child platforms but rejects a neighboring station',async()=>{
+ const stop={id:'salzburg:at:45:50002',ifopt:'at:45:50002',city:'salzburg',provider:'transitous',name:'Salzburg Hauptbahnhof',providerStopId:'at-Railway-Current-Reference-Data-2026_Pat:45:50002'};
+ const db=localD1(),first=salzburger.stopTimes[0],now=Date.parse(first.place.scheduledDeparture)-1000;
+ const payload=structuredClone(salzburger);payload.stopTimes.push({...first,place:{...first.place,stopId:'provider_at:45:99999:0:1'}});
+ try{const response=await regionalApi(new Request('https://salzburg-parent.example/api/regional/board?station='+encodeURIComponent(stop.id)),{DB:db,REGIONAL_STOPS:[stop]},{now,cache:null,fetcher:async url=>{
+  assert.equal(new URL(url).searchParams.get('stopId'),stop.providerStopId);assert.equal(new URL(url).searchParams.get('exactRadius'),'false');return Response.json(payload);
+ }});assert.equal(response.status,200);const data=await response.json();assert.ok(data.departures.length);assert.ok(data.departures.every(d=>d.stopId===stop.id&&d.quality==='schedule'&&!d.providerStopId.includes('99999')));
  }finally{db.close();}
 });
 test('Linz provider failure falls back to real Transitous timetable data with a separately counted request',async()=>{

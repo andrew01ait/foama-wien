@@ -1,3 +1,7 @@
+## PWA 0.7.1 · Produktionsabnahme der Stadtprofile · 09.11.2026
+
+Nach der echten 0.7.0-Abnahme korrigiert: Beim Stadtwechsel werden die alten Stationskarten und der alte Abrufstand sofort entfernt, bis der neue Katalog bereit ist; verspätete frühere Stadtabfragen bleiben unwirksam. Salzburg Hauptbahnhof wird einschließlich seiner echten eigenen Bahnsteige abgefragt. Die exakte IFOPT-Prüfung bleibt erhalten und verwirft fremde Nachbarstationen. Reale Vergleichsprobe: exactRadius=true lieferte null Abfahrten, der Eltern-/Bahnsteigabruf 16; Ursache bestätigt und als Regression gesichert. Reine EFA-Zielplatzhalter „0“ nicht anzeigen. Linien mit ausschließlich weit entfernten nächsten Fahrplantagen bleiben gedimmt (keine Abfahrt in den nächsten zwei Stunden), die Fahrplandetails bleiben zugänglich. Neue Shell-Version nach bereits installiertem QA-Stand; native 0.6.1/21 unverändert.
+
 ## PWA 0.7.0 · Fahrplan, Stadtprofile und Push-Diagnose · 09.11.2026
 
 Unabhängiger Wiener GTFS-Fallback für 1.695 Stationen, gültig 09.11.–12.12.2026; kalendergültige Fahrgastabfahrten, Nachtfahrten, Sommerzeit und Paketversionen geprüft. Frische Live-Verbindungen haben Vorrang, fehlende Richtungen erhalten klar gekennzeichnete Fahrplanzeiten. Benötigte Pakete bleiben lokal für den Offline-Zugriff erhalten. Noch kein automatischer GTFS-Neuimport/Deploy.

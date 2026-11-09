@@ -38,7 +38,7 @@ export function normalizeLinzBoard(payload,stop,now=Date.now()){
   const real=line.realtime==='1'&&row.realtimeTripStatus!=='CANCELLED'?efaDate(row.realDateTime):null;
   if(row.realtimeTripStatus==='CANCELLED'||line.realtime==='0'&&String(line.delay)==='-9999')continue;
   const mode=({'0':'regional','1':'sbahn','2':'metro','3':'metro','4':'tram','5':'bus','6':'bus','7':'bus','10':'bus'})[String(line.motType)]||'bus';
-  if(!route||!towards||!scheduled||Date.parse(real||scheduled)<now-30000||Date.parse(real||scheduled)>now+24*3600000)continue;
+  if(!route||!towards||towards==='0'||!scheduled||Date.parse(real||scheduled)<now-30000||Date.parse(real||scheduled)>now+24*3600000)continue;
   const key=JSON.stringify([stop.id,route,towards,scheduled]);if(seen.has(key))continue;seen.add(key);
   out.push({id:'efa:'+key,provider:'transitous',source:'linz-efa',stopId:stop.id,providerStopId:stop.ifopt,station:stop.name,route,towards,mode,scheduled,realtime:real,actual:real||scheduled,quality:real?'live':'schedule',fetchedAt:new Date(now).toISOString(),platform:text(row.platformName,30),barrierFree:null});
  }
