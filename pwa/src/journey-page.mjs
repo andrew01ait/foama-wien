@@ -1,21 +1,21 @@
-import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.6.4';
-import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.6.4';
-import {createThemeController} from './theme.mjs?v=0.6.4';
-import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.6.4';
-import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from './journey-client.mjs?v=0.6.4';
-import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.6.4';
-import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.6.4';
-import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.6.4';
-import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.6.4';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.4';
-import {createJourneyMap} from './journey-map.mjs?v=0.6.4';
-import {coordinate} from './journey-geometry.mjs?v=0.6.4';
-import {journeyStationMarkup} from './journey-station.mjs?v=0.6.4';
-import {selectStopIds} from './station-catalog.mjs?v=0.6.4';
-import {retainDepartures} from './departure-cache.mjs?v=0.6.4';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.6.4';
-import {jsonExportName} from './export-file.mjs?v=0.6.4';
-import {bindAppShare} from './app-share.mjs?v=0.6.4';
+import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.6.5';
+import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.6.5';
+import {createThemeController} from './theme.mjs?v=0.6.5';
+import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.6.5';
+import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from './journey-client.mjs?v=0.6.5';
+import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.6.5';
+import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.6.5';
+import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.6.5';
+import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.6.5';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.5';
+import {createJourneyMap} from './journey-map.mjs?v=0.6.5';
+import {coordinate} from './journey-geometry.mjs?v=0.6.5';
+import {journeyStationMarkup} from './journey-station.mjs?v=0.6.5';
+import {selectStopIds} from './station-catalog.mjs?v=0.6.5';
+import {retainDepartures} from './departure-cache.mjs?v=0.6.5';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.6.5';
+import {jsonExportName} from './export-file.mjs?v=0.6.5';
+import {bindAppShare} from './app-share.mjs?v=0.6.5';
 
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -92,7 +92,14 @@ function stationName(place){return state.stops.find(stop=>stop.id===place?.stopI
 function journeyStations(journey){const legs=rides(journey);return legs.length?stationName(legs[0].from)+' → '+stationName(legs.at(-1).to):'Zu Fuß';}
 function renderRouteOverview(){
  if(!state.selected)return;const from=state.from||state.openedFavorite?.from,to=state.to||state.openedFavorite?.to;
- $('journeyRouteFrom').textContent=placesUI?.describe(from)||from?.name||'';$('journeyRouteTo').textContent=placesUI?.describe(to)||to?.name||'';
+ for(const [key,point] of [['From',from],['To',to]]){
+  const label=placesUI?.describeParts?.(point)||{name:point?.name||'',detail:''};
+  $('journeyRoute'+key).textContent=label.name;
+  const detail=$('journeyRoute'+key+'Detail');detail.textContent=label.detail;detail.hidden=!label.detail;
+ }
+ const favorite=state.favorites.find(f=>f.id===state.selected.favoriteId)||state.openedFavorite;
+ const automatic=favorite&&favorite.from.name+' → '+favorite.to.name;
+ $('journeyRouteTitle').textContent=favorite?.name&&favorite.name!==automatic&&favorite.name!==automatic.slice(0,160)?favorite.name:'Deine Reise';
  $('journeyRouteStations').textContent=journeyStations(state.selected);
 }
 function comparisonMarkup({detail=false}={}){
@@ -148,7 +155,8 @@ function showVariant(index){
 function showSteps(){
  const journey=state.selected;if(!journey||state.station)return;const cached=journey.savedPath,name=state.favorites.find(f=>f.id===journey.favoriteId)?.name||state.openedFavorite?.name||'Gespeicherte Route',saved=state.favorites.some(f=>f.id===journey.favoriteId);
  $('journeySave').textContent=saved?'★':'☆';$('journeySave').setAttribute('aria-pressed',String(saved));$('journeySave').setAttribute('aria-label',saved?'Route aus Favoriten entfernen':'Route speichern');
- $('journeyWalkRefresh').hidden=!cached;$('journeyWalkRefresh').textContent=state.from?.kind==='current'||!state.from?'Standort & Gehweg aktualisieren':'Gehweg zum Einstieg aktualisieren';
+ const currentStart=state.from?.kind==='current'||!state.from,walkAction=currentStart?'Standort & Gehweg aktualisieren':'Gehweg zum Einstieg aktualisieren';
+ $('journeyWalkRefresh').hidden=!cached;$('journeyWalkRefreshLabel').textContent=currentStart?'Standort':'Fußweg';$('journeyWalkRefresh').setAttribute('aria-label',walkAction);$('journeyWalkRefresh').setAttribute('title',walkAction);
  if(state.renderedJourney===journey&&state.renderedWalk===state.walk&&state.renderedName===name){for(const slot of $('journeySteps').querySelectorAll('[data-live-leg]'))slot.innerHTML=liveMarkup(journey.legs[Number(slot.dataset.liveLeg)],Number(slot.dataset.liveLeg));return;}
  renderRouteOverview();$('journeyDetailComparison').innerHTML=comparisonMarkup({detail:true});
  clearWalkMaps();state.renderedJourney=journey;state.renderedWalk=state.walk;state.renderedName=name;
@@ -165,7 +173,7 @@ function showSteps(){
   const endpoints=isWalk?`<div class="journey-walk-points">${walkPoints}</div>`:`<p class="journey-arrival">${legTime(leg.endTime)}<span>Aussteigen:</span>${stopName(leg.to)}${toPlatform?`<span aria-hidden="true">·</span>${toPlatform}`:''}</p>`;
   return `${wait>0?`<p class="journey-wait">${wait} Min. Wartezeit laut Planung</p>`:''}<article class="journey-leg ${isWalk?'walk':''}">${heading}${endpoints}${isWalk?`<div id="journeyWalkPanel-${index}" class="journey-walk-panel" hidden><div id="journeyWalkMap-${index}" class="journey-walk-map" aria-label="Karte dieses Fußwegs"></div><p id="journeyWalkMapStatus-${index}" class="fineprint" role="status"></p></div>`:''}<p class="fineprint">${isWalk?(leg.distanceMeters!=null?Math.round(leg.distanceMeters)+' m · ':'')+(cached?(index===0&&state.walk?'Weg gerade berechnet · Gehzeit geschätzt · Bahnsteigweg zusätzlich':'Gespeicherter Fußweg · Schätzung'):'Berechneter Fußweg'):cached?'Gespeicherter Linienweg · aktuelle Fahrzeit offen':(leg.quality==='live'?'Echtzeit · Transitous':'Fahrplan · Transitous')+(leg.staySeated?' · Im Fahrzeug bleiben':'')}</p>${!isWalk?`<div class="journey-live-slot" data-live-leg="${index}">${liveMarkup(leg,index)}</div>`:''}${variantsMarkup(index)}</article>`;
  }).join('');
- $('journeySteps').innerHTML=cached?`<section class="journey-summary"><h2>${escape(state.favorites.find(f=>f.id===journey.favoriteId)?.name||state.openedFavorite?.name||'Gespeicherte Route')}</h2><p>Gespeicherter Weg vom ${escape(date(journey.savedAt))} · Abfahrten werden nachgeladen. Für eine aktuelle Gesamtfahrzeit und geänderte Linienwege „Neu planen“ wählen.</p></section>${legs}`:`<section class="journey-summary"><h2>${escape(clock(journey.startTime))} → ${escape(clock(journey.endTime))}</h2><strong>${minutes(journey.durationSeconds)} Min. · ${escape(date(journey.startTime))}</strong><p>${escape(summary(journey))}</p><p>Berechnet ${escape(clock(state.plannedAt))}. Zeiten und Anschlüsse können sich ändern.</p></section>${legs}`;
+ $('journeySteps').innerHTML=cached?`<section class="journey-summary journey-saved-summary" aria-label="Gespeicherter Weg"><p><strong>Gespeicherter Weg · ${escape(date(journey.savedAt))}</strong><span>Fahrzeit und Linienweg mit „Neu planen“ prüfen. Abfahrten je Abschnitt.</span></p></section>${legs}`:`<section class="journey-summary"><h2>${escape(clock(journey.startTime))} → ${escape(clock(journey.endTime))}</h2><strong>${minutes(journey.durationSeconds)} Min. · ${escape(date(journey.startTime))}</strong><p>${escape(summary(journey))}</p><p>Berechnet ${escape(clock(state.plannedAt))}. Zeiten und Anschlüsse können sich ändern.</p></section>${legs}`;
 }
 function renderCurrent(){if(state.station)$('journeyStationContent').innerHTML=journeyStationMarkup(state.station,state.departures,{escape,badge,error:state.error,connection:state.stationConnection});else showSteps();}
 function pauseMonitor(){state.monitorRevision++;clearTimeout(state.monitorTimer);clearInterval(state.renderTimer);state.monitorTimer=state.renderTimer=null;state.monitor?.abort();state.monitor=null;}
@@ -266,7 +274,6 @@ $('journeyResults').addEventListener('click',event=>{const choice=event.target.c
 document.querySelectorAll('[data-journey-preference]').forEach(button=>button.addEventListener('click',()=>setJourneyPreference(button.dataset.journeyPreference)));
 $('journeyDetailComparison').addEventListener('click',event=>{const choice=event.target.closest('[data-journey-choice]');if(choice)setJourneyPreference(choice.dataset.journeyChoice,{open:true});});
 $('journeyReverse').addEventListener('click',()=>void reverseRoute());
-$('journeyOverviewMap').addEventListener('click',async()=>{await setRouteView('map');$('journeyRouteMapPanel').scrollIntoView({block:'start',behavior:'smooth'});});
 $('journeyAlternatives').addEventListener('click',()=>history.back());$('journeyReplan').addEventListener('click',()=>{showJourney(null);setOverviewMode('search');top();void search();});$('journeySave').addEventListener('click',saveRoute);
 $('journeyShowList').addEventListener('click',()=>void setRouteView('list'));$('journeyShowMap').addEventListener('click',()=>void setRouteView('map'));
 $('journeySteps').addEventListener('click',event=>{const variant=event.target.closest('[data-journey-variant]'),walk=event.target.closest('[data-walk-toggle]'),leg=event.target.closest('[data-journey-leg]'),target=event.target.closest('[data-journey-station]');if(variant)showVariant(Number(variant.dataset.journeyVariant));else if(walk)void toggleWalkMap(Number(walk.dataset.walkToggle));else if(leg)focusLeg(Number(leg.dataset.journeyLeg));else if(target)openStation(target.dataset.journeyStation);});
@@ -288,4 +295,4 @@ function pause(){cancelSearch();pauseMonitor();closePicker();clearWalkMaps();pla
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();resumeMonitor();}});window.addEventListener('pagehide',pause);window.addEventListener('storage',event=>{if(event.key==='foama.journeyFavorites.v1')refreshSavedJourneys();if(event.key==='foama.journeyPlaces.v1')placesUI?.refresh();});window.addEventListener('pageshow',()=>{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();if(!document.hidden)resumeMonitor();});
 placesUI=mountJourneyPlaces({client:createJourneyClient(),escape,getPoint:kind=>state[kind],onOpen:cancelSearch,onChoose:(kind,point)=>{cancelSearch();invalidateResults();setOverviewMode('search');selectPoint(kind,point);},onChange:()=>{if(state.selected&&!state.station)renderRouteOverview();}});
 pointControls();renderFavorites();setJourneyPreference(state.preference);setOverviewMode(location.hash==='#routen'?'saved':'search');
-try{const response=await fetch('./data/stops.json?v=0.6.4');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}
+try{const response=await fetch('./data/stops.json?v=0.6.5');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}

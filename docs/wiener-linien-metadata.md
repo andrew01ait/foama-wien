@@ -29,3 +29,9 @@ Offizielle Betriebsmeldungen werden jetzt als Klartext angezeigt: stoerunglang/s
 ## Adressen ab 0.5.0
 
 Der WL-Katalog enthält Haltepunktkoordinaten, aber keine verifizierten postalischen Hausnummern. Deshalb getrennte Ableitung pwa/data/station-addresses.json aus dem amtlichen Stadt-Wien-WFS ZUGANGSADROGD. Vollständige 151.577 Zugangsadressen, zwei Seiten (100.000 + 51.577), 1.748 Zuordnungen innerhalb von 100 m. Entfernung und Quelle immer sichtbar. Weder Privat-GPS noch Navigationsziel werden dafür übertragen oder verändert. Reproduktion: scripts/prepare_station_addresses.py mit den beiden vollständigen WFS-Seiten; Rohdaten werden nicht veröffentlicht.
+
+## Abdeckung des aktuellen Imports · 09.11.2026
+
+Der gebündelte Wiener-Linien-GTFS-Import belegt derzeit Stations-/Linienzuordnungen aus tatsächlichen Fahrgastfahrten. `pwa/data/stops.json` enthält keine vollständigen Abfahrtskalender oder Sollzeiten. Die Monitoransichten verwenden API-Zeiten und einen begrenzten lokalen Cache. Ohne geladene aktuelle API-Daten kann eine bekannte Linie deshalb noch ohne Zeiten erscheinen; das ist kein Nachweis einer Betriebspause.
+
+Ein echter Wiener-Linien-Sollfahrplan als Fallback für PWA und Uhr ist noch offen: Abfahrten je Station/Richtung, gültige Verkehrstage und Ausnahmen einlesen, Gültigkeit/Änderungen pflegen und Sollzeiten sichtbar von Live-Prognosen trennen. Der vorbereitete ÖBB-Adapter ist eine getrennte Importmöglichkeit; die ausgelieferte `pwa/data/rail.json` enthält derzeit keine Fahrplanabfahrten. Der reine Katalognachweis ersetzt diesen offenen Arbeitsschritt nicht.

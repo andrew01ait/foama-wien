@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints,mergeJourneyResults} from '../pwa/src/journey-options.mjs';
 import {createJourneyComparisonClient} from '../pwa/src/journey-client.mjs';
 import {motisPlanUrl} from '../pwa/src/journey-planning.mjs';
-import {sanitizeJourneyPlaces,saveJourneyPlace,journeyPlacePoint,matchingJourneyPlace} from '../pwa/src/journey-places.mjs';
+import {sanitizeJourneyPlaces,saveJourneyPlace,journeyPlacePoint,matchingJourneyPlace,journeyEndpointLabel} from '../pwa/src/journey-places.mjs';
 const from={kind:'point',name:'Westbahnhof',lat:48.1966,lon:16.3375},to={kind:'point',name:'Karlsplatz',lat:48.2,lon:16.3695};
 const trip=(start,end,transfers=1,route='U3')=>({startTime:`2026-11-09T${start}:00Z`,endTime:`2026-11-09T${end}:00Z`,transfers,durationSeconds:(Date.parse(`2026-11-09T${end}Z`)-Date.parse(`2026-11-09T${start}Z`))/1000,walkSeconds:120,legs:[{mode:'metro',route,towards:'Ziel',from,to}]});
 test('fastest means earliest arrival, while fewer transfers shows the actual arrival penalty',()=>{
@@ -48,9 +48,13 @@ test('labeled places keep physical addresses for route identity, reject dynamic 
 });
 test('renamed favorites and the top route summary always show boarding and final alighting stations',()=>{
  const source=readFileSync(new URL('../pwa/src/journey-page.mjs',import.meta.url),'utf8'),elements=new Map(),$=id=>{if(!elements.has(id))elements.set(id,{});return elements.get(id);};
- const route={name:'AIT nach Hause',from,to,legs:[{mode:'metro',from:{name:'Thaliastraße U'},to:{name:'Floridsdorf S U'}}]},state={stops:[],selected:route,from,to,favorites:[{...route,id:'saved',alternatives:[]}]};
- const ctx=vm.createContext({state,$,placesUI:{describe:p=>p.name},escape:s=>s,routeMenus:{close(){}},rides:j=>j.legs.filter(l=>l.mode!=='walk'),boardingPreview:()=>''});
+ const route={name:'AIT nach Hause',favoriteId:'saved',from,to,legs:[{mode:'metro',from:{name:'Thaliastraße U'},to:{name:'Floridsdorf S U'}}]},state={stops:[],selected:route,from,to,favorites:[{...route,id:'saved',alternatives:[]}]};
+ const places=[{id:'work',label:'Arbeit',address:from.name,lat:from.lat,lon:from.lon},{id:'home',label:'Zu Hause',address:to.name,lat:to.lat,lon:to.lon}],original=JSON.stringify(state.favorites);
+ const ctx=vm.createContext({state,$,placesUI:{describe:p=>p.name,describeParts:p=>journeyEndpointLabel(places,p)},escape:s=>s,routeMenus:{close(){}},rides:j=>j.legs.filter(l=>l.mode!=='walk'),boardingPreview:()=>''});
  vm.runInContext(source.slice(source.indexOf('function stationName('),source.indexOf('function comparisonMarkup('))+source.slice(source.indexOf('function renderFavorites('),source.indexOf('function refreshSavedJourneys(')),ctx);ctx.renderRouteOverview();ctx.renderFavorites();
- assert.equal($('journeyRouteFrom').textContent,'Westbahnhof');assert.equal($('journeyRouteTo').textContent,'Karlsplatz');assert.equal($('journeyRouteStations').textContent,'Thaliastraße U → Floridsdorf S U');
+ assert.equal($('journeyRouteTitle').textContent,'AIT nach Hause');assert.equal($('journeyRouteFrom').textContent,'Arbeit');assert.equal($('journeyRouteFromDetail').textContent,'Westbahnhof');assert.equal($('journeyRouteTo').textContent,'Zu Hause');assert.equal($('journeyRouteToDetail').textContent,'Karlsplatz');assert.equal($('journeyRouteStations').textContent,'Thaliastraße U → Floridsdorf S U');assert.equal(JSON.stringify(state.favorites),original,'display labels must not change saved physical endpoints');
  assert.match($('journeyFavoriteList').innerHTML,/AIT nach Hause/);assert.match($('journeyFavoriteList').innerHTML,/Thaliastraße U → Floridsdorf S U/);assert.match($('journeyFavoriteList').innerHTML,/Rückfahrt planen/);
+ state.favorites[0].name=from.name+' → '+to.name;ctx.renderRouteOverview();assert.equal($('journeyRouteTitle').textContent,'Deine Reise','an automatic endpoint title is not repeated');
+ state.favorites[0].from={...from,name:'Ein sehr langer Start '.repeat(7)};state.favorites[0].name=(state.favorites[0].from.name+' → '+to.name).slice(0,160);ctx.renderRouteOverview();assert.equal($('journeyRouteTitle').textContent,'Deine Reise','legacy truncated automatic titles are not duplicated either');
+ assert.deepEqual(journeyEndpointLabel(places,{kind:'current',name:'Dein Standort'}),{name:'Dein Standort',detail:''});assert.deepEqual(journeyEndpointLabel(places,{...from,lat:48.3}),{name:'Westbahnhof',detail:''},'a matching name at another coordinate does not inherit an unrelated place label');
 });

@@ -1,3 +1,7 @@
+## PWA 0.6.5 · mobile Reiseübersicht
+
+Nutzer beanstandet übergroße mobile Routentitel, doppelte Angaben und breite Aktionsreihen. Ortslabel und echte Adresse in A/B-Zeilen getrennt zeigen; physische Endpunkte niemals durch Labels ersetzen. Eigene Favoritennamen als kompakte Überschrift erhalten, automatisch erzeugte Endpunktnamen nicht doppelt wiederholen. Ein-/Ausstiegsstation zusätzlich sichtbar halten. Ein gemeinsamer Reise/Gesamtkarte-Umschalter, Zurück/Stern in Kopfzeile, kompakte beschriftete Aktionen mit mindestens 44 px Höhe. Keine abgeschnittenen Namen oder zusätzliche Abfragen. Temporäre lokale Layoutprüfung nicht veröffentlichen. Wear bleibt 0.6.1/21.
+
 ## PWA 0.6.2 · Reise-Dichte und gemeinsame Navigation
 
 Stationsname weiterhin über der Linie/Richtung; Abfahrtszeit und Bahnsteig dürfen im Stationskopf stehen. Fußweg-Endpunkte in einer kompakten gemeinsamen Zeile umbrechbar anzeigen; nur bei gleicher nichtleerer Stations-ID den gemeinsamen Namen einmal zeigen. Keine Verkleinerung der 44-px-Aktionen, keine verdeckten überlappenden Klickflächen. A-nach-B-Header nutzt bestehendes Original-Logo, Slogan, Version, sicheres App-Teilen und Einstellungen. Haupttabs müssen Icon/Text in einer Reihe halten; .tabs a.tab darf das gemeinsame Flex-Layout nicht durch Grid überschreiben. Nur PWA 0.6.2, Wear unverändert 0.6.1/21.

@@ -1,3 +1,7 @@
+## PWA 0.6.5 · mobile Reiseübersicht · 09.11.2026
+
+Kleinerer Routentitel, Start/Ziel als A/B-Zeilen und gespeicherte Ortslabels getrennt von der physischen Adresse. Eigene Favoritennamen sowie Ein-/Ausstiegsstation bleiben sichtbar. Standardnamen aus beiden Endpunkten und die zweite große Überschrift bei gespeicherten Wegen entfallen als doppelte Darstellung. Zurück, Titel und Stern bilden eine Zeile; Rückfahrt, Neuplanung und Fußweg-/Standortaktualisierung eine kompakte Aktionsreihe. Reise/Gesamtkarte ersetzt den doppelten Karteneinstieg. Tippflächen mindestens 44 px, kein Abschneiden langer Namen. Keine Änderung an Planung, Favoritendaten, Abrufgrenzen oder nativer Wear-APK 0.6.1/21.
+
 ## PWA 0.6.4 · gleiche Haupttabs auch auf kleinen Displays · 09.11.2026
 
 Hauptnavigation auf Start- und Reiseseite verwendet für Buttons und Links dieselbe einzeilige Flex-Darstellung und mindestens 44 px Höhe. Überflüssige feste Leerzeichen entfernt; bei höchstens 340 px bleiben Beschriftung, Icon und Favoritenanzahl mit kompakter Schrift in einer Zeile. Ergänzt die Reise-Dichte, gemeinsame Kopfzeile und Abfahrtshinweise aus 0.6.2/0.6.3. Native Wear 0.6.1/21 unverändert.

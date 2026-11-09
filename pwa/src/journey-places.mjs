@@ -1,4 +1,4 @@
-import {coordinate} from './journey-geometry.mjs?v=0.6.4';
+import {coordinate} from './journey-geometry.mjs?v=0.6.5';
 const clean=(value,n)=>typeof value==='string'?value.trim().slice(0,n):'';
 const labelKey=value=>value.normalize('NFKC').toLocaleLowerCase('de-AT');
 export const JOURNEY_PLACES_KEY='foama.journeyPlaces.v1';
@@ -25,4 +25,8 @@ export function matchingJourneyPlace(places,point){
  if(point?.kind==='current'||!coordinate(point))return null;
  const same=p=>Math.abs(p.lat-point.lat)<.000001&&Math.abs(p.lon-point.lon)<.000001;
  return places.find(p=>p.id===point.placeId&&same(p))||places.find(p=>p.address===point.name&&same(p))||null;
+}
+export function journeyEndpointLabel(places,point){
+ const place=matchingJourneyPlace(places,point);
+ return place?{name:place.label,detail:place.label===place.address?'':place.address}:{name:point?.name||'',detail:''};
 }

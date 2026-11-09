@@ -14,7 +14,7 @@
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; Aufzüge getrennt wählbar.
 - Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.6.4 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.6.5 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 
@@ -46,6 +46,8 @@ GitHub enthält Quellcode, öffentliche Referenzdaten und Dokumentation. Die lau
 ## Daten und Datenschutz
 
 Standort und Abfahrtsaktualisierung arbeiten nur bei sichtbarer App. Favoriten bleiben pro Gerät lokal. QR-Sitzungen laufen nach zehn Minuten ab; Push ist freiwillig. Routenplanung und ausdrücklich gestartetes präzises Routing nutzen externe Dienste und übertragen dafür die erforderlichen Eingaben. Die [Architektur](docs/architecture.md) beschreibt die Grenzen.
+
+Der bisherige Wiener-Linien-GTFS-Import belegt Stations-/Linienzuordnungen. Ein vollständiger Sollfahrplan als Abfahrts-Fallback ist noch offen; bekannte Linien können vor dem ersten erfolgreichen API-Abruf ohne Zeiten erscheinen.
 
 Die Hintergrundprüfung für Störungen läuft derzeit stündlich, bei ohnehin aktiver App gegebenenfalls häufiger. Direkter Uhr-Push benötigt noch Firebase Cloud Messaging; die PWA nutzt Web Push unabhängig davon. Die Uhr zeigt importierte Routen mit aktuellen Etappenzeiten, führt aber keine eigenständige Vollroutensuche aus.
 

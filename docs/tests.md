@@ -1,3 +1,9 @@
+## PWA 0.6.5 · mobile Reiseübersicht · 09.11.2026
+
+257 Web-/Server-Tests bestanden; geänderte Module und Service Worker syntaktisch geprüft, alle 91 Journey-IDs eindeutig. Die bestehende Regression für eigene Routennamen prüft jetzt auch getrennte Ortslabels/Adressen, sichtbare Ein-/Ausstiegsstationen, Erhalt der physischen gespeicherten Endpunkte sowie GPS-/Koordinatenabgrenzung. Keine zusätzlichen kosmetischen Unit-Tests. Native APK 0.6.1/21 bleibt unverändert.
+
+Lokale Browserabnahme mit ausdrücklich öffentlichen gespeicherten Testwegen Westbahnhof → Karlsplatz: Inhaltbreiten 305, 345, 405 und 695 px ohne seitlichen Überlauf. Alle Kopf-/Ansichts-/Routenaktionsbuttons 44 px hoch, Rückfahrt/Neuplanung/Fußweg in einer Reihe. Titel 18 px mobil und 20 px breit, Endpunktnamen 16 px. Lange Ortslabels umbrechen vollständig auch bei 305 px; langer eigener Routenname bleibt sichtbar. GPS-Start zeigt keine alte Adresse, hat die beschriftete Standort-/Gehwegaktion und löst beim Öffnen keine GPS-Anfrage aus. Zurück führt zur Routenliste. Gesamtkarte öffnet den gesamten Weg, schematische Abschnitte gekennzeichnet; Rückkehr zur Reise erhält die Ansicht. Lokale API-Abfahrten waren vorübergehend nicht verfügbar, daher keine Live-Zustellung aus dieser Layoutprüfung behauptet. Erstes Fußwegsegment beim normalen Beispiel beginnt bei 345 px Inhaltbreite bereits auf y=555 px. Die temporäre lokale Testseite wird nicht veröffentlicht.
+
 ## PWA 0.6.4 · abschließende Browserabnahme · 09.11.2026
 
 257 Web-/Server-Prüfungen bestanden. Kein zusätzlicher nativer Build; Wear 0.6.1/21 bleibt bytegleich. Die bisherige Python-Suite (acht Tests) und Syntaxprüfung (59 Dateien) bestehen. Die abschließende Änderung umfasst gemeinsame Tab-Darstellung/Leerzeichen und Shell-Version, keine neuen Datenzugriffe.

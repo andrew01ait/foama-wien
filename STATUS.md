@@ -1,12 +1,12 @@
 # Aktueller Projektstand
 
-Stand: 9. November 2026. **PWA 0.6.4, Wear 0.6.1 / Code 21.** Verbindliche Versionen stehen in den PWA-/Wear-Konfigurationen und im Updatefeed. Frühere Details und Abnahmen bleiben in [Release-Verlauf](docs/release.md), [Tests](docs/tests.md) und [Status-Archiv](docs/history/STATUS-before-github.md) erhalten.
+Stand: 9. November 2026. **PWA 0.6.5, Wear 0.6.1 / Code 21.** Verbindliche Versionen stehen in den PWA-/Wear-Konfigurationen und im Updatefeed. Frühere Details und Abnahmen bleiben in [Release-Verlauf](docs/release.md), [Tests](docs/tests.md) und [Status-Archiv](docs/history/STATUS-before-github.md) erhalten.
 
-## PWA 0.6.4 · A nach B und Abfahrtshinweise
+## PWA 0.6.5 · mobile Routenübersicht
 
-Reiseabschnitte kompakter: Bahnsteig/Abfahrtszeit im Stationskopf, weniger Absatzabstand und kleinere Innenränder. Fußwege zeigen Start → Ziel zusammen; bei identischer Stations-ID wird der Name einmal mit beiden Bahnsteigangaben dargestellt. Stationsnamen bleiben über Linie/Richtung, eigene Aktionen bleiben mindestens 44 px hoch. A nach B verwendet Logo, Slogan, Versionsanzeige sowie Teilen/Einstellungen der Startseite. Alle drei Haupttabs liegen auf einer Zeile; ein spezifischer Grid-Stil für Links hatte das Route-Icon über den Text gesetzt und die ganze Leiste unnötig vergrößert. Wear 0.6.1/21 unverändert.
+Start und Ziel stehen als A/B-Zeilen mit getrenntem Ortsnamen und Adresse. Eigene Routenbezeichnungen bleiben als kleinere Überschrift erhalten; automatisch aus Endpunkten erzeugte Namen werden nicht nochmals wiederholt. Ein- und Ausstiegsstation stehen weiterhin zusätzlich darunter. Zurück und Favoriten liegen in derselben Kopfzeile. Reise/Gesamtkarte ist der gemeinsame Karteneinstieg; Rückfahrt, Neuplanung und die bewusste Aktualisierung von Fußweg oder Standort teilen eine kompakte Aktionsreihe. Der Hinweis zum gespeicherten Weg trägt keine weitere große doppelte Routenüberschrift.
 
-Bei einer mindestens 30 Sekunden späteren Prognose für dieselbe eindeutig zugeordnete geplante Abfahrt erscheint kurz ein neutraler Hinweis. Kein Warnsymbol, keine Störungsbewertung und keine Push-Nachricht. Ein Rollstuhl-Symbol kennzeichnet ausdrücklich positiv gemeldete Fahrzeug-Barrierefreiheit; fehlende oder alte Angaben bleiben unmarkiert. Das gilt für PWA-Monitor, Verbindung und Reise-Abfahrtsansichten. [Datenregeln](docs/departure-indicators.md).
+Abfahrtshinweise aus 0.6.4 bleiben erhalten: spätere Live-Prognosen neutral und kurzlebig, Rollstuhl-Symbol nur für ausdrücklich positiv gemeldete Fahrzeug-Barrierefreiheit. Native Wear 0.6.1/21 unverändert. [Datenregeln](docs/departure-indicators.md).
 
 ## Umgesetzt
 
