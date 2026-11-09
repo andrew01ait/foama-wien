@@ -1,9 +1,9 @@
 {
-  "version": "0.6.1",
+  "version": "0.6.4",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "A nach B: Beschriftung „Alternativen nach …“ korrigiert. Uhr-App mit getrennten Favoritenansichten und direkter Rückkehr nach dem QR-Import.",
+  "changelog": "Kompaktere Reiseansicht und einheitlicher Kopfbereich. Dezenter Hinweis bei später korrigierter Live-Prognose derselben Abfahrt. Rollstuhl-Symbol bei ausdrücklich gemeldeter Barrierefreiheit des Fahrzeugs.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,

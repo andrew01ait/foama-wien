@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA/Wear 0.6.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.6.4 / Wear 0.6.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -23,6 +23,8 @@ Der frühere Durable-Object-Entwurf ist historisch. Der aktuelle QR-Dienst verwe
 Die Clients fragen neue Abfahrten und Standortdaten nur bei sichtbarer App ab. Normaler Monitorabstand: 30 Sekunden. Die gemeinsame Monitorsteuerung priorisiert sichtbare Stationen und begrenzt die RBL-Auswahl auf 24 je gemeinsamem Intervall. PWA-Hauptansicht und Routenansicht teilen diese Begrenzung. Verlassen einer Ansicht verwirft verspätete Antworten; auf der Uhr werden laufende Requests und Standortlistener beendet.
 
 GPS bleibt auf dem Gerät und wird nicht für Monitoranfragen benötigt. Bewusst angeforderte Routen-/Adresssuche sowie präzise Gehwege übertragen die dafür nötigen Eingaben an den jeweiligen Dienst. Das Backend speichert keine Reise-, Adress- oder GPS-Historie; aggregierte Lastzähler begrenzen die Nutzung. Fehlende, grobe oder alte Daten dürfen keine sichere Erreichbarkeit suggerieren. LIVE und Fahrplan bleiben unterscheidbar.
+
+Die PWA vergleicht aktuelle Live-Prognosen nur innerhalb der laufenden Seite anhand RBL, Linie, Richtung, Modus und geplanter Abfahrtszeit. Korrekturhinweise bleiben kurzlebige WeakMap-Metadaten und werden nicht exportiert oder an den Server gesendet. Fahrzeug-Barrierefreiheit stammt aus einem expliziten API-Boolean, einschließlich des dokumentierten Fahrzeug-Overrides. Details: [Abfahrtshinweise](departure-indicators.md).
 
 Die optionale native Ultra-Sparfunktion reduziert unter 20 Prozent Akku nach Opt-in die Ortung auf Einzelfixes höchstens alle fünf Minuten, Abfahrten auf 90 Sekunden und Darstellung auf 30 Sekunden. Ab 25 Prozent erfolgt die Rückkehr zum normalen Modus mit Hinweis. Die Hintergrundregeln bleiben erhalten.
 

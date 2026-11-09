@@ -1,6 +1,12 @@
 # Aktueller Projektstand
 
-Stand: 9. November 2026. **PWA 0.6.1, Wear 0.6.1 / Code 21.** Verbindliche Versionen stehen in den PWA-/Wear-Konfigurationen und im Updatefeed. Frühere Details und Abnahmen bleiben in [Release-Verlauf](docs/release.md), [Tests](docs/tests.md) und [Status-Archiv](docs/history/STATUS-before-github.md) erhalten.
+Stand: 9. November 2026. **PWA 0.6.4, Wear 0.6.1 / Code 21.** Verbindliche Versionen stehen in den PWA-/Wear-Konfigurationen und im Updatefeed. Frühere Details und Abnahmen bleiben in [Release-Verlauf](docs/release.md), [Tests](docs/tests.md) und [Status-Archiv](docs/history/STATUS-before-github.md) erhalten.
+
+## PWA 0.6.4 · A nach B und Abfahrtshinweise
+
+Reiseabschnitte kompakter: Bahnsteig/Abfahrtszeit im Stationskopf, weniger Absatzabstand und kleinere Innenränder. Fußwege zeigen Start → Ziel zusammen; bei identischer Stations-ID wird der Name einmal mit beiden Bahnsteigangaben dargestellt. Stationsnamen bleiben über Linie/Richtung, eigene Aktionen bleiben mindestens 44 px hoch. A nach B verwendet Logo, Slogan, Versionsanzeige sowie Teilen/Einstellungen der Startseite. Alle drei Haupttabs liegen auf einer Zeile; ein spezifischer Grid-Stil für Links hatte das Route-Icon über den Text gesetzt und die ganze Leiste unnötig vergrößert. Wear 0.6.1/21 unverändert.
+
+Bei einer mindestens 30 Sekunden späteren Prognose für dieselbe eindeutig zugeordnete geplante Abfahrt erscheint kurz ein neutraler Hinweis. Kein Warnsymbol, keine Störungsbewertung und keine Push-Nachricht. Ein Rollstuhl-Symbol kennzeichnet ausdrücklich positiv gemeldete Fahrzeug-Barrierefreiheit; fehlende oder alte Angaben bleiben unmarkiert. Das gilt für PWA-Monitor, Verbindung und Reise-Abfahrtsansichten. [Datenregeln](docs/departure-indicators.md).
 
 ## Umgesetzt
 
@@ -17,7 +23,9 @@ Stand: 9. November 2026. **PWA 0.6.1, Wear 0.6.1 / Code 21.** Verbindliche Versi
 
 ## Verifikation und Grenzen
 
-Der erste öffentliche GitHub-Import 0.6.0 umfasst 296 geprüfte Dateien; sein GitHub-Prüflauf war erfolgreich. Web-/Server- und Python-Prüfungen werden im jeweiligen aktuellen Commit automatisch ausgeführt. Für 0.6.1 sind 244 Web-/Server- und 124 native Prüfungen dokumentiert; Python-Suite: acht Prüfungen. Der Dokumentations-/Quellpaketwechsel verändert kein App-Verhalten und erfordert keine neue APK.
+Aktuell: 257 Web-/Server- und acht Python-Tests bestanden; schmale öffentliche PWA-Darstellung, echte Fahrzeugangaben und bewusste Updateübernahme im Browser geprüft. Details und Grenzen: [Prüfprotokoll](docs/tests.md).
+
+Der erste öffentliche GitHub-Import 0.6.0 umfasst 296 geprüfte Dateien; sein GitHub-Prüflauf war erfolgreich. Web-/Server- und Python-Prüfungen werden im jeweiligen aktuellen Commit automatisch ausgeführt. Für 0.6.1 sind 244 Web-/Server- und 124 native Prüfungen dokumentiert; Python-Suite: acht Prüfungen. Die aktuelle PWA ergänzt Layout- und Abfahrtshinweise; die native APK 0.6.1 bleibt unverändert.
 
 Die Störungsquelle wird im Hintergrund stündlich geprüft, bei ohnehin aktiver App ungefähr alle fünf Minuten zusätzlich. Kein Echtzeitversprechen. Serverlauf, Unit-Tests und providerseitige Annahme sind jeweils von tatsächlichem Geräteempfang zu unterscheiden.
 

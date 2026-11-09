@@ -41,7 +41,8 @@ export function parseWlMonitors(raw,fetchedAt=new Date().toISOString()){
   for(const m of monitors){const loc=m.locationStop||{};const p=loc.properties||{};const id=String(p.attributes?.rbl??'');const station=String(p.title||p.name||'Haltestelle');
     for(const line of m.lines||[]){
       for(const d of line.departures?.departure||[]){const vehicle=d.vehicle||{},route=String(vehicle.name||line.name||'?'),towards=String(vehicle.towards||line.towards||line.towardsDirection||'Richtung unbekannt'),mode=modeFromWl(vehicle.type||line.type||m.type,route);const time=d.departureTime||{};const plan=normalizeApiDate(time.timePlanned),real=normalizeApiDate(time.timeReal);if(!plan&&!real)continue;const key=[station,route,towards,plan||real].join('|');if(unique.has(key))continue;unique.add(key);
-        out.push({id:`wl:${key}`,provider:'wl',rbl:id,station,route,towards,mode,scheduled:plan,realtime:real,actual:real||plan,quality:real?'live':'schedule',fetchedAt,platform:String(line.platform||''),barrierFree:line.barrierFree===true});
+        const access=Object.hasOwn(vehicle,'barrierFree')?vehicle.barrierFree:line.barrierFree;
+        out.push({id:`wl:${key}`,provider:'wl',rbl:id,station,route,towards,mode,scheduled:plan,realtime:real,actual:real||plan,quality:real?'live':'schedule',fetchedAt,platform:String(line.platform||''),barrierFree:typeof access==='boolean'?access:null,barrierFreeSource:typeof access==='boolean'?(Object.hasOwn(vehicle,'barrierFree')?'vehicle':'line'):null});
       }
     }
   }

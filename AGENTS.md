@@ -1,3 +1,7 @@
+## PWA 0.6.2 · Reise-Dichte und gemeinsame Navigation
+
+Stationsname weiterhin über der Linie/Richtung; Abfahrtszeit und Bahnsteig dürfen im Stationskopf stehen. Fußweg-Endpunkte in einer kompakten gemeinsamen Zeile umbrechbar anzeigen; nur bei gleicher nichtleerer Stations-ID den gemeinsamen Namen einmal zeigen. Keine Verkleinerung der 44-px-Aktionen, keine verdeckten überlappenden Klickflächen. A-nach-B-Header nutzt bestehendes Original-Logo, Slogan, Version, sicheres App-Teilen und Einstellungen. Haupttabs müssen Icon/Text in einer Reihe halten; .tabs a.tab darf das gemeinsame Flex-Layout nicht durch Grid überschreiben. Nur PWA 0.6.2, Wear unverändert 0.6.1/21.
+
 # Aktuelle Dokumentations- und Veröffentlichungsregeln · 09.11.2026
 
 Für neue Arbeiten zuerst README.md, STATUS.md, DEPLOYMENT.md und docs/README.md lesen. Aktuelle Fachanleitungen ersetzen ausdrücklich alte Anweisungen in docs/history/. Öffentliche Quelle: https://github.com/andrew01ait/foama-wien, Branch main. Nutzer hat die öffentliche Quellveröffentlichung und die Pflege sowohl der internen als auch der GitHub-Dokumentation ausdrücklich freigegeben.
@@ -280,3 +284,13 @@ Im Favoriten-Tab trennt ein direkt sichtbarer Umschalter **Routen** und **Statio
 Nach bewusst bestätigtem QR-Import und erfolgreichem Transferabschluss öffnet die Uhr direkt Favoriten: Routen bei mitübernommenen Routen, sonst Stationen. Der Transfer wird beendet, Schlüssel und Wachhalteflag werden freigegeben. Abbruch, Fehler und Ablauf bleiben im bisherigen Fehler-/Zurück-Pfad; bei fehlender Abschlussquittung bleibt die Übernahme gespeichert und die bestehende Wiederholung erreichbar. Dateiimport und Senden ans Handy behalten ihren bisherigen Rückweg. Originalpaket und Release-Key bleiben erhalten; PWA 0.6.1 korrigiert auf Nutzerwunsch die Routenbeschriftung zu **Alternativen nach …**; Alternativen und Planung selbst bleiben erhalten.
 
 Abnahme 0.6.1: 244 Web-/Server- und 124 native Tests erfolgreich. Originalpaket/Release-Key und lokale Daten erhalten. Neue APK unter eigenem Dateinamen, unveränderte frühere Veröffentlichungen. Physische Geräteabnahme separat.
+
+## PWA 0.6.3 – Zeitkorrektur und Fahrzeug-Barrierefreiheit
+
+Nutzer wünscht spätere Live-Prognosen dezent sichtbar, ausdrücklich ohne Warnung. Nur dieselbe eindeutig bekannte Planabfahrt vergleichen (RBL/Linie/Richtung/Modus/Planzeit), frische Live-Snapshots, neuerer Abruf und mindestens 30 s absolute Verschiebung. Kein Vergleich des ersten Listenelements oder Countdown-Minuten. Keine Ableitung einer Störung/Verspätungsursache. Rein flüchtige WeakMap-Metadaten, höchstens 2 min und nie länger als die Frische, keine Zusatzabfragen, Logs oder Push. Fehlende Identität, Duplikate, erste Live-Angabe und Cold-Start-Cache unmarkiert. Vorwärtskorrektur wieder früher hebt den Hinweis auf.
+
+Barrierefreiheit nur aus explizitem API-Boolean; departure.vehicle.barrierFree überschreibt line.barrierFree. Fahrzeugdaten nur bei bestätigtem true und frischem Abruf zeigen. Unbekannt, false oder Fehler nicht als sichere Gegenbehauptung darstellen. Rollstuhl-Symbol meint Fahrzeug, kein Stations-/Reisewegversprechen. Details und amtliche Quelle in docs/departure-indicators.md. PWA 0.6.3, native Wear 0.6.1/21 bleibt unverändert.
+
+## PWA 0.6.4 – schmale Hauptnavigation
+
+Für Startseite und Reiseansicht denselben einzeiligen Tab-Stil auch auf HTML-buttons anwenden. Bei schmalen Displays keine zweite Labelzeile, keine Beschneidung und keine kleineren Tippflächen als 44 px. Anzahl der Favoriten erhalten. Überflüssige NBSP im Buttontext entfernen; gezielte Schrift-/Abstandsanpassung bis 340 px. Neue Shell-Version, da 0.6.3 bereits im QA-Browser installiert war. Wear 0.6.1/21 unverändert.

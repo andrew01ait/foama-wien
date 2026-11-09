@@ -1,4 +1,4 @@
-import {searchStations} from './station-search.mjs?v=0.6.1';
+import {searchStations} from './station-search.mjs?v=0.6.4';
 const escape=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 export function openStationFavoritePicker({dialog,root,stops,nearby=[],initialStop=null,getFavorites,onSave,loadConnections,routeBadge}){
   let selected=null,connections=[],generation=0,alive=true;

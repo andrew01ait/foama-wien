@@ -1,25 +1,28 @@
-import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.6.1';
-import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.6.1';
-import {createThemeController} from './theme.mjs?v=0.6.1';
-import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.6.1';
-import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from './journey-client.mjs?v=0.6.1';
-import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.6.1';
-import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.6.1';
-import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.6.1';
-import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.6.1';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.1';
-import {createJourneyMap} from './journey-map.mjs?v=0.6.1';
-import {coordinate} from './journey-geometry.mjs?v=0.6.1';
-import {journeyStationMarkup} from './journey-station.mjs?v=0.6.1';
-import {selectStopIds} from './station-catalog.mjs?v=0.6.1';
-import {retainDepartures} from './departure-cache.mjs?v=0.6.1';
-import {jsonExportName} from './export-file.mjs?v=0.6.1';
+import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.6.4';
+import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.6.4';
+import {createThemeController} from './theme.mjs?v=0.6.4';
+import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.6.4';
+import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from './journey-client.mjs?v=0.6.4';
+import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.6.4';
+import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.6.4';
+import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.6.4';
+import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.6.4';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.4';
+import {createJourneyMap} from './journey-map.mjs?v=0.6.4';
+import {coordinate} from './journey-geometry.mjs?v=0.6.4';
+import {journeyStationMarkup} from './journey-station.mjs?v=0.6.4';
+import {selectStopIds} from './station-catalog.mjs?v=0.6.4';
+import {retainDepartures} from './departure-cache.mjs?v=0.6.4';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.6.4';
+import {jsonExportName} from './export-file.mjs?v=0.6.4';
+import {bindAppShare} from './app-share.mjs?v=0.6.4';
 
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
 const settings=mergeSettings(get('foama.settings.v1',{})),client=createJourneyComparisonClient(),placeClient=createJourneyClient(),walkClient=createJourneyClient();
 let placesUI=null;
 createThemeController({preference:settings.theme});
+bindAppShare();
 const state={stops:[],from:{kind:'current',name:'Dein Standort'},to:null,journeys:[],selected:null,plannedAt:null,departures:[],monitor:null,monitorTimer:null,renderTimer:null,error:'',lastAttempt:0,retryAt:0,revision:0,monitorRevision:0,busy:false,searchScroll:0,station:null,stationScroll:0,stationCycle:0,routeView:'list',overviewMode:'search',map:null,picker:null,pickerRevision:0,walk:null,focusedLeg:null,stationConnection:null,walkMaps:new Map(),renderedJourney:null,renderedWalk:null,renderedName:null,undoTimer:null,undoUntil:0,family:[],currentJourneyKey:null,variantIndex:0,familyFavoriteId:null};
 const routeMenus=createFavoriteMenuController({root:$('journeyFavoriteList')});
 state.preference=get('foama.journeyPreference.v1','fastest')==='transfers'?'transfers':'fastest';state.planContext=null;
@@ -132,7 +135,7 @@ function liveMarkup(leg,index){
  if(!leg.from.stopId||!state.stops.find(stop=>stop.id===leg.from.stopId)?.rbl?.length)return '<p class="fineprint">Für diese Station sind keine Wiener-Linien-Abfahrten zugeordnet.</p>';
  if(!active)return `<button type="button" class="small-btn" data-journey-leg="${index}">Aktuelle Abfahrten dieser Verbindung</button>`;
  const departures=state.error?[]:journeyLineDepartures(target,state.departures,state.stops,{earliest:state.selected.savedPath?Date.now():Math.max(Date.now(),Date.parse(leg.startTime)),now:Date.now()});
- return `<div class="journey-live"><strong>Aktuelle Abfahrten dieser Richtung</strong><div class="journey-live-list">${departures.length?departures.map(d=>`<button type="button" class="journey-departure" data-journey-leg="${index}" aria-label="${escape(d.route)} Richtung ${escape(leg.towards)} in ${countdownMinutes(d.actual)} Minuten: Verbindungsdetails von ${escape(leg.from.name)} öffnen"><strong>${countdownMinutes(d.actual)}′</strong><span>${d.quality==='live'?'LIVE':'Fahrplan'}<br><small>${escape(clock(d.actual))}</small></span></button>`).join(''):escape(state.error||(state.monitor?'Wird geladen …':'Keine aktuelle Abfahrt für diese Richtung bestätigt.'))}</div><p class="fineprint">Gleiche Linie und Richtung; die geplante Fahrt oder der Anschluss sind damit nicht bestätigt.</p></div>`;
+ return `<div class="journey-live"><strong>Aktuelle Abfahrten dieser Richtung</strong><div class="journey-live-list">${departures.length?departures.map(d=>`<button type="button" class="journey-departure" data-journey-leg="${index}" aria-label="${escape(d.route)} Richtung ${escape(leg.towards)} in ${countdownMinutes(d.actual)} Minuten: Verbindungsdetails von ${escape(leg.from.name)} öffnen"><strong>${countdownMinutes(d.actual)}′</strong><span>${d.quality==='live'?'LIVE':'Fahrplan'}${vehicleAccessibilityMarkup(d)}<br><small>${escape(clock(d.actual))}</small>${departureCorrectionMarkup(d,{compact:true})}</span></button>`).join(''):escape(state.error||(state.monitor?'Wird geladen …':'Keine aktuelle Abfahrt für diese Richtung bestätigt.'))}</div><p class="fineprint">Gleiche Linie und Richtung; die geplante Fahrt oder der Anschluss sind damit nicht bestätigt.</p></div>`;
 }
 function variantsMarkup(legIndex){
  const choices=state.family.flatMap((journey,index)=>{if(journey===state.selected)return [];const branch=journeyBranch(state.selected,journey);return branch?.baseLegIndex===legIndex?[{journey,index,branch}]:[];});if(!choices.length)return '';
@@ -152,9 +155,15 @@ function showSteps(){
  const legs=journey.legs.map((original,index)=>{
   const leg={...original,from:{...original.from,name:index===0?(state.from?.name||original.from.name):original.from.name},to:{...original.to,name:index===journey.legs.length-1?(state.to?.name||original.to.name):original.to.name},...(cached&&index===0&&original.mode==='walk'&&state.walk?state.walk:{})};
   const wait=!cached&&index?Math.round((Date.parse(leg.startTime)-Date.parse(journey.legs[index-1].endTime))/60000):0;
-  const heading=leg.mode==='walk'?`<h3><button type="button" class="journey-walk-toggle" data-walk-toggle="${index}" aria-expanded="false" aria-controls="journeyWalkPanel-${index}"><span>↗ ${minutes(leg.durationSeconds)} Min. zu Fuß</span><span aria-hidden="true">⌄</span></button></h3>`:`<h3 class="journey-leg-station">${stopName(leg.from)}</h3><button type="button" class="journey-connection-heading" data-journey-leg="${index}">${badge(leg)}<strong>→ ${escape(leg.towards||leg.to.name)}</strong><span aria-hidden="true">›</span></button>`;
-  const origin=leg.mode==='walk'?stopName(leg.from):'Abfahrt';
-  return `${wait>0?`<p class="journey-wait">${wait} Min. Wartezeit laut Planung</p>`:''}<article class="journey-leg ${leg.mode==='walk'?'walk':''}">${heading}<p>${cached?'':`<time>${escape(clock(leg.startTime))}</time>`}${origin}${leg.from.platform?' · Bahnsteig '+escape(leg.from.platform):''}</p><p>${cached?'':`<time>${escape(clock(leg.endTime))}</time>`}${leg.mode==='walk'?'':'Aussteigen: '}${stopName(leg.to)}${leg.to.platform?' · Bahnsteig '+escape(leg.to.platform):''}</p>${leg.mode==='walk'?`<div id="journeyWalkPanel-${index}" class="journey-walk-panel" hidden><div id="journeyWalkMap-${index}" class="journey-walk-map" aria-label="Karte dieses Fußwegs"></div><p id="journeyWalkMapStatus-${index}" class="fineprint" role="status"></p></div>`:''}<p class="fineprint">${leg.mode==='walk'?(leg.distanceMeters!=null?Math.round(leg.distanceMeters)+' m · ':'')+(cached?(index===0&&state.walk?'Weg gerade berechnet · Gehzeit geschätzt · Bahnsteigweg zusätzlich':'Gespeicherter Fußweg · Schätzung'):'Berechneter Fußweg'):cached?'Gespeicherter Linienweg · aktuelle Fahrzeit offen':(leg.quality==='live'?'Echtzeit · Transitous':'Fahrplan · Transitous')+(leg.staySeated?' · Im Fahrzeug bleiben':'')}</p>${leg.mode!=='walk'?`<div class="journey-live-slot" data-live-leg="${index}">${liveMarkup(leg,index)}</div>`:''}${variantsMarkup(index)}</article>`;
+  const isWalk=leg.mode==='walk',legTime=value=>cached?'':`<time>${escape(clock(value))}</time>`;
+  const fromPlatform=leg.from.platform?`<span class="journey-platform">Bahnsteig ${escape(leg.from.platform)}</span>`:'',toPlatform=leg.to.platform?`<span class="journey-platform">Bahnsteig ${escape(leg.to.platform)}</span>`:'';
+  const startMeta=legTime(leg.startTime)+fromPlatform;
+  const heading=isWalk?`<h3><button type="button" class="journey-walk-toggle" data-walk-toggle="${index}" aria-expanded="false" aria-controls="journeyWalkPanel-${index}"><span>↗ ${minutes(leg.durationSeconds)} Min. zu Fuß</span><span aria-hidden="true">⌄</span></button></h3>`:`<div class="journey-leg-head"><h3 class="journey-leg-station">${stopName(leg.from)}</h3>${startMeta?`<span class="journey-leg-meta">${startMeta}</span>`:''}</div><button type="button" class="journey-connection-heading" data-journey-leg="${index}">${badge(leg)}<strong>→ ${escape(leg.towards||leg.to.name)}</strong><span aria-hidden="true">›</span></button>`;
+  const sameStation=!!leg.from.stopId&&leg.from.stopId===leg.to.stopId;
+  const endMeta=legTime(leg.endTime)+toPlatform;
+  const walkPoints=sameStation?`${stopName(leg.from)}${!cached||fromPlatform||toPlatform?`<span class="journey-platform-path">${startMeta||'<span>Start</span>'}<span aria-hidden="true">→</span>${endMeta||'<span>Ziel</span>'}</span>`:''}`:`<span class="journey-leg-point">${legTime(leg.startTime)}${stopName(leg.from)}${fromPlatform?`<span aria-hidden="true">·</span>${fromPlatform}`:''}</span><span class="journey-point-arrow" aria-hidden="true">→</span><span class="journey-leg-point">${legTime(leg.endTime)}${stopName(leg.to)}${toPlatform?`<span aria-hidden="true">·</span>${toPlatform}`:''}</span>`;
+  const endpoints=isWalk?`<div class="journey-walk-points">${walkPoints}</div>`:`<p class="journey-arrival">${legTime(leg.endTime)}<span>Aussteigen:</span>${stopName(leg.to)}${toPlatform?`<span aria-hidden="true">·</span>${toPlatform}`:''}</p>`;
+  return `${wait>0?`<p class="journey-wait">${wait} Min. Wartezeit laut Planung</p>`:''}<article class="journey-leg ${isWalk?'walk':''}">${heading}${endpoints}${isWalk?`<div id="journeyWalkPanel-${index}" class="journey-walk-panel" hidden><div id="journeyWalkMap-${index}" class="journey-walk-map" aria-label="Karte dieses Fußwegs"></div><p id="journeyWalkMapStatus-${index}" class="fineprint" role="status"></p></div>`:''}<p class="fineprint">${isWalk?(leg.distanceMeters!=null?Math.round(leg.distanceMeters)+' m · ':'')+(cached?(index===0&&state.walk?'Weg gerade berechnet · Gehzeit geschätzt · Bahnsteigweg zusätzlich':'Gespeicherter Fußweg · Schätzung'):'Berechneter Fußweg'):cached?'Gespeicherter Linienweg · aktuelle Fahrzeit offen':(leg.quality==='live'?'Echtzeit · Transitous':'Fahrplan · Transitous')+(leg.staySeated?' · Im Fahrzeug bleiben':'')}</p>${!isWalk?`<div class="journey-live-slot" data-live-leg="${index}">${liveMarkup(leg,index)}</div>`:''}${variantsMarkup(index)}</article>`;
  }).join('');
  $('journeySteps').innerHTML=cached?`<section class="journey-summary"><h2>${escape(state.favorites.find(f=>f.id===journey.favoriteId)?.name||state.openedFavorite?.name||'Gespeicherte Route')}</h2><p>Gespeicherter Weg vom ${escape(date(journey.savedAt))} · Abfahrten werden nachgeladen. Für eine aktuelle Gesamtfahrzeit und geänderte Linienwege „Neu planen“ wählen.</p></section>${legs}`:`<section class="journey-summary"><h2>${escape(clock(journey.startTime))} → ${escape(clock(journey.endTime))}</h2><strong>${minutes(journey.durationSeconds)} Min. · ${escape(date(journey.startTime))}</strong><p>${escape(summary(journey))}</p><p>Berechnet ${escape(clock(state.plannedAt))}. Zeiten und Anschlüsse können sich ändern.</p></section>${legs}`;
 }
@@ -279,4 +288,4 @@ function pause(){cancelSearch();pauseMonitor();closePicker();clearWalkMaps();pla
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();resumeMonitor();}});window.addEventListener('pagehide',pause);window.addEventListener('storage',event=>{if(event.key==='foama.journeyFavorites.v1')refreshSavedJourneys();if(event.key==='foama.journeyPlaces.v1')placesUI?.refresh();});window.addEventListener('pageshow',()=>{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();if(!document.hidden)resumeMonitor();});
 placesUI=mountJourneyPlaces({client:createJourneyClient(),escape,getPoint:kind=>state[kind],onOpen:cancelSearch,onChoose:(kind,point)=>{cancelSearch();invalidateResults();setOverviewMode('search');selectPoint(kind,point);},onChange:()=>{if(state.selected&&!state.station)renderRouteOverview();}});
 pointControls();renderFavorites();setJourneyPreference(state.preference);setOverviewMode(location.hash==='#routen'?'saved':'search');
-try{const response=await fetch('./data/stops.json?v=0.6.1');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}
+try{const response=await fetch('./data/stops.json?v=0.6.4');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}

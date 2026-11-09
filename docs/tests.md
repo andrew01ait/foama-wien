@@ -1,3 +1,21 @@
+## PWA 0.6.4 · abschließende Browserabnahme · 09.11.2026
+
+257 Web-/Server-Prüfungen bestanden. Kein zusätzlicher nativer Build; Wear 0.6.1/21 bleibt bytegleich. Die bisherige Python-Suite (acht Tests) und Syntaxprüfung (59 Dateien) bestehen. Die abschließende Änderung umfasst gemeinsame Tab-Darstellung/Leerzeichen und Shell-Version, keine neuen Datenzugriffe.
+
+Öffentlicher Browser: bei 303, 343, 403 und 693 px Inhaltbreite sind alle drei Haupttabs auf Startseite und Reiseansicht 44 px hoch; scrollWidth gleich clientWidth. Auf 303 px passen auch Favoritenanzahl und lange gespeicherte Richtung ohne seitlichen Überlauf. Aktuelle U6- und 29B-Antworten zeigen das Fahrzeug-Symbol pro Abfahrt in Route, fokussierter Stationsansicht, Favoriten und Vollbild-Verbindung. Richtung Thaliastraße → Floridsdorf bleibt gefiltert; beide Folgeabfahrten haben eigene Symbole. Erhaltene lokale drei Linien- und drei Routenfavoriten, aktualisierte Shell über den sichtbaren Updateknopf bestätigt. Dark-Auswahl nach Hell-Abnahme wiederhergestellt; bestehende Browserfreigaben nicht geändert.
+
+Der neutrale Korrekturtext wurde mit ausdrücklich als Beispieldaten bezeichneten zwei API-Snapshots geprüft, einschließlich unterschiedlicher Barrierefreiheit der ersten/zweiten Abfahrt. Die Beispiele sind kein beobachteter Störungs- oder Verspätungsnachweis. Die temporäre unverbundene Prüfseite ist im Abschlussstand entfernt. Gleichstations-Fußweg weiterhin 125 px, alle geprüften Reiseaktionen mindestens 44 px hoch. Physische Smartphone-/Watch-Abnahme bleibt von Browser-/Unit-Tests getrennt.
+
+## PWA 0.6.3 · Abfahrtshinweise · 09.11.2026
+
+257 Web-/Server- und acht Python-Tests bestanden; JavaScript-Syntaxprüfung für 59 Dateien erfolgreich. 13 neue Regressionen prüfen spätere Prognosen, Identität und nächste Züge, Cold-Start/JSON-Ausschluss, erste Live-Angabe, Duplikate, Frische/Zukunft, unverlängerten Zweiminutenablauf, Rückkorrektur sowie Fahrzeug-Overrides und individuelle Symbole in der tatsächlichen Stationsdarstellung. Details: [Datenvertrag](departure-indicators.md). Native APK 0.6.1/21 bytegleich, 3.735.980 Bytes, SHA-256 bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59.
+
+Layout-Abnahme 0.6.2: Bei 305, 345, 405 und 695 px Inhaltbreite bleibt scrollWidth gleich clientWidth, alle drei Haupttabs sind 44 px hoch. Der gleiche Stations-Fußweg verkürzt sich von 193 auf 125 px. Stations-/Verbindungs-/Kartenaktionen bleiben mindestens 44 px hoch. Fußwegkarte öffnen/schließen, korrekter U6-Richtungsfokus und Zurück zur Reise erfolgreich; Teilen enthält ausschließlich die öffentliche App-Einladung. Neue Shell 0.6.2 über den sichtbaren Updateknopf übernommen, Favoriten erhalten.
+
+## PWA 0.6.2 · kompakte Reiseansicht und einheitlicher Kopf · 09.11.2026
+
+Bahnsteig/Abfahrtszeit beim Stationskopf statt in einer zusätzlichen Abfahrtszeile, kompakte Absatz-/Karten-/Variantenabstände. Fußwege mit Start → Ziel zusammen; gleiche bekannte Stations-ID wird einmal mit beiden Bahnsteigen gezeigt. Alle Stations-/Verbindungs-/Kartenaktionen behalten mindestens 44 px Tippfläche. Logo, Slogan, Version, Teilen/Einstellungen und die waagerechte Hauptnavigation entsprechen der Startseite. Der gemeinsame Link-Tab-Stil verwendet Flex statt Grid, damit Icon/Text nebeneinander bleiben. Heller/dunkler Erstaufbau nutzt dieselbe gespeicherte Theme-Auswahl. Route, Etappenfokus, Abfahrtsbudget und gespeicherte Favoriten unverändert. PWA-/Shell-Version 0.6.2; native APK/Feed 0.6.1/21 unverändert.
+
 # Prüfungen und Abnahmen
 
 ## GitHub und konsolidierte Dokumentation · 09.11.2026

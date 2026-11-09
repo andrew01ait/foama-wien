@@ -1,40 +1,41 @@
-import {createAppUpdates} from './app-updates.mjs?v=0.6.1';
-import {bindAppShare} from './app-share.mjs?v=0.6.1';
-import {createNotifications} from './notifications.mjs?v=0.6.1&r=3';
-import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.6.1';
-import {jsonExportName} from './export-file.mjs?v=0.6.1';
-import {transferableJourneys} from './journey-favorites.mjs?v=0.6.1';
-import {mergeTransferBundle} from './transfer.mjs?v=0.6.1';
-import {warningsForTargets,updateWarningPanel,stationNoticeSections} from './warning-panel.mjs?v=0.6.1';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.1';
-import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.6.1';
-import {createThemeController} from './theme.mjs?v=0.6.1';
-import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.6.1';
-import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.6.1';
-import {connectionsAtStation} from './station-search.mjs?v=0.6.1';
-import {createLocationController,locationMessage} from './location.mjs?v=0.6.1';
-import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.6.1';
-import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.6.1';
-import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.6.1';
-import {stationAddressMarkup} from './station-addresses.mjs?v=0.6.1';
-import {createAddressLookup} from './address-index.mjs?v=0.6.1';
-import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.6.1';
-import {updateTrafficCache,trafficAtStation,affectedNoticeLines,noticeLines} from './traffic-info.mjs?v=0.6.1';
-import {createDebugging} from './debugging.mjs?v=0.6.1&r=2';
-import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.6.1';
-import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.6.1';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.6.1';
-import {connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation} from './connection-detail.mjs?v=0.6.1';
+import {createAppUpdates} from './app-updates.mjs?v=0.6.4';
+import {bindAppShare} from './app-share.mjs?v=0.6.4';
+import {createNotifications} from './notifications.mjs?v=0.6.4&r=3';
+import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.6.4';
+import {jsonExportName} from './export-file.mjs?v=0.6.4';
+import {transferableJourneys} from './journey-favorites.mjs?v=0.6.4';
+import {mergeTransferBundle} from './transfer.mjs?v=0.6.4';
+import {warningsForTargets,updateWarningPanel,stationNoticeSections} from './warning-panel.mjs?v=0.6.4';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.4';
+import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.6.4';
+import {createThemeController} from './theme.mjs?v=0.6.4';
+import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.6.4';
+import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.6.4';
+import {connectionsAtStation} from './station-search.mjs?v=0.6.4';
+import {createLocationController,locationMessage} from './location.mjs?v=0.6.4';
+import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.6.4';
+import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.6.4';
+import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.6.4';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.6.4';
+import {stationAddressMarkup} from './station-addresses.mjs?v=0.6.4';
+import {createAddressLookup} from './address-index.mjs?v=0.6.4';
+import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.6.4';
+import {updateTrafficCache,trafficAtStation,affectedNoticeLines,noticeLines} from './traffic-info.mjs?v=0.6.4';
+import {createDebugging} from './debugging.mjs?v=0.6.4&r=2';
+import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.6.4';
+import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.6.4';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.6.4';
+import {connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation} from './connection-detail.mjs?v=0.6.4';
 const $=id=>document.getElementById(id), escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WL_RATE_KEY='foama.wl.lastApiAttempt.v1';
 let notifications=null;
-const appUpdates=createAppUpdates({version:'0.6.1'});
+const appUpdates=createAppUpdates({version:'0.6.4'});
 const keys={settings:'foama.settings.v1',favorites:'foama.favorites.v1',stops:'foama.stops.v1',rail:'foama.rail.v1',departures:'foama.departures.v1',lines:'foama.stationLines.v1'};
 function datasetDB(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window))return reject(Error('IndexedDB fehlt'));const request=indexedDB.open('foama-wien',1);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains('datasets'))db.createObjectStore('datasets');};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function datasetGet(key){let db;try{db=await datasetDB();return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readonly'),request=tx.objectStore('datasets').get(key);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error);});}catch{return null;}finally{db?.close();}}
 async function datasetPut(key,value){const db=await datasetDB();try{return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readwrite');tx.objectStore('datasets').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
 function retrieve(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}}
-const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.6.1'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
+const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.6.4'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
 Object.assign(state,{locationData:{},locationPhase:'ready',locationInfo:{phase:'ready'},nearbyAnchor:null,addressLookup:null,bundledStops:[],learnedLines:retrieve(keys.lines,{}),apiFailures:0,retryAt:0,batchCycle:0,queriedIds:new Set(),platformChecks:new Map(),positionMap:null});
 const themeControl=createThemeController({preference:state.settings.theme});
 state.trafficCache=retrieve('foama.traffic.v1',{});state.noticesError=false;
@@ -72,7 +73,9 @@ function orderedFavorites(){return favoriteEntries(state.favorites,state.stops,s
 function favoriteGroups(){return groupFavoriteEntries(orderedFavorites());}
 function currentPlatformStops(){return state.settings.view==='fav'?orderedFavorites().map(entry=>entry.stop).filter(Boolean):state.nearby;}
 function findStop(id){return state.stops.find(s=>s.id===id);}
-function timeMarkup(d){if(!d)return '<small>—</small>';const fresh=d.provider!=='wl'||(!state.fetchError&&departureIsFresh(d));return `${fresh?'':'~'}${countdownMinutes(d.actual)}′ <span class="quality ${fresh&&d.quality==='live'?'live':!fresh?'cached':''}" title="${!fresh?'Letzter Abruf '+escape(new Date(d.fetchedAt).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'})):''}">${qualityText(d)}</span>`;}
+function timeMarkup(d){if(!d)return '<small>—</small>';const fresh=d.provider!=='wl'||(!state.fetchError&&departureIsFresh(d));return `${fresh?'':'~'}${countdownMinutes(d.actual)}′ <span class="quality ${fresh&&d.quality==='live'?'live':!fresh?'cached':''}" title="${!fresh?'Letzter Abruf '+escape(new Date(d.fetchedAt).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'})):''}">${qualityText(d)}${vehicleAccessibilityMarkup(d,{hasError:!!state.fetchError})}</span>`;}
+function secondaryTimeMarkup(d){return d?`${countdownMinutes(d.actual)}′${vehicleAccessibilityMarkup(d,{hasError:!!state.fetchError})}`:'—';}
+function correctionMarkup(d){return departureCorrectionMarkup(d,{hasError:!!state.fetchError});}
 function reachFor(stop,d){if(!locationNow().reliable||!stop||!d||(d.provider==='wl'&&(state.fetchError||!departureIsFresh(d))))return {status:'unknown'};const dist=haversineMeters(state.position,stop);if(dist>2200)return {status:'unknown'};const walk=walkingMinutes(metersFor(stop),state.settings.speed);return reachability(d.actual,walk,state.settings.buffer,Date.now(),true);}
 function routeBadge(route,mode='bus'){return `<span class="route-pill ${escape(mode)}" data-route="${escape(String(route).replace(/\s+/g,'').toUpperCase())}">${escape(route)}</span>`;}
 function connectionAttributes(stop,route,towards='',mode=''){return `data-connection-stop="${escape(stop.id)}" data-connection-route="${escape(route)}" data-connection-towards="${escape(towards)}" data-connection-mode="${escape(mode)}"`;}
@@ -105,7 +108,7 @@ function renderWarnings(){
  const notices=warningsForTargets(state.trafficCache,targets);
  updateWarningPanel({panel:$('warningPanel'),count:$('warningCount'),preview:$('warningPreview'),list:$('warningList'),details:$('warningDetails'),lines:$('warningLines')},notices,notice=>trafficNoticeMarkup(notice),noticeBadges);
 }
-function lineMarkup(stop,g,allowStar=true){const [first,second]=g.departures,reach=reachFor(stop,first);const name=escape(g.route),direction=escape(g.towards);const fav={stopId:stop.id,route:g.route,towards:g.towards};const saved=state.favorites.some(f=>favoriteKey(f)===favoriteKey(fav));return `<div class="line-row connection-row">${connectionLink(stop,g.route,g.towards,g.mode)}<div class="line-name"><div class="line-head">${routeBadge(g.route,g.mode)}${allowStar?`<button class="star-btn ${saved?'saved':''}" data-favorite-line="${escape(stop.id)}" data-route="${name}" data-towards="${direction}" aria-label="Linie als Favorit ${saved?'entfernen':'hinzufügen'}">${saved?'★':'☆'}</button>`:''}</div><span class="line-towards">→ ${direction}</span></div><div class="line-right"><div class="times"><strong>${timeMarkup(first)}</strong><small>${second?countdownMinutes(second.actual)+'′':'—'}</small></div><div class="mini-status ${reach.status}">${statusSymbol(reach.status)} ${statusText(reach.status)}</div></div></div>`;}
+function lineMarkup(stop,g,allowStar=true){const [first,second]=g.departures,reach=reachFor(stop,first);const name=escape(g.route),direction=escape(g.towards);const fav={stopId:stop.id,route:g.route,towards:g.towards};const saved=state.favorites.some(f=>favoriteKey(f)===favoriteKey(fav));return `<div class="line-row connection-row">${connectionLink(stop,g.route,g.towards,g.mode)}<div class="line-name"><div class="line-head">${routeBadge(g.route,g.mode)}${allowStar?`<button class="star-btn ${saved?'saved':''}" data-favorite-line="${escape(stop.id)}" data-route="${name}" data-towards="${direction}" aria-label="Linie als Favorit ${saved?'entfernen':'hinzufügen'}">${saved?'★':'☆'}</button>`:''}</div><span class="line-towards">→ ${direction}</span></div><div class="line-right"><div class="times"><strong>${timeMarkup(first)}</strong><small>${secondaryTimeMarkup(second)}</small></div>${correctionMarkup(first)}<div class="mini-status ${reach.status}">${statusSymbol(reach.status)} ${statusText(reach.status)}</div></div></div>`;}
 function stopMarkup(stop){
  const expanded=state.expanded.has(stop.id),departures=availableDeparts(relevantDepartures(stop),state.settings),next=departures[0],best=next?.departures?.[0],faved=state.favorites.some(f=>f.stopId===stop.id&&!f.route),detailsId='departures-'+stop.id;
  const noData=state.fetchError?'Live-Daten derzeit nicht verfügbar':stop.rbl?.some(id=>state.queriedIds.has(id))?'Linien und Richtungen ansehen':'Abfahrten werden geladen';
@@ -115,7 +118,7 @@ function stopMarkup(stop){
  return `<article class="stop-card station-card ${expanded?'is-expanded':''}" data-station-id="${escape(stop.id)}">
   <div class="station-card-head"><div class="station-heading-block"><h3><button class="station-title-link" type="button" data-route-map="${escape(stop.id)}" aria-label="Fußweg zu ${escape(stop.name)} auf Karte öffnen"><span>${escape(stop.name)}</span><small>Karte ↗</small></button></h3><p class="station-walk-meta">${escape(walkText(stop))}</p></div><button type="button" class="station-save ${faved?'saved':''}" data-stop-fav="${escape(stop.id)}" aria-pressed="${faved}" aria-label="${escape(stop.name)} als Haltestellenfavorit ${faved?'entfernen':'speichern'}"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg></button></div>
   <div class="station-services">${stationBadges(stop)}</div>${stationNotices(stop)}
-  <button type="button" class="station-departures" data-toggle="${escape(stop.id)}" aria-expanded="${expanded}" aria-controls="${escape(detailsId)}" aria-label="Abfahrten für ${escape(stop.name)} ${expanded?'schließen':'anzeigen'}"><span class="station-preview-main"><strong>Abfahrten</strong>${preview}</span><span class="station-preview-time">${!expanded&&best?`<strong>${timeMarkup(best)}</strong>`:''}</span><span class="station-expand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span></button>
+  <button type="button" class="station-departures" data-toggle="${escape(stop.id)}" aria-expanded="${expanded}" aria-controls="${escape(detailsId)}" aria-label="Abfahrten für ${escape(stop.name)} ${expanded?'schließen':'anzeigen'}"><span class="station-preview-main"><strong>Abfahrten</strong>${preview}${!expanded?correctionMarkup(best):''}</span><span class="station-preview-time">${!expanded&&best?`<strong>${timeMarkup(best)}</strong>`:''}</span><span class="station-expand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span></button>
   <div class="stop-inner" id="${escape(detailsId)}" ${expanded?'':'hidden'}>${expanded?(departures.length?departures.map(g=>lineMarkup(stop,g)).join(''):`<div class="empty-departures"><p>${state.fetchError?'Live-Abfrage fehlgeschlagen. Die Linien oben bleiben aus dem lokalen Katalog verfügbar.':stop.rbl?.some(id=>state.queriedIds.has(id))?'Derzeit keine Abfahrten der gewählten Verkehrsmittel gemeldet.':'Abfahrten werden nachgeladen. Die Linien oben sind bereits offline verfügbar.'}</p></div>`):''}</div></article>`;
 }
 function favoriteConnectionMarkup(stop,f,departures){
@@ -125,7 +128,7 @@ function favoriteConnectionMarkup(stop,f,departures){
  const groups=[...byDirection.values()];if(!groups.length)groups.push([]);
  return groups.map(group=>{
   const [a,b]=group,reach=reachFor(stop,a),mode=a?.mode||stationLines(stop,learnedFor(stop)).find(line=>line.route===f.route)?.mode||f.mode||modeFromWl('',f.route);
-  return `<div class="line-row favorite-selected-line connection-row">${connectionLink(stop,f.route,a?.towards||f.towards||'',mode)}<div class="line-name"><div class="line-head">${routeBadge(f.route,mode)}<button type="button" class="star-btn saved" data-remove-fav="${escape(favoriteKey(f))}" aria-label="Gespeicherte Verbindung ${escape(f.route+' Richtung '+(f.towards||'alle Richtungen'))} entfernen">★</button></div><span class="line-towards">→ ${escape(a?.towards||f.towards||'Alle Richtungen')}</span></div><div class="line-right"><div class="times"><strong>${timeMarkup(a)}</strong><small>${b?countdownMinutes(b.actual)+'′':'—'}</small></div><span class="mini-status ${reach.status}">${a?statusSymbol(reach.status)+' '+statusText(reach.status):'Keine Abfahrten'}</span></div></div>`;
+  return `<div class="line-row favorite-selected-line connection-row">${connectionLink(stop,f.route,a?.towards||f.towards||'',mode)}<div class="line-name"><div class="line-head">${routeBadge(f.route,mode)}<button type="button" class="star-btn saved" data-remove-fav="${escape(favoriteKey(f))}" aria-label="Gespeicherte Verbindung ${escape(f.route+' Richtung '+(f.towards||'alle Richtungen'))} entfernen">★</button></div><span class="line-towards">→ ${escape(a?.towards||f.towards||'Alle Richtungen')}${correctionMarkup(a)}</span></div><div class="line-right"><div class="times"><strong>${timeMarkup(a)}</strong><small>${secondaryTimeMarkup(b)}</small></div><span class="mini-status ${reach.status}">${a?statusSymbol(reach.status)+' '+statusText(reach.status):'Keine Abfahrten'}</span></div></div>`;
  }).join('');
 }
 function favoriteMarkup(group,index,count){
@@ -138,7 +141,7 @@ function favoriteMarkup(group,index,count){
  const remaining=whole?departures.filter(d=>!selected.some(({favorite:f})=>favoriteMatches(f,d))):[];
  const stationRows=[...new Map(remaining.map(d=>[d.route+'|'+d.towards,d])).values()].map(d=>{
   const row=remaining.filter(x=>x.route===d.route&&x.towards===d.towards).slice(0,2),r=reachFor(stop,row[0]);
-  return `<div class="favorite-station-line connection-row">${connectionLink(stop,d.route,d.towards,d.mode)}${routeBadge(d.route,d.mode)}<div class="favorite-line-destination"><span class="line-towards">${escape(d.towards)}</span><span class="mini-status ${r.status}">${statusSymbol(r.status)} ${statusText(r.status)}</span></div><span class="times"><strong>${timeMarkup(row[0])}</strong><small>${row[1]?countdownMinutes(row[1].actual)+'′':'—'}</small></span></div>`;
+  return `<div class="favorite-station-line connection-row">${connectionLink(stop,d.route,d.towards,d.mode)}${routeBadge(d.route,d.mode)}<div class="favorite-line-destination"><span class="line-towards">${escape(d.towards)}</span><span class="mini-status ${r.status}">${statusSymbol(r.status)} ${statusText(r.status)}</span>${correctionMarkup(row[0])}</div><span class="times"><strong>${timeMarkup(row[0])}</strong><small>${secondaryTimeMarkup(row[1])}</small></span></div>`;
  }).join('');
  return `<article class="fav-card" data-station-id="${escape(stopId)}">${heading}${stationNotices(stop,whole?'':selected.map(({favorite:f})=>f.route))}<div class="favorite-station-lines">${rows+stationRows||'<p class="secondary-text">Noch keine aktuellen Abfahrten geladen.</p>'}</div></article>`;
 }
@@ -187,9 +190,9 @@ function renderConnection(){
  const clock=iso=>new Date(iso).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit'});
  $('connectionContent').innerHTML=`<div class="connection-heading"><div class="eyebrow">${escape(MODE_LABELS[target.mode]||'VERBINDUNG')}</div><h1 id="connectionTitle" tabindex="-1">${escape(stop.name)}</h1><div class="connection-destination ${lineHasCurrentDeparture(stop,target,state.departures,{hasError:!!state.fetchError})?'':'line-unconfirmed'}">${routeBadge(target.route,target.mode||first?.mode||'bus')}<h2>→ ${escape(target.towards||'Alle Richtungen')}</h2></div></div>
   ${!target.towards&&directions.length?`<div class="connection-directions" aria-label="Richtung auswählen">${directions.map((direction,i)=>`<button type="button" class="small-btn" data-connection-action="direction-${i}" data-connection-direction="${escape(direction)}">→ ${escape(direction)}</button>`).join('')}</div>`:''}
-  <section class="connection-countdown" aria-label="Nächste Abfahrt">${first?`<span class="connection-next-label">Nächste Abfahrt${!target.towards?' → '+escape(first.towards):''}</span><div class="connection-time">${timeMarkup(first)}</div><p class="connection-clock">um ${escape(clock(first.actual))}${first.platform?' · Bahnsteig '+escape(first.platform):''}</p><p class="mini-status ${reach.status}">${statusSymbol(reach.status)} ${statusText(reach.status)}</p>`:`<div class="connection-time">—</div><p>${escape(empty)}</p>`}</section>
+  <section class="connection-countdown" aria-label="Nächste Abfahrt">${first?`<span class="connection-next-label">Nächste Abfahrt${!target.towards?' → '+escape(first.towards):''}</span><div class="connection-time">${timeMarkup(first)}</div><p class="connection-clock">um ${escape(clock(first.actual))}${first.platform?' · Bahnsteig '+escape(first.platform):''}</p>${correctionMarkup(first)}<p class="mini-status ${reach.status}">${statusSymbol(reach.status)} ${statusText(reach.status)}</p>`:`<div class="connection-time">—</div><p>${escape(empty)}</p>`}</section>
   <p class="connection-refresh-status" id="connectionRefreshStatus" role="status">${escape(connectionRefreshText())}</p>
-  ${departures.length>1?`<section class="connection-following"><h3>Danach</h3><ol>${departures.slice(1,7).map(d=>`<li><span>${escape(clock(d.actual))}${!target.towards?`<small>→ ${escape(d.towards)}</small>`:''}</span><strong>${timeMarkup(d)}</strong></li>`).join('')}</ol></section>`:''}
+  ${departures.length>1?`<section class="connection-following"><h3>Danach</h3><ol>${departures.slice(1,7).map(d=>`<li><span>${escape(clock(d.actual))}${!target.towards?`<small>→ ${escape(d.towards)}</small>`:''}${correctionMarkup(d)}</span><strong>${timeMarkup(d)}</strong></li>`).join('')}</ol></section>`:''}
   ${stationNotices(stop,target.route)}
   <div class="connection-walk"><strong>${state.position?escape(walkText(stop)):'Gehzeit ohne Standort ungewiss'}</strong><span>${escape(state.settings.buffer)} Min. Reserve berücksichtigt</span></div>
   <div class="connection-actions"><button type="button" class="primary-btn" data-connection-action="favorite" id="connectionFavorite" aria-pressed="${saved}">${saved?'★ Favorit entfernen':'☆ Als Favorit speichern'}</button><button type="button" class="small-btn" data-connection-action="map" id="connectionMap">Fußweg & Karte ↗</button></div>`;
@@ -528,15 +531,15 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopActive();else startActive();});window.addEventListener('pagehide',stopActive);
 }
 async function prepareTransfer(){if(location.hash.includes('session='))location.replace('./transfer.html'+location.hash);}
-async function init(){try{const config=await fetchJson('./config.json?v=0.6.1');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
-  try{const baked=await fetchJson('./data/stops.json?v=0.6.1');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
+async function init(){try{const config=await fetchJson('./config.json?v=0.6.4');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
+  try{const baked=await fetchJson('./data/stops.json?v=0.6.4');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
   const storedStops=(await datasetGet('wl'))||retrieve(keys.stops,[]);if(storedStops.length)state.stops=[...state.stops.filter(s=>s.provider!=='wl'),...enrichStops(storedStops,state.bundledStops)];
   try{state.rail=(await datasetGet('rail'))||retrieve(keys.rail,null)||await fetchJson('./data/rail.json');if(state.rail?.stops)state.stops.push(...state.rail.stops);}catch{}
   state.stopsUnavailable=!state.stops.length;$('stopNames').innerHTML=state.stops.slice(0,9000).map(s=>`<option value="${escape(s.name)}"></option>`).join('');
   // Request a prepared WL index from the proxy only if the static bundle contains none.
   if(state.stopsUnavailable&&(!state.config.staticOnly||state.settings.proxyBase||state.config.apiBase)){try{const api=state.settings.proxyBase||state.config.apiBase||(location.origin!=='null'?location.origin:'');if(!api)throw Error('Kein Index-Backend konfiguriert');const index=await fetchJson(`${api}/api/stops-index`,10_000);if(index.stops?.length){state.stops=index.stops;state.stopsUnavailable=false;$('stopNames').innerHTML=state.stops.map(s=>`<option value="${escape(s.name)}"></option>`).join('');}}catch{}}
-  void fetchJson('./data/station-addresses.json?v=0.6.1').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
-  void fetchJson('./data/streets.json?v=0.6.1').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
+  void fetchJson('./data/station-addresses.json?v=0.6.4').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
+  void fetchJson('./data/streets.json?v=0.6.4').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
   for(const stop of state.stops.filter(s=>s.provider==='rail')){const departures=(state.rail?.departures||[]).filter(d=>(stop.platformIds||[stop.id.slice(5)]).includes(d.stop));stop.lines=[...new Map(departures.map(d=>[(d.mode||'regional')+'|'+d.route,{route:d.route,mode:d.mode||'regional'}])).values()];}
   if(['#favoriten','#naehe'].includes(location.hash)){state.settings.view=location.hash==='#favoriten'?'fav':'near';saveSettings();}saveFavorites();connectionNavigation.sync();render();await prepareTransfer();void locationControl.init();startActive();if(state.stopsUnavailable)msgStatus('Haltestellenkatalog fehlt · CSV importieren oder Serverdaten aktivieren',true);
   notifications=createNotifications({getFavorites:()=>state.favorites,getStops:()=>state.stops,getJourneys:()=>retrieve('foama.journeyFavorites.v1',[])});

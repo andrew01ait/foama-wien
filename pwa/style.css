@@ -256,7 +256,7 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 
 
 
-.tabs a.tab{display:grid;place-items:center;text-decoration:none;white-space:nowrap;min-height:44px}
+.tabs a.tab{display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;white-space:nowrap;min-height:44px}
 
 #tabJourney{display:flex;align-items:center;justify-content:center;gap:6px;padding-left:6px;padding-right:6px}.tab-icon{width:18px;height:18px;flex:0 0 18px;vertical-align:-3px}
 
@@ -265,3 +265,10 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 .brand h1{overflow-wrap:anywhere}.brand p{min-width:0;line-height:1.4}
 .view-heading{flex-wrap:wrap;gap:6px 12px}.view-heading>div{min-width:0}.view-heading h2{overflow-wrap:anywhere}
 @media(max-width:420px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.tabs .tab{padding-inline:3px;font-size:12px;line-height:1.3}.tabs .count{margin-inline-start:0;padding-inline:3px;font-size:10px}#tabJourney{gap:4px;padding-inline:3px}}
+
+/* Small, per-vehicle facts; no disruption or warning treatment. */
+.vehicle-access{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;width:14px;height:14px;margin-left:4px;color:var(--muted);flex:0 0 14px}.vehicle-access svg{display:block;width:14px;height:14px}.quality{display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1px}.quality .vehicle-access{margin-left:2px}.times>small .vehicle-access{width:12px;height:12px;margin-left:2px}.times>small .vehicle-access svg{width:12px;height:12px}.departure-correction{display:block;margin-top:2px;color:var(--muted);font-size:10.5px;font-weight:500;line-height:1.35;white-space:normal}.line-right>.departure-correction{text-align:right}.favorite-line-destination>.departure-correction{text-align:left}.station-preview-main>.departure-correction{font-weight:500}.connection-countdown>.departure-correction{font-size:12px}.connection-following .departure-correction{font-size:10.5px}
+
+/* Same one-row navigation for buttons and links, including small phones. */
+.tabs .tab{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;min-height:44px}.tabs .count{flex-shrink:0}
+@media(max-width:340px){.tabs .tab{font-size:11px;gap:3px;padding-inline:2px}.tabs .count{font-size:9px;padding-inline:2px}}

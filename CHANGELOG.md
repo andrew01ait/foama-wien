@@ -1,3 +1,17 @@
+## PWA 0.6.4 · gleiche Haupttabs auch auf kleinen Displays · 09.11.2026
+
+Hauptnavigation auf Start- und Reiseseite verwendet für Buttons und Links dieselbe einzeilige Flex-Darstellung und mindestens 44 px Höhe. Überflüssige feste Leerzeichen entfernt; bei höchstens 340 px bleiben Beschriftung, Icon und Favoritenanzahl mit kompakter Schrift in einer Zeile. Ergänzt die Reise-Dichte, gemeinsame Kopfzeile und Abfahrtshinweise aus 0.6.2/0.6.3. Native Wear 0.6.1/21 unverändert.
+
+## PWA 0.6.3 · dezente Abfahrtshinweise · 09.11.2026
+
+Neutrales „Zeit korrigiert · ca. +N Min.“ bei später gemeldeter Live-Prognose derselben geplanten Abfahrt. Identität aus RBL, Linie, Richtung, Modus und Planzeit; mindestens 30 Sekunden Verschiebung, beide Abrufe frisch und der zweite neuer. Kein Warnsymbol, keine Störungsbehauptung und kein Push. Cold-Start-Cache, neue Züge, unklare Identitäten und Fahrplan → erste Live-Prognose lösen keinen Hinweis aus. Anzeige höchstens zwei Minuten und nur solange die Daten frisch bleiben; rein lokale flüchtige Metadaten.
+
+Rollstuhl-Symbol je Abfahrt nur bei explizitem `barrierFree: true`, mit Fahrzeug-Override vor Linienvorgabe. Unbekannt/false/veraltet/Fehler bleiben unmarkiert. Beschriftung und Tooltip beziehen sich auf das Fahrzeug, nicht auf Station oder gesamten Reiseweg. Monitor/Favoriten, Vollbild-Verbindung und Reise-Abfahrten verwenden dieselben Regeln. Kein zusätzlicher API-/GPS-Aufruf, unveränderte QR-/Favoritenformate und native APK 0.6.1/21. Enthält die kompakteren Reiseabschnitte und den einheitlichen Kopf aus 0.6.2. [Datenvertrag](docs/departure-indicators.md).
+
+## PWA 0.6.2 · kompakte Reiseansicht und einheitlicher Kopf · 09.11.2026
+
+Bahnsteig/Abfahrtszeit beim Stationskopf statt in einer zusätzlichen Abfahrtszeile, kompakte Absatz-/Karten-/Variantenabstände. Fußwege mit Start → Ziel zusammen; gleiche bekannte Stations-ID wird einmal mit beiden Bahnsteigen gezeigt. Alle Stations-/Verbindungs-/Kartenaktionen behalten mindestens 44 px Tippfläche. Logo, Slogan, Version, Teilen/Einstellungen und die waagerechte Hauptnavigation entsprechen der Startseite. Der gemeinsame Link-Tab-Stil verwendet Flex statt Grid, damit Icon/Text nebeneinander bleiben. Heller/dunkler Erstaufbau nutzt dieselbe gespeicherte Theme-Auswahl. Route, Etappenfokus, Abfahrtsbudget und gespeicherte Favoriten unverändert. PWA-/Shell-Version 0.6.2; native APK/Feed 0.6.1/21 unverändert.
+
 ## Wear 0.6.1 / Code 21 · Favoritenansichten und QR-Rückkehr · 09.11.2026
 
 Im Favoriten-Tab trennt ein direkt sichtbarer Umschalter **Routen** und **Stationen**. Die Stationsansicht trägt die Überschrift **Haltestellen & Linien**. Die ausdrücklich gewählte Ansicht bleibt lokal über Aktualisierung, Detailnavigation und App-Neustart erhalten. Ohne bisherige Auswahl erscheinen bei vorhandenen Routen zuerst Routen, sonst Stationen; beide Bereiche bleiben auch leer erreichbar. Nur Stationen der gewählten Ansicht sind Monitorziele, laufende alte Anfragen werden beim Wechsel verworfen. Gemeinsame Abrufgrenzen, lokale Favoriten und Push-Auswahl bleiben erhalten.
