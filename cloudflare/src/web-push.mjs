@@ -47,13 +47,13 @@ export async function vapidAuthorization(endpoint,privateJwk,publicKey,subject,n
  const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,utf8.encode(value));
  return `vapid t=${value}.${pushB64(signature)},k=${publicKey}`;
 }
-export async function sendWebPush(subscription,payload,env,{fetcher=fetch,now=Date.now(),ttl=300}={}){
+export async function sendWebPush(subscription,payload,env,{fetcher=fetch,now=Date.now(),ttl=300,urgency='normal'}={}){
  const started=Date.now();
  const sub=validatePushSubscription(subscription),body=await encryptPush(sub,JSON.stringify(payload));
  const authorization=await vapidAuthorization(sub.endpoint,env.PUSH_VAPID_PRIVATE_JWK,env.PUSH_VAPID_PUBLIC_KEY,env.PUSH_VAPID_SUBJECT,now);
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
  try{
-  const response=await fetcher(sub.endpoint,{method:'POST',redirect:'manual',signal:controller.signal,headers:{Authorization:authorization,TTL:String(Math.min(300,Math.max(1,Math.floor(ttl)||300))),Urgency:'normal',Topic:'foama-wien-alerts','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'},body});
+  const response=await fetcher(sub.endpoint,{method:'POST',redirect:'manual',signal:controller.signal,headers:{Authorization:authorization,TTL:String(Math.min(300,Math.max(1,Math.floor(ttl)||300))),Urgency:urgency==='high'?'high':'normal',Topic:'foama-wien-alerts','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'},body});
   // Never log provider bodies or endpoints; both can contain subscription credentials.
   await response.body?.cancel();
   const responseAt=now+Math.max(0,Date.now()-started),retry=response.headers.get('Retry-After'),seconds=Number(retry);

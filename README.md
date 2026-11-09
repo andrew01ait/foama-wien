@@ -1,6 +1,6 @@
 # foama-wien
 
-Öffis, die du noch erreichst. Abfahrtsmonitor für Wien als installierbare Smartphone-PWA und native Wear-OS-App.
+Öffis, die du noch erreichst. Abfahrtsmonitor als installierbare Smartphone-PWA mit Profilen für Wien, Graz, Linz und Salzburg; native Wear-OS-App für Wien.
 
 [**PWA öffnen**](https://foama-wien.endruuu.chatgpt.site/) · [**Uhr-App**](https://foama-wien.endruuu.chatgpt.site/wear.html) · [**GitHub**](https://github.com/andrew01ait/foama-wien) · [Dokumentation](docs/README.md)
 
@@ -14,7 +14,7 @@
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
 - Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.6.7 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.7.0 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 
@@ -47,7 +47,7 @@ GitHub enthält Quellcode, öffentliche Referenzdaten und Dokumentation. Die lau
 
 Standort und Abfahrtsaktualisierung arbeiten nur bei sichtbarer App. Favoriten bleiben pro Gerät lokal. QR-Sitzungen laufen nach zehn Minuten ab; Push ist freiwillig. Routenplanung und ausdrücklich gestartetes präzises Routing nutzen externe Dienste und übertragen dafür die erforderlichen Eingaben. Die [Architektur](docs/architecture.md) beschreibt die Grenzen.
 
-Der bisherige Wiener-Linien-GTFS-Import belegt Stations-/Linienzuordnungen. Ein vollständiger Sollfahrplan als Abfahrts-Fallback ist noch offen; bekannte Linien können vor dem ersten erfolgreichen API-Abruf ohne Zeiten erscheinen.
+Der unabhängige Wiener Sollfahrplan ergänzt leere/fehlende API-Abfahrten, aktuell gültig bis 12.12.2026. Benötigte Stationspakete werden lokal gespeichert; keine Live-/Anschlussgarantie und noch kein automatischer Neuimport. [Fahrplanvertrag](docs/timetable-fallback.md). Wien bleibt Standard; automatische Erkennung bei sichtbarer App oder manuelle Stadtwahl ausschließlich in Einstellungen. [Stadtprofile und regionale Grenzen](docs/city-profiles.md).
 
 Die Hintergrundprüfung für Störungen läuft derzeit stündlich, bei ohnehin aktiver App gegebenenfalls häufiger. Push ist auf Wunsch ausschließlich für die PWA vorgesehen. Sie verwendet Standard-Web-Push ohne eigenes Firebase-Projekt. Die Uhr zeigt importierte Routen mit aktuellen Etappenzeiten, führt aber keine eigenständige Vollroutensuche aus.
 

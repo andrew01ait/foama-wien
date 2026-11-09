@@ -272,3 +272,9 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 /* Same one-row navigation for buttons and links, including small phones. */
 .tabs .tab{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;min-height:44px}.tabs .count{flex-shrink:0}
 @media(max-width:340px){.tabs .tab{font-size:11px;gap:3px;padding-inline:2px}.tabs .count{font-size:9px;padding-inline:2px}}
+
+.push-debug{margin-top:12px;border-top:1px solid var(--stroke);padding-top:6px}.push-debug>summary{min-height:44px;display:list-item;align-content:center;font-weight:700;cursor:pointer}.push-debug .push-actions{gap:8px}.push-debug>p{font-size:12px;line-height:1.5}
+
+.city-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.city-choices button{min-height:44px;border:1px solid var(--stroke);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:700;padding:8px}.city-choices button:first-child{grid-column:1/-1}.city-choices button[aria-pressed="true"]{background:var(--mint-deep);border-color:var(--mint);color:var(--mint)}
+
+@media(max-width:400px){html[data-city="salzburg"] .brand h1{font-size:17px;letter-spacing:-.6px;white-space:nowrap}html[data-city="salzburg"] .brand-mark{width:32px;height:32px}html[data-city="salzburg"] .brand{gap:8px}html[data-city="salzburg"] .header{gap:8px}}

@@ -1,9 +1,9 @@
 {
-  "version": "0.6.7",
+  "version": "0.7.0",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Robuster Störungs-Push für die PWA: dauerhafte Warteschlange, begrenzte Wiederholungen und Aktualitätsprüfung vor der Anzeige. Zustellstatus für Testnachrichten. Keine Aufzug-/Fahrtreppen-Pushs; Uhr unverändert.",
+  "changelog": "Unabhängiger Wiener Fahrplan-Fallback bei fehlenden Live-Daten. Automatische Stadtprofile für Graz, Linz und Salzburg; manuelle Wahl nur in Einstellungen. Salzburg zunächst im Fahrplanmodus. Testnachricht, Zustellstatus und lokaler Anzeigetest unter Debug Push.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,

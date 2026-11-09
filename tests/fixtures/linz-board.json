@@ -1,0 +1,159 @@
+{
+  "source": "https://www.linzag.at/static/XML_DM_REQUEST",
+  "retrieved": "2026-11-09",
+  "attribution": "LINZ AG / Stadt Linz Open Data",
+  "payload": {
+    "dm": {
+      "input": {
+        "input": "at:44:41166"
+      },
+      "points": {
+        "point": {
+          "usage": "dm",
+          "type": "stop",
+          "name": "Linz/Donau, Hauptplatz",
+          "stateless": "60501010",
+          "ref": {
+            "id": "60501010",
+            "gid": "at:44:41166",
+            "omc": "44001001",
+            "placeID": "4",
+            "place": "Linz/Donau",
+            "coords": "14.286219,48.306392"
+          },
+          "infos": null
+        }
+      }
+    },
+    "departureList": [
+      {
+        "stopID": "60501010",
+        "x": "14.286218",
+        "y": "48.306419",
+        "mapName": "WGS84[DD.ddddd]",
+        "area": "1",
+        "platform": "1",
+        "platformName": "",
+        "stopName": "Linz/Donau Hauptplatz",
+        "nameWO": "Hauptplatz",
+        "countdown": "1",
+        "dateTime": {
+          "year": "2026",
+          "month": "11",
+          "day": "9",
+          "weekday": "2",
+          "hour": "23",
+          "minute": "29"
+        },
+        "realDateTime": {
+          "year": "2026",
+          "month": "11",
+          "day": "9",
+          "weekday": "2",
+          "hour": "23",
+          "minute": "30"
+        },
+        "realtimeTripStatus": "MONITORED",
+        "servingLine": {
+          "key": "161",
+          "code": "4",
+          "number": "4",
+          "symbol": "4",
+          "motType": "4",
+          "mtSubcode": "0",
+          "realtime": "1",
+          "direction": "Landgutstraße",
+          "directionFrom": "Traun OÖ Schloss Traun",
+          "name": "Straßenbahn",
+          "delay": "1",
+          "liErgRiProj": {
+            "line": "01004",
+            "project": "f26",
+            "direction": "R",
+            "supplement": "E",
+            "network": "esg",
+            "gid": "at:esg:4:"
+          },
+          "destID": "60501700",
+          "stateless": "esg:01004:E:R:f26",
+          "lineDisplay": "line"
+        },
+        "operator": {
+          "code": "1",
+          "name": "Linz Linien GmbH",
+          "publicCode": ""
+        },
+        "attrs": [
+          {
+            "name": "AVMSTripID",
+            "value": "129374-00107-1"
+          }
+        ]
+      },
+      {
+        "stopID": "60501010",
+        "x": "14.286220",
+        "y": "48.306275",
+        "mapName": "WGS84[DD.ddddd]",
+        "area": "1",
+        "platform": "0",
+        "platformName": "",
+        "stopName": "Linz/Donau Hauptplatz",
+        "nameWO": "Hauptplatz",
+        "countdown": "4",
+        "dateTime": {
+          "year": "2026",
+          "month": "11",
+          "day": "9",
+          "weekday": "2",
+          "hour": "23",
+          "minute": "33"
+        },
+        "realDateTime": {
+          "year": "2026",
+          "month": "11",
+          "day": "9",
+          "weekday": "2",
+          "hour": "23",
+          "minute": "33"
+        },
+        "realtimeTripStatus": "MONITORED",
+        "servingLine": {
+          "key": "706",
+          "code": "4",
+          "number": "1",
+          "symbol": "1",
+          "motType": "4",
+          "mtSubcode": "0",
+          "realtime": "1",
+          "direction": "Auwiesen",
+          "directionFrom": "Linz/Donau JKU I Universität",
+          "name": "Straßenbahn",
+          "delay": "0",
+          "liErgRiProj": {
+            "line": "01001",
+            "project": "f26",
+            "direction": "H",
+            "supplement": "E",
+            "network": "esg",
+            "gid": "at:esg:1:"
+          },
+          "destID": "60501810",
+          "stateless": "esg:01001:E:H:f26",
+          "lineDisplay": "line"
+        },
+        "operator": {
+          "code": "1",
+          "name": "Linz Linien GmbH",
+          "publicCode": ""
+        },
+        "attrs": [
+          {
+            "name": "AVMSTripID",
+            "value": "157826-00107-1"
+          }
+        ]
+      }
+    ]
+  }
+}

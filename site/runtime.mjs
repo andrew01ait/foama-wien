@@ -1,7 +1,8 @@
 import {serveNativeRelease,nativeReleaseApi} from './native-releases.mjs';
 // Serves the retained PWA and its fixed-endpoint API relay from one HTTPS origin.
 export function createSiteWorker(apiWorker,assets){
-  let pushCatalog=null;
+  let pushCatalog=null,regionalCatalog=null;
+  const regional=()=>regionalCatalog??=['graz','linz','salzburg'].flatMap(city=>{const asset=assets['/data/cities/'+city+'.json'];return asset?JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(asset.base64),c=>c.charCodeAt(0)))).stops:[];});
   const catalogue=()=>pushCatalog??=(assets['/data/stops.json']?JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(assets['/data/stops.json'].base64),character=>character.charCodeAt(0)))).stops:[]);
   return {scheduled(controller,env,ctx){return apiWorker.scheduled?.(controller,env,ctx);},async fetch(request,env,ctx){
     const url=new URL(request.url);
@@ -12,7 +13,8 @@ export function createSiteWorker(apiWorker,assets){
         return apiWorker.fetch(request,{...env,PUSH_STOPS:catalogue()},ctx);
       }
       if(url.pathname==='/api/monitor')return apiWorker.fetch(request,{...env,LINE_STOPS:catalogue()},ctx);
-      if(url.pathname.startsWith('/api/journeys/'))return apiWorker.fetch(request,{...env,JOURNEY_STOPS:catalogue()},ctx);
+      if(url.pathname==='/api/regional/board')return apiWorker.fetch(request,{...env,REGIONAL_STOPS:regional()},ctx);
+      if(url.pathname.startsWith('/api/journeys/'))return apiWorker.fetch(request,{...env,JOURNEY_STOPS:[...catalogue(),...regional()]},ctx);
       return apiWorker.fetch(request,env,ctx);
     }
     if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405});

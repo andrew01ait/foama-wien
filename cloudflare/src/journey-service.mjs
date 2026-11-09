@@ -1,7 +1,8 @@
+import {CITY_PROFILES} from '../../pwa/src/city-profiles.mjs';
 import {motisPlanUrl,normalizeJourneys} from '../../pwa/src/journey-planning.mjs';
 
 const BASE='https://api.transitous.org/';
-const UA='foama-wien/0.6.7 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
+const UA='foama-wien/0.7.0 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
 const headers={'content-type':'application/json;charset=utf-8','cache-control':'no-store','referrer-policy':'no-referrer','x-content-type-options':'nosniff'};
 const answer=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const clean=(value,n=160)=>String(value??'').trim().slice(0,n);
@@ -50,7 +51,7 @@ export async function journeyApi(request,env,{fetch=(input,options)=>globalThis.
  try{
   body=await boundedJson(request,4096);
   if(isPlan){
-   if(!point(body.from)||!point(body.to))throw Error('Start und Ziel in Wien oder Umgebung auswählen.');
+   if(!point(body.from)||!point(body.to))throw Error('Start und Ziel in Österreich oder Umgebung auswählen.');
    const time=Date.parse(body.time);if(!Number.isFinite(time)||time<now-3600000||time>now+90*86400000)throw Error('Reisezeit muss zwischen jetzt und den nächsten 90 Tagen liegen.');
    url=motisPlanUrl(body,BASE);
   }else if(isWalk){
@@ -60,7 +61,7 @@ export async function journeyApi(request,env,{fetch=(input,options)=>globalThis.
    url=new URL('api/v1/one-to-many',BASE);url.search=new URLSearchParams({one:coords(body.from),many:coords(stop),mode:'WALK',max:'3600',maxMatchingDistance:'100',arriveBy:'false',withDistance:'true'}).toString();
   }else{
    const text=clean(body.text,161);if(text.length<3||text.length>160||/[\x00-\x1f]/.test(text))throw Error('Bitte einen Ort oder eine Adresse mit 3 bis 160 Zeichen eingeben.');
-   url=new URL('api/v1/geocode',BASE);url.search=new URLSearchParams({text,language:'de',place:'48.2082,16.3738',numResults:'6'}).toString();
+   url=new URL('api/v1/geocode',BASE);url.search=new URLSearchParams({text,language:'de',place:(Object.hasOwn(CITY_PROFILES,body.city)?CITY_PROFILES[body.city]:CITY_PROFILES.wien).center.lat+','+(Object.hasOwn(CITY_PROFILES,body.city)?CITY_PROFILES[body.city]:CITY_PROFILES.wien).center.lon,numResults:'6'}).toString();
   }
  }catch(error){return answer({error:error.message==='Antwort des Planungsdienstes zu groß.'?'Anfrage zu groß.':clean(error.message)},400);}
  if(!await reserveJourneyRequest(env.DB,{now,kind:isPlan||isWalk?'plan':'places'}))return answer({error:'Die gemeinsame Verbindungssuche ist derzeit ausgelastet. Bitte später erneut versuchen. Abfahrten und Favoriten bleiben verfügbar.'},429);

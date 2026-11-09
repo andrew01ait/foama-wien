@@ -30,3 +30,9 @@ MOTIS-API-Spezifikation: https://raw.githubusercontent.com/motis-project/motis/r
 ## A nach B ab PWA 0.2.0
 
 Transitous produktiv für ausdrücklich ausgelöste Planung/Orts-/Fußwegsuche; [Datenquellen](https://transitous.org/sources/), [Nutzungsbedingungen](https://transitous.org/api/), © OpenStreetMap-Mitwirkende. Eigener App-Code unter [MIT](LICENSE); Quellenliste und Daten werden dadurch nicht pauschal MIT-lizenziert. [Aktuelle Lizenz-/Datenschutzhinweise](docs/licenses.md). Frühere Prototyp-Beschreibungen oben sind historische Stände.
+
+## Fahrplan- und Stadtprofile ab 0.7.0
+
+- Unabhängige Wiener Abfahrten: offizielles [Wiener-Linien-GTFS](https://www.wienerlinien.at/ogd_realtime/doku/ogd/gtfs/gtfs.zip), Datenquelle Stadt Wien – data.wien.gv.at, CC BY 4.0; Abruf 09.11.2026, Kalender/Quellhash im Paketmanifest. Für die App komprimiert/kalendervalidiert; keine Live-Daten.
+- Graz: Verkehrsverbund Steiermark / Graz Linien; Linz: LINZ AG und Oberösterreichischer Verkehrsverbund; Salzburg: Salzburger Verkehrsverbund / regionale Betreiber; Bahnanteile ÖBB. Öffentliche auf IFOPT reduzierte Transitous-Katalogproben vom 09.11.2026, [tatsächliche Quellen und jeweilige Lizenzen](https://transitous.org/sources/), [MVO-Nutzungsbedingungen](https://mobilitaetsverbuende.atlassian.net/wiki/spaces/DBP/pages/185237505/Terms%2Bof%2BUse). Keine pauschale MIT-Lizenzierung der Daten. Eigenständige direkte MVO-Downloads erfordern separate manuelle Voraussetzungen.
+- Linzer Echtzeit: feste öffentlich dokumentierte [LINZ-AG-EFA-Schnittstelle](https://data.linz.gv.at/katalog/linz_ag/linz_ag_linien/fahrplan/); IFOPT-Identität aus der Anbieterantwort. Legacy/Best Effort. Testfixtures enthalten ausschließlich öffentliche Beispielstationen mit datierter Quellenangabe.

@@ -1,5 +1,5 @@
-import './push-storage.js?v=0.6.7';
-import {pushPreferences,favoritePushTargets} from './push-policy.mjs?v=0.6.7';
+import './push-storage.js?v=0.7.0';
+import {pushPreferences,favoritePushTargets} from './push-policy.mjs?v=0.7.0';
 const KEY='foama.push.v1';
 const decode=value=>Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(value.length/4)*4,'=')),c=>c.charCodeAt(0));
 const token=cryptoApi=>btoa(String.fromCharCode(...cryptoApi.getRandomValues(new Uint8Array(24)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -7,7 +7,7 @@ export function createNotifications({root=document,getFavorites,getStops,getJour
  const $=id=>root.getElementById(id),nav=environment.navigator,NotificationApi=environment.Notification;
  let saved;try{saved=JSON.parse(storage.getItem(KEY)||'{}');}catch{saved={};}
  if(!saved||typeof saved!=='object')saved={};
- let preferences=pushPreferences(saved.preferences),config=null,busy=false,message='',initialized=false,lastSync=0,lastTargets='',syncQueued=false;
+ let preferences=pushPreferences(saved.preferences),config=null,busy=false,message='',initialized=false,lastSync=0,lastTargets='',syncQueued=false,debugMessage='';
  const supported=!!(environment.isSecureContext&&nav?.serviceWorker&&environment.PushManager&&NotificationApi);
  const persist=()=>{try{storage.setItem(KEY,JSON.stringify({...saved,preferences}));}catch{throw Error('Bitte lokalen Speicher für foama-wien erlauben.');}};
  async function syncStore(){if(!pushStore)throw Error('Benachrichtigungsspeicher ist hier nicht verfügbar.');await pushStore.setDevice({id:saved.id||'',secret:saved.secret||'',enabled:saved.enabled===true,expiresAt:saved.expiresAt||0,preferences});}
@@ -33,11 +33,13 @@ export function createNotifications({root=document,getFavorites,getStops,getJour
   $('pushEnable').disabled=busy||!supported||denied||!config?.available||(preferences.scope==='favorites'&&!selection.length);
   $('pushDisable').disabled=busy;$('pushTest').disabled=busy||!config?.available;
   $('pushReceipt').hidden=!enabled();$('pushReceipt').disabled=busy||!config?.available;
+  if($('pushLocalTest'))$('pushLocalTest').disabled=busy||!supported||NotificationApi.permission!=='granted';
+  if($('pushDebugStatus'))$('pushDebugStatus').textContent=debugMessage;
   for(const id of ['pushScopeFavorites','pushScopeAll','pushQuiet'])$(id).disabled=busy;
   const checked=config?.lastSuccess;
   $('pushServiceStatus').textContent=config?.available?(checked?`Letzte erfolgreiche Prüfung ${new Date(checked).toLocaleString('de-AT',{timeZone:'Europe/Vienna',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${Date.now()-checked>80*60000?' · zuletzt verzögert':''}.${config.state==='source-error'?' Der letzte Quellenabruf schlug fehl; keine veralteten Hinweise.':''}`:'Erste Dienstprüfung steht noch aus.'):'';
  }
- async function work(action){if(busy)return;busy=true;message='';render();try{await action();}catch(error){if(error.status===410&&owned()){saved.enabled=false;persist();await syncStore().catch(()=>{});}message=error.name==='AbortError'?'Verbindung zu langsam. Bitte erneut versuchen.':error.message;}finally{busy=false;render();if(syncQueued){syncQueued=false;void sync();}}}
+ async function work(action,{debug=false}={}){if(busy)return;busy=true;if(debug)debugMessage='';else message='';render();try{await action();}catch(error){if(error.status===410&&owned()){saved.enabled=false;persist();await syncStore().catch(()=>{});}const text=error.name==='AbortError'?'Verbindung zu langsam. Bitte erneut versuchen.':error.message;if(debug)debugMessage=text;else message=text;}finally{busy=false;render();if(syncQueued){syncQueued=false;void sync();}}}
  async function registration(){
   let timer;try{return await Promise.race([nav.serviceWorker.ready,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('App wird noch aktualisiert. Bitte kurz warten und erneut versuchen.')),12000);})]);}finally{clearTimeout(timer);}
  }
@@ -98,14 +100,22 @@ export function createNotifications({root=document,getFavorites,getStops,getJour
   const permission=NotificationApi.permission==='granted'?Promise.resolve('granted'):NotificationApi.requestPermission();
   void work(()=>enable(permission));
  };
+ async function workerDiagnostics(){
+  if(!$('pushWorkerStatus'))return;
+  const names={'received':'Push im Browser empfangen','device-or-expiry':'Gerätebindung oder Ablauf hat Anzeige verhindert','storage-error':'Lokaler Benachrichtigungsspeicher nicht lesbar','suppressed':'Anzeige nach Prüfung verworfen','duplicate-or-cooldown':'Doppelter Hinweis oder kurze Anzeigepause','shown':'Anzeige vom Browser angefordert','display-error':'Benachrichtigungsanzeige fehlgeschlagen'};
+  const entries=await pushStore?.getDiagnostics?.().catch(()=>[])||[],last=entries.at(-1);
+  $('pushWorkerStatus').textContent=last?`${names[last.stage]||'Browserprüfung'} · ${new Date(last.at).toLocaleString('de-AT',{timeZone:'Europe/Vienna',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'})}`:'Noch kein Push-Empfang auf diesem Gerät protokolliert.';
+ }
  async function init(){if(initialized)return;initialized=true;
   $('pushEnable').addEventListener('click',onEnable);
   $('pushDisable').addEventListener('click',()=>void work(disable));
-  $('pushTest').addEventListener('click',()=>void work(async()=>{await request('/api/push/subscriptions/'+saved.id+'/test',{method:'POST',auth:true});message='Testnachricht vom Pushdienst angenommen. Bitte die Benachrichtigungsanzeige deines Geräts prüfen.';}));
+  $('pushTest').addEventListener('click',()=>void work(async()=>{await syncStore();await request('/api/push/subscriptions/'+saved.id+'/test',{method:'POST',auth:true});debugMessage='Vom Push-Anbieter angenommen. Die Anzeige auf deinem Gerät ist noch nicht bestätigt. Nach einem Moment „Zustellstatus prüfen“ antippen.';await workerDiagnostics();},{debug:true}));
   $('pushReceipt').addEventListener('click',()=>void work(async()=>{
    const result=await request('/api/push/subscriptions/'+saved.id,{auth:true}),test=result.lastTest;
-   message=!test?'Noch keine Testnachricht vorhanden.':test.clickedAt?'Testnachricht wurde angetippt.':test.shownAt?'Der Browser hat die Anzeige der Testnachricht angefordert. Ob sie sichtbar war, entscheidet dein Gerät.':test.suppressedAt?'Die Testnachricht wurde vor der Anzeige verworfen. Bitte erneut testen.':test.acceptedAt?'Vom Pushanbieter angenommen; noch keine Browserbestätigung.':test.status==='pending'||test.status==='sending'?'Testnachricht wartet auf Zustellung.':'Testnachricht konnte nicht zugestellt werden.';
-  }));
+   debugMessage=!test?'Noch keine Testnachricht vorhanden.':test.clickedAt?'Testnachricht wurde angetippt.':test.shownAt?'Der Browser hat die Anzeige der Testnachricht angefordert. Ob sie sichtbar war, entscheidet dein Gerät.':test.suppressedAt?'Die Testnachricht wurde vor der Anzeige verworfen. Bitte erneut testen.':test.acceptedAt?'Vom Push-Anbieter angenommen; keine Browserbestätigung. Das beweist noch keinen Empfang auf deinem Telefon.':test.status==='pending'||test.status==='sending'?'Testnachricht wartet auf Zustellung.':'Testnachricht konnte nicht zugestellt werden.';await workerDiagnostics();
+  },{debug:true}));
+  $('pushDebug')?.addEventListener('toggle',()=>{if($('pushDebug').open)void workerDiagnostics();});
+  $('pushLocalTest')?.addEventListener('click',()=>void work(async()=>{if(NotificationApi.permission!=='granted')throw Error('Bitte Benachrichtigungen zuerst erlauben.');const reg=await registration();await reg.showNotification('foama-wien: Anzeigetest',{body:'Lokale Testanzeige auf diesem Gerät. Dieser Test verwendet keinen Push-Transport.',tag:'foama-wien-local-test',silent:true,icon:'/icons/icon-192-v0.1.4.png'});debugMessage='Der Browser hat die lokale Anzeige angefordert. Bleibt auch sie aus, prüfe die Android-/Browser-Benachrichtigungseinstellungen.';},{debug:true}));
   $('pushScopeFavorites').addEventListener('click',()=>changePreferences({scope:'favorites'}));$('pushScopeAll').addEventListener('click',()=>changePreferences({scope:'all'}));
   $('pushQuiet').addEventListener('change',()=>changePreferences({quiet:$('pushQuiet').checked}));
   root.addEventListener('visibilitychange',()=>{if(root.visibilityState!=='hidden')void refresh();});

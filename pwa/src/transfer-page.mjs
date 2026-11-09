@@ -1,7 +1,7 @@
-import {jsonExportName} from './export-file.mjs?v=0.6.7';
-import {transferLink,transferBundle,mergeTransferBundle,encryptTransfer,decryptTransfer} from './transfer.mjs?v=0.6.7';
+import {jsonExportName} from './export-file.mjs?v=0.7.0';
+import {transferLink,transferBundle,mergeTransferBundle,encryptTransfer,decryptTransfer} from './transfer.mjs?v=0.7.0';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const FAVORITES='foama.favorites.v1',ROUTES='foama.journeyFavorites.v1';let link=null,source={favorites:[],journeys:[]},received=null,expires=0,timer,request=null,finished=false,busy=false,generation=0,routeSupport=false,alternativeSupport=false;
+const FAVORITES='foama.favorites.v1',ROUTES='foama.journeyFavorites.v1';let link=null,source={favorites:[],journeys:[]},received=null,expires=0,timer,request=null,finished=false,busy=false,generation=0,routeSupport=false,alternativeSupport=false,citySupport=false;
 const status=(message,error=false)=>{$('transferStatus').textContent=message;$('transferStatus').dataset.error=String(error);};
 const label=f=>[f.stopName||f.stopId,f.route||'Alle Linien',f.towards?'→ '+f.towards:''].filter(Boolean).join(' · ');
 function localFavorites(){return transferBundle({format:'foama-favorites-v2',favorites:JSON.parse(localStorage.getItem(FAVORITES)||'[]'),journeys:JSON.parse(localStorage.getItem(ROUTES)||'[]')});}
@@ -9,11 +9,14 @@ async function api(method='GET',data,current=link){
  if(!current)throw Error('Bitte einen neuen Code scannen.');request?.abort();const controller=new AbortController();request=controller;const timeout=setTimeout(()=>controller.abort(),12000);
  try{const response=await fetch('./api/transfer/'+current.session,{method,signal:controller.signal,headers:{'X-Transfer-Secret':current.auth,...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store',referrerPolicy:'no-referrer'});let value;try{value=await response.json();}catch{throw Error('Transferdienst nicht erreichbar.');}if(!response.ok)throw Object.assign(Error(value.error||'Transfer nicht erreichbar.'),{status:response.status});return value;}finally{clearTimeout(timeout);}
 }
+const regionalId=id=>/^(graz|linz|salzburg):/.test(id||'');
+const watchStation=f=>citySupport||!regionalId(f.stopId);
+const watchJourney=f=>citySupport||[f,...(f.alternatives||[])].every(row=>row.legs.every(leg=>!regionalId(leg.from.stopId)&&!regionalId(leg.to.stopId)));
 function choices(){
  const favorites=source.favorites,journeys=source.journeys;
- $('transferChoices').innerHTML=(favorites.length?'<h3>Stationen &amp; Linien</h3>'+favorites.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="favorite" value="${index}" checked><span>${escape(label(f))}</span></label>`).join(''):'')+(journeys.length?'<h3>Gespeicherte Routen</h3>'+(routeSupport?'':'<p class="fineprint">Für Routen bitte zuerst die Uhr-App auf Version 0.6.7 aktualisieren und einen neuen Code öffnen.</p>')+(journeys.some(f=>f.alternatives?.length)&&routeSupport&&!alternativeSupport?'<p class="fineprint">Mit dieser Uhr-Version wird die Hauptroute übertragen. Für alle Alternativen bitte auf Uhr-App 0.6.7 aktualisieren.</p>':'')+journeys.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="journey" value="${index}" ${routeSupport?'checked':'disabled'}><span><strong>${escape(f.name)}</strong><small>${escape(f.from.name)} → ${escape(f.to.name)}${f.alternatives?.length?' · '+f.alternatives.length+' Alternativen':''}</small></span></label>`).join(''):'');
+ $('transferChoices').innerHTML=(favorites.length?'<h3>Stationen &amp; Linien</h3>'+favorites.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="favorite" value="${index}" ${watchStation(f)?'checked':'disabled'}><span>${escape(label(f))}${watchStation(f)?'':'<small>Diese Stadt wird auf der Uhr noch nicht unterstützt.</small>'}</span></label>`).join(''):'')+(journeys.length?'<h3>Gespeicherte Routen</h3>'+(routeSupport?'':'<p class="fineprint">Für Routen bitte zuerst die Uhr-App auf Version 0.6.1 aktualisieren und einen neuen Code öffnen.</p>')+(journeys.some(f=>f.alternatives?.length)&&routeSupport&&!alternativeSupport?'<p class="fineprint">Mit dieser Uhr-Version wird die Hauptroute übertragen. Für alle Alternativen bitte auf Uhr-App 0.6.1 aktualisieren.</p>':'')+journeys.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="journey" value="${index}" ${routeSupport&&watchJourney(f)?'checked':'disabled'}><span><strong>${escape(f.name)}</strong><small>${escape(f.from.name)} → ${escape(f.to.name)}${watchJourney(f)?'':' · Stadt auf der Uhr noch nicht unterstützt'}${f.alternatives?.length?' · '+f.alternatives.length+' Alternativen':''}</small></span></label>`).join(''):'');
  if(!favorites.length&&!journeys.length)$('transferChoices').innerHTML='<p>Keine Favoriten in diesem Browser. Wähle oben deine exportierte JSON-Datei aus.</p>';
- $('transferSend').disabled=!favorites.length&&(!routeSupport||!journeys.length);
+ $('transferSend').disabled=!favorites.some(watchStation)&&(!routeSupport||!journeys.some(watchJourney));
 }
 async function complete(message){
  const current=link,g=++generation;busy=true;clearTimeout(timer);request?.abort();$('transferUpload').hidden=true;$('transferDownload').hidden=true;status(message);$('transferFinish').hidden=false;
@@ -22,7 +25,8 @@ async function complete(message){
 async function check(){
  if(!link||finished||document.hidden||busy)return;if(expires&&expires<=Date.now()){status('Code abgelaufen. Öffne einen neuen Code auf deiner Uhr.',true);link=null;$('transferUpload').hidden=true;$('transferDownload').hidden=true;return;}const current=link,g=generation;clearTimeout(timer);busy=true;
  try{const value=await api('GET',undefined,current);if(g!==generation)return;expires=value.expiresAt;
-  const supports=value.capabilities?.includes('journey-favorites-v1')===true,alternatives=value.capabilities?.includes('journey-alternatives-v1')===true;if(supports!==routeSupport||alternatives!==alternativeSupport){routeSupport=supports;alternativeSupport=alternatives;choices();}
+  const nextCitySupport=value.capabilities?.includes('city-profiles-v1')===true;
+  const supports=value.capabilities?.includes('journey-favorites-v1')===true,alternatives=value.capabilities?.includes('journey-alternatives-v1')===true;if(supports!==routeSupport||alternatives!==alternativeSupport||nextCitySupport!==citySupport){citySupport=nextCitySupport;routeSupport=supports;alternativeSupport=alternatives;choices();}
   $('transferExpiry').hidden=false;$('transferExpiry').textContent='Gültig bis '+new Date(expires).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit'})+' · Uhr geöffnet lassen';
   if(value.status==='done'){$('transferExpiry').hidden=true;finished=true;link=null;status('Übertragung abgeschlossen. Der verschlüsselte Inhalt ist gelöscht.');$('transferUpload').hidden=true;$('transferDownload').hidden=true;return;}
   if(current.action==='upload'){
@@ -38,6 +42,7 @@ $('transferFile').addEventListener('change',async event=>{try{const file=event.t
 $('transferSend').addEventListener('click',async()=>{
  if(!link||busy||document.hidden)return;const current=link,g=generation;clearTimeout(timer);busy=true;$('transferSend').disabled=true;
  try{const selected=[...$('transferChoices').querySelectorAll('input:checked')],favorites=selected.filter(input=>input.dataset.transferKind==='favorite').map(input=>source.favorites[Number(input.value)]),journeys=selected.filter(input=>input.dataset.transferKind==='journey').map(input=>source.journeys[Number(input.value)]).map(f=>alternativeSupport?f:{...f,alternatives:undefined});
+  if(favorites.some(f=>!watchStation(f))||journeys.some(f=>!watchJourney(f)))throw Error('Diese Städte werden auf der Uhr noch nicht unterstützt. Die Favoriten bleiben in der PWA erhalten.');
   if(journeys.length&&!routeSupport)throw Error('Uhr-App zuerst aktualisieren und einen neuen QR-Code öffnen.');if(!favorites.length&&!journeys.length)throw Error('Wähle mindestens eine Station, Linie oder Route.');
   const safe=transferBundle({format:'foama-favorites-v2',favorites,journeys}),value=safe.journeys.length?safe:{format:'foama-favorites-v1',favorites:safe.favorites};if(new TextEncoder().encode(JSON.stringify(value)).length>32768)throw Error('Auswahl zu groß. Bitte weniger Routen oder Stationen auswählen.');
   const encrypted=await encryptTransfer(value,current.key);if(g!==generation)return;await api('PUT',encrypted,current);if(g!==generation)return;$('transferUpload').hidden=true;status('Verschlüsselt gesendet. Bitte auf deiner Uhr bestätigen.');
@@ -48,7 +53,7 @@ $('transferSave').addEventListener('click',async()=>{if(!received)return;const v
 $('transferFinish').addEventListener('click',()=>complete('Favoriten übernommen.'));
 const pause=()=>{clearTimeout(timer);request?.abort();};window.addEventListener('pagehide',()=>{generation++;pause();link=null;source={favorites:[],journeys:[]};received=null;});document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(link&&!finished)void check();});
 function startFromHash(){
- if(!location.hash)return;pause();generation++;busy=false;finished=false;expires=0;received=null;source={favorites:[],journeys:[]};link=null;routeSupport=false,alternativeSupport=false;$('transferUpload').hidden=true;$('transferDownload').hidden=true;$('transferFinish').hidden=true;$('transferExpiry').hidden=true;
+ if(!location.hash)return;pause();generation++;busy=false;finished=false;expires=0;received=null;source={favorites:[],journeys:[]};link=null;routeSupport=false,alternativeSupport=false,citySupport=false;$('transferUpload').hidden=true;$('transferDownload').hidden=true;$('transferFinish').hidden=true;$('transferExpiry').hidden=true;
  try{link=transferLink(location.hash);history.replaceState(null,'',location.pathname+location.search);source=localFavorites();choices();status('Transfer wird geöffnet …');void check();}catch(error){history.replaceState(null,'',location.pathname);status(error.message,true);}
 }
 window.addEventListener('hashchange',startFromHash);startFromHash();

@@ -1,6 +1,6 @@
 # Eine foama-PWA für Wien, Linz, Graz und Salzburg
 
-Analyse vom 09.11.2026; **noch keine Mehrstädte-Funktion implementiert**. Auftrag: dieselbe installierte PWA soll abhängig vom Aufenthaltsort vorübergehend als foama-linz, foama-graz bzw. foama-salzburg auftreten. Kein neuer App-Klon, keine zusätzlichen Konten für Fahrgäste. PWA zuerst; ein späterer Uhr-Ausbau kann denselben Datenvertrag nutzen. Push bleibt ausschließlich PWA-Thema.
+Ursprüngliche Analyse vom 09.11.2026. **Die empfohlene PWA-Umsetzung ist inzwischen in 0.7.0 erfolgt:** [Stadtprofile](city-profiles.md), [Wiener Fahrplan](timetable-fallback.md). Die folgenden Befunde beschreiben die Recherchebasis und weiterhin offene Anbietergrenzen. Auftrag: dieselbe installierte PWA soll abhängig vom Aufenthaltsort vorübergehend als foama-linz, foama-graz bzw. foama-salzburg auftreten. Kein neuer App-Klon, keine zusätzlichen Konten für Fahrgäste. PWA zuerst; ein späterer Uhr-Ausbau kann denselben Datenvertrag nutzen. Push bleibt ausschließlich PWA-Thema.
 
 ## Ergebnis und Datenquellen
 
@@ -31,7 +31,7 @@ Aktueller Codebefund: Der gemeinsame Planer akzeptiert bereits einen großen Ös
 2. Stadtprofile und Providergrenzen einführen, danach Graz und Linz als Pilotregionen. Graz hat mit dem vorhandenen Transitous-Dienst einen besonders kurzen Integrationsweg; Linz hat einen konkret erfolgreich geprüften Live-Endpunkt, benötigt aber einen belastbaren Fallback.
 3. Salzburg zunächst mit vollständig gekennzeichnetem Fahrplanmodus anbieten und Live-Daten erst nach bestätigtem Zugang/Abdeckung ergänzen. Standortwechsel, Grenzfälle, Nacht-/Feiertagsbetrieb und Erhalt von Wiener Favoriten vor breiter Veröffentlichung prüfen.
 
-Die Forschung verändert weder App-Funktionen noch Wear-Version. Eigene Stichproben sind Machbarkeitsnachweise, keine dauerhaften Verfügbarkeits-/Vollständigkeitsgarantien.
+Die ursprüngliche Forschung veränderte weder App-Funktionen noch Wear-Version. Der folgende PWA-Ausbau ist separat unter 0.7.0 dokumentiert; die Wear-Version bleibt unverändert. Eigene Stichproben sind Machbarkeitsnachweise, keine dauerhaften Verfügbarkeits-/Vollständigkeitsgarantien.
 
 ## Primärquellen und Nachweiswege
 

@@ -1,0 +1,188 @@
+{
+  "source": "https://api.transitous.org/api/v6/stoptimes",
+  "attribution": "Transitous / regionale Datenlieferanten, siehe https://transitous.org/sources/",
+  "retrieved": "2026-11-09",
+  "payload": {
+    "place": {
+      "name": "Graz Hauptplatz/Congress",
+      "stopId": "at-PTA-Styria-Flex-2026_at:46:4046:0:2",
+      "importance": 0.00015479612920898944,
+      "lat": 47.071062479999995,
+      "lon": 15.438473419999998,
+      "tz": "Europe/Vienna",
+      "vertexType": "TRANSIT",
+      "modes": [
+        "TRAM",
+        "BUS"
+      ]
+    },
+    "stopTimes": [
+      {
+        "place": {
+          "name": "Graz Hauptplatz/Congress",
+          "stopId": "at-PTA-Styria-Flex-2026_at:46:4046:0:4",
+          "importance": 0.00015479612920898944,
+          "lat": 47.07142345999999,
+          "lon": 15.43804223,
+          "tz": "Europe/Vienna",
+          "arrival": "2026-11-09T21:22:00Z",
+          "departure": "2026-11-09T21:22:00Z",
+          "scheduledArrival": "2026-11-09T21:22:00Z",
+          "scheduledDeparture": "2026-11-09T21:22:00Z",
+          "vertexType": "TRANSIT",
+          "pickupType": "NORMAL",
+          "dropoffType": "NORMAL",
+          "cancelled": false,
+          "arrivalTimestampReason": "PROPAGATED",
+          "departureTimestampReason": "PROPAGATED",
+          "modes": [
+            "TRAM",
+            "BUS"
+          ]
+        },
+        "mode": "TRAM",
+        "realTime": true,
+        "headsign": "Reininghaus",
+        "tripFrom": {
+          "name": "Graz Liebenau Murpark",
+          "stopId": "at-PTA-Styria-Flex-2026_at:46:3747:0:6",
+          "parentId": "at-PTA-Styria-Flex-2026_Pat:46:3747",
+          "importance": 0.00046493508853018284,
+          "lat": 47.04079256,
+          "lon": 15.46410236,
+          "tz": "Europe/Vienna",
+          "scheduledTrack": "A",
+          "track": "A",
+          "vertexType": "TRANSIT",
+          "pickupType": "NORMAL",
+          "dropoffType": "NORMAL",
+          "cancelled": false,
+          "departureTimestampReason": "PREDICTED",
+          "modes": [
+            "LONG_DISTANCE",
+            "REGIONAL_RAIL",
+            "SUBURBAN",
+            "TRAM",
+            "BUS"
+          ]
+        },
+        "tripTo": {
+          "name": "Graz Reininghaus",
+          "stopId": "at-PTA-Styria-Flex-2026_at:46:30265:0:1",
+          "importance": 4.52008935099002e-05,
+          "lat": 47.05684154999999,
+          "lon": 15.41014056,
+          "tz": "Europe/Vienna",
+          "vertexType": "TRANSIT",
+          "pickupType": "NORMAL",
+          "dropoffType": "NORMAL",
+          "cancelled": false,
+          "arrivalTimestampReason": "PROPAGATED",
+          "modes": [
+            "TRAM",
+            "BUS"
+          ]
+        },
+        "agencyId": "33",
+        "agencyName": "Graz Linien",
+        "agencyUrl": "https://www.holding-graz.at/de/mobilitaet/",
+        "routeId": "at-PTA-Styria-Flex-2026_at:stv:4:",
+        "routeUrl": "",
+        "directionId": "1",
+        "tripId": "20261109_22:06_at-PTA-Styria-Flex-2026_22.T0.33-4-j26-3.6.R",
+        "routeType": 0,
+        "routeShortName": "4",
+        "routeLongName": "Graz Reininghaus-Graz Liebenau Murpark",
+        "tripShortName": "",
+        "displayName": "4",
+        "pickupDropoffType": "NORMAL",
+        "cancelled": false,
+        "tripCancelled": false,
+        "bikesAllowed": false,
+        "wheelchairAccessible": "ACCESSIBLE",
+        "reservation": "NONE",
+        "source": "at_PTA-Styria-Flex-2026.gtfs.zip/stop_times.txt:959656:959679"
+      },
+      {
+        "place": {
+          "name": "Graz Hauptplatz/Congress",
+          "stopId": "at-PTA-Styria-Flex-2026_at:46:4046:0:4",
+          "importance": 0.00015479612920898944,
+          "lat": 47.07142345999999,
+          "lon": 15.43804223,
+          "tz": "Europe/Vienna",
+          "arrival": "2026-11-09T21:22:00Z",
+          "departure": "2026-11-09T21:22:00Z",
+          "scheduledArrival": "2026-11-09T21:22:00Z",
+          "scheduledDeparture": "2026-11-09T21:22:00Z",
+          "vertexType": "TRANSIT",
+          "pickupType": "NORMAL",
+          "dropoffType": "NORMAL",
+          "cancelled": false,
+          "arrivalTimestampReason": "PROPAGATED",
+          "departureTimestampReason": "PROPAGATED",
+          "modes": [
+            "TRAM",
+            "BUS"
+          ]
+        },
+        "mode": "TRAM",
+        "realTime": true,
+        "headsign": "Wetzelsdorf",
+        "tripFrom": {
+          "name": "Graz LKH Med Uni/Klinikum Nord",
+          "stopId": "at-PTA-Styria-Flex-2026_at:46:5890:0:1",
+          "importance": 6.25701286480762e-05,
+          "lat": 47.08215999000001,
+          "lon": 15.46900716,
+          "tz": "Europe/Vienna",
+          "vertexType": "TRANSIT",
+          "pickupType": "NORMAL",
+          "dropoffType": "NORMAL",
+          "cancelled": false,
+          "departureTimestampReason": "PREDICTED",
+          "modes": [
+            "TRAM"
+          ]
+        },
+        "tripTo": {
+          "name": "Graz Wetzelsdorf",
+          "stopId": "at-PTA-Styria-Flex-2026_at:46:2993:0:5",
+          "parentId": "at-PTA-Styria-Flex-2026_Pat:46:2993",
+          "importance": 4.356808858574368e-05,
+          "lat": 47.061107,
+          "lon": 15.39227307,
+          "tz": "Europe/Vienna",
+          "vertexType": "TRANSIT",
+          "pickupType": "NORMAL",
+          "dropoffType": "NORMAL",
+          "cancelled": false,
+          "arrivalTimestampReason": "PROPAGATED",
+          "modes": [
+            "TRAM",
+            "BUS"
+          ]
+        },
+        "agencyId": "33",
+        "agencyName": "Graz Linien",
+        "agencyUrl": "https://www.holding-graz.at/de/mobilitaet/",
+        "routeId": "at-PTA-Styria-Flex-2026_at:stv:7:",
+        "routeUrl": "",
+        "directionId": "1",
+        "tripId": "20261109_22:08_at-PTA-Styria-Flex-2026_14.T0.33-7-j26-3.3.R",
+        "routeType": 0,
+        "routeShortName": "7",
+        "routeLongName": "Graz Wetzelsdorf-Graz LKH Med Uni/Klinikum Nord",
+        "tripShortName": "",
+        "displayName": "7",
+        "pickupDropoffType": "NORMAL",
+        "cancelled": false,
+        "tripCancelled": false,
+        "bikesAllowed": false,
+        "wheelchairAccessible": "ACCESSIBLE",
+        "reservation": "NONE",
+        "source": "at_PTA-Styria-Flex-2026.gtfs.zip/stop_times.txt:751578:751600"
+      }
+    ]
+  }
+}

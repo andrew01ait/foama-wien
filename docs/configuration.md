@@ -39,3 +39,7 @@ Die öffentliche Uhr-Zustellung bleibt deaktiviert. Auf dem Telefon freigegebene
 ## Native Build-Konfiguration
 
 `FOAMA_BASE_URL` bzw. `--base-url` muss eine echte HTTPS-App-Adresse sein. Zum Signieren werden `FOAMA_STORE_PASSWORD` und `FOAMA_KEY_PASSWORD` als Umgebungsvariablen sowie der private Original-Keystore benötigt. Passwörter nicht in Befehlsargumente, Logs, GitHub-Dateien oder APKs schreiben. `wear/release-signing.json` enthält ausschließlich die öffentliche Signaturidentität. [Build-Ablauf](squashtap-build-adaptation.md).
+
+## Stadtprofile und Sollfahrplan
+
+0.7.0 benötigt keine neuen Secrets oder DB-Migration. Regionale Boards verwenden dieselbe D1-Aggregatbudgettabelle wie Planung/Fußwege. Kataloge und Wiener Fahrplanpakete werden beim Build eingebettet, vom Browser bei Bedarf geladen. Standard Wien, manuelle Wahl nur Einstellungen → Stadtprofil. [Kontrakt und Grenzen](city-profiles.md), [Fahrplan erneuern](timetable-fallback.md). Direkte MVO-/TRIAS-Zugänge sind weiterhin nicht eingerichtet.

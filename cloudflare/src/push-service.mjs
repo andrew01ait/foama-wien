@@ -19,7 +19,7 @@ function deliveryInput(data){
 const deliveryReady=(value,env)=>value.transport==='fcm'?nativeConfigured(env):configured(env);
 const deliveryHash=value=>pushHash(value.transport==='fcm'?'fcm:'+value.registrationToken:value.subscription.endpoint);
 const deliveryExpiry=(value,now)=>Math.min(now+PUSH_LIMITS.expiry,value.subscription?.expirationTime||Infinity);
-const deliver=(value,payload,env,options)=>value.transport==='fcm'?options.nativeSender(value.registrationToken,payload,env,{now:options.now}):options.sender(value.subscription,payload,env,{now:options.now,ttl:options.ttl});
+const deliver=(value,payload,env,options)=>value.transport==='fcm'?options.nativeSender(value.registrationToken,payload,env,{now:options.now}):options.sender(value.subscription,payload,env,{now:options.now,ttl:options.ttl,urgency:payload.tag==='foama-wien-test'?'high':'normal'});
 export async function readBounded(request,limit=25000){
  const reader=request.body?.getReader();if(!reader)throw Error('body');const chunks=[];let size=0;
  try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>limit){await reader.cancel();throw Error('size');}chunks.push(value);}}finally{reader.releaseLock();}

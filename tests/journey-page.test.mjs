@@ -12,7 +12,7 @@ function harness(){
  const stops=[{id:'wl:1',provider:'wl',rbl:['1','2'],platforms:[{id:'1',modes:['metro']},{id:'2',modes:['metro']}]}];
  const selected={savedPath:true,legs:[{mode:'metro',route:'U6',from:{stopId:'wl:1'},to:{},towards:'Floridsdorf'}]};
  const state={selected,departures:[],monitor:null,monitorTimer:null,renderTimer:null,lastAttempt:0,retryAt:0,stops,error:'',monitorRevision:0,stationCycle:0};
- const ctx=vm.createContext({state,document,Date:class extends Date{constructor(...args){super(...(args.length?args:[clock]));}static now(){return clock;}},AbortController,URLSearchParams,
+ const ctx=vm.createContext({state,document,scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},Date:class extends Date{constructor(...args){super(...(args.length?args:[clock]));}static now(){return clock;}},AbortController,URLSearchParams,
   upcomingBoardings:journey=>upcomingBoardings(journey,clock),focusedJourneyBoardings:(journey,index)=>focusedJourneyBoardings(journey,index,clock),journeyMonitorIds,
   localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)},
   setTimeout:(fn,ms)=>{const id=++nextId;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++nextId,clearInterval(){},

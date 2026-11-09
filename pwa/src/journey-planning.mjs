@@ -1,6 +1,7 @@
+import {providerStationIdentity} from './regional-departures.mjs?v=0.7.0';
 // Provider-independent journey model and fixed-service MOTIS adapter.
 // Production UI uses the bounded, same-origin journey-service endpoint.
-import {coordinate} from './journey-geometry.mjs?v=0.6.7';
+import {coordinate} from './journey-geometry.mjs?v=0.7.0';
 const MODES={SUBWAY:'metro',TRAM:'tram',BUS:'bus',ODM:'bus',SUBURBAN:'sbahn',REGIONAL_RAIL:'regional',LONG_DISTANCE:'long',HIGHSPEED_RAIL:'long',WALK:'walk'};
 const PROVIDER_MODES={metro:'SUBWAY',tram:'TRAM',bus:'BUS',sbahn:'SUBURBAN',regional:'REGIONAL_RAIL',long:'LONG_DISTANCE,HIGHSPEED_RAIL'};
 const text=(value,length=160)=>String(value??'').trim().slice(0,length);
@@ -16,6 +17,7 @@ export function uniqueJourneyPlaces(places=[]){
 }
 
 export function journeyStation(providerId,stops){
+ const regional=providerStationIdentity(providerId);if(regional){const match=stops.find(stop=>stop.provider==='transitous'&&stop.ifopt===regional);if(match)return match;}
  const number=String(providerId||'').match(/(?:^|_)P?at:49:(\d{1,5})(?::|$)/)?.[1];
  if(!number)return null;
  const id='wl:'+String(60200000+Number(number));
@@ -83,7 +85,7 @@ export function journeyBoardingTargets(journey,{limit=2}={}){
 // MOTIS omits station service suffixes and sometimes the monitor's via text.
 // Match complete terminal names only; an explicit planned via must be proved.
 export function journeyDirectionMatches(expected,actual){
- const parts=value=>{const label=text(value).replace(/^Wien\s+/i,'').trim().toLocaleLowerCase('de-AT'),via=label.match(/\s+\((?:über|üb\.?|via)\s+(.+)\)$/u);return {name:(via?label.slice(0,via.index):label).replace(/\s+(?:s\s+u|u\s+s|s|u)$/u,'').trim(),via:via?.[1]||''};};
+ const parts=value=>{const label=text(value).replace(/^(?:Wien|Graz|Salzburg|Linz(?:\/Donau)?)\s+/i,'').trim().toLocaleLowerCase('de-AT'),via=label.match(/\s+\((?:über|üb\.?|via)\s+(.+)\)$/u);return {name:(via?label.slice(0,via.index):label).replace(/\s+(?:s\s+u|u\s+s|s|u)$/u,'').trim(),via:via?.[1]||''};};
  const wanted=parts(expected),found=parts(actual);return !!wanted.name&&wanted.name===found.name&&(!wanted.via||wanted.via===found.via);
 }
 
@@ -92,7 +94,7 @@ export function journeyDirectionMatches(expected,actual){
 export function journeyLineDepartures(target,departures,stops,{earliest,now=Date.now()}={}){
  const stop=stops.find(item=>item.id===target.stopId);if(!stop||!target.towards||!Number.isFinite(earliest))return [];
  const ids=new Set((stop.rbl||[]).map(String));
- return departures.filter(d=>{const fetched=typeof d.fetchedAt==='number'?d.fetchedAt:Date.parse(d.fetchedAt);return ids.has(String(d.rbl))&&d.route===target.route&&d.mode===target.mode&&journeyDirectionMatches(target.towards,d.towards)&&Date.parse(d.actual)>=earliest&&Number.isFinite(fetched)&&now-fetched<=90_000&&fetched<=now+30_000;}).sort((a,b)=>Date.parse(a.actual)-Date.parse(b.actual)).slice(0,3);
+ return departures.filter(d=>{const fetched=typeof d.fetchedAt==='number'?d.fetchedAt:Date.parse(d.fetchedAt);return (d.stopId===stop.id||ids.has(String(d.rbl)))&&d.route===target.route&&d.mode===target.mode&&journeyDirectionMatches(target.towards,d.towards)&&Date.parse(d.actual)>=earliest&&(d.source==='gtfs'||Number.isFinite(fetched)&&now-fetched<=90_000&&fetched<=now+30_000);}).sort((a,b)=>Date.parse(a.actual)-Date.parse(b.actual)).slice(0,3);
 }
 
 export function createMotisPlanner({baseUrl,fetch=globalThis.fetch,stops=[],timeoutMs=20_000}={}){

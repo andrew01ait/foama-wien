@@ -1,41 +1,46 @@
-import {createAppUpdates} from './app-updates.mjs?v=0.6.7';
-import {bindAppShare} from './app-share.mjs?v=0.6.7';
-import {createNotifications} from './notifications.mjs?v=0.6.7&r=3';
-import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.6.7';
-import {jsonExportName} from './export-file.mjs?v=0.6.7';
-import {transferableJourneys} from './journey-favorites.mjs?v=0.6.7';
-import {mergeTransferBundle} from './transfer.mjs?v=0.6.7';
-import {warningsForTargets,updateWarningPanel,stationNoticeSections} from './warning-panel.mjs?v=0.6.7';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.6.7';
-import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.6.7';
-import {createThemeController} from './theme.mjs?v=0.6.7';
-import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.6.7';
-import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.6.7';
-import {connectionsAtStation} from './station-search.mjs?v=0.6.7';
-import {createLocationController,locationMessage} from './location.mjs?v=0.6.7';
-import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.6.7';
-import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.6.7';
-import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.6.7';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.6.7';
-import {stationAddressMarkup} from './station-addresses.mjs?v=0.6.7';
-import {createAddressLookup} from './address-index.mjs?v=0.6.7';
-import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.6.7';
-import {updateTrafficCache,trafficAtStation,affectedNoticeLines,noticeLines} from './traffic-info.mjs?v=0.6.7';
-import {createDebugging} from './debugging.mjs?v=0.6.7&r=2';
-import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.6.7';
-import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.6.7';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.6.7';
-import {connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation} from './connection-detail.mjs?v=0.6.7';
+import {CITY_PREFERENCE,CITY_PROFILES,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.7.0';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.7.0';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.7.0';
+import {createAppUpdates} from './app-updates.mjs?v=0.7.0';
+import {bindAppShare} from './app-share.mjs?v=0.7.0';
+import {createNotifications} from './notifications.mjs?v=0.7.0&r=3';
+import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.7.0';
+import {jsonExportName} from './export-file.mjs?v=0.7.0';
+import {transferableJourneys} from './journey-favorites.mjs?v=0.7.0';
+import {mergeTransferBundle} from './transfer.mjs?v=0.7.0';
+import {warningsForTargets,updateWarningPanel,stationNoticeSections} from './warning-panel.mjs?v=0.7.0';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.7.0';
+import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.7.0';
+import {createThemeController} from './theme.mjs?v=0.7.0';
+import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.7.0';
+import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.7.0';
+import {connectionsAtStation} from './station-search.mjs?v=0.7.0';
+import {createLocationController,locationMessage} from './location.mjs?v=0.7.0';
+import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.7.0';
+import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.7.0';
+import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.7.0';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.7.0';
+import {stationAddressMarkup} from './station-addresses.mjs?v=0.7.0';
+import {createAddressLookup} from './address-index.mjs?v=0.7.0';
+import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.7.0';
+import {updateTrafficCache,trafficAtStation,affectedNoticeLines,noticeLines} from './traffic-info.mjs?v=0.7.0';
+import {createDebugging} from './debugging.mjs?v=0.7.0&r=2';
+import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.7.0';
+import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.7.0';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.7.0';
+import {departureAtStation,connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation} from './connection-detail.mjs?v=0.7.0';
 const $=id=>document.getElementById(id), escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WL_RATE_KEY='foama.wl.lastApiAttempt.v1';
 let notifications=null;
-const appUpdates=createAppUpdates({version:'0.6.7'});
+const timetable=createTimetable();
+let plannedDepartures=[],scheduleRequest=null,regionalRequest=null,regionalRetry=0,regionalCycle=0;const cityLoads=new Map();
+const appUpdates=createAppUpdates({version:'0.7.0'});
 const keys={settings:'foama.settings.v1',favorites:'foama.favorites.v1',stops:'foama.stops.v1',rail:'foama.rail.v1',departures:'foama.departures.v1',lines:'foama.stationLines.v1'};
 function datasetDB(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window))return reject(Error('IndexedDB fehlt'));const request=indexedDB.open('foama-wien',1);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains('datasets'))db.createObjectStore('datasets');};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function datasetGet(key){let db;try{db=await datasetDB();return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readonly'),request=tx.objectStore('datasets').get(key);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error);});}catch{return null;}finally{db?.close();}}
 async function datasetPut(key,value){const db=await datasetDB();try{return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readwrite');tx.objectStore('datasets').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
 function retrieve(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}}
-const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.6.7'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
+const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.7.0'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
 Object.assign(state,{locationData:{},locationPhase:'ready',locationInfo:{phase:'ready'},nearbyAnchor:null,addressLookup:null,bundledStops:[],learnedLines:retrieve(keys.lines,{}),apiFailures:0,retryAt:0,batchCycle:0,queriedIds:new Set(),platformChecks:new Map(),positionMap:null});
 const themeControl=createThemeController({preference:state.settings.theme});
 state.trafficCache=retrieve('foama.traffic.v1',{});state.noticesError=false;
@@ -47,6 +52,11 @@ const stationViewport=bindStationViewport($('content'),()=>{if(!document.hidden)
 const debugging=createDebugging({version:()=>state.config.version});
 state.departures=retainDepartures(retrieve(keys.departures,[]));
 if(state.departures.length)state.lastRefresh=state.departures[0].fetchedAt;
+const cityControl=createCityController({preference:cityPreference(retrieve(CITY_PREFERENCE,'auto')),initialCity:recentDetectedCity(),onChange:profile=>void switchCity(profile)});state.cityProfile=cityControl.current();
+function activeStops(){return state.stops.filter(stop=>stopCity(stop)===state.cityProfile.id);}
+async function ensureCityStops(city){if(city==='wien'||state.stops.some(s=>s.city===city))return;if(!cityLoads.has(city))cityLoads.set(city,loadCityCatalogue(city).then(stops=>{state.stops.push(...stops);}).catch(error=>{cityLoads.delete(city);throw error;}));await cityLoads.get(city);}
+function renderCity(){renderCityBrand(document,state.cityProfile);$('cityProfileStatus').textContent=state.cityProfile.name+' · '+(cityControl.preference()==='auto'?'Automatisch (Standard Wien)':'Manuell gewählt');for(const button of $('cityPreferences').querySelectorAll('[data-city-preference]'))button.setAttribute('aria-pressed',String(button.dataset.cityPreference===cityControl.preference()));$('cityCapabilities').textContent=state.cityProfile.id==='wien'?'Live-Daten mit unabhängigem Wiener Fahrplan-Fallback.':state.cityProfile.source+'. Störungshinweise und Uhr-Katalog derzeit nur für Wien.';$('stopNames').innerHTML=activeStops().map(s=>`<option value="${escape(s.name)}"></option>`).join('');}
+async function switchCity(profile){cancelMonitor();state.cityProfile=profile;state.regionalError='';favoriteMenus.close();if(state.focusedConnection)connectionNavigation.back();state.routes.clear();state.expanded.clear();renderCity();try{await ensureCityStops(profile.id);}catch{if(state.cityProfile.id===profile.id)state.regionalError='Haltestellen für diese Stadt sind gerade nicht verfügbar.';}if(state.cityProfile.id!==profile.id)return;renderCity();refreshNearby();void refreshDepartures();}
 function learnedFor(stop){const entry=state.learnedLines[stop.id],now=Date.now(),registry=state.lineEvidence[stop.id];const local=mergeObservedLines((entry?.lines||[]).map(line=>({...line,lastSeen:line.lastSeen??entry.at})),[],now);return [...local,...evidenceForStation(registry,now).filter(line=>!line.suppressed||!local.some(seen=>seen.route===line.route&&seen.mode===line.mode&&seen.lastSeen>registry.checkedAt))];}
 function mergeLineEvidence(raw){
  const registry=raw.foamaLines,status=$('lineEvidenceStatus');
@@ -67,28 +77,35 @@ function hasRealRoute(stop){return !!state.routes.get(stop.id)?.real;}
 function walkText(stop){const loc=locationNow(),m=metersFor(stop),mins=walkingMinutes(m,state.settings.speed);if(!state.manual&&(loc.moving||loc.stale||loc.approximate))return `ca. ${Math.round(haversineMeters(state.position,stop)/10)*10} m ${loc.stale?'zur letzten Position':'Luftlinie · ungefähr'}`;return `${Math.ceil(mins??0)} Min. Fußweg · ${Math.round(m/10)*10} m ${hasRealRoute(stop)?'':'(geschätzt)'}`;}
 function statusText(s){return {good:'Gut erreichbar',tight:'Knapp',missed:'Kaum erreichbar',unknown:'Ungewiss'}[s];}
 function statusSymbol(s){return {good:'●',tight:'●',missed:'●',unknown:'○'}[s];}
-function qualityText(d){return d?.provider==='wl'&&(!!state.fetchError||!departureIsFresh(d))?'ÄLTER':d?.quality==='live'?'LIVE':'FAHRPLAN';}
-function relevantDepartures(stop){return state.departures.filter(d=>d.provider==='wl'?(stop.provider==='wl'&&stop.rbl.includes(d.rbl)):(d.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(d.stopId)));}
-function orderedFavorites(){return favoriteEntries(state.favorites,state.stops,state.position,state.settings.favoriteSort);}
+function displayDepartures(){return mergeTimetableDepartures(state.departures,plannedDepartures,state.stops);}
+async function loadPlanned(stops){
+ scheduleRequest?.abort();const controller=new AbortController(),revision=state.requestRevision;scheduleRequest=controller;
+ try{const incoming=await timetable.load(stops,{signal:controller.signal});if(document.hidden||controller.signal.aborted||revision!==state.requestRevision)return;const selected=new Set(stops.map(s=>s.id));plannedDepartures=[...plannedDepartures.filter(d=>!selected.has(d.stopId)&&Date.parse(d.actual)>=Date.now()-30000),...incoming].slice(-10000);render();}catch{}finally{if(scheduleRequest===controller)scheduleRequest=null;}
+}
+function dataError(d){return d?.provider==='transitous'?!!state.regionalError:!!state.fetchError;}
+function qualityText(d){return d?.source==='gtfs'?'FAHRPLAN':d?.provider!=='rail'&&(dataError(d)||!departureIsFresh(d))?'ÄLTER':d?.quality==='live'?'LIVE':'FAHRPLAN';}
+function relevantDepartures(stop){return displayDepartures().filter(d=>departureAtStation(stop,d));}
+function orderedFavorites(){return favoriteEntries(state.favorites,state.stops,state.position,state.settings.favoriteSort).filter(entry=>stopCity(entry.stop||entry.favorite)===state.cityProfile.id);}
 function favoriteGroups(){return groupFavoriteEntries(orderedFavorites());}
 function currentPlatformStops(){return state.settings.view==='fav'?orderedFavorites().map(entry=>entry.stop).filter(Boolean):state.nearby;}
 function findStop(id){return state.stops.find(s=>s.id===id);}
-function timeMarkup(d){if(!d)return '<small>—</small>';const fresh=d.provider!=='wl'||(!state.fetchError&&departureIsFresh(d));return `${fresh?'':'~'}${countdownMinutes(d.actual)}′ <span class="quality ${fresh&&d.quality==='live'?'live':!fresh?'cached':''}" title="${!fresh?'Letzter Abruf '+escape(new Date(d.fetchedAt).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'})):''}">${qualityText(d)}${vehicleAccessibilityMarkup(d,{hasError:!!state.fetchError})}</span>`;}
-function secondaryTimeMarkup(d){return d?`${countdownMinutes(d.actual)}′${vehicleAccessibilityMarkup(d,{hasError:!!state.fetchError})}`:'—';}
-function correctionMarkup(d){return departureCorrectionMarkup(d,{hasError:!!state.fetchError});}
-function reachFor(stop,d){if(!locationNow().reliable||!stop||!d||(d.provider==='wl'&&(state.fetchError||!departureIsFresh(d))))return {status:'unknown'};const dist=haversineMeters(state.position,stop);if(dist>2200)return {status:'unknown'};const walk=walkingMinutes(metersFor(stop),state.settings.speed);return reachability(d.actual,walk,state.settings.buffer,Date.now(),true);}
+function timeMarkup(d){if(!d)return '<small>—</small>';const fresh=d.source==='gtfs'||d.provider==='rail'||(!dataError(d)&&departureIsFresh(d));return `${fresh?'':'~'}${countdownMinutes(d.actual)}′ <span class="quality ${fresh&&d.quality==='live'?'live':!fresh?'cached':''}" title="${!fresh?'Letzter Abruf '+escape(new Date(d.fetchedAt).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'})):''}">${qualityText(d)}${vehicleAccessibilityMarkup(d,{hasError:dataError(d)})}</span>`;}
+function secondaryTimeMarkup(d){return d?`${countdownMinutes(d.actual)}′${vehicleAccessibilityMarkup(d,{hasError:dataError(d)})}`:'—';}
+function correctionMarkup(d){return departureCorrectionMarkup(d,{hasError:dataError(d)});}
+function reachFor(stop,d){if(!locationNow().reliable||!stop||!d||(d.source!=='gtfs'&&d.provider!=='rail'&&(dataError(d)||!departureIsFresh(d))))return {status:'unknown'};const dist=haversineMeters(state.position,stop);if(dist>2200)return {status:'unknown'};const walk=walkingMinutes(metersFor(stop),state.settings.speed);return reachability(d.actual,walk,state.settings.buffer,Date.now(),true);}
 function routeBadge(route,mode='bus'){return `<span class="route-pill ${escape(mode)}" data-route="${escape(String(route).replace(/\s+/g,'').toUpperCase())}">${escape(route)}</span>`;}
 function connectionAttributes(stop,route,towards='',mode=''){return `data-connection-stop="${escape(stop.id)}" data-connection-route="${escape(route)}" data-connection-towards="${escape(towards)}" data-connection-mode="${escape(mode)}"`;}
 function connectionLink(stop,route,towards='',mode=''){return `<button type="button" class="connection-link" ${connectionAttributes(stop,route,towards,mode)} aria-label="${escape(route+' Richtung '+(towards||'alle Richtungen')+' bei '+stop.name+' öffnen')}"></button>`;}
 function stationBadges(stop){
- const selected=stationLines(stop,learnedFor(stop)).filter(l=>state.settings.modes[l.mode]!==false),modes=[...new Set(selected.map(l=>MODE_LABELS[l.mode]))];
- const muted=selected.some(line=>!lineHasCurrentDeparture(stop,line,state.departures,{hasError:!!state.fetchError}));
+ const selected=stationLines(stop,learnedFor(stop)).filter(l=>state.settings.modes[l.mode]!==false),modes=[...new Set((selected.length?selected.map(l=>l.mode):stop.modes||[]).map(mode=>MODE_LABELS[mode]).filter(Boolean))];
+ const muted=selected.some(line=>!lineHasCurrentDeparture(stop,line,displayDepartures(),{hasError:stop.provider==='transitous'?!!state.regionalError:!!state.fetchError}));
  return `<span class="station-modes">${escape(modes.join(' · '))}</span><span class="station-badges">${selected.slice(0,8).map(line=>{
-  const current=lineHasCurrentDeparture(stop,line,state.departures,{hasError:!!state.fetchError});
+  const current=lineHasCurrentDeparture(stop,line,displayDepartures(),{hasError:stop.provider==='transitous'?!!state.regionalError:!!state.fetchError});
   return `<button type="button" class="station-line-button ${current?'':'line-unconfirmed'}" ${connectionAttributes(stop,line.route,'',line.mode)} aria-label="${escape(line.route+(current?' · aktuelle Abfahrten':' · keine aktuelle Abfahrt bestätigt')+' · Details öffnen')}" title="${current?'Aktuelle Abfahrten':'Keine aktuelle Abfahrt bestätigt'}">${routeBadge(line.route,line.mode)}</button>`;
  }).join('')}${selected.length>8?`<span class="more-lines">+${selected.length-8}</span>`:''}</span>${muted?'<small class="line-availability-hint">Gedimmt: aktuell keine Abfahrt bestätigt.</small>':''}`;
 }
 function noticesFor(stop,route=''){
+ if(stop.provider!=='wl')return [];
  const routes=Array.isArray(route)?route:route?[route]:stationLines(stop,learnedFor(stop)).filter(line=>state.settings.view==='fav'||state.settings.modes[line.mode]!==false).map(line=>line.route);
  return trafficAtStation(state.trafficCache,stop,{routes});
 }
@@ -104,6 +121,7 @@ function stationNotices(stop,route=''){
  return stationNoticeSections(notices,{key,isOpen:id=>state.openDetails.has(id),escape,renderNotice:notice=>trafficNoticeMarkup(notice,stop),renderLines:noticeBadges});
 }
 function renderWarnings(){
+ if(state.cityProfile.id!=='wien'){$('warningPanel').hidden=true;return;}
  const targets=state.settings.view==='fav'?orderedFavorites().map(({stop,favorite})=>({stop,routes:favorite.route?[favorite.route]:null})):state.nearby.map(stop=>({stop,routes:stationLines(stop,learnedFor(stop)).filter(line=>state.settings.modes[line.mode]!==false).map(line=>line.route)}));
  const notices=warningsForTargets(state.trafficCache,targets);
  updateWarningPanel({panel:$('warningPanel'),count:$('warningCount'),preview:$('warningPreview'),list:$('warningList'),details:$('warningDetails'),lines:$('warningLines')},notices,notice=>trafficNoticeMarkup(notice),noticeBadges);
@@ -145,13 +163,13 @@ function favoriteMarkup(group,index,count){
  }).join('');
  return `<article class="fav-card" data-station-id="${escape(stopId)}">${heading}${stationNotices(stop,whole?'':selected.map(({favorite:f})=>f.route))}<div class="favorite-station-lines">${rows+stationRows||'<p class="secondary-text">Noch keine aktuellen Abfahrten geladen.</p>'}</div></article>`;
 }
-function render(){if(state.focusedConnection){renderConnection();return;}if($('locationMapDialog').open)syncMapFavorites();renderLocation();updateAppStatus();renderWarnings();if($('routeDialog').open)renderStationAddress();const fav=state.settings.view==='fav';$('viewTitle').textContent=fav?'Meine Favoriten':'In der Nähe';renderFavoriteTools(fav);$('nearTools').classList.toggle('hidden',fav);$('tabNear').classList.toggle('active',!fav);$('tabFav').classList.toggle('active',fav);$('tabNear').setAttribute('aria-current',fav?'false':'page');$('tabFav').setAttribute('aria-current',fav?'page':'false');$('favCount').textContent=String(state.favorites.length);
+function render(){if(state.focusedConnection){renderConnection();return;}if($('locationMapDialog').open)syncMapFavorites();renderLocation();updateAppStatus();renderWarnings();if($('routeDialog').open)renderStationAddress();const fav=state.settings.view==='fav';$('viewTitle').textContent=fav?'Meine Favoriten':'In der Nähe';renderFavoriteTools(fav);$('nearTools').classList.toggle('hidden',fav);$('tabNear').classList.toggle('active',!fav);$('tabFav').classList.toggle('active',fav);$('tabNear').setAttribute('aria-current',fav?'false':'page');$('tabFav').setAttribute('aria-current',fav?'page':'false');$('favCount').textContent=String(orderedFavorites().length);
   $('updated').textContent=state.lastRefresh?`Stand ${new Date(state.lastRefresh).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'})}`:'Noch keine Daten';
   if(!fav){const near=state.nearby.slice().sort((a,b)=>stationPriority(a,state.settings,learnedFor(a))-stationPriority(b,state.settings,learnedFor(b))||metersFor(a)-metersFor(b));$('content').innerHTML=near.map(stopMarkup).join('');if(!near.length){$('content').innerHTML=`<div class="empty"><strong>${state.stopsUnavailable?'Haltestellendaten fehlen':state.position?'Keine passenden Haltestellen im Suchradius':'Standort noch nicht verfügbar'}</strong><p>${state.stopsUnavailable?'Importiere die offizielle Haltepunkte-CSV über ⚙ Einstellungen. Danach erscheinen Haltestellen in deiner Nähe.':state.position?'Wähle passende Verkehrsmittel oder erweitere den Suchradius. Stationen ohne bestätigte Zuordnung werden ausgeblendet.':'Erlaube den Standortzugriff oder wähle in den Einstellungen eine Haltestelle manuell.'}</p><button class="primary-btn" data-open-settings>⚙ Einstellungen öffnen</button></div>`;}}
   else{$('content').innerHTML=(favoriteGroups().map((group,index,groups)=>favoriteMarkup(group,index,groups.length)).join(''))+`<button class="primary-btn" style="width:100%;margin-top:8px" data-add-fav>＋ Favorit hinzufügen</button>`;}
  if(!document.hidden)stationViewport.schedule();
 }
-function cancelMonitor(){state.requestRevision++;state.monitorRequest?.abort();clearTimeout(state.nextFetchTimer);state.nextFetchTimer=null;}
+function cancelMonitor(){state.requestRevision++;scheduleRequest?.abort();regionalRequest?.abort();state.monitorRequest?.abort();clearTimeout(state.nextFetchTimer);state.nextFetchTimer=null;}
 function showConnection(target){
  const stop=target&&findStop(target.stopId);if(target&&!stop)target=null;
  const previous=state.focusedConnection;
@@ -174,6 +192,7 @@ function connectionRefreshText(){
  const target=state.focusedConnection;if(!target)return '';
  if(document.hidden)return 'Aktualisierung pausiert.';
  if(state.fetchLock&&!state.monitorRequest?.signal.aborted)return 'Diese Verbindung wird aktualisiert …';
+ if(findStop(target.stopId)?.provider==='transitous')return state.regionalError||state.cityProfile.source+' · Aktualisierung alle 30 s, nur sichtbar.';
  if(findStop(target.stopId)?.provider==='rail')return 'Fahrplandaten · keine Live-Prognose.';
  const wait=Math.ceil((Math.max(state.lastWlFetch+30_000,state.retryAt)-Date.now())/1000);
  if(state.fetchError)return state.fetchError+(wait>0?' Nächster Versuch in '+wait+' s.':'');
@@ -182,13 +201,13 @@ function connectionRefreshText(){
 function renderConnection(){
  const target=state.focusedConnection,stop=target&&findStop(target.stopId);if(!stop)return;
  const active=document.activeElement,focusAction=$('connectionContent').contains(active)?active.dataset.connectionAction:null;
- const departures=connectionDepartures(stop,target,state.departures),first=departures[0],reach=reachFor(stop,first);
+ const departures=connectionDepartures(stop,target,displayDepartures()),first=departures[0],reach=reachFor(stop,first);
  const saved=state.favorites.some(f=>favoriteKey(f)===favoriteKey(target));
- const directions=[...new Set(connectionDepartures(stop,{route:target.route},state.departures).map(d=>d.towards))];
+ const directions=[...new Set(connectionDepartures(stop,{route:target.route},displayDepartures()).map(d=>d.towards))];
  const checked=target.ids.length&&target.ids.every(id=>Date.now()-(state.platformChecks.get(id)||0)<=90_000);
  const empty=state.fetchError?'Live-Daten derzeit nicht verfügbar.':checked?'Derzeit keine Abfahrten für diese Verbindung gemeldet.':stop.provider==='rail'?'Keine aktuellen Fahrplandaten für diese Verbindung.':'Für diese Verbindung ist noch keine aktuelle Abfahrt bestätigt.';
  const clock=iso=>new Date(iso).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit'});
- $('connectionContent').innerHTML=`<div class="connection-heading"><div class="eyebrow">${escape(MODE_LABELS[target.mode]||'VERBINDUNG')}</div><h1 id="connectionTitle" tabindex="-1">${escape(stop.name)}</h1><div class="connection-destination ${lineHasCurrentDeparture(stop,target,state.departures,{hasError:!!state.fetchError})?'':'line-unconfirmed'}">${routeBadge(target.route,target.mode||first?.mode||'bus')}<h2>→ ${escape(target.towards||'Alle Richtungen')}</h2></div></div>
+ $('connectionContent').innerHTML=`<div class="connection-heading"><div class="eyebrow">${escape(MODE_LABELS[target.mode]||'VERBINDUNG')}</div><h1 id="connectionTitle" tabindex="-1">${escape(stop.name)}</h1><div class="connection-destination ${lineHasCurrentDeparture(stop,target,displayDepartures(),{hasError:stop.provider==='transitous'?!!state.regionalError:!!state.fetchError})?'':'line-unconfirmed'}">${routeBadge(target.route,target.mode||first?.mode||'bus')}<h2>→ ${escape(target.towards||'Alle Richtungen')}</h2></div></div>
   ${!target.towards&&directions.length?`<div class="connection-directions" aria-label="Richtung auswählen">${directions.map((direction,i)=>`<button type="button" class="small-btn" data-connection-action="direction-${i}" data-connection-direction="${escape(direction)}">→ ${escape(direction)}</button>`).join('')}</div>`:''}
   <section class="connection-countdown" aria-label="Nächste Abfahrt">${first?`<span class="connection-next-label">Nächste Abfahrt${!target.towards?' → '+escape(first.towards):''}</span><div class="connection-time">${timeMarkup(first)}</div><p class="connection-clock">um ${escape(clock(first.actual))}${first.platform?' · Bahnsteig '+escape(first.platform):''}</p>${correctionMarkup(first)}<p class="mini-status ${reach.status}">${statusSymbol(reach.status)} ${statusText(reach.status)}</p>`:`<div class="connection-time">—</div><p>${escape(empty)}</p>`}</section>
   <p class="connection-refresh-status" id="connectionRefreshStatus" role="status">${escape(connectionRefreshText())}</p>
@@ -202,7 +221,7 @@ function renderFavoriteTools(visible){
  $('favoriteTools').hidden=!visible;for(const button of $('favoriteSort').querySelectorAll('[data-favorite-sort]'))button.setAttribute('aria-pressed',String(button.dataset.favoriteSort===state.settings.favoriteSort));
  const missingPosition=state.settings.favoriteSort==='distance'&&!state.position;$('favoriteSortHint').hidden=!missingPosition;$('favoriteTools').classList.toggle('has-context',missingPosition);$('favoriteSortHint').textContent=missingPosition?'Ohne Standort gilt deine gespeicherte Reihenfolge.':'';
 }
-function refreshNearby(shouldRoute=false){if(!state.position){state.nearby=[];render();return;}state.nearby=nearbyMapStops(state.stops,state.position,state.settings,learnedFor,15);render();if(shouldRoute)void walkingMatrix();}
+function refreshNearby(shouldRoute=false){if(!state.position){state.nearby=[];render();return;}state.nearby=nearbyMapStops(activeStops(),state.position,state.settings,learnedFor,15);render();if(shouldRoute)void walkingMatrix();}
 function locationDescription(){
  const loc=locationNow();
  if(!state.position)return locationMessage(state.locationInfo);
@@ -230,9 +249,9 @@ function renderLocation(){
  $('locationPanel').classList.toggle('location-warning',!!warning);
  $('locationMap').disabled=!position;$('locationAddress').hidden=!position;$('locationMeta').hidden=!position;
  if(position){
-  const address=state.addressLookup?.(position),nearest=withinRadius(state.stops,position,1500)[0];
+  const address=state.addressLookup?.(position),nearest=withinRadius(activeStops(),position,1500)[0];
   const rough=!state.manual&&position.accuracy>150;
-  $('locationAddress').textContent=address?(rough?`Grobe Umgebung · ${address.postcode} Wien`:address.text):nearest?`Ungefähr bei ${nearest.name}`:'Keine Straßenumgebung im lokalen Wien-Index';
+  $('locationAddress').textContent=address?(rough?`Grobe Umgebung · ${address.postcode} Wien`:address.text):nearest?`Ungefähr bei ${nearest.name}`:state.cityProfile.id==='wien'?'Keine Straßenumgebung im lokalen Wien-Index':state.cityProfile.name+' · Haltestellenumgebung';
   const accuracy=state.manual?'manuell gewählt':Number.isFinite(position.accuracy)?`±${Math.round(position.accuracy)} m`:'Genauigkeit unbekannt';
   const recent=state.locationData.latest,extra=!state.manual&&recent&&recent!==position&&state.locationData.coarseReceived?` · neuer Empfang nur ±${Math.round(recent.accuracy)} m`:'';
   const text=`${accuracy} · Fix ${positionAgeText(loc.age)}${extra}`;
@@ -243,6 +262,7 @@ function renderLocation(){
  $('activateLocation').textContent=waiting?'Standort wird angefragt …':'⌖ Standort aktivieren';$('activateLocation').disabled=waiting;
 }
 function updateAppStatus(){
+ if(state.cityProfile.id!=='wien'){if(state.regionalError){msgStatus(state.regionalError,true);return;}$('status').hidden=true;return;}
  if(state.fetchError){const wait=Math.max(0,Math.ceil((state.retryAt-Date.now())/1000));msgStatus(`${state.fetchError}${wait?' · Nächster Versuch in '+wait+' s':''}`,true);return;}
  if(state.stopsUnavailable){msgStatus('Haltestellenkatalog fehlt · CSV importieren oder Serverdaten aktivieren',true);return;}
  if(!state.stops.length){msgStatus('Haltestellenindex wird geladen',true);return;}
@@ -255,6 +275,7 @@ function setPosition(loc,manual=false){
  state.locationData=updateLocation(manual?{}:state.locationData,{...loc,timestamp:loc.timestamp||Date.now(),accuracy:manual?0:loc.accuracy});
  state.position=state.locationData.position;if(!state.position)return;
  if(manual){state.locationPhase='manual';state.locationInfo={phase:'manual'};}
+ if(!manual){cityControl.observe({...loc,timestamp:loc.timestamp||Date.now()},{visible:!document.hidden});try{sessionStorage.setItem('foama.detectedCity.v1',JSON.stringify({city:cityControl.automatic().id,at:Date.now()}));}catch{}}
  const anchor=state.nearbyAnchor,distance=anchor?haversineMeters(anchor,state.position):Infinity;
  const changed=!old||manual||distance>=state.settings.movementMeters||(old.accuracy>150)!==(state.position.accuracy>150);
  if(changed){state.nearbyAnchor=state.position;state.routes.clear();refreshNearby(true);void refreshDepartures(true);}else render();
@@ -308,12 +329,26 @@ function apiErrorMessage(error){const code=error.upstreamStatus||error.status;
  return 'Live-Daten vorübergehend nicht verfügbar. Gespeicherter Stand bleibt sichtbar.';
 }
 function saveDepartureCache(){try{localStorage.setItem(keys.departures,JSON.stringify(retainDepartures(state.departures)));}catch{}}
+async function loadRegional(stops,{picker=false}={}){
+ const selected=regionalRequestStops(stops,{visible:visibleStationIds($('content')),expanded:state.expanded,cycle:regionalCycle});
+ if(!selected.length||document.hidden||regionalRequest)return;
+ let last=0;try{last=Number(localStorage.getItem('foama.regional.lastApiAttempt.v1')||0);}catch{}
+ if(Date.now()<Math.max(last+30000,regionalRetry))return;
+ const controller=new AbortController(),revision=state.requestRevision;let timedOut=false;const timer=setTimeout(()=>{timedOut=true;controller.abort();},14000);regionalRequest=controller;
+ try{localStorage.setItem('foama.regional.lastApiAttempt.v1',String(Date.now()));}catch{}
+ try{const result=await fetchRegionalBoards(selected,{signal:controller.signal});if(document.hidden||controller.signal.aborted||revision!==state.requestRevision)return;state.departures=retainDepartures(state.departures,result.departures,result.stations);state.regionalError=result.partial?'Einige regionale Stationen konnten noch nicht geladen werden.':'';regionalRetry=0;regionalCycle++;state.lastRefresh=new Date(result.checkedAt||Date.now()).toISOString();
+  for(const stop of selected){const lines=result.departures.filter(d=>d.stopId===stop.id).map(d=>({route:d.route,mode:d.mode,lastSeen:Date.parse(d.fetchedAt)}));if(lines.length){const old=state.learnedLines[stop.id];state.learnedLines[stop.id]={at:Date.now(),lines:mergeObservedLines(old?.lines||[],lines,result.checkedAt)};}}
+  try{localStorage.setItem(keys.lines,JSON.stringify(state.learnedLines));}catch{}saveDepartureCache();render();
+ }catch(error){if((timedOut||!controller.signal.aborted)&&revision===state.requestRevision&&!document.hidden){state.regionalError=timedOut?'Regionale Abfahrtsabfrage dauert zu lange.':error.message||'Regionale Abfahrten gerade nicht verfügbar.';regionalRetry=Date.now()+60000;render();}}
+ finally{clearTimeout(timer);if(regionalRequest===controller)regionalRequest=null;}
+}
 async function refreshDepartures(force=false){
  if(document.hidden||document.querySelector('dialog[open]'))return;
  if(state.fetchLock){state.refreshPending=true;return;}
  const focused=state.focusedConnection;
  const stops=focused?[findStop(focused.stopId)].filter(Boolean):currentPlatformStops().slice();
  if(state.settings.view!=='fav')stops.sort((a,b)=>Number(state.expanded.has(b.id))-Number(state.expanded.has(a.id)));
+ void loadPlanned(stops);void loadRegional(stops);
  const railStopIds=stops.filter(s=>s?.provider==='rail').flatMap(s=>s.platformIds||[s.id.slice(5)]);
  const visible=visibleStationIds($('content'));
  const ids=focused?focused.ids:state.settings.view==='fav'?(visible.size?selectStopIds(stops,null,MAX_STOP_IDS,state.batchCycle,new Set(),visible):favoriteStopIds(stops,MAX_STOP_IDS,state.batchCycle)):selectStopIds(stops,state.settings,MAX_STOP_IDS,state.batchCycle,state.expanded,visible);
@@ -341,7 +376,9 @@ function configureFilters(){const collapsed=state.settings.filtersCollapsed===tr
 function toggleFav(f){favoriteMenus.close();const i=state.favorites.findIndex(x=>favoriteKey(x)===favoriteKey(f));if(i>=0)state.favorites.splice(i,1);else state.favorites.push(f);saveFavorites();render();}
 const favoriteDepartureCache=new Map();
 async function favoriteConnections(stop){
- const existing=connectionsAtStation(state.departures,stop);
+ if(stop.provider==='transitous'){await loadRegional([stop],{picker:true});return {connections:connectionsAtStation(state.departures,stop),notice:state.regionalError||'Aktuelle Linien und Richtungen; gemeinsame Abrufpause 30 Sekunden.'};}
+ const planned=await timetable.load([stop]).catch(()=>[]);
+ const existing=connectionsAtStation(mergeTimetableDepartures(state.departures,planned,state.stops),stop);
  if(existing.length)return {connections:existing,notice:'Linie und Richtung auswählen. Die zuletzt geladenen Abfahrten werden verwendet.'};
  if(stop.provider==='rail')return {connections:connectionsAtStation(railDepartures(state.rail,stop.platformIds||[stop.id.slice(5)],new Date()),stop),notice:'Verbindungen aus dem importierten ÖBB-Sollfahrplan.'};
  let globalLast=0;try{globalLast=Number(localStorage.getItem(WL_RATE_KEY)||0);}catch{}
@@ -355,7 +392,7 @@ async function favoriteConnections(stop){
  return {connections:connectionsAtStation(departures,stop)};
 }
 function openFavoritePicker(stopId=''){
- openStationFavoritePicker({dialog:$('favoriteDialog'),root:$('favoriteForm'),stops:state.stops,nearby:state.nearby,initialStop:findStop(stopId),getFavorites:()=>state.favorites,
+ openStationFavoritePicker({dialog:$('favoriteDialog'),root:$('favoriteForm'),stops:activeStops(),nearby:state.nearby,initialStop:findStop(stopId),getFavorites:()=>state.favorites,
   routeBadge,loadConnections:favoriteConnections,onSave:favorite=>{
    if(state.favorites.some(item=>favoriteKey(item)===favoriteKey(favorite)))return;
    const cached=favoriteDepartureCache.get(favorite.stopId),stop=findStop(favorite.stopId);
@@ -379,7 +416,7 @@ function mapStationPopup(stop){
 }
 async function drawPositionMap(){
  const dialog=$('locationMapDialog'),position=state.position;if(!position||!dialog.open)return;
- const token=state.positionMapGeneration=(state.positionMapGeneration||0)+1,stops=nearbyMapStops(state.stops,position,state.settings,learnedFor);
+ const token=state.positionMapGeneration=(state.positionMapGeneration||0)+1,stops=nearbyMapStops(activeStops(),position,state.settings,learnedFor);
  const accuracy=state.manual?0:Math.max(position.accuracy||0,state.locationData.coarseReceived?state.locationData.latest?.accuracy||0:0);
  $('positionMapInfo').textContent=`${locationDescription().title} · ${$('locationAddress').textContent} · ${$('locationMeta').textContent}`;
  $('positionMapSummary').textContent=`${stops.length}${stops.length===60?' (max. 60)':''} passende Haltestellen · ${state.settings.radius} m Suchradius · Stationen antippen zeigt Linien, Adresse und Favoriten für Haltestelle oder Linie/Richtung.`;
@@ -475,6 +512,7 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
   else if(button.id==='connectionMap')openRoute(stop);
  });
  const clickView=e=>setView(e.currentTarget.id.toLowerCase().includes('fav')?'fav':'near');for(const id of ['tabNear','tabFav'])$(id).addEventListener('click',clickView);
+  $('cityPreferences').addEventListener('click',async event=>{const button=event.target.closest('[data-city-preference]');if(!button)return;const value=button.dataset.cityPreference;try{localStorage.setItem(CITY_PREFERENCE,JSON.stringify(value));}catch{}const profile=cityControl.select(value);renderCity();await ensureCityStops(profile.id).catch(()=>{});if(value!=='auto'&&(!state.position||haversineMeters(state.position,profile.center)>profile.radius)){locationControl.stop();setPosition(profile.center,true);}else if(value==='auto'&&state.manual){state.manual=false;state.locationData={};state.position=null;state.nearby=[];locationControl.resume();}refreshNearby();});
   $('settingsToggle').addEventListener('click',()=>{$('settings').showModal();void notifications?.refresh();});bindAppShare();
   $('toggleFilters').addEventListener('click',()=>{state.settings.filtersCollapsed=!state.settings.filtersCollapsed;saveSettings();configureFilters();});
   $('resetModes').addEventListener('click',()=>{state.settings.modes={...DEFAULTS.modes};saveSettings();configureUI();refreshNearby(true);void refreshDepartures();});
@@ -505,7 +543,7 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
    const id=button.dataset.mapStation;if(!id)return;$('locationMapDialog').close();void openRoute(findStop(id));
   };$('positionMapHolder').addEventListener('click',stationMapClick);$('positionMapStations').addEventListener('click',stationMapClick);$('recenterLocationMap').addEventListener('click',()=>void drawPositionMap());$('closeLocationMap').addEventListener('click',()=>$('locationMapDialog').close());$('locationMapDialog').addEventListener('close',()=>{state.positionMapGeneration++;state.positionMap?.remove();state.positionMap=null;});
   $('requestGps').addEventListener('click',requestLocation);$('activateLocation').addEventListener('click',requestLocation);
-  $('chooseStop').addEventListener('click',()=>{const q=$('manualStop').value.trim().toLocaleLowerCase('de-AT');const stop=state.stops.find(s=>s.name.toLocaleLowerCase('de-AT')===q)||state.stops.find(s=>s.name.toLocaleLowerCase('de-AT').includes(q));if(!q||!stop){alert('Haltestelle nicht im importierten Katalog gefunden.');return;}locationControl.stop();setPosition({lat:stop.lat,lon:stop.lon},true);$('settings').close();});
+  $('chooseStop').addEventListener('click',()=>{const q=$('manualStop').value.trim().toLocaleLowerCase('de-AT');const stop=activeStops().find(s=>s.name.toLocaleLowerCase('de-AT')===q)||activeStops().find(s=>s.name.toLocaleLowerCase('de-AT').includes(q));if(!q||!stop){alert('Haltestelle nicht im importierten Katalog gefunden.');return;}locationControl.stop();setPosition({lat:stop.lat,lon:stop.lon},true);$('settings').close();});
   $('stopsFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const stops=enrichStops(parseWlStopsCsv(await f.text()),state.bundledStops);if(!stops.length)throw Error('Keine gültigen Haltepunkte gefunden');state.stops=[...state.stops.filter(s=>s.provider!=='wl'),...stops];await datasetPut('wl',stops).catch(()=>localStorage.setItem(keys.stops,JSON.stringify(stops)));state.stopsUnavailable=false;refreshNearby(true);render();alert(`${stops.length} Haltestellen importiert.`);}catch(err){alert(err.message);}});
   $('railFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data.stops)||!Array.isArray(data.departures))throw Error('Ungültige ÖBB-Fahrplandatei');state.rail=data;state.stops=[...state.stops.filter(s=>s.provider!=='rail'),...data.stops];await datasetPut('rail',data).catch(()=>{throw Error('Fahrplan ist zu groß für lokale Speicherung. Bitte die vorbereitete rail.json statisch ausliefern.');});refreshNearby(true);void refreshDepartures(true);alert(`${data.stops.length} Bahnstationen / ${data.departures.length} Fahrplanabfahrten geladen.`);}catch(err){alert(err.message);}});
   $('exportFav').addEventListener('click',()=>{const journeys=transferableJourneys(retrieve('foama.journeyFavorites.v1',[]));saveFile(jsonExportName('favoriten'),JSON.stringify({format:journeys.length?'foama-favorites-v2':'foama-favorites-v1',favorites:state.favorites,...(journeys.length?{journeys}:{})},null,2));});
@@ -521,8 +559,8 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
     if(x.removeFavStation!==undefined){favoriteMenus.close();state.favorites=removeFavoriteStation(state.favorites,x.removeFavStation);saveFavorites();render();return;}
     if(x.moveFavStation!==undefined){
       const key='station:'+x.moveFavStation;favoriteMenus.close();if(state.settings.favoriteSort==='distance')return;
-      const result=moveFavoriteStation(state.favorites,x.moveFavStation,Number(x.delta));if(!result.moved)return;
-      state.favorites=result.favorites;saveFavorites();render();
+      const visible=state.favorites.filter(f=>stopCity(findStop(f.stopId)||f)===state.cityProfile.id),result=moveFavoriteStation(visible,x.moveFavStation,Number(x.delta));if(!result.moved)return;
+      let moved=0;state.favorites=state.favorites.map(f=>stopCity(findStop(f.stopId)||f)===state.cityProfile.id?result.favorites[moved++]:f);saveFavorites();render();
       Array.from($('content').querySelectorAll('.favorite-menu')).find(menu=>menu.dataset.favoriteMenu===key)?.querySelector('summary')?.focus({preventScroll:true});
       void refreshDepartures(true);return;
     }
@@ -531,15 +569,16 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopActive();else startActive();});window.addEventListener('pagehide',stopActive);
 }
 async function prepareTransfer(){if(location.hash.includes('session='))location.replace('./transfer.html'+location.hash);}
-async function init(){try{const config=await fetchJson('./config.json?v=0.6.7');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
-  try{const baked=await fetchJson('./data/stops.json?v=0.6.7');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
+async function init(){try{const config=await fetchJson('./config.json?v=0.7.0');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
+  try{const baked=await fetchJson('./data/stops.json?v=0.7.0');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
   const storedStops=(await datasetGet('wl'))||retrieve(keys.stops,[]);if(storedStops.length)state.stops=[...state.stops.filter(s=>s.provider!=='wl'),...enrichStops(storedStops,state.bundledStops)];
   try{state.rail=(await datasetGet('rail'))||retrieve(keys.rail,null)||await fetchJson('./data/rail.json');if(state.rail?.stops)state.stops.push(...state.rail.stops);}catch{}
-  state.stopsUnavailable=!state.stops.length;$('stopNames').innerHTML=state.stops.slice(0,9000).map(s=>`<option value="${escape(s.name)}"></option>`).join('');
+  await ensureCityStops(state.cityProfile.id).catch(()=>{});renderCity();
+  state.stopsUnavailable=!state.stops.length;$('stopNames').innerHTML=activeStops().slice(0,9000).map(s=>`<option value="${escape(s.name)}"></option>`).join('');
   // Request a prepared WL index from the proxy only if the static bundle contains none.
   if(state.stopsUnavailable&&(!state.config.staticOnly||state.settings.proxyBase||state.config.apiBase)){try{const api=state.settings.proxyBase||state.config.apiBase||(location.origin!=='null'?location.origin:'');if(!api)throw Error('Kein Index-Backend konfiguriert');const index=await fetchJson(`${api}/api/stops-index`,10_000);if(index.stops?.length){state.stops=index.stops;state.stopsUnavailable=false;$('stopNames').innerHTML=state.stops.map(s=>`<option value="${escape(s.name)}"></option>`).join('');}}catch{}}
-  void fetchJson('./data/station-addresses.json?v=0.6.7').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
-  void fetchJson('./data/streets.json?v=0.6.7').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
+  void fetchJson('./data/station-addresses.json?v=0.7.0').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
+  void fetchJson('./data/streets.json?v=0.7.0').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
   for(const stop of state.stops.filter(s=>s.provider==='rail')){const departures=(state.rail?.departures||[]).filter(d=>(stop.platformIds||[stop.id.slice(5)]).includes(d.stop));stop.lines=[...new Map(departures.map(d=>[(d.mode||'regional')+'|'+d.route,{route:d.route,mode:d.mode||'regional'}])).values()];}
   if(['#favoriten','#naehe'].includes(location.hash)){state.settings.view=location.hash==='#favoriten'?'fav':'near';saveSettings();}saveFavorites();connectionNavigation.sync();render();await prepareTransfer();void locationControl.init();startActive();if(state.stopsUnavailable)msgStatus('Haltestellenkatalog fehlt · CSV importieren oder Serverdaten aktivieren',true);
   notifications=createNotifications({getFavorites:()=>state.favorites,getStops:()=>state.stops,getJourneys:()=>retrieve('foama.journeyFavorites.v1',[])});

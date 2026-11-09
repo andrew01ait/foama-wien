@@ -1,4 +1,4 @@
-# Störungs-Push · PWA 0.6.7
+# Störungs-Push · PWA 0.7.0
 
 Aktuelle Nutzerentscheidung (09.11.2026): Push ausschließlich für die PWA, kein direkter Uhr-Push. Kein eigenes Firebase-Projekt oder Firebase-SDK nötig. Die native App 0.6.1/21 bleibt unverändert; vorhandene FCM-Vorbereitung bleibt deaktiviert. Der Browser wählt seinen Pushdienst; Chrome/Android kann darunter Google-Infrastruktur verwenden.
 
@@ -7,6 +7,8 @@ Aktuelle Nutzerentscheidung (09.11.2026): Push ausschließlich für die PWA, kei
 Einstellungen → Störungsbenachrichtigungen. Erst „Benachrichtigungen aktivieren“ fordert die Browserfreigabe an. Standard: Meine Favoriten einschließlich Stationen, Linien und bekannter Ein-/Umstiegs-/Ausstiegsstationen gespeicherter A-nach-B-Wege samt Alternativen (maximal 100 Stationen). Alternativ Alle Linien. Optionale Nachtruhe 22–7 Uhr, Europe/Vienna einschließlich Sommerzeit.
 
 Aufzüge und Fahrtreppen lösen **niemals** Push aus, auch nicht bei alten gespeicherten equipment:true-Freigaben. Maßgeblich sind die offiziellen Kategorien; eine echte Betriebsstörung wird nicht wegen des Worts „Aufzug“ im Text verworfen. Geplantes frühestens ab Beginn; beendete/abgelaufene Störungen und reine Informationen sind ausgeschlossen. Stationsgebundene Kurzmeldungen benötigen den tatsächlichen RBL-Bezug. Keine Entwarnung aus fehlenden Daten oder Quellenfehlern.
+
+Testnachricht und Zustellstatus befinden sich ausschließlich im anfangs geschlossenen Bereich **Einstellungen → Debug Push**. Dort gibt es zusätzlich „Anzeige auf Gerät prüfen“: eine lokale lautlose showNotification()-Probe ohne Transport und ohne weitere Freigabeanforderung. Ein expliziter Test wird mit Transport-Dringlichkeit high gesendet, damit die kurze Ein-Minuten-TTL nicht unnötig durch normalen Energiesparaufschub aufgebraucht wird; dies ist keine Zustellgarantie. Reguläre Pushs bleiben normal/lautlos.
 
 Testnachricht sendet einen bewusst ausgelösten Test. „Zustellstatus“ fragt dessen letzten Stand einmal ab: vom Anbieter angenommen, Browser hat Anzeige angefordert, angetippt oder vor Anzeige verworfen. Weder Anbieterannahme noch erfolgreiche showNotification()-Rückkehr beweist sichtbare Präsentation oder menschliches Lesen. Es gibt keinen Status-Pollingloop. Eine Testnachricht darf auch bei sichtbarer App und während der Nachtruhe erscheinen.
 
@@ -50,3 +52,7 @@ PUSH_VAPID_PUBLIC_KEY, PUSH_VAPID_PRIVATE_JWK, PUSH_VAPID_SUBJECT, PUSH_STORAGE_
 | Verschlüsselung und Standardtransport | cloudflare/src/push-crypto.mjs, cloudflare/src/web-push.mjs |
 
 [Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API) · [RFC 8291](https://www.rfc-editor.org/rfc/rfc8291) · [RFC 8292](https://www.rfc-editor.org/rfc/rfc8292) · [Prüfprotokoll](tests.md)
+
+## Diagnose des ausgebliebenen Tests am 09.11.2026
+
+Produktiver Test um 22:21 UTC wurde nach einem Transportversuch angenommen, aber ohne shown/clicked/suppressed und ohne sichtbaren Event-Verifikationsabruf. Ein weiterer Test ca. 40 s später erhielt die vorgesehene HTTP-429-Minutenpause. Das belegt keinen Geräteempfang und keine konkrete Android-Ursache. Keine Nutzerschlüssel oder Endpunkte wurden für die Prüfung exportiert. Ab 0.7.0 speichert der Worker höchstens acht technische Empfangsschritte für 24 h lokal in IndexedDB (Zeit/zulässiger Kategoriename, keine Inhalte/IDs/Geheimnisse). Status und Testausgaben stehen im Debug-Bereich. Nach dem Update erneut bewusst testen; Anbieterannahme ohne Bestätigung wird niemals automatisch erneut gesendet.

@@ -61,7 +61,8 @@ test('subscription storage is authenticated encryption bound to its own device I
 test('transport respects relative and dated Retry-After and short test TTL in the real request shape',async()=>{
  let headers;
  const options={now,ttl:60,fetcher:async(url,request)=>{headers=request.headers;return new Response(null,{status:429,headers:{'Retry-After':'120'}});}};
- const relative=await sendWebPush(sub,{title:'test'},env(),options);assert.equal(relative.retryAfterMs,120000);assert.equal(headers.TTL,'60');
+ const relative=await sendWebPush(sub,{title:'test'},env(),options);assert.equal(relative.retryAfterMs,120000);assert.equal(headers.TTL,'60');assert.equal(headers.Urgency,'normal');
+ await sendWebPush(sub,{title:'test'},env(),{...options,urgency:'high'});assert.equal(headers.Urgency,'high');
  const until=now+120000,dated=await sendWebPush(sub,{title:'test'},env(),{now,fetcher:async()=>new Response(null,{status:503,headers:{'Retry-After':new Date(until).toUTCString()}})});
  assert.equal(dated.retryAfterMs+dated.responseAt,until);
 });
@@ -197,15 +198,15 @@ test('v2 event verification and bounded receipts are authenticated per device; a
 });
 
 function clientFixture({permission='default',supported=true,visibility='visible',stored=null,available=true,workerProtocol=2,getJourneys=()=>[]}={}){
- const elements=new Map(),events={},requests=[],order=[],db=new Map(stored? [['foama.push.v1',JSON.stringify(stored)]]:[]);let unsubscribed=0;
+ const elements=new Map(),events={},requests=[],order=[],db=new Map(stored? [['foama.push.v1',JSON.stringify(stored)]]:[]);let unsubscribed=0;const localShown=[];
  const element=id=>{if(!elements.has(id))elements.set(id,{handlers:{},hidden:false,disabled:false,checked:false,textContent:'',setAttribute(){},addEventListener:(type,handler)=>elements.get(id).handlers[type]=handler});return elements.get(id);};
  const root={visibilityState:visibility,getElementById:element,addEventListener:(name,fn)=>events[name]=fn};
  let current=null;
  const subscription={toJSON:()=>sub,unsubscribe:async()=>{unsubscribed++;current=null;return true;}};
- const environment={isSecureContext:supported,crypto,MessageChannel,PushManager:class{},Notification:{permission,requestPermission(){order.push('permission');this.permission=permission==='denied'?'denied':'granted';return Promise.resolve(this.permission);}},navigator:{serviceWorker:{ready:Promise.resolve({active:{postMessage(data,ports){ports[0].postMessage({protocol:workerProtocol});}},pushManager:{getSubscription:async()=>current,subscribe:async()=>{order.push('subscribe');current=subscription;return subscription;}}})}}};
+ const environment={isSecureContext:supported,crypto,MessageChannel,PushManager:class{},Notification:{permission,requestPermission(){order.push('permission');this.permission=permission==='denied'?'denied':'granted';return Promise.resolve(this.permission);}},navigator:{serviceWorker:{ready:Promise.resolve({showNotification:async(...args)=>localShown.push(args),active:{postMessage(data,ports){ports[0].postMessage({protocol:workerProtocol});}},pushManager:{getSubscription:async()=>current,subscribe:async()=>{order.push('subscribe');current=subscription;return subscription;}}})}}};
  const fetcher=async(path,options)=>{requests.push({path,options});order.push(path);return Response.json(path.endsWith('/config')?{available,publicKey,lastSuccess:now}:{enabled:true,accepted:true,expiresAt:Date.now()+86400000},{status:options.method==='POST'&&!path.endsWith('/test')?201:200});};
  const controller=createNotifications({root,getFavorites:()=>[{stopId:'wl:1',route:'U6'}],getStops:()=>catalog,getJourneys,storage:{getItem:key=>db.get(key),setItem:(key,value)=>db.set(key,value)},environment,fetcher,pushStore:{setDevice:async()=>{}}});
- return {controller,root,elements,element,events,requests,order,db,environment,get unsubscribed(){return unsubscribed;}};
+ return {controller,root,localShown,elements,element,events,requests,order,db,environment,get unsubscribed(){return unsubscribed;}};
 }
 async function settle(fixture){for(let i=0;i<50&&fixture.element('pushDisable').disabled;i++)await new Promise(setImmediate);}
 test('notifications never prompt on startup; user permission is requested synchronously on enable before network',async()=>{
@@ -249,4 +250,15 @@ test('returning to the visible PWA synchronizes a changed route selection immedi
  let journeys=[];const f=clientFixture({getJourneys:()=>journeys});await f.controller.init();f.element('pushEnable').handlers.click();await settle(f);const before=f.requests.filter(r=>r.options.method==='PUT').length;
  journeys=[{legs:[{mode:'tram',route:'46',from:{stopId:'wl:1'},to:{stopId:'wl:1'}}]}];await f.controller.refresh();await settle(f);const updates=f.requests.filter(r=>r.options.method==='PUT');assert.equal(updates.length,before+1);assert.deepEqual(JSON.parse(updates.at(-1).options.body).targets[0].routes,['46','U6']);assert.match(f.element('pushSelection').textContent,/2 Linien an 1 Haltestellen/);
  journeys=[];f.root.visibilityState='hidden';const count=f.requests.length;await f.controller.refresh();await settle(f);assert.equal(f.requests.length,count,'hidden document does not synchronize changed routes');
+});
+
+test('push debug separates provider acceptance from normal status and the local display test does not use the transport',async()=>{
+ const f=clientFixture();await f.controller.init();f.element('pushEnable').handlers.click();await settle(f);
+ f.element('pushTest').handlers.click();await settle(f);
+ assert.match(f.element('pushDebugStatus').textContent,/Anbieter angenommen/);assert.doesNotMatch(f.element('pushStatus').textContent,/Anbieter angenommen/);
+ const count=f.requests.length;f.element('pushLocalTest').handlers.click();await settle(f);assert.equal(f.requests.length,count);assert.equal(f.localShown.length,1);assert.equal(f.localShown[0][1].silent,true);
+ assert.match(f.element('pushDebugStatus').textContent,/lokale Anzeige/);
+ const html=await readFile(new URL('../pwa/index.html',import.meta.url),'utf8');
+ const debug=html.slice(html.indexOf('<details class="push-debug"'),html.indexOf('</details>',html.indexOf('<details class="push-debug"')));
+ assert.match(debug,/>Debug Push</);assert.match(debug,/id="pushTest"/);assert.match(debug,/id="pushReceipt"/);assert.match(debug,/id="pushDebugStatus"/);
 });

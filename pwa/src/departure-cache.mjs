@@ -2,7 +2,7 @@ const MAX_AGE=10*60_000,MAX_RECORDS=3000;
 const observed=new WeakSet(),corrections=new WeakMap(),CORRECTION_AGE=120_000,MIN_CORRECTION=30_000;
 function predictionKey(d){
   const planned=Date.parse(d?.scheduled);
-  return d?.provider==='wl'&&/^\d+$/.test(String(d.rbl??''))&&d.route&&d.towards&&Number.isFinite(planned)?JSON.stringify([String(d.rbl),d.route,d.towards,d.mode||'',planned]):null;
+  return d?.provider==='wl'&&/^\d+$/.test(String(d.rbl??''))&&d.route&&d.towards&&Number.isFinite(planned)?JSON.stringify([d.provider,d.stopId||String(d.rbl),d.route,d.towards,d.mode||'',planned]):null;
 }
 function freshPrediction(d,now){
   const fetched=Date.parse(d?.fetchedAt);
@@ -25,10 +25,10 @@ function observeCorrections(previous,incoming,now){
 }
 export function retainDepartures(previous=[],incoming=[],replacedIds=[],now=Date.now()){
   observeCorrections(previous,incoming,now);
-  const replaced=new Set(replacedIds),all=[...previous.filter(d=>!replaced.has(d.rbl)),...incoming];
+  const replaced=new Set(replacedIds),all=[...previous.filter(d=>!replaced.has(d.rbl)&&!replaced.has(d.stopId)),...incoming];
   const unique=new Map();
   for(const d of all){const fetched=Date.parse(d.fetchedAt),actual=Date.parse(d.actual);
-    if(d.provider!=='wl'||!Number.isFinite(fetched)||fetched>now+30_000||now-fetched>MAX_AGE||!Number.isFinite(actual)||actual<now-30_000)continue;
+    if(!['wl','transitous'].includes(d.provider)||!Number.isFinite(fetched)||fetched>now+30_000||now-fetched>MAX_AGE||!Number.isFinite(actual)||actual<now-30_000)continue;
     unique.set(d.id,d);
   }
   return [...unique.values()].sort((a,b)=>Date.parse(b.fetchedAt)-Date.parse(a.fetchedAt)).slice(0,MAX_RECORDS);
@@ -41,7 +41,7 @@ export function departureCorrection(departure,now=Date.now()){
   return delta>=MIN_CORRECTION?{previousActual:note.previousActual,actual:departure.actual,changedAt:note.changedAt,deltaMilliseconds:delta}:null;
 }
 export function departureIsFresh(departure,now=Date.now()){
-  const fetched=Date.parse(departure?.fetchedAt);return Number.isFinite(fetched)&&now-fetched<=90_000;
+  const fetched=Date.parse(departure?.fetchedAt);return Number.isFinite(fetched)&&fetched<=now+30_000&&now-fetched<=90_000;
 }
 export function retryDelay(failures,status=0){
   return Math.min(5*60_000,(status===403||status===429?60_000:30_000)*2**Math.min(4,Math.max(0,failures-1)));

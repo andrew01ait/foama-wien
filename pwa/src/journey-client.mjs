@@ -1,6 +1,7 @@
-import {connectionRequestIds} from './connection-detail.mjs?v=0.6.7';
-import {journeyBoardingTargets} from './journey-planning.mjs?v=0.6.7';
-import {mergeJourneyResults} from './journey-options.mjs?v=0.6.7';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.7.0';
+import {connectionRequestIds} from './connection-detail.mjs?v=0.7.0';
+import {journeyBoardingTargets} from './journey-planning.mjs?v=0.7.0';
+import {mergeJourneyResults} from './journey-options.mjs?v=0.7.0';
 
 export const viennaInput=(date=new Date())=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Vienna',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date).replace(' ','T');
 export function viennaTime(value){
@@ -27,7 +28,7 @@ export function createJourneyClient({fetch=globalThis.fetch,timeoutMs=23000}={})
    cache.set(key,{data,at:Date.now()});while(cache.size>4)cache.delete(cache.keys().next().value);return data;
   }finally{clearTimeout(timer);if(controller===own)controller=null;}
  }
- return {abort,plan:body=>request('plan',body),places:text=>request('places',{text}),walk:body=>request('walk',body)};
+ return {abort,plan:body=>request('plan',body),places:(text,city)=>request('places',{text,city:city||(()=>{try{const manual=cityPreference(JSON.parse(localStorage.getItem(CITY_PREFERENCE)));return manual==='auto'?recentDetectedCity():manual;}catch{return 'wien';}})()}),walk:body=>request('walk',body)};
 }
 export function createJourneyComparisonClient(options={}){
  const timetable=createJourneyClient(options),transfers=createJourneyClient(options);let revision=0;

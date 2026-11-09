@@ -1,5 +1,5 @@
-import {journeyPathKey,journeyFamily} from './journey-variants.mjs?v=0.6.7';
-import {coordinate} from './journey-geometry.mjs?v=0.6.7';
+import {journeyPathKey,journeyFamily} from './journey-variants.mjs?v=0.7.0';
+import {coordinate} from './journey-geometry.mjs?v=0.7.0';
 const MODES=new Set(['metro','tram','bus','sbahn','regional','long','walk']);
 const text=(s,n=160)=>String(s??'').trim().slice(0,n);
 function endpoint(p){
@@ -7,7 +7,7 @@ function endpoint(p){
  if(!Number.isFinite(p?.lat)||!Number.isFinite(p?.lon)||Math.abs(p.lat)>90||Math.abs(p.lon)>180)return null;
  return {kind:'point',name:text(p.name),lat:p.lat,lon:p.lon};
 }
-function place(p){return {name:text(p?.name),stopId:/^(wl|rail):[\w:-]{1,100}$/.test(p?.stopId)?p.stopId:null,platform:text(p?.platform,30),...(coordinate(p)||{})};}
+function place(p){return {name:text(p?.name),stopId:/^(wl|rail|graz|linz|salzburg):[\w:-]{1,100}$/.test(p?.stopId)?p.stopId:null,platform:text(p?.platform,30),...(coordinate(p)||{})};}
 export function sanitizeJourneyFavorites(input){
  if(!Array.isArray(input))return [];
  return input.slice(0,30).flatMap(row=>{

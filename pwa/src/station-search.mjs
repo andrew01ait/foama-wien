@@ -12,8 +12,8 @@ export function searchStations(stops,query,limit=12){
 export function connectionsAtStation(departures,stop,now=Date.now()){
   const groups=new Map();
   for(const departure of departures){
-    const belongs=departure.provider==='wl'?stop.provider==='wl'&&stop.rbl.includes(departure.rbl):
-      stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId);
+    const belongs=departure.source==='gtfs'?departure.stopId===stop.id:departure.provider==='wl'?stop.provider==='wl'&&stop.rbl.includes(departure.rbl):
+      departure.provider==='transitous'?stop.provider==='transitous'&&departure.stopId===stop.id:stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId);
     const departureAt=Date.parse(departure.actual);
     if(!belongs||!departure.route||!Number.isFinite(departureAt)||departureAt<now-30_000)continue;
     const key=departure.route+'|'+departure.towards;

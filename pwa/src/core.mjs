@@ -62,7 +62,8 @@ export function mergeSettings(value){return {...DEFAULTS,...(value||{}),modes:{.
 export function withinRadius(stops,location,radius){return stops.map(s=>({...s,airMeters:haversineMeters(location,s)})).filter(s=>s.airMeters<=radius).sort((a,b)=>a.airMeters-b.airMeters);}
 export function favoriteKey(f){return `${f.stopId}|${f.route||''}|${f.towards||''}`;}
 export function dedupeFavorites(favs){if(!Array.isArray(favs))return [];const keys=new Set();return favs.filter(f=>{const k=favoriteKey(f);if(keys.has(k))return false;keys.add(k);return true;});}
-export function favoriteMatches(f,d){return (!f.route||f.route===d.route)&&(!f.towards||f.towards===d.towards);}
+export function directionEquivalent(expected,actual){const parts=value=>{const label=String(value||'').replace(/^(?:Wien|Graz|Salzburg|Linz(?:\/Donau)?)\s+/i,'').trim().toLocaleLowerCase('de-AT'),via=label.match(/\s+\((?:über|üb\.?|via)\s+(.+)\)$/u);return {name:(via?label.slice(0,via.index):label).replace(/\s+(?:s\s+u|u\s+s|s|u)$/u,'').trim(),via:via?.[1]||''};};const a=parts(expected),b=parts(actual);return !!a.name&&a.name===b.name&&(!a.via||a.via===b.via);}
+export function favoriteMatches(f,d){return (!f.route||f.route===d.route)&&(!f.towards||f.towards===d.towards||(['gtfs','transitous','linz-efa'].includes(d.source)&&directionEquivalent(f.towards,d.towards)));}
 export function isActivePage(doc=globalThis.document){return !!doc&&!doc.hidden;}
 // Rail GTFS records retain explicit date validity. Only scheduled departures are emitted.
 export function railDepartures(feed,stopIds,now=new Date()){

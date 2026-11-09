@@ -68,7 +68,7 @@ function refreshHarness(){
  class Clock extends Date{constructor(...args){super(...(args.length?args:[clock]));}static now(){return clock;}}
  const state={settings:{view:'near'},expanded:new Set(),focusedConnection:{...target,ids:['2']},fetchLock:false,refreshPending:false,monitorRequest:null,requestRevision:0,departures:[],lastWlFetch:0,retryAt:0,batchCycle:0,apiFailures:0,fetchError:'',rail:null};
  const document={hidden:false,querySelector:()=>null};
- const ctx=vm.createContext({state,document,Date:Clock,AbortController,queueMicrotask,MAX_STOP_IDS:24,WL_RATE_KEY:'rate',
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,document,Date:Clock,AbortController,queueMicrotask,MAX_STOP_IDS:24,WL_RATE_KEY:'rate',
   $:()=>null,currentPlatformStops:()=>[{...stop,id:'other',rbl:['99']}],findStop:()=>stop,visibleStationIds:()=>new Set(['other']),selectStopIds:()=>['99'],favoriteStopIds:()=>['99'],
   localStorage:{getItem:()=>null,setItem(){}},updateAppStatus(){},renderConnection(){},render(){},saveDepartureCache(){},
   setTimeout(fn,ms){const id=++serial;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),
@@ -110,7 +110,7 @@ test('opening and closing the real connection page retains overview scroll, sele
  const state={focusedConnection:null,departures:[departure()],favorites:[{...target}],connectionOpener:{dataset:{connectionStop:stop.id,connectionRoute:'U6',connectionTowards:'Floridsdorf'}}},nodes=new Map(),frames=[],scrolls=[];let focuses=0;
  const opener={dataset:state.connectionOpener.dataset,focus(options){assert.equal(options.preventScroll,true);focuses++;}};
  const $=id=>{if(!nodes.has(id))nodes.set(id,{hidden:false,focus(){},querySelectorAll:()=>[opener]});return nodes.get(id);};
- const ctx=vm.createContext({state,$,findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:432,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$,findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:432,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);
  const before=JSON.stringify(state.favorites);ctx.showConnection(target);frames.shift()();assert.equal($('overviewMain').hidden,true);assert.equal($('connectionView').hidden,false);assert.equal(state.overviewScroll,432);
  ctx.showConnection({...target,towards:'Siebenhirten'});frames.shift()();assert.equal(state.overviewScroll,432);
@@ -119,7 +119,7 @@ test('opening and closing the real connection page retains overview scroll, sele
 test('cancelled operator response does not update learned lines, notice caches, checks or error logs',async()=>{
  let release,mutations=0;const controller=new AbortController();
  const state={settings:{},config:{preferProxy:true,apiBase:'.'},queriedIds:new Set(),platformChecks:new Map(),trafficCache:{}};
- const ctx=vm.createContext({state,MAX_STOP_IDS:24,URLSearchParams,DOMException,location:{origin:'https://example.test'},performance,
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,MAX_STOP_IDS:24,URLSearchParams,DOMException,location:{origin:'https://example.test'},performance,
   fetchJson:()=>new Promise(resolve=>release=resolve),parseWlMonitors:()=>{mutations++;return [];},learnMonitorLines:()=>mutations++,debugging:{record:()=>mutations++},updateTrafficCache:()=>mutations++,localStorage:{setItem:()=>mutations++}
  });
  vm.runInContext(app.slice(app.indexOf('async function fetchWl('),app.indexOf('function apiErrorMessage(')),ctx);
@@ -128,6 +128,6 @@ test('cancelled operator response does not update learned lines, notice caches, 
 });
 test('a delayed open callback cannot scroll a restored overview back to the top',()=>{
  const state={focusedConnection:null,departures:[],connectionOpener:null},frames=[],scrolls=[];
- const ctx=vm.createContext({state,$:()=>({hidden:false,focus(){},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$:()=>({hidden:false,focus(){},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);ctx.showConnection(target);ctx.showConnection(null);while(frames.length)frames.shift()();assert.deepEqual(scrolls.map(s=>s.top),[640]);
 });

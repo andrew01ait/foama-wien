@@ -10,26 +10,28 @@ function installPushHandlers(scope){
    if(!response.ok)return null;return await response.json();
   }finally{clearTimeout(timer);}
  }
+ async function diagnostic(stage){try{await store.diagnostic?.(stage,clock());}catch{}}
  async function receipt(device,id,status){try{await api(device,id,'/receipt',{status});}catch{}}
  function valid(value,device,now){return value?.format==='foama-push-v2'&&device?.enabled===true&&device.expiresAt>now&&/^[A-Za-z0-9_-]{32}$/.test(device.id)&&/^[A-Za-z0-9_-]{32}$/.test(device.secret)&&value.deviceId===device.id&&/^[A-Za-z0-9_-]{32}$/.test(value.eventId)&&['foama-wien-test','foama-wien-disruptions'].includes(value.tag)&&Number.isFinite(value.sentAt)&&value.sentAt<=now+60000&&Number.isFinite(value.expiresAt)&&value.expiresAt>now&&value.expiresAt<=value.sentAt+300000;}
  function quiet(device,now){const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Vienna',hour:'2-digit',hourCycle:'h23'}).format(new Date(now)));return device.preferences?.quiet&&(hour>=22||hour<7);}
  scope.addEventListener('push',event=>{
   let value;try{value=event.data?.json();}catch{}
   event.waitUntil((async()=>{
-   let device;try{device=await store.getDevice();}catch{return;}if(!valid(value,device,clock()))return;
+   await diagnostic('received');
+   let device;try{device=await store.getDevice();}catch{await diagnostic('storage-error');return;}if(!valid(value,device,clock())){await diagnostic('device-or-expiry');return;}
    const test=value.tag==='foama-wien-test';
-   if(!test&&(quiet(device,clock())||await visible())){await receipt(device,value.eventId,'suppressed');return;}
+   if(!test&&(quiet(device,clock())||await visible())){await diagnostic('suppressed');await receipt(device,value.eventId,'suppressed');return;}
    let verified;try{verified=await api(device,value.eventId);}catch{}
    const notice=verified?.notification;
-   if(!verified?.relevant||!valid(notice,device,clock())||notice.eventId!==value.eventId||notice.tag!==value.tag){await receipt(device,value.eventId,'suppressed');return;}
+   if(!verified?.relevant||!valid(notice,device,clock())||notice.eventId!==value.eventId||notice.tag!==value.tag){await diagnostic('suppressed');await receipt(device,value.eventId,'suppressed');return;}
    // Opt-out, quiet time or a visible app may have changed during verification.
    try{device=await store.getDevice();}catch{return;}
-   if(!valid(notice,device,clock())||!test&&(quiet(device,clock())||await visible())){await receipt(device,value.eventId,'suppressed');return;}
+   if(!valid(notice,device,clock())||!test&&(quiet(device,clock())||await visible())){await diagnostic('suppressed');await receipt(device,value.eventId,'suppressed');return;}
    let claimed;try{claimed=await store.claim(value.eventId,clock(),notice.expiresAt,test);}catch{return;}
-   if(!claimed)return;
+   if(!claimed){await diagnostic('duplicate-or-cooldown');return;}
    let shown=false;try{
-    await scope.registration.showNotification(String(notice.title||'foama-wien').slice(0,100),{body:String(notice.body||'').slice(0,350),icon:'/icons/icon-192-v0.1.4.png',badge:'/icons/icon-192-v0.1.4.png',tag:notice.tag,renotify:false,silent:true,data:{url:'/alerts.html',eventId:value.eventId,deviceId:device.id},actions:[{action:'view',title:'Ansehen'}]});shown=true;
-   }finally{await store.finish(value.eventId,shown,clock()).catch(()=>{});await receipt(device,value.eventId,shown?'shown':'suppressed');}
+    await scope.registration.showNotification(String(notice.title||'foama-wien').slice(0,100),{body:String(notice.body||'').slice(0,350),icon:'/icons/icon-192-v0.1.4.png',badge:'/icons/icon-192-v0.1.4.png',tag:notice.tag,renotify:false,silent:true,data:{url:'/alerts.html',eventId:value.eventId,deviceId:device.id},actions:[{action:'view',title:'Ansehen'}]});shown=true;await diagnostic('shown');
+   }finally{if(!shown)await diagnostic('display-error');await store.finish(value.eventId,shown,clock()).catch(()=>{});await receipt(device,value.eventId,shown?'shown':'suppressed');}
   })().catch(()=>{}));
  });
  scope.addEventListener('notificationclick',event=>{

@@ -18,6 +18,8 @@
    try{action(tx.objectStore('state'),value=>result=value);}catch(error){tx.abort();reject(error);}
   });}
   return {
+   getDiagnostics:()=>run('readonly',(store,done)=>{const r=store.get('diagnostics');r.onsuccess=()=>done(r.result||[]);}),
+   diagnostic:(stage,now)=>run('readwrite',store=>{const r=store.get('diagnostics');r.onsuccess=()=>{const entries=(r.result||[]).filter(e=>now-e.at<86400000).slice(-7);entries.push({stage,at:now});store.put(entries,'diagnostics');};}),
    getDevice:()=>run('readonly',(store,done)=>{const r=store.get('device');r.onsuccess=()=>done(r.result||null);}),
    setDevice:value=>run('readwrite',store=>{store.put(value,'device');}),
    claim:(id,now,until,test=false)=>run('readwrite',(store,done)=>{const r=store.get('display');r.onsuccess=()=>{

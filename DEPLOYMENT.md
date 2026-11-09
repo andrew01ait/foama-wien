@@ -1,6 +1,6 @@
 # Veröffentlichung und Betrieb
 
-Aktueller App-Stand: PWA 0.6.7 / Wear 0.6.1, nativer Code 21. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+Aktueller App-Stand: PWA 0.7.0 / Wear 0.6.1, nativer Code 21. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
 
 ## Drei getrennte Ergebnisse
 
@@ -66,3 +66,7 @@ Die Pfade und das Referenzdatum durch tatsächlich vorliegende Quellen ersetzen.
 PWA-Start, Updatehinweis, Favoriten, relevante neue Funktionen und Fehlerzustände anhand echter Antworten prüfen. Sichtbarkeits- und Abrufgrenzen erhalten. Für neue native APKs öffentlichen Download mit den signierten Originalbytes vergleichen, anschließend Installation/Update auf einem physischen Gerät getrennt abnehmen. Push-Empfang auf dem Zielgerät mit bewusst ausgelöster Testnachricht prüfen; ein HTTP- oder Unit-Test ist kein Empfangsnachweis.
 
 Für eine Rückkehr die passende bereits gespeicherte Site-Version deployen. Keine Datenbankmigration rückwärts überschreiben und keine alte APK mit neuen Bytes austauschen. Aktuelle Datenformate und lokale Gerätespeicher müssen auch nach einer Rückkehr kompatibel bleiben. Frühere Betriebsprotokolle stehen im [Archiv](docs/history/DEPLOYMENT-before-github.md) und in den [Release-Notizen](docs/release.md).
+
+## Fahrplan und Stadtprofile ab 0.7.0
+
+Die kompakten öffentlichen Fahrplanpakete und regionalen Kataloge sind Quellartefakte und müssen in GitHub, Source-ZIP und Site-Build übereinstimmen. Keine Roh-GTFS-ZIPs im Worker. Aktuellen Wiener Feed vor dem 13.12.2026 erneuern; es gibt noch keinen aktiven automatischen Fahrplan-Neuimport/-Deploy. [Import](docs/timetable-fallback.md), [Provider und Grenzen](docs/city-profiles.md). Keine neuen Secrets/DB-Migration oder native APK für diesen Release.
