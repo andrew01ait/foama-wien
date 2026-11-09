@@ -1,4 +1,4 @@
-import {haversineMeters} from './core.mjs?v=0.6.5';
+import {haversineMeters} from './core.mjs?v=0.6.6';
 
 // Public street reference points only. The user's position never leaves this lookup.
 export function createAddressLookup(data){

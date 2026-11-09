@@ -1,4 +1,4 @@
-import {departureCorrection,departureIsFresh} from './departure-cache.mjs?v=0.6.5';
+import {departureCorrection,departureIsFresh} from './departure-cache.mjs?v=0.6.6';
 
 function current(d,now,hasError){
  return !!d&&!hasError&&d.provider==='wl'&&departureIsFresh(d,now)&&Date.parse(d.fetchedAt)<=now+30_000;

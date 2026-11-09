@@ -1,5 +1,5 @@
-import {jsonExportName} from './export-file.mjs?v=0.6.5';
-import {transferLink,transferBundle,mergeTransferBundle,encryptTransfer,decryptTransfer} from './transfer.mjs?v=0.6.5';
+import {jsonExportName} from './export-file.mjs?v=0.6.6';
+import {transferLink,transferBundle,mergeTransferBundle,encryptTransfer,decryptTransfer} from './transfer.mjs?v=0.6.6';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const FAVORITES='foama.favorites.v1',ROUTES='foama.journeyFavorites.v1';let link=null,source={favorites:[],journeys:[]},received=null,expires=0,timer,request=null,finished=false,busy=false,generation=0,routeSupport=false,alternativeSupport=false;
 const status=(message,error=false)=>{$('transferStatus').textContent=message;$('transferStatus').dataset.error=String(error);};
@@ -11,7 +11,7 @@ async function api(method='GET',data,current=link){
 }
 function choices(){
  const favorites=source.favorites,journeys=source.journeys;
- $('transferChoices').innerHTML=(favorites.length?'<h3>Stationen &amp; Linien</h3>'+favorites.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="favorite" value="${index}" checked><span>${escape(label(f))}</span></label>`).join(''):'')+(journeys.length?'<h3>Gespeicherte Routen</h3>'+(routeSupport?'':'<p class="fineprint">Für Routen bitte zuerst die Uhr-App auf Version 0.6.5 aktualisieren und einen neuen Code öffnen.</p>')+(journeys.some(f=>f.alternatives?.length)&&routeSupport&&!alternativeSupport?'<p class="fineprint">Mit dieser Uhr-Version wird die Hauptroute übertragen. Für alle Alternativen bitte auf Uhr-App 0.6.5 aktualisieren.</p>':'')+journeys.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="journey" value="${index}" ${routeSupport?'checked':'disabled'}><span><strong>${escape(f.name)}</strong><small>${escape(f.from.name)} → ${escape(f.to.name)}${f.alternatives?.length?' · '+f.alternatives.length+' Alternativen':''}</small></span></label>`).join(''):'');
+ $('transferChoices').innerHTML=(favorites.length?'<h3>Stationen &amp; Linien</h3>'+favorites.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="favorite" value="${index}" checked><span>${escape(label(f))}</span></label>`).join(''):'')+(journeys.length?'<h3>Gespeicherte Routen</h3>'+(routeSupport?'':'<p class="fineprint">Für Routen bitte zuerst die Uhr-App auf Version 0.6.6 aktualisieren und einen neuen Code öffnen.</p>')+(journeys.some(f=>f.alternatives?.length)&&routeSupport&&!alternativeSupport?'<p class="fineprint">Mit dieser Uhr-Version wird die Hauptroute übertragen. Für alle Alternativen bitte auf Uhr-App 0.6.6 aktualisieren.</p>':'')+journeys.map((f,index)=>`<label><input type="checkbox" data-transfer-kind="journey" value="${index}" ${routeSupport?'checked':'disabled'}><span><strong>${escape(f.name)}</strong><small>${escape(f.from.name)} → ${escape(f.to.name)}${f.alternatives?.length?' · '+f.alternatives.length+' Alternativen':''}</small></span></label>`).join(''):'');
  if(!favorites.length&&!journeys.length)$('transferChoices').innerHTML='<p>Keine Favoriten in diesem Browser. Wähle oben deine exportierte JSON-Datei aus.</p>';
  $('transferSend').disabled=!favorites.length&&(!routeSupport||!journeys.length);
 }

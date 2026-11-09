@@ -1,3 +1,7 @@
+## PWA 0.6.6 · Meine Orte
+
+Nutzer beanstandet große, unruhige Ortsverwaltung. Klare kompakte Ortskarten, Name/Adresse getrennt und sichtbar. Start/Ziel als A/B-Aktionen, Bearbeiten/Entfernen im Ortsmenü; vorhandenen Menücontroller samt Außenklick/Escape nutzen. Formular separat von Liste mit Speichern/Abbrechen. Abbruch invalidiert alte Suchantworten, unveränderte Orte und physische Endpunkte bleiben erhalten. Löschen weiterhin ausdrücklich bestätigen. Keine zusätzlichen APIs/GPS oder neue Kategorien-/Speicherformate. 44-px-Bedienziele erhalten. Lokale UI-Testseiten nicht veröffentlichen, keine privaten Screenshotadressen in Fixtures übernehmen. Wear bleibt 0.6.1/21.
+
 ## PWA 0.6.5 · mobile Reiseübersicht
 
 Nutzer beanstandet übergroße mobile Routentitel, doppelte Angaben und breite Aktionsreihen. Ortslabel und echte Adresse in A/B-Zeilen getrennt zeigen; physische Endpunkte niemals durch Labels ersetzen. Eigene Favoritennamen als kompakte Überschrift erhalten, automatisch erzeugte Endpunktnamen nicht doppelt wiederholen. Ein-/Ausstiegsstation zusätzlich sichtbar halten. Ein gemeinsamer Reise/Gesamtkarte-Umschalter, Zurück/Stern in Kopfzeile, kompakte beschriftete Aktionen mit mindestens 44 px Höhe. Keine abgeschnittenen Namen oder zusätzliche Abfragen. Temporäre lokale Layoutprüfung nicht veröffentlichen. Wear bleibt 0.6.1/21.

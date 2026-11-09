@@ -1,8 +1,12 @@
 # Aktueller Projektstand
 
-Stand: 9. November 2026. **PWA 0.6.5, Wear 0.6.1 / Code 21.** Verbindliche Versionen stehen in den PWA-/Wear-Konfigurationen und im Updatefeed. Frühere Details und Abnahmen bleiben in [Release-Verlauf](docs/release.md), [Tests](docs/tests.md) und [Status-Archiv](docs/history/STATUS-before-github.md) erhalten.
+Stand: 9. November 2026. **PWA 0.6.6, Wear 0.6.1 / Code 21.** Verbindliche Versionen stehen in den PWA-/Wear-Konfigurationen und im Updatefeed. Frühere Details und Abnahmen bleiben in [Release-Verlauf](docs/release.md), [Tests](docs/tests.md) und [Status-Archiv](docs/history/STATUS-before-github.md) erhalten.
 
-## PWA 0.6.5 · mobile Routenübersicht
+## PWA 0.6.6 · Meine Orte
+
+Gespeicherte Orte erscheinen als kompakte Karten mit Name, Straße und ergänzender Ortsangabe. Zwei gleich breite A/B-Aktionen wählen Start oder Ziel; Bearbeiten und Entfernen sind im jeweiligen Ortsmenü erreichbar. Der gemeinsame Menücontroller schließt andere Menüs, reagiert auf Außenklick/Escape und hält die Bedienung getrennt von Hinweisklappen. Anlegen und Bearbeiten verwenden eine eigene Formularansicht mit Speichern/Abbrechen und Rückkehr zur Ortsliste. Abbrechen invalidiert laufende Adresssuchen und verändert keine gespeicherten Orte. Bestehende lokale Orte, physische Routenendpunkte und explizite Löschbestätigung bleiben erhalten.
+
+## Routenübersicht aus 0.6.5
 
 Start und Ziel stehen als A/B-Zeilen mit getrenntem Ortsnamen und Adresse. Eigene Routenbezeichnungen bleiben als kleinere Überschrift erhalten; automatisch aus Endpunkten erzeugte Namen werden nicht nochmals wiederholt. Ein- und Ausstiegsstation stehen weiterhin zusätzlich darunter. Zurück und Favoriten liegen in derselben Kopfzeile. Reise/Gesamtkarte ist der gemeinsame Karteneinstieg; Rückfahrt, Neuplanung und die bewusste Aktualisierung von Fußweg oder Standort teilen eine kompakte Aktionsreihe. Der Hinweis zum gespeicherten Weg trägt keine weitere große doppelte Routenüberschrift.
 
@@ -23,7 +27,7 @@ Abfahrtshinweise aus 0.6.4 bleiben erhalten: spätere Live-Prognosen neutral und
 
 ## Verifikation und Grenzen
 
-Aktuell: 257 Web-/Server- und acht Python-Tests bestanden; schmale öffentliche PWA-Darstellung, echte Fahrzeugangaben und bewusste Updateübernahme im Browser geprüft. Details und Grenzen: [Prüfprotokoll](docs/tests.md).
+Aktuell: 261 Web-/Server- und acht Python-Tests bestanden; schmale PWA-Darstellung, echte Fahrzeugangaben und bewusste Updateübernahme im Browser geprüft. Details und Grenzen: [Prüfprotokoll](docs/tests.md).
 
 Der erste öffentliche GitHub-Import 0.6.0 umfasst 296 geprüfte Dateien; sein GitHub-Prüflauf war erfolgreich. Web-/Server- und Python-Prüfungen werden im jeweiligen aktuellen Commit automatisch ausgeführt. Für 0.6.1 sind 244 Web-/Server- und 124 native Prüfungen dokumentiert; Python-Suite: acht Prüfungen. Die aktuelle PWA ergänzt Layout- und Abfahrtshinweise; die native APK 0.6.1 bleibt unverändert.
 

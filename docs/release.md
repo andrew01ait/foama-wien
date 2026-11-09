@@ -1,3 +1,7 @@
+## PWA 0.6.6 · Meine Orte übersichtlicher · 09.11.2026
+
+Kompakte Ortskarten mit klarer Namens-/Adresshierarchie, gleich breiten Start-/Zielaktionen und einem Ortsmenü für Bearbeiten/Entfernen. Vorhandenen transienten Menücontroller wiederverwendet, 44-px-Aktionen und volle Namen erhalten. Add/Edit als fokussierte Formularansicht mit Suchsymbol, Speichern und Abbrechen; keine lange Liste oberhalb des Editors. Abbrechen verwirft ausstehende Suchantworten, bewusste Löschbestätigung bleibt. Datenformat, gespeicherte Orte, physische Routenendpunkte, Dienste und native Wear 0.6.1/21 unverändert.
+
 ## PWA 0.6.5 · mobile Reiseübersicht · 09.11.2026
 
 Kleinerer Routentitel, Start/Ziel als A/B-Zeilen und gespeicherte Ortslabels getrennt von der physischen Adresse. Eigene Favoritennamen sowie Ein-/Ausstiegsstation bleiben sichtbar. Standardnamen aus beiden Endpunkten und die zweite große Überschrift bei gespeicherten Wegen entfallen als doppelte Darstellung. Zurück, Titel und Stern bilden eine Zeile; Rückfahrt, Neuplanung und Fußweg-/Standortaktualisierung eine kompakte Aktionsreihe. Reise/Gesamtkarte ersetzt den doppelten Karteneinstieg. Tippflächen mindestens 44 px, kein Abschneiden langer Namen. Keine Änderung an Planung, Favoritendaten, Abrufgrenzen oder nativer Wear-APK 0.6.1/21.
