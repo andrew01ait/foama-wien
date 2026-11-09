@@ -1,4 +1,4 @@
-import {departureIsFresh} from './departure-cache.mjs?v=0.6.6';
+import {departureIsFresh} from './departure-cache.mjs?v=0.6.7';
 
 export function departureAtStation(stop,departure){
  return !!stop&&(departure.provider==='wl'?stop.provider==='wl'&&(stop.rbl||[]).map(String).includes(String(departure.rbl)):departure.provider==='rail'&&stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId));

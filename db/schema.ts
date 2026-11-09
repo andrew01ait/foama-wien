@@ -1,4 +1,4 @@
-import {sqliteTable,text,integer,index} from 'drizzle-orm/sqlite-core';
+import {sqliteTable,text,integer,index,uniqueIndex} from 'drizzle-orm/sqlite-core';
 export const transfers=sqliteTable('foama_transfers',{
  id:text('id').primaryKey(),readHash:text('read_hash').notNull(),writeHash:text('write_hash').notNull(),
  expires:integer('expires').notNull(),state:text('state').notNull().default('waiting'),
@@ -13,6 +13,17 @@ export const pushSubscriptions=sqliteTable('foama_push_subscriptions',{
 export const pushDeliveries=sqliteTable('foama_push_deliveries',{
  id:text('id').primaryKey(),subscriptionId:text('subscription_id').notNull().references(()=>pushSubscriptions.id,{onDelete:'cascade'}),created:integer('created').notNull()
 },t=>[index('foama_push_delivery_sub_idx').on(t.subscriptionId)]);
+// Encrypted event references, transport attempts and bounded display receipts.
+export const pushOutbox=sqliteTable('foama_push_outbox',{
+ id:text('id').primaryKey(),subscriptionId:text('subscription_id').notNull().references(()=>pushSubscriptions.id,{onDelete:'cascade'}),
+ eventKey:text('event_key').notNull(),sealed:text('sealed').notNull(),kind:text('kind').notNull(),
+ created:integer('created').notNull(),expires:integer('expires').notNull(),nextAttempt:integer('next_attempt').notNull(),
+ attempts:integer('attempts').notNull().default(0),status:text('status').notNull().default('pending'),
+ leaseUntil:integer('lease_until').notNull().default(0),leaseToken:text('lease_token').notNull().default(''),
+ validUntil:integer('valid_until').notNull().default(0),sentAt:integer('sent_at').notNull().default(0),
+ acceptedAt:integer('accepted_at').notNull().default(0),shownAt:integer('shown_at').notNull().default(0),
+ clickedAt:integer('clicked_at').notNull().default(0),suppressedAt:integer('suppressed_at').notNull().default(0),reason:text('reason').notNull().default('')
+},t=>[index('foama_push_outbox_due_idx').on(t.status,t.nextAttempt),index('foama_push_outbox_sub_idx').on(t.subscriptionId),uniqueIndex('foama_push_outbox_event_idx').on(t.subscriptionId,t.eventKey)]);
 export const pushRuntime=sqliteTable('foama_push_runtime',{
  id:text('id').primaryKey(),lastCheck:integer('last_check').notNull().default(0),lastSuccess:integer('last_success').notNull().default(0),
  nextAllowed:integer('next_allowed').notNull().default(0),leaseUntil:integer('lease_until').notNull().default(0),leaseToken:text('lease_token').notNull().default(''),

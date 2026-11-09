@@ -1,6 +1,6 @@
 # Veröffentlichung und Betrieb
 
-Aktueller App-Stand: PWA 0.6.6 / Wear 0.6.1, nativer Code 21. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+Aktueller App-Stand: PWA 0.6.7 / Wear 0.6.1, nativer Code 21. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
 
 ## Drei getrennte Ergebnisse
 
@@ -48,7 +48,7 @@ Bei einem reinen Dokumentations-/Quellpaketwechsel bleiben App-Version und signi
 
 Der bestehende Hintergrundauftrag ruft genau einmal die feste Quellenprüfung und anschließend den Status der verbundenen foama-wien-App auf. Aktuell läuft eine einzelne stündliche Aufgabe; keine versetzten Kopien zur Intervallumgehung. Erfolgreicher Quellenabruf und gespeicherte Prüfzeit belegen den Dienstlauf. Eine normale aktive App ergänzt ungefähr alle fünf Minuten eine Prüfung im Rahmen ihrer ohnehin nötigen Monitoraufrufe.
 
-`PUSH_SCHEDULER_ENABLED=true` erst nach tatsächlicher Einrichtung setzen; `PUSH_INTERVAL_MINUTES` muss den echten Takt nennen. Die aktuelle Einrichtung verwendet `60`. `deploy/push-timer/` ist eine vorbereitete Alternative für einen eigenständig betriebenen Timer, aber kein gestarteter Produktionsdienst. VAPID-/Speicherschlüssel bestehender Freigaben erhalten. Direkter Uhr-Push bleibt bis zur separaten Firebase-Einrichtung offen. [Betriebsdetails](docs/push-notifications.md).
+`PUSH_SCHEDULER_ENABLED=true` erst nach tatsächlicher Einrichtung setzen; `PUSH_INTERVAL_MINUTES` muss den echten Takt nennen. Die aktuelle Einrichtung verwendet `60`. `deploy/push-timer/` ist eine vorbereitete Alternative für einen eigenständig betriebenen Timer, aber kein gestarteter Produktionsdienst. VAPID-/Speicherschlüssel bestehender Freigaben erhalten. Push ist ausschließlich für die PWA beauftragt; keine Firebase-Einrichtung nötig. [Betriebsdetails](docs/push-notifications.md).
 
 ## Katalog und Referenzdaten
 

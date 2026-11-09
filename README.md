@@ -11,10 +11,10 @@
 - Routenplanung mit Adressen, eigenen Orten, Karten, Alternativen und Vergleich von Fahrzeit und Umstiegen.
 - Import gespeicherter Wege auf die Uhr per Datei oder kurzlebiger verschlüsselter QR-Übertragung.
 - Dezente spätere Live-Zeitkorrekturen und Rollstuhl-Symbol bei ausdrücklich gemeldeter Fahrzeug-Barrierefreiheit in der PWA.
-- Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; Aufzüge getrennt wählbar.
+- Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
 - Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.6.6 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.6.7 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 
@@ -49,7 +49,7 @@ Standort und Abfahrtsaktualisierung arbeiten nur bei sichtbarer App. Favoriten b
 
 Der bisherige Wiener-Linien-GTFS-Import belegt Stations-/Linienzuordnungen. Ein vollständiger Sollfahrplan als Abfahrts-Fallback ist noch offen; bekannte Linien können vor dem ersten erfolgreichen API-Abruf ohne Zeiten erscheinen.
 
-Die Hintergrundprüfung für Störungen läuft derzeit stündlich, bei ohnehin aktiver App gegebenenfalls häufiger. Direkter Uhr-Push benötigt noch Firebase Cloud Messaging; die PWA nutzt Web Push unabhängig davon. Die Uhr zeigt importierte Routen mit aktuellen Etappenzeiten, führt aber keine eigenständige Vollroutensuche aus.
+Die Hintergrundprüfung für Störungen läuft derzeit stündlich, bei ohnehin aktiver App gegebenenfalls häufiger. Push ist auf Wunsch ausschließlich für die PWA vorgesehen. Sie verwendet Standard-Web-Push ohne eigenes Firebase-Projekt. Die Uhr zeigt importierte Routen mit aktuellen Etappenzeiten, führt aber keine eigenständige Vollroutensuche aus.
 
 ## Lizenz
 

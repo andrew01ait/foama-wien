@@ -1,7 +1,8 @@
 // Shared, pure relevance and notification limits. Contains no subscription/GPS data.
-import {isCurrentNotice} from './traffic-info.mjs?v=0.6.6';
+import {isCurrentNotice} from './traffic-info.mjs?v=0.6.7';
 export const PUSH_LIMITS=Object.freeze({gap:30*60_000,daily:6,expiry:90*86400_000,history:90*86400_000,batch:32,subscriptions:256});
-export function pushPreferences(value={}){return {scope:value.scope==='all'?'all':'favorites',equipment:value.equipment===true,quiet:value.quiet===true};}
+// Keep the legacy field false for older clients; equipment never triggers a push.
+export function pushPreferences(value={}){return {scope:value.scope==='all'?'all':'favorites',equipment:false,quiet:value.quiet===true};}
 export function favoritePushTargets(favorites,stops,journeys=[]){
  const index=new Map(stops.filter(s=>s.provider==='wl').map(s=>[s.id,s])),out=new Map();
  function add(stopId,routes){const stop=index.get(stopId);if(!stop||!out.has(stopId)&&out.size>=100)return;
@@ -16,12 +17,12 @@ export function favoritePushTargets(favorites,stops,journeys=[]){
 }
 export function pushNoticeMatches(notice,targets,preferences,now=Date.now()){
  if(!isCurrentNotice(notice,now))return false;
- if(!['stoerunglang','stoerungkurz',...(preferences.equipment?['aufzugsinfo','fahrtreppeninfo']:[])].includes(notice.category))return false;
+ if(!['stoerunglang','stoerungkurz'].includes(notice.category))return false;
  if(preferences.scope==='all')return true;
  const stops=[...(notice.stops||[]),...(notice.boundStops||[])].map(String),lines=notice.lines||[];
  return targets.some(target=>{
   const routeMatch=lines.some(line=>target.routes.includes(line));
-  if(stops.length&&['stoerungkurz','aufzugsinfo','fahrtreppeninfo'].includes(notice.category))return target.rbl.some(id=>stops.includes(id))&&(!lines.length||routeMatch);
+  if(stops.length&&notice.category==='stoerungkurz')return target.rbl.some(id=>stops.includes(id))&&(!lines.length||routeMatch);
   return routeMatch||(!lines.length&&target.rbl.some(id=>stops.includes(id)));
  });
 }

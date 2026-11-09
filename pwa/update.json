@@ -1,9 +1,9 @@
 {
-  "version": "0.6.6",
+  "version": "0.6.7",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Meine Orte mit kompakten Karten, klaren Start-/Zielaktionen und Ortsmenüs. Übersichtliches Formular zum Anlegen/Bearbeiten mit Abbrechen. Bestehende Orte bleiben beim Update erhalten.",
+  "changelog": "Robuster Störungs-Push für die PWA: dauerhafte Warteschlange, begrenzte Wiederholungen und Aktualitätsprüfung vor der Anzeige. Zustellstatus für Testnachrichten. Keine Aufzug-/Fahrtreppen-Pushs; Uhr unverändert.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,

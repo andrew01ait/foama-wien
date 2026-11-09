@@ -1,3 +1,7 @@
+## PWA 0.6.7 · Störungs-Push · 09.11.2026
+
+Standard-Web-Push ausschließlich für die PWA; kein eigenes Firebase-Projekt und kein neues Uhr-Release. Dauerhafte verschlüsselte D1-Outbox mit eindeutigem Geräte-/Ereignisschlüssel, atomaren Claims, höchstens vier Transportversuchen und Retry-After. Anbieterannahme bleibt endgültig, fehlende Browserbestätigung löst keine Wiederholung aus. IndexedDB-Gerätebindung und atomare Anzeige-Claims; vor Anzeige aktuelle Ereignisrelevanz, Opt-out, Ablauf, Nachtruhe und tatsächliche Fenstersichtbarkeit prüfen. Lautloser gemeinsamer Tag; eigener Zustellstatus für explizite Testnachrichten. Aufzüge/Fahrtreppen immer serverseitig ausgeschlossen, auch für alte Freigaben; gemischte echte Betriebsstörungen bleiben relevant. Geplantes erst ab Beginn. Bestehender stündlicher Check, aktive Fünf-Minuten-Ergänzung und lokale Daten erhalten. Native Wear 0.6.1/21 unverändert.
+
 ## PWA 0.6.6 · Meine Orte übersichtlicher · 09.11.2026
 
 Kompakte Ortskarten mit klarer Namens-/Adresshierarchie, gleich breiten Start-/Zielaktionen und einem Ortsmenü für Bearbeiten/Entfernen. Vorhandenen transienten Menücontroller wiederverwendet, 44-px-Aktionen und volle Namen erhalten. Add/Edit als fokussierte Formularansicht mit Suchsymbol, Speichern und Abbrechen; keine lange Liste oberhalb des Editors. Abbrechen verwirft ausstehende Suchantworten, bewusste Löschbestätigung bleibt. Datenformat, gespeicherte Orte, physische Routenendpunkte, Dienste und native Wear 0.6.1/21 unverändert.

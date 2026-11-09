@@ -1,5 +1,5 @@
-import {journeyPathKey,journeyFamily} from './journey-variants.mjs?v=0.6.6';
-import {coordinate} from './journey-geometry.mjs?v=0.6.6';
+import {journeyPathKey,journeyFamily} from './journey-variants.mjs?v=0.6.7';
+import {coordinate} from './journey-geometry.mjs?v=0.6.7';
 const MODES=new Set(['metro','tram','bus','sbahn','regional','long','walk']);
 const text=(s,n=160)=>String(s??'').trim().slice(0,n);
 function endpoint(p){

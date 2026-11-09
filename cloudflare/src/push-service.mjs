@@ -1,22 +1,14 @@
-import {pushB64,pushBytes,validatePushSubscription,sendWebPush} from './web-push.mjs';
+import {pushB64,validatePushSubscription,sendWebPush} from './web-push.mjs';
 import {nativeFirebaseOptions,nativeFcmConfigured,validateFcmToken,sendFcmPush} from './fcm.mjs';
 import {parseTrafficInfos,dedupeTrafficInfos} from '../../pwa/src/traffic-info.mjs';
-import {PUSH_LIMITS,pushPreferences,favoritePushTargets,pushNoticeMatches,pushCanSend,pushDay,pushFingerprint,disruptionPushPayload} from '../../pwa/src/push-policy.mjs';
+import {PUSH_LIMITS,pushPreferences,favoritePushTargets,pushNoticeMatches,pushCanSend,pushFingerprint} from '../../pwa/src/push-policy.mjs';
+import {pushHash,sealPush,openPush} from './push-crypto.mjs';
+export {pushHash,sealPush,openPush} from './push-crypto.mjs';
+import {purgeOutbox,enqueuePush,drainPushOutbox,verifyPushEvent} from './push-outbox.mjs';
 
 const json=(value,status=200)=>Response.json(value,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 const fail=(message,status=400)=>json({error:message},status);
 const validSecret=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{32}$/.test(value);
-const bytes=new TextEncoder();
-export const pushHash=async value=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes.encode(value)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-export async function sealPush(value,id,secret){
- const key=await crypto.subtle.importKey('raw',pushBytes(secret),'AES-GCM',false,['encrypt']),iv=crypto.getRandomValues(new Uint8Array(12));
- const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:bytes.encode(id)},key,bytes.encode(JSON.stringify(value)));
- return pushB64(iv)+'.'+pushB64(cipher);
-}
-export async function openPush(value,id,secret){
- const [iv,cipher]=value.split('.'),key=await crypto.subtle.importKey('raw',pushBytes(secret),'AES-GCM',false,['decrypt']);
- return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:pushBytes(iv),additionalData:bytes.encode(id)},key,pushBytes(cipher))));
-}
 function configured(env){return !!(env.DB&&env.PUSH_VAPID_PRIVATE_JWK&&env.PUSH_VAPID_PUBLIC_KEY&&env.PUSH_STORAGE_KEY&&env.PUSH_SCHEDULER_ENABLED==='true');}
 const nativeConfigured=env=>!!(env.DB&&env.PUSH_STORAGE_KEY&&env.PUSH_SCHEDULER_ENABLED==='true'&&nativeFcmConfigured(env));
 const dispatcherConfigured=env=>configured(env)||nativeConfigured(env);
@@ -27,7 +19,7 @@ function deliveryInput(data){
 const deliveryReady=(value,env)=>value.transport==='fcm'?nativeConfigured(env):configured(env);
 const deliveryHash=value=>pushHash(value.transport==='fcm'?'fcm:'+value.registrationToken:value.subscription.endpoint);
 const deliveryExpiry=(value,now)=>Math.min(now+PUSH_LIMITS.expiry,value.subscription?.expirationTime||Infinity);
-const deliver=(value,payload,env,options)=>value.transport==='fcm'?options.nativeSender(value.registrationToken,payload,env,{now:options.now}):options.sender(value.subscription,payload,env,{now:options.now});
+const deliver=(value,payload,env,options)=>value.transport==='fcm'?options.nativeSender(value.registrationToken,payload,env,{now:options.now}):options.sender(value.subscription,payload,env,{now:options.now,ttl:options.ttl});
 export async function readBounded(request,limit=25000){
  const reader=request.body?.getReader();if(!reader)throw Error('body');const chunks=[];let size=0;
  try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>limit){await reader.cancel();throw Error('size');}chunks.push(value);}}finally{reader.releaseLock();}
@@ -36,11 +28,12 @@ export async function readBounded(request,limit=25000){
 async function inputJson(request){if(!request.headers.get('content-type')?.startsWith('application/json'))throw Error('json');return readBounded(request);}
 export async function purgePush(db,now=Date.now()){
  if(!db)return;
+ await purgeOutbox(db,now);
  // Explicit cleanup also works with preview adapters without SQLite FK enforcement.
  await db.prepare('DELETE FROM foama_push_deliveries WHERE created <= ? OR subscription_id IN (SELECT id FROM foama_push_subscriptions WHERE expires <= ?)').bind(now-PUSH_LIMITS.history,now).run();
  await db.prepare('DELETE FROM foama_push_subscriptions WHERE expires <= ?').bind(now).run();
 }
-async function removePush(db,id){await db.prepare('DELETE FROM foama_push_deliveries WHERE subscription_id = ?').bind(id).run();await db.prepare('DELETE FROM foama_push_subscriptions WHERE id = ?').bind(id).run();}
+async function removePush(db,id){await db.prepare('DELETE FROM foama_push_outbox WHERE subscription_id = ?').bind(id).run();await db.prepare('DELETE FROM foama_push_deliveries WHERE subscription_id = ?').bind(id).run();await db.prepare('DELETE FROM foama_push_subscriptions WHERE id = ?').bind(id).run();}
 async function runtime(db){return db?await db.prepare("SELECT * FROM foama_push_runtime WHERE id='main'").first():null;}
 export async function pushStatus(env){
  const state=await runtime(env.DB);return {available:configured(env),nativeAvailable:nativeConfigured(env),lastCheck:state?.last_check||null,lastSuccess:state?.last_success||null,state:state?.status||'starting',intervalMinutes:Math.min(60,Math.max(5,Number(env.PUSH_INTERVAL_MINUTES)||5))};
@@ -48,7 +41,8 @@ export async function pushStatus(env){
 function selections(input,catalog){
  if(!Array.isArray(input.targets)||input.targets.length>100)throw Error('targets');
  const preferences=pushPreferences(input.preferences);
- if(preferences.scope==='all')return {preferences,targets:[]};
+ const protocol=input.protocol===2?2:1;
+ if(preferences.scope==='all')return {preferences,targets:[],protocol};
  const favorites=input.targets.map(t=>({stopId:String(t.stopId||''),route:Array.isArray(t.routes)&&t.routes.length===1?t.routes[0]:''}));
  const targets=[];
  for(let i=0;i< favorites.length;i++){
@@ -60,7 +54,7 @@ function selections(input,catalog){
  }
  const merged=new Map();for(const target of targets){const old=merged.get(target.stopId);if(old)old.routes=[...new Set([...old.routes,...target.routes])];else merged.set(target.stopId,target);}
  if(preferences.scope==='favorites'&&!merged.size)throw Error('favorites');
- return {preferences,targets:[...merged.values()]};
+ return {preferences,targets:[...merged.values()],protocol};
 }
 export async function getDisruptions(origin,{now=Date.now(),fetcher=fetch,cache=null}={}){
  let store=cache;
@@ -104,15 +98,32 @@ export async function pushApi(request,env,now=Date.now(),{fetcher=fetch,sender=s
    const result=await env.DB.prepare('INSERT OR IGNORE INTO foama_push_subscriptions (id,auth_hash,endpoint_hash,sealed,expires) SELECT ?,?,?,?,? WHERE (SELECT count(*) FROM foama_push_subscriptions) < ?').bind(data.id,authHash,endpointHash,sealed,expires,PUSH_LIMITS.subscriptions).run();
    return result.meta.changes?json({enabled:true,expiresAt:expires},201):fail('Gerätefreigabe bereits vorhanden oder Dienst ausgelastet. Bitte erneut aktivieren.',409);
   }
-  const match=path.match(/^\/api\/push\/subscriptions\/([A-Za-z0-9_-]{32})(\/test)?$/);
+  const match=path.match(/^\/api\/push\/subscriptions\/([A-Za-z0-9_-]{32})(\/test|\/events\/[A-Za-z0-9_-]{32}(?:\/receipt)?)?$/);
   if(!match)return fail('Nicht gefunden.',404);
   const secret=request.headers.get('X-Push-Secret');if(!validSecret(secret))return fail('Keine Gerätefreigabe.',403);
   const record=await env.DB.prepare('SELECT * FROM foama_push_subscriptions WHERE id = ? AND auth_hash = ?').bind(match[1],await pushHash(secret)).first();
   if(!record)return fail('Gerätefreigabe nicht mehr vorhanden. Bitte erneut aktivieren.',410);
+  if(match[2]?.startsWith('/events/')){
+   const eventId=match[2].split('/')[2],job=await env.DB.prepare('SELECT * FROM foama_push_outbox WHERE id=? AND subscription_id=?').bind(eventId,record.id).first();
+   if(!job)return fail('Hinweis nicht mehr verfügbar.',410);
+   if(match[2].endsWith('/receipt')&&request.method==='POST'){
+    const data=await inputJson(request),fields={shown:'shown_at',clicked:'clicked_at',suppressed:'suppressed_at'};
+    if(!Object.hasOwn(fields,data.status)||!['sending','accepted'].includes(job.status)||(data.status==='clicked'?job.expires<=now:job.valid_until+60000<now))return fail('Ungültige Zustellbestätigung.');
+    await env.DB.prepare(`UPDATE foama_push_outbox SET ${fields[data.status]}=CASE WHEN ${fields[data.status]}=0 THEN ? ELSE ${fields[data.status]} END WHERE id=? AND subscription_id=?`).bind(now,job.id,record.id).run();
+    return json({recorded:true});
+   }
+   if(request.method!=='GET'||match[2].endsWith('/receipt'))return fail('Methode nicht erlaubt.',405);
+   if(!deliveryReady(await openPush(record.sealed,record.id,env.PUSH_STORAGE_KEY),env))return json({relevant:false});
+   try{const feed=job.kind==='test'?null:await getDisruptions(url.origin,{now,fetcher});return json(await verifyPushEvent(env,record,job,{now,feed}));}
+   catch{return fail('Die Aktualität dieses Hinweises konnte nicht geprüft werden.',503);}
+  }
   if(request.method==='DELETE'&&!match[2]){await removePush(env.DB,record.id);return json({deleted:true});}
   const value=await openPush(record.sealed,record.id,env.PUSH_STORAGE_KEY);
   if(!deliveryReady(value,env))return fail('Benachrichtigungsdienst ist vorübergehend nicht bereit.',503);
-  if(request.method==='GET'&&!match[2])return json({enabled:true,expiresAt:record.expires,preferences:value.preferences,lastSent:record.last_sent||null});
+  if(request.method==='GET'&&!match[2]){
+   const lastTest=await env.DB.prepare("SELECT status,created,accepted_at AS acceptedAt,shown_at AS shownAt,clicked_at AS clickedAt,suppressed_at AS suppressedAt FROM foama_push_outbox WHERE subscription_id=? AND kind='test' ORDER BY created DESC LIMIT 1").bind(record.id).first();
+   return json({enabled:true,expiresAt:record.expires,preferences:pushPreferences(value.preferences),lastSent:record.last_sent||null,lastTest});
+  }
   if(request.method==='PUT'&&!match[2]){
    const data=await inputJson(request),destination=deliveryInput(data),selection=selections(data,env.PUSH_STOPS||[]);
    if(destination.transport!==(value.transport||'web'))return fail('Geräteart kann nicht geändert werden.');
@@ -121,12 +132,14 @@ export async function pushApi(request,env,now=Date.now(),{fetcher=fetch,sender=s
    const result=await env.DB.prepare('UPDATE foama_push_subscriptions SET endpoint_hash=?,sealed=?,expires=? WHERE id=? AND auth_hash=?').bind(await deliveryHash(destination),sealed,expires,record.id,record.auth_hash).run();
    return result.meta.changes?json({enabled:true,expiresAt:expires}):fail('Gerätefreigabe beendet.',410);
   }
-  if(request.method==='POST'&&match[2]){
+  if(request.method==='POST'&&match[2]==='/test'){
    const result=await env.DB.prepare('UPDATE foama_push_subscriptions SET last_test=? WHERE id=? AND last_test<=?').bind(now,record.id,now-60000).run();
    if(!result.meta.changes)return fail('Bitte eine Minute bis zur nächsten Testnachricht warten.',429);
-   try{const delivery=await deliver(value,{format:'foama-push-v1',title:'foama-wien: Testnachricht',body:'Push ist verbunden. Künftig erhältst du passende Störungsmeldungen der Wiener Linien.',url:'/alerts.html',tag:'foama-wien-test'},env,{now,sender,nativeSender});
-    if(delivery.gone)await removePush(env.DB,record.id);
-    return delivery.ok?json({accepted:true}):fail(delivery.gone?'Push-Adresse abgelaufen. Bitte erneut aktivieren.':'Der Push-Anbieter hat die Testnachricht nicht angenommen.',delivery.gone?410:502);
+   try{const job=await enqueuePush(env,record,{test:true},now);if(!job)return fail('Zu viele gespeicherte Testhinweise. Bitte später erneut versuchen.',429);
+    await drainPushOutbox(env,{now,onlyId:job.id,ready:v=>deliveryReady(v,env),deliver:(v,p,o)=>deliver(v,p,env,{...o,sender,nativeSender})});
+    const state=await env.DB.prepare('SELECT status,accepted_at,shown_at,clicked_at,suppressed_at FROM foama_push_outbox WHERE id=?').bind(job.id).first();
+    if(!state)return fail('Push-Adresse abgelaufen. Bitte erneut aktivieren.',410);
+    return state.status==='accepted'?json({accepted:true,eventId:job.id}):fail('Der Push-Anbieter hat die Testnachricht nicht angenommen.',502);
    }catch{return fail('Die Testnachricht konnte gerade nicht gesendet werden.',502);}
   }
   return fail('Methode nicht erlaubt.',405);
@@ -156,15 +169,10 @@ export async function dispatchDisruptions(env,{now=Date.now(),origin=env.PUSH_VA
     const history=new Set((await env.DB.prepare('SELECT id FROM foama_push_deliveries WHERE subscription_id=?').bind(record.id).all()).results.map(r=>r.id));
     const relevant=[];for(const {notice,hash} of fingerprinted){const id=record.id+':'+hash;if(!history.has(id)&&pushNoticeMatches(notice,value.targets,value.preferences,now))relevant.push({notice,id});}
     if(!relevant.length)continue;
-    const delivery=await deliver(value,disruptionPushPayload(relevant.map(r=>r.notice),value.preferences.scope),env,{now,sender,nativeSender});
-    if(delivery.gone){await removePush(env.DB,record.id);continue;}
-    if(!delivery.ok){failed++;await env.DB.prepare('UPDATE foama_push_subscriptions SET retry_after=? WHERE id=?').bind(now+(delivery.status===429?30:5)*60000,record.id).run();continue;}
-    sent++;
-    for(const item of relevant)await env.DB.prepare('INSERT OR IGNORE INTO foama_push_deliveries (id,subscription_id,created) VALUES (?,?,?)').bind(item.id,record.id,now).run();
-    await env.DB.prepare('UPDATE foama_push_subscriptions SET last_sent=?,day=?,day_count=?,retry_after=0 WHERE id=?').bind(now,pushDay(now),record.day===pushDay(now)?record.day_count+1:1,record.id).run();
-    await env.DB.prepare('DELETE FROM foama_push_deliveries WHERE subscription_id=? AND id NOT IN (SELECT id FROM foama_push_deliveries WHERE subscription_id=? ORDER BY created DESC LIMIT 256)').bind(record.id,record.id).run();
+    await enqueuePush(env,record,{hashes:relevant.map(item=>item.id.slice(record.id.length+1))},now);
    }catch{failed++;}
   }
+  const drained=await drainPushOutbox(env,{now,feed,ready:v=>deliveryReady(v,env),deliver:(v,p,o)=>deliver(v,p,env,{...o,sender,nativeSender})});sent=drained.sent;failed+=drained.failed;
   const result={checked,sent,failed,notices:feed.notices.length,sourceCheckedAt:feed.checkedAt};
   await env.DB.prepare("UPDATE foama_push_runtime SET last_success=?,next_allowed=?,lease_until=0,status=?,cursor=?,result=? WHERE id='main' AND lease_token=?").bind(now,now+240000,failed?'partial':'ok',cursor,JSON.stringify(result),token).run();
   return result;

@@ -58,13 +58,20 @@ test('subscription storage is authenticated encryption bound to its own device I
  assert.match(sealed,/^[A-Za-z0-9_-]{16}\.[A-Za-z0-9_-]+$/);assert.ok(!sealed.includes(sub.endpoint));assert.deepEqual(await openPush(sealed,id,key),value);
  await assert.rejects(openPush(sealed,'other-device',key));await assert.rejects(openPush(sealed,id,Buffer.alloc(32,5).toString('base64url')));
 });
+test('transport respects relative and dated Retry-After and short test TTL in the real request shape',async()=>{
+ let headers;
+ const options={now,ttl:60,fetcher:async(url,request)=>{headers=request.headers;return new Response(null,{status:429,headers:{'Retry-After':'120'}});}};
+ const relative=await sendWebPush(sub,{title:'test'},env(),options);assert.equal(relative.retryAfterMs,120000);assert.equal(headers.TTL,'60');
+ const until=now+120000,dated=await sendWebPush(sub,{title:'test'},env(),{now,fetcher:async()=>new Response(null,{status:503,headers:{'Retry-After':new Date(until).toUTCString()}})});
+ assert.equal(dated.retryAfterMs+dated.responseAt,until);
+});
 test('favorite scope uses known station/line IDs and excludes unrelated equipment and short stop messages',()=>{
  const targets=favoritePushTargets([{stopId:'wl:1',route:'U6'},{stopId:'missing',route:'46'},{stopId:'wl:1',route:'U6'}],catalog);assert.equal(targets.length,1);
  const base={category:'stoerungkurz',lines:['U6'],stops:['999']},prefs=pushPreferences();
  assert.equal(pushNoticeMatches(base,targets,prefs,now),false);
  assert.equal(pushNoticeMatches({...base,stops:['101']},targets,prefs,now),true);
  assert.equal(pushNoticeMatches({...base,category:'aufzugsinfo',stops:['101']},targets,prefs,now),false);
- assert.equal(pushNoticeMatches({...base,category:'aufzugsinfo',stops:['101']},targets,{...prefs,equipment:true},now),true);
+ assert.equal(pushNoticeMatches({...base,category:'aufzugsinfo',stops:['101']},targets,{...prefs,equipment:true},now),false);
  assert.equal(pushNoticeMatches({...base,category:'aufzugsinfo'},targets,{...prefs,equipment:true},now),false);
  assert.equal(pushNoticeMatches({...base,category:'stoerunglang',stops:[]},targets,prefs,now),true);
  assert.equal(pushNoticeMatches({...base,category:'stoerunglang',resolved:true},targets,{scope:'all'},now),false);
@@ -79,13 +86,34 @@ test('notification day and optional quiet hours follow Vienna across winter/summ
  assert.equal(pushCanSend({last_sent:0,day:'',day_count:0},{quiet:true},Date.parse('2026-07-08T05:00Z')),true);
  assert.equal(pushFingerprint({title:'Störung',checkedAt:123,id:'a'}),pushFingerprint({title:'Störung',checkedAt:456,id:'b'}));
 });
-test('scheduled notices never push before their start, including explicitly enabled lift notices',()=>{
+test('equipment exclusion is unconditional for old preferences and all/favorite scopes; mixed service events remain relevant',()=>{
+ assert.equal(pushPreferences({equipment:true}).equipment,false);
+ const targets=favoritePushTargets([{stopId:'wl:1',route:'U6'}],catalog);
+ for(const scope of ['all','favorites'])for(const category of ['aufzugsinfo','fahrtreppeninfo']){
+  assert.equal(pushNoticeMatches({category,lines:['U6'],stops:['101']},targets,{scope,equipment:true},now),false);
+ }
+ assert.equal(pushNoticeMatches({category:'stoerunglang',title:'U6 Betrieb unterbrochen; Aufzug betroffen',lines:['U6'],stops:[]},targets,pushPreferences(),now),true);
+});
+test('dispatcher ignores legacy encrypted lift opt-ins without device re-registration',async()=>{
+ const e=env(),sent=[];try{
+  await register(e);
+  const row=await e.DB.prepare('SELECT * FROM foama_push_subscriptions WHERE id=?').bind(id).first();
+  const value=await openPush(row.sealed,id,e.PUSH_STORAGE_KEY);value.preferences.equipment=true;
+  await e.DB.prepare('UPDATE foama_push_subscriptions SET sealed=? WHERE id=?').bind(await sealPush(value,id,e.PUSH_STORAGE_KEY),id).run();
+  const lift={...notice,refTrafficInfoCategoryId:1,title:'Aufzug außer Betrieb',relatedStops:['101']};
+  const options={now,fetcher:async()=>Response.json(feed([lift])),sender:async(s,p)=>{sent.push(p);return {ok:true};}};
+  assert.equal((await dispatchDisruptions(e,options)).sent,0);assert.equal(sent.length,0);
+  assert.equal((await dispatchDisruptions(e,{...options,now:now+5*60000,fetcher:async()=>Response.json(feed([lift,notice]))})).sent,1);
+  assert.match(sent[0].body,/U6/);assert.doesNotMatch(sent[0].body,/Aufzug/);
+ }finally{e.DB.close();}
+});
+test('scheduled service notices start on time while equipment stays excluded despite legacy opt-ins',()=>{
  const prefs=pushPreferences({scope:'all',equipment:true}),future={category:'stoerunglang',lines:['U6'],start:new Date(now+1000).toISOString(),planned:true};
  assert.equal(pushNoticeMatches(future,[],prefs,now),false);
  assert.equal(pushNoticeMatches(future,[],prefs,now+999),false);
  assert.equal(pushNoticeMatches(future,[],prefs,now+1000),true);
  assert.equal(pushNoticeMatches({...future,category:'aufzugsinfo'},[],prefs,now),false);
- assert.equal(pushNoticeMatches({...future,category:'aufzugsinfo'},[],prefs,now+1000),true);
+ assert.equal(pushNoticeMatches({...future,category:'aufzugsinfo'},[],prefs,now+1000),false);
  assert.equal(pushNoticeMatches({...future,category:'aufzugsinfo'},[],pushPreferences({scope:'all'}),now+1000),false);
  assert.equal(pushNoticeMatches({...future,start:'',planned:true},[],prefs,now),false);
 });
@@ -149,24 +177,34 @@ test('public scheduler tick cannot select recipients or payloads, enforces its g
   const second=await (await pushApi(req(path,'POST',{}),e,now+60000,options)).json();assert.equal(second.skipped,true);assert.equal(calls,1);
  }finally{e.DB.close();}
 });
-test('service worker shows an OS notification and notification click only opens the app origin',async()=>{
- const handlers={},shown=[],navigations=[];let closed=false;
- const scope={registration:{showNotification:async(...args)=>shown.push(args)},location:{origin:'https://foama.example'},addEventListener:(name,handler)=>handlers[name]=handler,clients:{matchAll:async()=>[{url:'https://foama.example/',navigate:async url=>navigations.push(url),focus:async()=>{}}]}};
- new vm.Script(await readFile(new URL('../pwa/src/push-worker.js',import.meta.url),'utf8')).runInNewContext({self:scope,URL});
- let pending;handlers.push({data:{json:()=>({format:'foama-push-v1',title:'Störung',body:'U6',url:'https://evil.example'})},waitUntil:p=>pending=p});await pending;
- assert.equal(shown[0][0],'Störung');assert.equal(shown[0][1].data.url,'/alerts.html');assert.equal(shown[0][1].renotify,false);
- handlers.notificationclick({notification:{close:()=>closed=true},waitUntil:p=>pending=p});await pending;assert.equal(closed,true);assert.deepEqual(navigations,['https://foama.example/alerts.html']);
+test('v2 event verification and bounded receipts are authenticated per device; acceptance and browser display stay distinct',async()=>{
+ const e=env();let payload;try{
+  await register(e,subscriptionData({protocol:2}));
+  const options={sender:async(s,p)=>{payload=p;return {ok:true};}};
+  assert.equal((await pushApi(req('/api/push/subscriptions/'+id+'/test','POST',{}),e,now,options)).status,200);
+  assert.equal(payload.format,'foama-push-v2');assert.equal(payload.expiresAt,now+60000);
+  const path='/api/push/subscriptions/'+id+'/events/'+payload.eventId;
+  assert.equal((await pushApi(req(path,'GET',null,'z'.repeat(32)),e,now)).status,410);
+  assert.equal((await (await pushApi(req(path),e,now)).json()).relevant,true);
+  let status=await (await pushApi(req('/api/push/subscriptions/'+id),e,now)).json();assert.equal(status.lastTest.acceptedAt,now);assert.equal(status.lastTest.shownAt,0);
+  assert.equal((await pushApi(req(path+'/receipt','POST',{status:'constructor'}),e,now)).status,400);
+  assert.equal((await pushApi(req(path+'/receipt','POST',{status:'shown'}),e,now+1)).status,200);
+  assert.equal((await pushApi(req(path+'/receipt','POST',{status:'shown'}),e,now+2)).status,200);
+  status=await (await pushApi(req('/api/push/subscriptions/'+id),e,now+3)).json();assert.equal(status.lastTest.shownAt,now+1);assert.equal(status.lastTest.clickedAt,0);
+  e.PUSH_SCHEDULER_ENABLED='false';assert.equal((await (await pushApi(req(path),e,now+4)).json()).relevant,false);
+  await pushApi(req('/api/push/subscriptions/'+id,'DELETE'),e,now+5);assert.equal((await pushApi(req(path),e,now+6)).status,410);
+ }finally{e.DB.close();}
 });
 
-function clientFixture({permission='default',supported=true,visibility='visible',stored=null,available=true,getJourneys=()=>[]}={}){
+function clientFixture({permission='default',supported=true,visibility='visible',stored=null,available=true,workerProtocol=2,getJourneys=()=>[]}={}){
  const elements=new Map(),events={},requests=[],order=[],db=new Map(stored? [['foama.push.v1',JSON.stringify(stored)]]:[]);let unsubscribed=0;
  const element=id=>{if(!elements.has(id))elements.set(id,{handlers:{},hidden:false,disabled:false,checked:false,textContent:'',setAttribute(){},addEventListener:(type,handler)=>elements.get(id).handlers[type]=handler});return elements.get(id);};
  const root={visibilityState:visibility,getElementById:element,addEventListener:(name,fn)=>events[name]=fn};
  let current=null;
  const subscription={toJSON:()=>sub,unsubscribe:async()=>{unsubscribed++;current=null;return true;}};
- const environment={isSecureContext:supported,crypto,PushManager:class{},Notification:{permission,requestPermission(){order.push('permission');this.permission=permission==='denied'?'denied':'granted';return Promise.resolve(this.permission);}},navigator:{serviceWorker:{ready:Promise.resolve({pushManager:{getSubscription:async()=>current,subscribe:async()=>{order.push('subscribe');current=subscription;return subscription;}}})}}};
- const fetcher=async(path,options)=>{requests.push({path,options});order.push(path);return Response.json(path.endsWith('/config')?{available,publicKey,lastSuccess:now}:{enabled:true,accepted:true},{status:options.method==='POST'&&!path.endsWith('/test')?201:200});};
- const controller=createNotifications({root,getFavorites:()=>[{stopId:'wl:1',route:'U6'}],getStops:()=>catalog,getJourneys,storage:{getItem:key=>db.get(key),setItem:(key,value)=>db.set(key,value)},environment,fetcher});
+ const environment={isSecureContext:supported,crypto,MessageChannel,PushManager:class{},Notification:{permission,requestPermission(){order.push('permission');this.permission=permission==='denied'?'denied':'granted';return Promise.resolve(this.permission);}},navigator:{serviceWorker:{ready:Promise.resolve({active:{postMessage(data,ports){ports[0].postMessage({protocol:workerProtocol});}},pushManager:{getSubscription:async()=>current,subscribe:async()=>{order.push('subscribe');current=subscription;return subscription;}}})}}};
+ const fetcher=async(path,options)=>{requests.push({path,options});order.push(path);return Response.json(path.endsWith('/config')?{available,publicKey,lastSuccess:now}:{enabled:true,accepted:true,expiresAt:Date.now()+86400000},{status:options.method==='POST'&&!path.endsWith('/test')?201:200});};
+ const controller=createNotifications({root,getFavorites:()=>[{stopId:'wl:1',route:'U6'}],getStops:()=>catalog,getJourneys,storage:{getItem:key=>db.get(key),setItem:(key,value)=>db.set(key,value)},environment,fetcher,pushStore:{setDevice:async()=>{}}});
  return {controller,root,elements,element,events,requests,order,db,environment,get unsubscribed(){return unsubscribed;}};
 }
 async function settle(fixture){for(let i=0;i<50&&fixture.element('pushDisable').disabled;i++)await new Promise(setImmediate);}
@@ -183,10 +221,22 @@ test('blocked, unsupported and hidden clients do not subscribe or start backgrou
  const unsupported=clientFixture({supported:false});await unsupported.controller.init();assert.equal(unsupported.requests.length,0);assert.equal(unsupported.element('pushEnable').disabled,true);
  const hidden=clientFixture({visibility:'hidden'});await hidden.controller.init();assert.equal(hidden.requests.length,0);assert.equal(hidden.order.length,0);
 });
+test('PWA drops a legacy equipment preference before registering and keeps the other choices',async()=>{
+ const f=clientFixture({stored:{preferences:{scope:'all',equipment:true,quiet:true}}});await f.controller.init();
+ f.element('pushEnable').handlers.click();await settle(f);
+ const input=JSON.parse(f.requests.find(r=>r.path==='/api/push/subscriptions').options.body);
+ assert.deepEqual(input.preferences,{scope:'all',equipment:false,quiet:true});
+ assert.deepEqual(JSON.parse(f.db.get('foama.push.v1')).preferences,input.preferences);
+ assert.equal(f.elements.has('pushEquipment'),false);
+});
 test('unconfigured scheduler blocks activation, reports no active delivery and does not renew an old opt-in',async()=>{
  const f=clientFixture({permission:'granted',available:false,stored:{id,secret,enabled:true}});await f.controller.init();
  assert.equal(f.element('pushEnable').disabled,true);assert.ok(f.element('pushStatus').textContent.includes('noch nicht verfügbar'));
  assert.equal(f.requests.length,1);assert.equal(f.requests[0].path,'/api/push/config');assert.ok(!f.order.includes('subscribe'));
+});
+test('v2 enrollment waits for an explicitly activated compatible worker',async()=>{
+ const f=clientFixture({workerProtocol:1});await f.controller.init();f.element('pushEnable').handlers.click();await settle(f);
+ assert.equal(f.requests.filter(r=>r.path==='/api/push/subscriptions').length,0);assert.match(f.element('pushStatus').textContent,/Jetzt aktualisieren/);assert.ok(!f.order.includes('subscribe'));
 });
 test('route favorites include boarding, transfer and alighting stations and alternatives without leaking names or addresses',()=>{
  const stops=[...catalog,{id:'wl:2',provider:'wl',rbl:['201'],lines:[{route:'U6'},{route:'46'}]},{id:'rail:1',provider:'rail',rbl:[],lines:[{route:'S1'}]}];

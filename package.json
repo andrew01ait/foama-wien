@@ -2,7 +2,7 @@
   "name": "foama-wien",
   "private": true,
   "type": "module",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "scripts": {
     "dev": "node --watch scripts/preview_site.mjs",
     "build": "python3 scripts/build_site.py",
@@ -12,6 +12,7 @@
   "devDependencies": {
     "drizzle-kit": "0.31.10",
     "drizzle-orm": "0.45.2",
-    "esbuild": "0.25.12"
+    "esbuild": "0.25.12",
+    "fake-indexeddb": "6.2.8"
   }
 }

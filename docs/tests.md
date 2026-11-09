@@ -1,3 +1,9 @@
+## PWA 0.6.7 · Störungs-Push · 09.11.2026
+
+277 Web-/Server- und acht Python-Tests erfolgreich; 64 JavaScript-Dateien syntaktisch geprüft. Neue Prüfungen: verschlüsselte dauerhafte Queue, eindeutige Ereignisse und konkurrierende Claims, vier Versuche/Retry-After, Wiederaufnahme und endgültige Anbieterannahme ohne Empfangsbestätigung, alte Equipment-Freigaben, neu abgeglichene Auswahl, aufgelöste Ereignisse und Ablauf. IndexedDB-Neuöffnung und atomare Claims mit fake-indexeddb 6.2.8 (Apache-2.0). Service Worker prüft sichtbare/verborgene Fenster, erneuten Opt-out während Prüfung, Wiener Nachtruhe, expliziten Test, unpassende Payloads sowie feste authentifizierte Rückkanäle. Status und idempotente shown-Receipts sind vom Provider-Ergebnis getrennt. Ein alter aktiver Worker blockiert v2-Registrierung bis zur bewussten Aktualisierung.
+
+Lokale HTTP-Browseransicht: Equipment-Auswahl entfernt, Nachtruhe und Start-/Favoritenwahl erhalten; mangels HTTPS dort keine Push-Freigabe. Echte Telefonanzeige muss am optierten Zielgerät geprüft werden. Native Quellen und ursprüngliche 0.6.1/21-APK unverändert; Originalbytes, Größe, SHA-256 und Signatur beim Wiederherstellen bestätigt. Direkter Uhr-Push wird auf Nutzerwunsch nicht weiter eingerichtet.
+
 ## PWA 0.6.6 · Meine Orte · 09.11.2026
 
 261 Web-/Server-Prüfungen erfolgreich, geänderte JavaScript-Module und Service Worker syntaktisch geprüft; 96 eindeutige Journey-IDs. Vier neue UI-Regressionsprüfungen umfassen Abbrechen samt verspäteter Adressantwort, erste leere Liste, Adress-/Koordinaten-/ID-Erhalt beim Umbenennen sowie Start-/Zielauswahl und ausdrücklich bestätigte Entfernung des richtigen Datensatzes. Gemeinsame Menüprüfungen für Wechsel, Außenklick, Escape und Fokus weiter erfolgreich. Native Wear 0.6.1/21 unverändert.

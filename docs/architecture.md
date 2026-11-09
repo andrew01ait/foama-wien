@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.6.6 / Wear 0.6.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.6.7 / Wear 0.6.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -42,7 +42,7 @@ QR-Sitzungen verwenden AES-GCM, zufällige getrennte Lese-/Schreibfreigaben und 
 
 Eine einzelne stündliche Hintergrundaufgabe prüft die feste offizielle Quelle. Bei ohnehin laufenden sichtbaren Monitoraufrufen kommen Prüfungen ungefähr alle fünf Minuten dazu. Es gibt keine zusätzliche Hintergrund-Ortung oder Abfahrtsabfrage auf den Geräten. Der vorbereitete externe Fünf-Minuten-Timer ist nicht aktiv.
 
-Die Favoritenauswahl umfasst Stationen, Linien sowie alle bekannten Ein-, Umstiegs- und Ausstiegsstationen gespeicherter Routen einschließlich Alternativen, höchstens 100 Stationen. Gespeichert werden minimale Referenzen statt eigener Routennamen, Adressen oder GPS. Nur bereits gültige passende Meldungen lösen gebündelte Hinweise aus; Aufzüge sind optional. Quellenfehler senden keine Entwarnung. Endgerätefreigaben laufen ohne sichtbare Erneuerung nach spätestens 90 Tagen ab. Direkter Uhr-Push bleibt bis zur Firebase-Einrichtung offen. [Push-Vertrag](push-notifications.md).
+Die Favoritenauswahl umfasst Stationen, Linien sowie alle bekannten Ein-, Umstiegs- und Ausstiegsstationen gespeicherter Routen einschließlich Alternativen, höchstens 100 Stationen. Gespeichert werden minimale Referenzen statt eigener Routennamen, Adressen oder GPS. Nur bereits gültige passende Meldungen lösen gebündelte Hinweise aus; Aufzüge/Fahrtreppen sind immer ausgeschlossen. Quellenfehler senden keine Entwarnung. Endgerätefreigaben laufen ohne sichtbare Erneuerung nach spätestens 90 Tagen ab. Push ist auf Nutzerwunsch ausschließlich für die PWA vorgesehen; Firebase ist dafür nicht erforderlich. [Push-Vertrag](push-notifications.md).
 
 ## Veröffentlichungen
 

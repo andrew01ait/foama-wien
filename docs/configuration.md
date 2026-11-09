@@ -28,13 +28,13 @@ Der Sites-Adapter stellt öffentliche Stationskataloge auch für serverseitige F
 | `PUSH_SCHEDULER_ENABLED` | Erst nach tatsächlich eingerichteter Hintergrundprüfung auf `true` setzen |
 | `PUSH_INTERVAL_MINUTES` | Tatsächlichen Hintergrundtakt angeben; aktuelle öffentliche Einrichtung: `60` |
 
-VAPID- und Speicherschlüssel einer laufenden Installation nicht beiläufig ersetzen. Die PWA nutzt Web Push und benötigt keinen Firebase-Client. Aktivierung und Benachrichtigungsfreigabe erfolgen bewusst am Gerät. Mindestens 30 Minuten Abstand, höchstens sechs Hinweise pro Wiener Kalendertag, optionale Nachtruhe 22–7 Uhr. Aufzüge/Fahrtreppen sind standardmäßig aus; geplante Hinweise frühestens ab Beginn. Siehe [Push-Dokumentation](push-notifications.md).
+VAPID- und Speicherschlüssel einer laufenden Installation nicht beiläufig ersetzen. Die PWA nutzt Web Push und benötigt keinen Firebase-Client. Aktivierung und Benachrichtigungsfreigabe erfolgen bewusst am Gerät. Mindestens 30 Minuten Abstand, höchstens sechs Hinweise pro Wiener Kalendertag, optionale Nachtruhe 22–7 Uhr. Aufzüge/Fahrtreppen sind immer vom Push ausgeschlossen; geplante Hinweise frühestens ab Beginn. Siehe [Push-Dokumentation](push-notifications.md).
 
-## Optionaler direkter Uhr-Push
+## Nicht beauftragte native Vorbereitung
 
-`FIREBASE_PROJECT_ID`, `FIREBASE_ANDROID_APP_ID`, `FIREBASE_API_KEY` und `FIREBASE_SENDER_ID` müssen dieselbe Firebase-Android-App für `at.andrew.foamawien` beschreiben. `FCM_SERVICE_ACCOUNT_JSON` ist ausschließlich ein serverseitiges Secret mit passendem Projekt und Messaging-Berechtigung. Es gehört weder in APK noch Repository. Verwendet wird Firebase Cloud Messaging; keine Firebase-Datenbank, Firebase-Authentifizierung oder Analytics sind dafür vorgesehen.
+Der Nutzer benötigt keinen Uhr-Push. Für die PWA keine Firebase-Werte einrichten. Der vorhandene Legacy-Code wird nicht aktiviert oder weiter ausgebaut. Nur für einen später ausdrücklich gewünschten eigenen Fork würden `FIREBASE_PROJECT_ID`, `FIREBASE_ANDROID_APP_ID`, `FIREBASE_API_KEY` und `FIREBASE_SENDER_ID` müssen dieselbe Firebase-Android-App für `at.andrew.foamawien` beschreiben. `FCM_SERVICE_ACCOUNT_JSON` ist ausschließlich ein serverseitiges Secret mit passendem Projekt und Messaging-Berechtigung. Es gehört weder in APK noch Repository. Verwendet wird Firebase Cloud Messaging; keine Firebase-Datenbank, Firebase-Authentifizierung oder Analytics sind dafür vorgesehen.
 
-Die öffentliche Uhr-Zustellung ist bis zu dieser Einrichtung gesperrt. Auf dem Telefon freigegebene PWA-Benachrichtigungen können unabhängig davon über die Uhr-Begleit-App gespiegelt werden; das ist eine Systemeinstellung und kein eigenständiger Watch-Push.
+Die öffentliche Uhr-Zustellung bleibt deaktiviert. Auf dem Telefon freigegebene PWA-Benachrichtigungen können unabhängig davon über die Uhr-Begleit-App gespiegelt werden; das ist eine Systemeinstellung und kein eigenständiger Watch-Push.
 
 ## Native Build-Konfiguration
 
