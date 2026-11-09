@@ -1,0 +1,46 @@
+{
+  "releases": [
+    {
+      "filename": "foama-wien-wear-0.3.7.apk",
+      "version": "0.3.7",
+      "bytes": 3715500,
+      "sha256": "170b12ecbd75a253c3945d0ecaf90ba87ba8c605bc4925a61076d8e7c5d9e1bf"
+    },
+    {
+      "filename": "foama-wien-wear-0.4.0.apk",
+      "version": "0.4.0",
+      "bytes": 3719596,
+      "sha256": "d879b4a34701dd5b25c0b82298c13ad7aefd702e5872dfdb11f8b51a59c38868"
+    },
+    {
+      "filename": "foama-wien-wear-0.4.1.apk",
+      "version": "0.4.1",
+      "bytes": 3719596,
+      "sha256": "dc885b1c3a309f36a8bafc4cf06b67952d347c12b3870659e25e8b52c62b0e17"
+    },
+    {
+      "filename": "foama-wien-wear-0.4.2.apk",
+      "version": "0.4.2",
+      "bytes": 3723692,
+      "sha256": "9d385be821642981a87691a2c2ab93901bf85443a23de92afeac0992308d2fbf"
+    },
+    {
+      "filename": "foama-wien-wear-0.5.0.apk",
+      "version": "0.5.0",
+      "bytes": 3731884,
+      "sha256": "8efe899acf688f53d0629455e5dc98ad1447b95ca7a8b6e7308bdae14150bd07"
+    },
+    {
+      "filename": "foama-wien-wear-0.5.1.apk",
+      "version": "0.5.1",
+      "bytes": 3731884,
+      "sha256": "6843c2f93cbdf3799fe953dd5bd1909c68def222c127ce6d4520881276a2bc83"
+    },
+    {
+      "filename": "foama-wien-wear-0.6.0.apk",
+      "version": "0.6.0",
+      "bytes": 3731884,
+      "sha256": "d112d1b0b1340623b505033f4fc48ad03320ca06b1fc75d4fe4ede74b39f5900"
+    }
+  ]
+}

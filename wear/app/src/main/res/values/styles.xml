@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="FoamaTheme" parent="android:style/Theme.Material.NoActionBar">
+        <!-- Internal screens share one Activity; our gesture follows their parent page. -->
+        <item name="android:windowSwipeToDismiss">false</item>
+        <item name="android:colorAccent">#73e0b7</item>
+        <item name="android:windowBackground">#000000</item>
+    </style>
+</resources>

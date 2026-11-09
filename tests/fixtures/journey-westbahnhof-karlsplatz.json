@@ -1,0 +1,125 @@
+{
+  "sampleOnly": true,
+  "source": "Transitous MOTIS v6; public test points Westbahnhof and Karlsplatz; 2026-11-08, not live data",
+  "itineraries": [
+    {
+      "duration": 1080,
+      "startTime": "2026-11-08T21:59:00Z",
+      "endTime": "2026-11-08T22:17:00Z",
+      "transfers": 1,
+      "legs": [
+        {
+          "mode": "WALK",
+          "startTime": "2026-11-08T21:59:00Z",
+          "endTime": "2026-11-08T22:02:00Z",
+          "scheduledStartTime": "2026-11-08T21:59:00Z",
+          "scheduledEndTime": "2026-11-08T22:02:00Z",
+          "realTime": false,
+          "distance": 153.0,
+          "to": {
+            "name": "Wien Westbahnhof",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:1468:0:3",
+            "track": "A",
+            "scheduledTrack": "A"
+          },
+          "from": {
+            "name": "START"
+          }
+        },
+        {
+          "mode": "TRAM",
+          "startTime": "2026-11-08T22:02:00Z",
+          "endTime": "2026-11-08T22:07:00Z",
+          "scheduledStartTime": "2026-11-08T22:02:00Z",
+          "scheduledEndTime": "2026-11-08T22:07:00Z",
+          "realTime": false,
+          "cancelled": false,
+          "headsign": "Wien Stadion",
+          "tripId": "20261108_22:58_at-PTA-Eastern-Region-Flex-2026_105.T3.22-18-j26-9.4.H",
+          "routeShortName": "18",
+          "displayName": "18",
+          "interlineWithPreviousLeg": false,
+          "to": {
+            "name": "Wien Margaretengürtel",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:827:0:8",
+            "cancelled": false
+          },
+          "from": {
+            "name": "Wien Westbahnhof",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:1468:0:3",
+            "track": "A",
+            "scheduledTrack": "A",
+            "cancelled": false
+          }
+        },
+        {
+          "mode": "WALK",
+          "startTime": "2026-11-08T22:07:00Z",
+          "endTime": "2026-11-08T22:09:00Z",
+          "scheduledStartTime": "2026-11-08T22:07:00Z",
+          "scheduledEndTime": "2026-11-08T22:09:00Z",
+          "realTime": false,
+          "cancelled": false,
+          "to": {
+            "name": "Wien Margaretengürtel",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:827:0:7",
+            "track": "1",
+            "scheduledTrack": "1"
+          },
+          "from": {
+            "name": "Wien Margaretengürtel",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:827:0:8",
+            "cancelled": false
+          }
+        },
+        {
+          "mode": "SUBWAY",
+          "startTime": "2026-11-08T22:09:00Z",
+          "endTime": "2026-11-08T22:14:00Z",
+          "scheduledStartTime": "2026-11-08T22:09:00Z",
+          "scheduledEndTime": "2026-11-08T22:14:00Z",
+          "realTime": false,
+          "cancelled": false,
+          "headsign": "Wien Heiligenstadt",
+          "tripId": "20261108_22:57_at-PTA-Eastern-Region-Flex-2026_201.T3.21-U4-j26-7.5.H",
+          "routeShortName": "U4",
+          "displayName": "U4",
+          "interlineWithPreviousLeg": false,
+          "to": {
+            "name": "Wien Karlsplatz",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:657:0:14",
+            "track": "1",
+            "scheduledTrack": "1",
+            "cancelled": false
+          },
+          "from": {
+            "name": "Wien Margaretengürtel",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:827:0:7",
+            "track": "1",
+            "scheduledTrack": "1",
+            "cancelled": false
+          }
+        },
+        {
+          "mode": "WALK",
+          "startTime": "2026-11-08T22:14:00Z",
+          "endTime": "2026-11-08T22:17:00Z",
+          "scheduledStartTime": "2026-11-08T22:14:00Z",
+          "scheduledEndTime": "2026-11-08T22:17:00Z",
+          "realTime": false,
+          "distance": 185.0,
+          "to": {
+            "name": "END"
+          },
+          "from": {
+            "name": "Wien Karlsplatz",
+            "stopId": "at-PTA-Eastern-Region-Flex-2026_at:49:657:0:14",
+            "track": "1",
+            "scheduledTrack": "1",
+            "cancelled": false
+          }
+        }
+      ]
+    }
+  ]
+}

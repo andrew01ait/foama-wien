@@ -1,0 +1,17 @@
+{
+  "version": "0.6.0",
+  "wearVersionCode": 20,
+  "wearApkUrl": "/apk/foama-wien-wear-0.6.0.apk",
+  "wearApkSha256": "d112d1b0b1340623b505033f4fc48ad03320ca06b1fc75d4fe4ede74b39f5900",
+  "changelog": "Störungsbenachrichtigungen in den Einstellungen aktivierbar. Meine Favoriten berücksichtigt auch gespeicherte A-nach-B-Wege und Alternativen. Hintergrundprüfung stündlich, bei aktiver App gegebenenfalls häufiger. Aufzüge bleiben optional; geplante Hinweise erst ab Beginn.",
+  "wearVersion": "0.6.0",
+  "wearPackage": "at.andrew.foamawien",
+  "wearApkBytes": 3731884,
+  "wearMinSdk": 30,
+  "wearChangelog": "Störungsauswahl umfasst jetzt auch gespeicherte A-nach-B-Wege und Alternativen. Ein-, Umstiegs- und Ausstiegsstationen werden berücksichtigt; Aufzüge bleiben optional. Änderungen an Routen aktualisieren die Push-Auswahl bei aktiver App.",
+  "wearReleaseNotes": [
+    "Störungsauswahl umfasst jetzt auch gespeicherte A-nach-B-Wege und Alternativen.",
+    "Ein-, Umstiegs- und Ausstiegsstationen werden berücksichtigt; Aufzüge bleiben optional.",
+    "Änderungen an Routen aktualisieren die Push-Auswahl bei aktiver App."
+  ]
+}

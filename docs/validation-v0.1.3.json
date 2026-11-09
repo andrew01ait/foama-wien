@@ -1,0 +1,27 @@
+{
+  "version": "0.1.3",
+  "publicUrl": "https://foama-wien.endruuu.chatgpt.site/?v=0.1.3",
+  "nodeTestsPassed": 36,
+  "gpsConfirmedByUser": true,
+  "publicBrowserChecks": {
+    "stationNameSearch": true,
+    "liveConnectionChoices": true,
+    "saveIndividualConnection": true,
+    "saveWholeStation": true,
+    "duplicateButtonsDisabled": true,
+    "officialU1ColourRgb": [
+      237,
+      28,
+      36
+    ],
+    "officialU3ColourRgb": [
+      245,
+      130,
+      31
+    ],
+    "stationTapOpensWalkingMap": true,
+    "walkingRouteDistanceMetres": 702,
+    "walkingRouteSource": "real external pedestrian router; public station coordinates used in QA"
+  },
+  "metadataResearch": "docs/wiener-linien-metadata.md"
+}

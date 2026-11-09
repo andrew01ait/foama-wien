@@ -1,0 +1,13 @@
+{
+  "applicationId": "at.andrew.foamawien",
+  "versionName": "0.6.0",
+  "versionCode": 20,
+  "minSdk": 30,
+  "targetSdk": 34,
+  "compileSdk": 34,
+  "releaseNotes": [
+    "Störungsauswahl umfasst jetzt auch gespeicherte A-nach-B-Wege und Alternativen.",
+    "Ein-, Umstiegs- und Ausstiegsstationen werden berücksichtigt; Aufzüge bleiben optional.",
+    "Änderungen an Routen aktualisieren die Push-Auswahl bei aktiver App."
+  ]
+}

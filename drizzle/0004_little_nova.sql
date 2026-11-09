@@ -1,0 +1,1 @@
+ALTER TABLE `foama_transfers` ADD `capabilities` text;

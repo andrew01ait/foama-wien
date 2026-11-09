@@ -1,0 +1,37 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'at.foama.wien'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'at.andrew.foamawien'
+        minSdk 30
+        targetSdk 34
+        versionCode 7
+        versionName '0.3.0'
+        def baseUrl = (project.findProperty("foamaPwaBase") ?: System.getenv("FOAMA_PWA_BASE") ?: "https://foama-wien.endruuu.chatgpt.site").toString()
+        buildConfigField 'String', 'FOAMA_BASE_URL', '"' + baseUrl + '"'
+    }
+    signingConfigs {
+        if (System.getenv('FOAMA_STORE_FILE')) {
+            create('foamaRelease') {
+                storeFile file(System.getenv('FOAMA_STORE_FILE'))
+                storePassword System.getenv('FOAMA_STORE_PASSWORD')
+                keyAlias System.getenv('FOAMA_KEY_ALIAS')
+                keyPassword System.getenv('FOAMA_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (signingConfigs.findByName('foamaRelease')) signingConfig signingConfigs.foamaRelease
+        }
+    }
+    buildFeatures { buildConfig true }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies {
+    implementation 'com.google.firebase:firebase-messaging:26.0.1'
+    implementation 'com.google.zxing:core:3.5.3' // QR generated locally, no third-party QR service.
+    // Android PackageInstaller is used directly (no AndroidX dependency).
+}

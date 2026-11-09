@@ -1,0 +1,47 @@
+.wear-landing .wear-page{width:min(100%,1060px);padding:0 28px 32px}
+.wear-landing .header{padding:25px 0;border-bottom:1px solid var(--stroke);gap:16px}
+.wear-landing .home-brand{color:var(--text);text-decoration:none}
+.wear-landing .home-brand h1{font-size:24px}
+.phone-link{color:var(--muted);font-size:12px;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.phone-link:hover,.install-link:hover{color:var(--mint)}
+.wear-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:38px;align-items:center;padding:52px 0 34px}
+.hero-copy .eyebrow{letter-spacing:.14em;font-size:10px;margin:0 0 17px}
+.wear-hero h2{font-size:clamp(35px,5vw,54px);font-weight:850;line-height:1.08;letter-spacing:-1.6px;margin:0 0 20px}
+.wear-lead{font-size:16px;line-height:1.6;color:var(--muted);max-width:340px;margin:0 0 24px}
+.wear-actions{display:flex;align-items:flex-start;flex-direction:column;gap:4px}
+.apk-download{min-height:50px;font-size:14px;gap:18px;padding:13px 19px;text-decoration:none}
+.install-link{display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:12px;text-decoration:none}
+.download-note{font-size:11px;color:var(--muted);margin:8px 0 0}
+.watch-showcase{display:grid;grid-template-columns:1fr .82fr;align-items:center;gap:15px;padding-top:12px}
+.watch-showcase figure{margin:0;text-align:center;min-width:0}
+.watch-showcase figure:nth-child(2){padding-top:50px}
+.watch-showcase img{display:block;width:100%;height:auto;aspect-ratio:1;border-radius:50%;background:#000;border:1px solid var(--stroke);box-shadow:0 16px 40px #0003}
+.watch-showcase figcaption{font-size:11px;color:var(--text);line-height:1.4;margin-top:13px}
+.showcase-note{grid-column:1/-1;text-align:center;font-size:10px;color:var(--muted);margin:4px 0 0}
+.wear-landing .wear-features{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0;margin:18px 0 0;list-style:none}
+.feature{display:flex;align-items:flex-start;gap:16px;padding:22px;background:var(--surface);border:1px solid var(--stroke);border-radius:16px;min-width:0}
+.feature>svg{width:24px;height:24px;flex:0 0 24px;color:var(--mint);fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-top:2px}
+.feature h3{font-size:15px;margin:0 0 6px;font-weight:800;line-height:1.4}
+.feature p{font-size:13px;line-height:1.6;margin:0;color:var(--muted);max-width:315px}
+.wear-quiet{padding:20px 0 22px}
+.wear-quiet p{font-size:11px;color:var(--muted);line-height:1.6;margin:4px 0;text-align:center}
+.quiet-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--mint);vertical-align:middle;margin-right:6px}
+.wear-help{border-top:1px solid var(--stroke)}
+.wear-disclosure{border-bottom:1px solid var(--stroke)}
+.wear-disclosure>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:19px 2px;min-height:64px}
+.wear-disclosure>summary::-webkit-details-marker{display:none}
+.wear-disclosure>summary strong{display:block;font-size:14px;line-height:1.5}
+.wear-disclosure>summary small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.disclosure-plus{color:var(--mint);font-size:23px;font-weight:400;transition:transform .15s}
+.wear-disclosure[open] .disclosure-plus{transform:rotate(45deg)}
+.disclosure-body{padding:0 2px 20px;font-size:13px;line-height:1.7;color:var(--muted);max-width:720px}
+.disclosure-body p{margin:0 0 12px}.disclosure-body p:last-child{margin-bottom:0}
+.disclosure-body strong{color:var(--text)}
+.disclosure-body ol{padding-left:20px;margin:0 0 14px}.disclosure-body li+li{margin-top:10px}
+.technical dl{margin:0 0 14px}.technical dt{font-weight:750;color:var(--text);margin-top:10px}.technical dd{margin:3px 0 0}
+.hash{overflow-wrap:anywhere;font:11px ui-monospace,monospace;line-height:1.6}
+.wear-landing footer{margin-top:20px;padding:18px 0;border:0;font-size:10px}
+.wear-landing a:focus-visible,.wear-disclosure>summary:focus-visible{outline:2px solid var(--mint);outline-offset:4px;border-radius:6px}
+@media(max-width:700px){.wear-landing .wear-page{max-width:530px;padding:0 22px 24px}.wear-hero{grid-template-columns:1fr;gap:26px;padding:35px 0 21px}.wear-hero h2{font-size:clamp(30px,9vw,40px)}.wear-lead{font-size:15px;max-width:350px;margin-bottom:20px}.watch-showcase{width:min(100%,360px);margin:auto;gap:16px;padding-top:0}.watch-showcase figure:nth-child(2){padding-top:34px}.wear-landing .wear-features{grid-template-columns:1fr;gap:9px}.feature{padding:17px 18px;gap:14px}.feature p{max-width:340px}.wear-landing .header{padding:18px 0}.wear-landing .brand-mark{width:39px;height:39px}.wear-landing .home-brand h1{font-size:22px}.phone-link{font-size:11px;gap:4px}.wear-quiet{padding:16px 0 20px}}
+@media(max-width:370px){.wear-landing .wear-page{padding:0 15px 22px}.wear-landing .header{gap:8px}.wear-landing .home-brand{gap:7px}.wear-landing .home-brand h1{font-size:20px}.phone-link{max-width:110px;font-size:10px}.wear-hero h2{font-size:30px;letter-spacing:-1.1px}.apk-download{width:100%;font-size:13px}.wear-actions{align-items:stretch}.install-link{font-size:11px}.feature{padding:16px 14px}.feature h3{font-size:14px}.feature p{font-size:12px}.watch-showcase figcaption{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.disclosure-plus{transition:none}}

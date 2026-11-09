@@ -1,0 +1,18 @@
+{
+  "key": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc",
+  "value": {
+    "format": "foama-favorites-v1",
+    "favorites": [
+      {
+        "stopId": "wl:test",
+        "stopName": "Brünner Straße",
+        "route": "31",
+        "towards": "Schottenring"
+      }
+    ]
+  },
+  "packet": {
+    "iv": "woCbOaZvGNg4MLAj",
+    "ciphertext": "_d4LQOvtwLuKMmdllukSWRZZdAIN3SKtHIS9rgmi_D-FaNqR5kQcCzfw5VKmcBiYohPn85wsohUeGQfOKf7Ckcy8NWRI0wcBYR9nCDHWRIhHgrmUe5WLY2x9tzf92YRPSnxXbkiaa0x_4k3atZUpjIUG2uudr14loF_fwxul_BL81Er0ZqtAvvqPU0V4zPQx-T-JNbVM"
+  }
+}

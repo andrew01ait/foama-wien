@@ -1,0 +1,16 @@
+{
+  "pwaVersion": "0.1.17",
+  "wearVersion": "0.2.3",
+  "nodeTests": 101,
+  "newWarningTests": 4,
+  "manualReorderHintRemoved": true,
+  "emptyLoadingAndPartialNoticeStatusRemoved": true,
+  "warningSectionOnlyWithRelevantNotices": true,
+  "cachedNoticesMarked": true,
+  "browserEmptyStateVerified": true,
+  "browserWarningSampleLightAndDarkVerified": true,
+  "sampleReviewPageRemoved": true,
+  "favoriteStationSearchVerified": true,
+  "obbDatasetEmpty": true,
+  "nativeApkUnchanged": true
+}

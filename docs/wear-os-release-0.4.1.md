@@ -1,0 +1,5 @@
+# Wear 0.4.1 / Code 16
+
+Station stets über Linie/Richtung auch im Verbindungsdetail. Angetippte Routen-Etappe erhält richtigen Stop/Route/Direction-Scope; Back und neuer Seitenstart oben, Refresh behält Lesen. Gespeicherte Routenfamilien mit alternativen vollständigen Wegen per v2-QR. Alternative Wege zeigt Verzweigungsstationen und aktuelle passende Linienzeiten, Wahl fokussiert diesen Einstieg. Gemeinsame Strecken nicht als eigenständige Favoriten duplizieren. Import neuer Varianten aktualisiert bestehende Familie unter bisherigem Namen/ID. Keine native Vollroutenplanung oder Hintergrundabfragen.
+
+103 Android-Tests inkl. Variantenwahl, zweitem Einstieg, Stationshierarchie, Familiendaten/Persistenz/Merge/Limit und drei Transferformaten. Original-SHA256-Zertifikat aus wear/release-signing.json, Paket at.andrew.foamawien. Signiert/zipalign/Paket/Code geprüft; 3,719,596 Bytes; APK SHA-256 dc885b1c3a309f36a8bafc4cf06b67952d347c12b3870659e25e8b52c62b0e17. Physischer OnePlus-/GPS-/Kamera-Test offen. Bestehende App aktualisieren, nicht deinstallieren.

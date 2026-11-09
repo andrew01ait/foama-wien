@@ -1,0 +1,86 @@
+{
+  "app": "foama-wien",
+  "version": "0.1.4",
+  "date": "2026-11-07",
+  "automatedTests": {
+    "passed": 50,
+    "failed": 0,
+    "command": "node --test tests/*.test.mjs tests/test_*.mjs"
+  },
+  "catalogue": {
+    "stops": 1811,
+    "mappedStops": 1789,
+    "unmappedHiddenFromNearby": 22,
+    "addressReferencePoints": 79352,
+    "userLocationSentToGeocoder": false
+  },
+  "previewBrowser": {
+    "strictMetroFilter": true,
+    "collapsedStateSurvivesReload": true,
+    "approximateStreetAndPostcode": true,
+    "renderedLocationMap": true,
+    "googleMapsLinks": true,
+    "testPosition": "public station coordinates only"
+  },
+  "publicVerification": {
+    "status": "verified",
+    "url": "https://foama-wien.endruuu.chatgpt.site",
+    "https": true,
+    "serviceWorkerControlled": true,
+    "diagnosticDownload": {
+      "bytes": 2936,
+      "format": "foama-wien-api-diagnose-v1",
+      "version": "0.1.4",
+      "rawIncluded": false
+    },
+    "relay": {
+      "timestamp": "2026-11-07T14:00:55.154Z",
+      "kind": "proxy",
+      "outcome": "ok",
+      "category": "api-json-ok",
+      "httpStatus": 200,
+      "responseType": "basic",
+      "contentType": "application/json; charset=utf-8",
+      "elapsedMs": 1755,
+      "stopId": "4111",
+      "summary": {
+        "valid": true,
+        "monitorCount": 1,
+        "lineCount": 1,
+        "departureCount": 14,
+        "examples": [
+          {
+            "station": "Stephansplatz",
+            "rbl": "4111",
+            "line": "U1",
+            "direction": "Leopoldau",
+            "firstDeparturePlan": "2026-11-07T15:04:00.000+0100",
+            "firstDepartureReal": "2026-11-07T15:03:24.000+0100"
+          }
+        ]
+      },
+      "message": "HTTP-Antwort im Browser lesbar."
+    },
+    "interface": {
+      "realU1U3Departures": true,
+      "strictMetroFilter": true,
+      "favoritesPreserved": 2,
+      "renderedPositionMap": true,
+      "streetPostcodeLocal": true,
+      "googleMapsLocationLink": true,
+      "googleMapsWithoutLocationFix": true,
+      "googleMapsWalkOmitsStaleOrigin": true
+    },
+    "testPosition": "public Stephansplatz station coordinates only; no user GPS used"
+  },
+  "physicalAndroid": {
+    "movementAndTunnelTest": "pending on device",
+    "launcherIconUpdate": "managed by Chrome, not confirmed",
+    "nativeGoogleMapsLaunch": "pending on device"
+  },
+  "limitations": [
+    "Provider may intermittently return 403; no access-control bypass",
+    "No delivered Wear APK or hosted QR relay",
+    "No bundled real ÖBB timetable"
+  ]
+}

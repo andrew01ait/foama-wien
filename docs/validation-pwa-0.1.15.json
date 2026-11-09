@@ -1,0 +1,13 @@
+{
+  "version": "0.1.15",
+  "nodeTests": 97,
+  "oldOverlappingMenusReproduced": true,
+  "browserMoveDownVerified": true,
+  "browserMoveUpVerified": true,
+  "closedMenusAfterMoveVerified": true,
+  "singleOpenMenuVerified": true,
+  "savedOrderAfterReloadVerified": true,
+  "favoriteCountPreserved": true,
+  "wearVersion": "0.2.2",
+  "wearRebuilt": false
+}

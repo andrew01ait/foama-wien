@@ -1,0 +1,20 @@
+{
+  "version": "0.1.2",
+  "publicUrl": "https://foama-wien.endruuu.chatgpt.site",
+  "generatedAt": "2026-11-07T11:57:26.703Z",
+  "browser": {
+    "https": true,
+    "serviceWorkerControlled": true,
+    "actualDiagnosticDownloadVerified": true
+  },
+  "monitorRelay": {
+    "httpStatus": 200,
+    "monitorCount": 1,
+    "lineCount": 1,
+    "departureCount": 14,
+    "stopId": "4111"
+  },
+  "officialCatalogueGroups": 1811,
+  "nodeTestsPassed": 34,
+  "physicalAndroidLocationPermissionVerified": false
+}

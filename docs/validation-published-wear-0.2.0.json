@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-07",
+  "pwaVersion": "0.1.12",
+  "wearVersion": "0.2.0",
+  "projectId": "appgprj_6aeef47cf7d081919ada2d865e1aa5f8",
+  "publicPage": "https://foama-wien.endruuu.chatgpt.site/wear.html",
+  "audience": "public",
+  "siteVersionInitiallyVerified": 24,
+  "checks": {
+    "pwaAppearance": "System/Dark/Light controls verified in public browser; light selection persisted over reload",
+    "compactFavorites": "44px rows; 28px main departure text; separate location banner hidden",
+    "wearLanding": "public browser renders native sample images and installation/source links",
+    "apkHosting": "production Worker recorded GET /apk/foama-wien-wear-0.2.0.apk HTTP 200 with outcome ok",
+    "publishedArtifact": "exact APK bytes reconstructed from uploaded deployment archive; size and SHA256 matched signed build",
+    "browserDownload": "cloud browser canceled the download; completed browser download not confirmed",
+    "rawHttpClient": "hosting edge returned 403 error 1010 to automated urllib checks, including /api/health; no request reached app Worker",
+    "physicalWatch": "not tested; install, GPS permission, live network/API, rotary/back and background behavior require device acceptance",
+    "qrTransfer": "not available in first native release; encrypted source preserved"
+  },
+  "apkBytes": 402075,
+  "apkSha256": "3d6d26b74ac999901669ebb1914791683bf44e53c80bf156438421b94adc42b9",
+  "nodeTests": 84,
+  "androidTests": 26
+}

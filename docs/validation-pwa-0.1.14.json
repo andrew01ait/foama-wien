@@ -1,0 +1,11 @@
+{
+  "nodeTests": 89,
+  "browserPreviewVerified": true,
+  "previewIsHttpNotGpsTest": true,
+  "collapsedModeTogglesVerified": true,
+  "filterDoesNotExpandWhenModeToggled": true,
+  "expandedCollapsedModeStateSynchronized": true,
+  "modeStatePersistsAfterReload": true,
+  "locationStartsCollapsedAfterReload": true,
+  "allSixModesReachable": true
+}

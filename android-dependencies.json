@@ -1,0 +1,13 @@
+{
+  "zxing": {
+    "version": "3.5.3",
+    "origin": "https://repo.maven.apache.org/maven2/com/google/zxing/core/3.5.3/core-3.5.3.jar",
+    "sha256": "8d8064c1636fdaef7189dd9055c7d59950a8940a12f2293956446ec3c109fd82",
+    "note": "First verified Maven-Central download via bootstrap_android.py records SHA-256. Subsequent builds reject mismatches."
+  },
+  "d8": {
+    "version": "8.13.25",
+    "url": "https://dl.google.com/dl/android/maven2/com/android/tools/r8/8.13.25/r8-8.13.25.jar",
+    "sha256": "0d4f2f68c4fcbc9434eff122f41feb6fb1d98efd2faa530cec1abacab1cea03d"
+  }
+}

@@ -1,0 +1,7 @@
+# PWA 0.1.18 / Wear 0.2.4 · QR-Favoritenübertragung · 08.11.2026
+
+Mehr → Favoriten → Mit Handy übertragen auf der Uhr. Vom Handy empfangen oder Ans Handy senden wählen und QR-Code mit der Handy-Kamera scannen. Die eigenständige Übertragungsseite nimmt lokale PWA-Favoriten oder einen JSON-Export an. Auf der Uhr Vorschau prüfen und ausdrücklich übernehmen; auf dem Handy PWA-Import oder JSON-Download wählen. Bestehende Favoriten bleiben erhalten, Duplikate werden übersprungen. Beide Geräte bleiben unabhängig, keine dauerhafte Synchronisierung.
+
+Native Version 0.2.4 / Code 5, Paket at.andrew.foamawien, min/target 30/34. APK 418459 Bytes, SHA-256 7401d0841578299fabdada27b94af885e548f4b97c7da4ee3eb94888ca5c68dd. Originalzertifikat d50111563430d07bf385b0f6ae7f95f60336bcdcd0bc866e123be39a0ce99ca1. 60 native Tests vor Signatur bestanden, apksigner und zipalign erfolgreich. Scan-Link in QR selbst enthalten, keine Keys im Server-Request; native Bitmap erfolgreich decodiert. Sichtbarer Transfer hält seine eigene abbrechbare HTTP-Sitzung. Pausieren, Display aus und Zurück löschen Keys, stoppen Polls und ändern keine Favoriten. Übernahme erst nach ausdrücklichem Tap. Große Abfahrtszahlen und Hauptschalter unverändert.
+
+Update: Mehr → App & Updates → Auf Update prüfen; danach Mehr → Favoriten → Mit Handy übertragen. Vorhandene Installation aktualisieren, nicht deinstallieren. [Übertragung](qr-transfer.md). Physische OnePlus-Watch-Prüfung noch erforderlich.

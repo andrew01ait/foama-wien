@@ -1,0 +1,76 @@
+{
+  "app": "foama-wien",
+  "version": "0.1.5",
+  "date": "2026-11-07",
+  "automatedTests": {
+    "passed": 60,
+    "failed": 0
+  },
+  "changes": [
+    "dark-blue NightLine badges",
+    "approximate station street/postcode",
+    "nearby station map and list",
+    "official scoped service notices",
+    "compact favourites with per-connection reachability",
+    "collapsed Settings debugging and private-data-free JSON export",
+    "locally bundled Leaflet 1.9.4"
+  ],
+  "preview": {
+    "nightBadgeRGB": [
+      22,
+      42,
+      99
+    ],
+    "stationAddress": "verified with public station reference",
+    "subsequentPreview": "blocked by browser URL policy; no workaround attempted"
+  },
+  "publicVerification": {
+    "status": "verified",
+    "url": "https://foama-wien.endruuu.chatgpt.site/",
+    "https": true,
+    "serviceWorkerControlled": true,
+    "nearbyMap": {
+      "rendered": true,
+      "loadedTiles": 9,
+      "stationPopup": true,
+      "lineBadges": true,
+      "approximateAddress": true
+    },
+    "nightBadgeRGB": [
+      22,
+      42,
+      99
+    ],
+    "realOperatingNotices": {
+      "count": 4,
+      "example": "25, 26, 27: Gleisbauarbeiten"
+    },
+    "debugging": {
+      "collapsedByDefault": true,
+      "downloaded": true,
+      "format": "foama-wien-debug-v1",
+      "bytes": 1880,
+      "gpsOrStopIdentifiersExported": false
+    },
+    "testLocation": "public station coordinates only; no user GPS used"
+  },
+  "physicalDeviceLimits": [
+    "Android map/network behaviour needs device confirmation",
+    "Movement/tunnel heuristics need field test"
+  ],
+  "wearOS": {
+    "status": "design prototype created",
+    "previewPath": "/wear-design.html",
+    "exampleDataOnly": true,
+    "apkBuilt": false,
+    "nativeJavaSourcesPreserved": true,
+    "publicPreview": "https://foama-wien.endruuu.chatgpt.site/wear-design.html",
+    "browserChecks": [
+      "near/favourite switch",
+      "open connection detail",
+      "tunnel shows unknown reachability",
+      "offline marks old sample data",
+      "large text toggle"
+    ]
+  }
+}

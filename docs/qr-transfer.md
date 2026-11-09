@@ -1,0 +1,55 @@
+## Routenfamilien ab PWA 0.4.2 / Wear 0.4.2
+
+Optionales alternatives:[{legs:…}] unter einem v2-Routenfavoriten, maximal 15 Alternativen plus Hauptroute. Alle stammen aus bewusster ursprünglicher Planung; keine alten Fahrzeiten/Trip-IDs, kein GPS-Fix in irgendeiner Variante. SchlüsseljourneyFavorites unverändert. Neue capability journey-alternatives-v1; bestehende bare/main-only Fähigkeiten weiter kompatibel. PWA sagt vor dem Senden an ältere Uhren, dass nur die Hauptroute übernommen wird. Für die komplette Familie Uhr-App 0.4.1 und neuen QR verwenden.
+
+Duplikate werden über gleiche Endpunkte und gemeinsamen Fahrtweg erkannt, neue Wege in denselben Favoriten eingefügt. Vorhandener Name und ID bleiben erhalten. Vorschau ohne Datenänderung, native Übernahme beider Favoritenarten weiterhin ein atomarer Commit. 32-KiB-Transferlimit/512-KiB-native Route-Speicher/30 Routen bleiben. Bei Grenzverletzung bleibt Altbestand erhalten.
+
+# Erweiterung PWA 0.3.3 / Wear 0.4.0
+
+Neu: bis zu 30 lokale Routen gemeinsam mit Stations-/Linienfavoriten übertragen. Die neue Uhr meldet journey-favorites-v1; ältere QR-Sitzungen bekommen nur Stationsauswahl und weiter foama-favorites-v1. Mit Routen lautet das minimierte Paket foama-favorites-v2 mit favorites und journeys. Fähigkeiten werden bei Sessionerstellung explizit gespeichert (nullable capabilities, Migration 0004); Geheimnisse/Schlüssel bleiben wie bisher getrennt.
+
+Routen speichern Namen, feste ausdrücklich gewählte Orte bzw. dynamischen Dein-Standort-Endpunkt, Linien/Modi/Richtungen/Ein-/Ausstiege und historische Gehschätzungen. Keine absoluten alten Reisezeiten, Trip-IDs, rohen Antworten oder Liniengeometrie im Transfer. Native JourneyStore validiert die gesamte Sammlung vor Übernahme, dedupliziert den Linienweg, repariert ID-Kollisionen und begrenzt den Gesamtspeicher auf 512 KiB. Android bestätigt beide Listen atomar. PWA übernimmt beide mit Rücknahme bei Speicherfehlern. 32-KiB-Klartextlimit/zehn Minuten/Keep-awake/Abbruch/AES-GCM unverändert. Senderdaten bleiben lokal erhalten.
+
+Vollständige Reiseplanung bleibt auf der PWA. Auf der Uhr unter Favoriten aktuelle Zeiten für Einstieg und nächsten Umstieg, manuelles Weiterschalten und ganze Stationsabfahrten. Ältere gespeicherte Fahrzeiten werden nie als LIVE gezeigt. Neue APK 0.4.0 ist erforderlich; bestehende Uhr-App aktualisieren, nicht deinstallieren.
+
+JSON-Exporte: YYYYMMDD_foama-wien-…json, Exportdatum in Wiener Zeit; Favoriten, Watch-Transfer-Download und Diagnoseprotokolle. Produktive Browserprüfung: verschlüsselter JSON-Upload, Empfänger-Entschlüsselung, bestätigter PWA-Import und sofort gelöschter Ciphertext erfolgreich. Temporäre Prüffläche entfernt.
+
+# PWA 0.1.18 / Wear 0.2.4 · QR-Favoritenübertragung · 08.11.2026
+
+Mehr → Favoriten → Mit Handy übertragen auf der Uhr. Vom Handy empfangen oder Ans Handy senden wählen und QR-Code mit der Handy-Kamera scannen. Die eigenständige Übertragungsseite nimmt lokale PWA-Favoriten oder einen JSON-Export an. Auf der Uhr Vorschau prüfen und ausdrücklich übernehmen; auf dem Handy PWA-Import oder JSON-Download wählen. Bestehende Favoriten bleiben erhalten, Duplikate werden übersprungen. Beide Geräte bleiben unabhängig, keine dauerhafte Synchronisierung.
+
+## Datenschutz und Grenzen
+
+AES-256-GCM mit frischem 96-Bit-IV; Java/WebCrypto-Kompatibilität geprüft. URL-Fragment wird auf dem Handy nach Einlesen entfernt. Keine Drittanbieter-QR-Seite und kein Kamera-Zugriff durch die App: die vorhandene Telefonkamera scannt den Watch-Code. Getrennte zufällige 192-Bit-Freigaben für Lesen/Schreiben; die Empfangsfreigabe wird nur im passenden QR weitergegeben. Server speichert ausschließlich deren Hashes, Ablauf und verschlüsseltes Paket. Pro Session höchstens eine akzeptierte Nutzlast, atomare SQL-Zustandsänderung; nach Bestätigung keine Nutzlast mehr, keine Wiederverwendung.
+
+Nach zehn Minuten serverseitig nicht mehr zugänglich; folgende API-Zugriffe entfernen abgelaufene Zeilen. Ein vollständig inaktiver Dienst hat keinen zusätzlichen Lösch-Timer; keine sekundengenaue physische Löschzusage. Anbieter-Backups liegen außerhalb der App. Wer einen aktiven QR-Code besitzt, besitzt die Freigabe für diesen Transfer; deshalb nicht öffentlich teilen.
+
+Maximal 500 Favoriten / 32 KiB Klartext je Transfer. Phone-Datei bis 512 KiB; Inhalte werden auf erlaubte Favoritenfelder begrenzt. Vorhandene Favoriten werden nicht ersetzt. Unbekannte Watch-Stationen und Duplikate erscheinen in der Vorschau als übersprungen. Senderfavoriten bleiben erhalten.
+
+Der Watch-QR funktioniert nach Installation von 0.2.4. Phone/PWA-Site allein kann kein Menü in einer älteren APK hinzufügen. Physischer Scan und Installation auf der OnePlus Watch bleiben als Geräteprüfung separat.
+
+## 0.5.0 · Routenvergleich, Orte und native Bedienung
+
+PWA: Schnellste Route oder Wenig Umstiege wählen, mit konkreten Abfahrts-/Ankunftszeiten und Zeitunterschied. Zwei feste Transitous-Profilabfragen je bewusster Suche (timetableView true/false), beide im bisherigen gemeinsamen 700er-Budget. Umschalten, Karte und Favoritenöffnung lösen keine neue Vollplanung aus. Rückfahrt planen tauscht feste Endpunkte und sucht die tatsächliche Gegenrichtung; bei altem GPS-Start bleibt das Ziel zur Auswahl offen. Meine Orte speichert bis zu 30 benannte Adressen lokal. Start → Ziel und Ein-/Ausstiegsstation bleiben auch unter eigenen Favoritennamen sichtbar; Gesamtroute auf Karte direkt oben.
+
+Haltestellenkarte: nächstgelegene amtliche Zugangsadresse mit Hausnummer, PLZ, Abstand und Stadt-Wien-Quelle. 1.748 Haltestellen aus 151.577 öffentlichen Zugangsadressen zugeordnet, höchstens 100 m Entfernung. Das ist ausdrücklich keine gesicherte Stations-Postadresse; Routingziel bleibt der offizielle Haltepunkt. Fehlende Zuordnung fällt auf Straßenumgebung zurück. Ableitung offline, keine zusätzlichen Standortübertragungen.
+
+Wear: A nach B ist direkt als drittes Hauptziel erreichbar, auch ohne Routen. Routenfavoriten aus PWA per QR oder lokal per JSON-Datei mit Vorschau/bewusster Übernahme; Dateiauswahl ist abhängig von einer verfügbaren System-Dateiauswahl auf der Uhr, QR bleibt als Alternative. 512-KiB-Dateigrenze, bestehende v1/v2-Formate und unabhängige Gerätespeicher erhalten. Aktuelle passende Zeiten je Etappe, Alternativen und korrekter Zurück-Pfad.
+
+Uhr-Updates: Prüfen liest ausschließlich Metadaten, zeigt verfügbare Version und bis zu vier releasebezogene Neuerungen. Erst Installieren bestätigt Download und Übergabe an Android; Prozent-/MB-Fortschritt, Größen-/Hash-/Originalsignaturprüfung und Abbruchbereinigung. Optionaler Ultra-Sparmodus unter 20 %, standardmäßig aus, Hinweis und bewusste Aktivierung. Ab 25 % normal mit Hinweis (Hysterese); Ortung höchstens alle fünf Minuten als Einzelfix, Abfahrten alle 90 s, Darstellung alle 30 s. Manuelle Ortung möglich. Alter/Unsicherheitsgrenzen unverändert, keine Hintergrundabfragen; Akkuzustand wird bei sichtbarer App ausgewertet. QR-/Import-/Update-Operationen behalten ihre begrenzte Wachhaltefunktion.
+
+Prüfung: 240 Web-/Server-, 116 Android- und acht Python-Tests bestanden. Physischer OnePlus-/GPS-/Dateiauswahl-/Installer-Test bleibt separat. Originalpaket at.andrew.foamawien und Signaturschlüssel erhalten; Wear-Code 18. Öffentliche Browserabnahme erfolgreich: Routenvergleich mit realen Transitous-Zeiten (ein Umstieg weniger, vier Minuten spätere Ankunft), Wechsel der gesamten Karte ohne neue Planung, eigene Favoritennamen mit Ein-/Ausstieg, Rückfahrt Karlsplatz → Rathaus mit aktuellen U2-Zeiten Richtung Aspernstraße, Ortsanlage/-auswahl und Erhalt nach Reload, Aktualisierungsbanner mit bewusster Übernahme sowie echte Adresse Franklinstraße 19/1210 Wien in 29 m Abstand. Vorhandene zwei Stations-/drei Routenfavoriten erhalten. Öffentliche APK heruntergeladen, 3.731.884 Bytes und SHA-256 8efe899acf688f53d0629455e5dc98ad1447b95ca7a8b6e7308bdae14150bd07 bytegleich zum signierten Build. Physische Watch-Abnahme weiterhin separat.
+
+## Uhr 0.5.1 / Code 19 · gemeinsamer Favoritenimport · 09.11.2026
+
+Unter Mehr → Favoriten → Aus PWA importieren gibt es einen gemeinsamen Einstieg für Haltestellen, Linien/Richtungen und A-nach-B-Routen. QR und JSON-Datei sind direkt dort erreichbar. Die bestehende PWA-Übertragung wählt alle kompatiblen Favoriten vor; Nutzer können die Auswahl vor dem Senden ändern. Vorschau und Bestätigung auf der Uhr bleiben erforderlich, vorhandene lokale Favoriten und Routen bleiben erhalten, Duplikate werden zusammengeführt.
+
+Dateivorschau zeigt jetzt auch Haltestellen-/Liniennamen sowie Routen gruppiert. Abbruch, erfolgreiche Übernahme und QR-Rückkehr führen in das aufrufende Importmenü zurück. Dateiimport weiterhin 512 KiB; QR weiterhin zehn Minuten verschlüsselt und mit 32-KiB-Klartextgrenze. Der bisherige A-nach-B-Einstieg und die bidirektionale Übertragung bleiben verfügbar. PWA 0.5.1 ergänzt getrennte Favoritenaktionen auf der Standortkarte; nativer Release 0.5.1/19 mit Originalpaket und Originalschlüssel.
+
+## 0.6.0 · Störungsbenachrichtigungen · 09.11.2026
+
+Der bisher pausierte Stundenauftrag wurde auf die verbundene foama-wien-App umgestellt. Unbeaufsichtigter Lauf b6807536-f000-8322-bf47-cffd16b20df6, geplant 11:07:54, gestartet 11:08:09, abgeschlossen 11:08:51 Europe/Vienna, recorded_status=completed. Der Server hat den Quellenabruf mit neuer lastCheck/lastSuccess und setup-source-only quittiert. Damit ist der vorherige Scheduler-Blocker für den Stundenbetrieb behoben. Runtime-Revision 4 setzt PUSH_SCHEDULER_ENABLED=true und PUSH_INTERVAL_MINUTES=60; Anwendung mit diesem Release. Vorhandene VAPID-/Speicherschlüssel unverändert. Plattform maximal stündlich; zusätzliche Prüfungen etwa alle fünf Minuten nur im Rahmen ohnehin erfolgender aktiver Monitoraufrufe. Der vorbereitete externe Fünf-Minuten-Timer ist weiterhin nicht gestartet. Kein sofortiger Echtzeitversand oder Fünf-Minuten-Hintergrundtakt behaupten.
+
+Meine Favoriten umfasst nun Haltestellen, Linien sowie gespeicherte A-nach-B-Wege einschließlich Alternativen. Bekannte Ein-, Umstiegs- und Ausstiegsstationen werden lokal zu minimalen Stop-/Linienfiltern zusammengeführt, maximal 100 Stationen. Keine Adressen, eigenen Routennamen oder GPS-Koordinaten werden übertragen. PWA synchronisiert geänderte Routen nach sichtbarer Rückkehr sofort; Uhr bei Import/Entfernen und sichtbarer Fortsetzung. Bestehende Zustellgrenzen, Deduplizierung, Quellen-/Gültigkeitsprüfung, Gerätefreigaben, verschlüsselte Datenhaltung und Opt-out erhalten. Geplantes nicht vor Beginn; Aufzüge/Fahrtreppen weiterhin optional aus.
+
+PWA: Aktivierung/Test nach bewusster Browserfreigabe, sichtbare ehrliche Dienstfrequenz und letzte Prüfung. Direkte Uhr-Zustellung bleibt bis zur Firebase-Einrichtung gesperrt: Firebase-Plugin angeboten, noch nicht bestätigt verbunden; keine FIREBASE_*/FCM_SERVICE_ACCOUNT_JSON im Hosting vorhanden. Die PWA benötigt keinen Firebase-Client. Telefon-Spiegelung ist eine getrennte Systemeinstellung. Keine physische Zustellung aus Unit-Tests oder einem erfolgreichen Quellenabruf ableiten.

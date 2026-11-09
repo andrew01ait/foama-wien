@@ -1,0 +1,127 @@
+{
+  "key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+  "value": {
+    "format": "foama-favorites-v2",
+    "favorites": [
+      {
+        "stopId": "wl:60200657",
+        "stopName": "Karlsplatz U",
+        "route": "",
+        "towards": ""
+      }
+    ],
+    "journeys": [
+      {
+        "id": "route-test",
+        "name": "Dein Standort → Karlsplatz",
+        "savedAt": 123,
+        "from": {
+          "kind": "current",
+          "name": "Dein Standort"
+        },
+        "to": {
+          "kind": "point",
+          "name": "Karlsplatz",
+          "lat": 48.2,
+          "lon": 16.3695
+        },
+        "legs": [
+          {
+            "mode": "walk",
+            "route": "",
+            "towards": "",
+            "from": {
+              "name": "Dein Standort",
+              "stopId": null,
+              "platform": ""
+            },
+            "to": {
+              "name": "Wien Westbahnhof",
+              "stopId": "wl:60201468",
+              "platform": "A"
+            },
+            "durationSeconds": 180,
+            "distanceMeters": 153,
+            "staySeated": false
+          },
+          {
+            "mode": "tram",
+            "route": "18",
+            "towards": "Wien Stadion",
+            "from": {
+              "name": "Wien Westbahnhof",
+              "stopId": "wl:60201468",
+              "platform": "A"
+            },
+            "to": {
+              "name": "Wien Margaretengürtel",
+              "stopId": "wl:60200827",
+              "platform": ""
+            },
+            "durationSeconds": 300,
+            "distanceMeters": null,
+            "staySeated": false
+          },
+          {
+            "mode": "walk",
+            "route": "",
+            "towards": "",
+            "from": {
+              "name": "Wien Margaretengürtel",
+              "stopId": "wl:60200827",
+              "platform": ""
+            },
+            "to": {
+              "name": "Wien Margaretengürtel",
+              "stopId": "wl:60200827",
+              "platform": "1"
+            },
+            "durationSeconds": 120,
+            "distanceMeters": null,
+            "staySeated": false
+          },
+          {
+            "mode": "metro",
+            "route": "U4",
+            "towards": "Wien Heiligenstadt",
+            "from": {
+              "name": "Wien Margaretengürtel",
+              "stopId": "wl:60200827",
+              "platform": "1"
+            },
+            "to": {
+              "name": "Wien Karlsplatz",
+              "stopId": "wl:60200657",
+              "platform": "1"
+            },
+            "durationSeconds": 300,
+            "distanceMeters": null,
+            "staySeated": false
+          },
+          {
+            "mode": "walk",
+            "route": "",
+            "towards": "",
+            "from": {
+              "name": "Wien Karlsplatz",
+              "stopId": "wl:60200657",
+              "platform": "1"
+            },
+            "to": {
+              "name": "Karlsplatz",
+              "stopId": null,
+              "platform": ""
+            },
+            "durationSeconds": 180,
+            "distanceMeters": 185,
+            "staySeated": false
+          }
+        ]
+      }
+    ]
+  },
+  "packet": {
+    "iv": "4AOBxKxpjUiagPFc",
+    "ciphertext": "Oq67m1SxI1OhxDZOt9KfDnGfniPScJqFVcXB0BJQK0CBmtV9sm_IOHWmDzhbk93fklnbJpLW5d0OLijV5lQ8UETRiATHfv93MAs8trfTN_vmbthSgAv19iu3yjMF4WCf0tWamGxQM_HJ7mT8lQ9SR1ib8Aj4KeHGNFAC1awpl0GjXkeKuw5NYKEJfX-HetK0Ss0MRcUgc882onbu4-AJX9L4xJ2bd9rwBpSuzhZRn5EF0YjjhwxcSuWw6Dh-CSKjF5yk5n8HawF06n3RZK3gem5W3stMDk-q6ZI7tbXlqTMXm71ftJVVR3h8f1LiM0ZG02cBMwiiw_hAnzJbq8m_nWbM8U4x27plRUbh1mcU6c0QHOuWM1CxObHLTShYKJqknm-Ryo_5O9Uhr8xeQdfyJ-yqOG2m4Z_-0KxHdBk4_rtZyZmnsBWeeBfLFIAt6VjrindMR6FWQAL6ymBpFcrmmNgcP4JUy2uZhrGTjx4LSMESlnYkStJhGnvLDkDMflyBWZShgdegz9ili3IdFI-cL-gcES7irFA3nD8yNrGpDvL-RclmsGFTLa-okh2ngGKjVRLdo_rA5vb-OdvA5W43tTgQNJnJj8L6ps43j1H5pEyhfDS7CH6fKNHAPaoXaT1WN9jXFENY5tThA9Nz4OG73SR4PlwNZtc_BVrILb4krHpPpWr9NCiSXeIpij_MY1zcgOVQ16Y9TNWnFaB5sxhIZV2R0DjHDOFb9AEr1gnMRwbSbLBi7m9J0ASOK4tiWq1hVD-03BqNFLA5eyfQzhny-L2y8DSENoYU_FT6UC2q_64HHFNSK7l3dswRxtdPz95VUoIY-iMdwp6nWYnnIw3CTImI0ChZm3VoTcEegz91tDYfDGfy1m20UUFV8SXP2lqAd6-kzcG7ujhuXSEtIUC0wRwTy5pbtQDsvCl15eeAth8lxDLkJUgasnzO-q5YG08_BZhYv6Q9B3ao88L291Qf9W_nDe7ZeFGUEMmcCGvAso2OCnms1D8SDcTWhvaJ0WECM_pVNxsDQM2OzOC_HbUhETQzDjgVKmVwNJFqXtzcEK-lIBj9UVT6mp-GCsuoN1X5nsIVfczLamLq4wcQ1CvfPLjm8o4MtYEBleh5wKD366SBDrfc7PsJJaiy3eKxFqRDBnm2fm0IcHCXvFYUggFqIChykV4V78hQ7PJu0QAAlFEffH-UAbq_NCs7hxphE2rq5CwTJWcNRBEcRp8AZ6-FS3CnVtA5-V9wGaR05zaJheBzRVylgj4uWEqQmsV95eaTMVXRj_4tgyVlJ4sYZez0wTMgQF_r0KtyYeipdtKZmx3D3e59YiPbSJOckdz3297OMUaIA0CWsAI58a7qaj20x7xuIyMzyPDbUDK9Dqkn-VDL3T10bD8aHxRQ8555Ikb36NntsStptFgusW2E5P2aMBrErhqobl43GGj5-F9pgItugg4RZmr0lMOi6PFjuXm72ER4-WVQP11V1lWwlZPlrpqCEoM8FseJRTyn3px4gk6kKFORIJfBLPun7Tp-RlPLdZU6J5VVn61iFVsLyEKit-NZ8VSdbG6p3kAYtHpCqrwUSz6Zrgiik4IwMbeDXcpznmBVTEk6xAqpjQ9Smxwlh0Y0FWqX0uOJh9FWo7DDgmxIYAJkgQqvZdxDM1XUxwJOVfqv9044na8lwvmHuxrDJ1sWwNUC_uj93mLWD43YxEQxRW-_xzCFIIFaRl6v3D75DtaV9Ne1bKKK9XYAd6JGBL5gxxv4NGYCRyOqzKrELl4ZHTyD08tH-bi2Ew8W43sq7mbzqfPXU4Zoi_3v4Oc3C2OT_vVqSNPcuaeqOnEwtiikb_sq4Q_0JCl2Gf1nSXfb_rfMX2LI2uO32Kk9bHbI7buff5RU4W37xj219QnTsUY9WIQx4rWvkRdBZ1UcPxeY8BpL67fs_HKIxhf6dfgoJqJIr_2oZRT7-osnLQz4mbZCqWh016ShiKu5UTluozp-lFE5WqsGD4Ht215OPIYDblrv6xmaNQHx8ClCehMB1rFdiXXy5ndpTlQbps9HVeo4bA2cuYo0SxLCce49TvoB4l5B8jsDdn1YmuDSmb4kbO3ALOnxNKiujJUxqdfwrDx70y_UZGrGFPSnVAq7h11PZVPIBKvV"
+  }
+}

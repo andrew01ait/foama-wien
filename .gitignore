@@ -1,0 +1,27 @@
+.gradle/
+.idea/
+**/build/
+*.iml
+*.keystore
+*.jks
+*.apk
+__pycache__/
+.pytest_cache/
+node_modules/
+dist/
+.local/
+.DS_Store
+pwa/apk/
+
+*.p12
+*.password
+signing-env.json
+*private-signing-backup.zip
+pwa/foama-wien-source.zip
+
+# Local credentials for independent deployments
+.env
+.env.*
+!.env.example
+*.key
+*.pem

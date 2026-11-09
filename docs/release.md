@@ -1,0 +1,343 @@
+## 0.6.0 · Störungsbenachrichtigungen · 09.11.2026
+
+Veröffentlicht und öffentlich geprüft: PWA-Push verfügbar, nativer FCM-Empfang weiterhin unkonfiguriert. Stundentakt und Routenfilter in den Einstellungen sichtbar; Quellen-/Versandprüflauf nach Aktivierung erfolgreich. 244 Web-/Server-, 119 native und acht Python-Tests bestanden. Uhr-APK 0.6.0/20 öffentlich heruntergeladen und bytegleich zum Original-Build geprüft. Tatsächlicher Empfang erfordert Aktivierung/Test auf dem jeweiligen Gerät; Browser der Cloud-Abnahme hat Benachrichtigungen bereits verweigert.
+
+Der bisher pausierte Stundenauftrag wurde auf die verbundene foama-wien-App umgestellt. Unbeaufsichtigter Lauf b6807536-f000-8322-bf47-cffd16b20df6, geplant 11:07:54, gestartet 11:08:09, abgeschlossen 11:08:51 Europe/Vienna, recorded_status=completed. Der Server hat den Quellenabruf mit neuer lastCheck/lastSuccess und setup-source-only quittiert. Damit ist der vorherige Scheduler-Blocker für den Stundenbetrieb behoben. Runtime-Revision 4 setzt PUSH_SCHEDULER_ENABLED=true und PUSH_INTERVAL_MINUTES=60; Anwendung mit diesem Release. Vorhandene VAPID-/Speicherschlüssel unverändert. Plattform maximal stündlich; zusätzliche Prüfungen etwa alle fünf Minuten nur im Rahmen ohnehin erfolgender aktiver Monitoraufrufe. Der vorbereitete externe Fünf-Minuten-Timer ist weiterhin nicht gestartet. Kein sofortiger Echtzeitversand oder Fünf-Minuten-Hintergrundtakt behaupten.
+
+Meine Favoriten umfasst nun Haltestellen, Linien sowie gespeicherte A-nach-B-Wege einschließlich Alternativen. Bekannte Ein-, Umstiegs- und Ausstiegsstationen werden lokal zu minimalen Stop-/Linienfiltern zusammengeführt, maximal 100 Stationen. Keine Adressen, eigenen Routennamen oder GPS-Koordinaten werden übertragen. PWA synchronisiert geänderte Routen nach sichtbarer Rückkehr sofort; Uhr bei Import/Entfernen und sichtbarer Fortsetzung. Bestehende Zustellgrenzen, Deduplizierung, Quellen-/Gültigkeitsprüfung, Gerätefreigaben, verschlüsselte Datenhaltung und Opt-out erhalten. Geplantes nicht vor Beginn; Aufzüge/Fahrtreppen weiterhin optional aus.
+
+PWA: Aktivierung/Test nach bewusster Browserfreigabe, sichtbare ehrliche Dienstfrequenz und letzte Prüfung. Direkte Uhr-Zustellung bleibt bis zur Firebase-Einrichtung gesperrt: Firebase-Plugin angeboten, noch nicht bestätigt verbunden; keine FIREBASE_*/FCM_SERVICE_ACCOUNT_JSON im Hosting vorhanden. Die PWA benötigt keinen Firebase-Client. Telefon-Spiegelung ist eine getrennte Systemeinstellung. Keine physische Zustellung aus Unit-Tests oder einem erfolgreichen Quellenabruf ableiten.
+
+## PWA 0.5.1 · Favoriten direkt aus der Standortkarte
+
+Unter Dein Standort → Karte bieten Popup und Stationsliste sowohl Ganze Haltestelle merken als auch Linien & Richtungen wählen. Die zweite Aktion öffnet die vorhandene Favoritenauswahl mit genau dieser Station vorausgewählt, über der weiterhin geöffneten Karte. Mehrere Richtungen können nacheinander gespeichert werden; Schließen kehrt zur Karte zurück. Vorhandene Linienfavoriten und ganze Stationsfavoriten bleiben unabhängig und werden nicht dupliziert. Unveränderte gemeinsame Abrufgrenzen und nur aktuell bestätigte Linien/Richtungen; keine zusätzliche Hintergrundabfrage. Kartenaktionen mindestens 44 px groß.
+
+## Uhr 0.5.1 / Code 19 · gemeinsamer Favoritenimport · 09.11.2026
+
+Unter Mehr → Favoriten → Aus PWA importieren gibt es einen gemeinsamen Einstieg für Haltestellen, Linien/Richtungen und A-nach-B-Routen. QR und JSON-Datei sind direkt dort erreichbar. Die bestehende PWA-Übertragung wählt alle kompatiblen Favoriten vor; Nutzer können die Auswahl vor dem Senden ändern. Vorschau und Bestätigung auf der Uhr bleiben erforderlich, vorhandene lokale Favoriten und Routen bleiben erhalten, Duplikate werden zusammengeführt.
+
+Dateivorschau zeigt jetzt auch Haltestellen-/Liniennamen sowie Routen gruppiert. Abbruch, erfolgreiche Übernahme und QR-Rückkehr führen in das aufrufende Importmenü zurück. Dateiimport weiterhin 512 KiB; QR weiterhin zehn Minuten verschlüsselt und mit 32-KiB-Klartextgrenze. Der bisherige A-nach-B-Einstieg und die bidirektionale Übertragung bleiben verfügbar. PWA 0.5.1 ergänzt getrennte Favoritenaktionen auf der Standortkarte; nativer Release 0.5.1/19 mit Originalpaket und Originalschlüssel.
+
+## PWA und Wear 0.5.0 · 09.11.2026
+
+PWA: Schnellste Route oder Wenig Umstiege wählen, mit konkreten Abfahrts-/Ankunftszeiten und Zeitunterschied. Zwei feste Transitous-Profilabfragen je bewusster Suche (timetableView true/false), beide im bisherigen gemeinsamen 700er-Budget. Umschalten, Karte und Favoritenöffnung lösen keine neue Vollplanung aus. Rückfahrt planen tauscht feste Endpunkte und sucht die tatsächliche Gegenrichtung; bei altem GPS-Start bleibt das Ziel zur Auswahl offen. Meine Orte speichert bis zu 30 benannte Adressen lokal. Start → Ziel und Ein-/Ausstiegsstation bleiben auch unter eigenen Favoritennamen sichtbar; Gesamtroute auf Karte direkt oben.
+
+Haltestellenkarte: nächstgelegene amtliche Zugangsadresse mit Hausnummer, PLZ, Abstand und Stadt-Wien-Quelle. 1.748 Haltestellen aus 151.577 öffentlichen Zugangsadressen zugeordnet, höchstens 100 m Entfernung. Das ist ausdrücklich keine gesicherte Stations-Postadresse; Routingziel bleibt der offizielle Haltepunkt. Fehlende Zuordnung fällt auf Straßenumgebung zurück. Ableitung offline, keine zusätzlichen Standortübertragungen.
+
+Wear: A nach B ist direkt als drittes Hauptziel erreichbar, auch ohne Routen. Routenfavoriten aus PWA per QR oder lokal per JSON-Datei mit Vorschau/bewusster Übernahme; Dateiauswahl ist abhängig von einer verfügbaren System-Dateiauswahl auf der Uhr, QR bleibt als Alternative. 512-KiB-Dateigrenze, bestehende v1/v2-Formate und unabhängige Gerätespeicher erhalten. Aktuelle passende Zeiten je Etappe, Alternativen und korrekter Zurück-Pfad.
+
+Uhr-Updates: Prüfen liest ausschließlich Metadaten, zeigt verfügbare Version und bis zu vier releasebezogene Neuerungen. Erst Installieren bestätigt Download und Übergabe an Android; Prozent-/MB-Fortschritt, Größen-/Hash-/Originalsignaturprüfung und Abbruchbereinigung. Optionaler Ultra-Sparmodus unter 20 %, standardmäßig aus, Hinweis und bewusste Aktivierung. Ab 25 % normal mit Hinweis (Hysterese); Ortung höchstens alle fünf Minuten als Einzelfix, Abfahrten alle 90 s, Darstellung alle 30 s. Manuelle Ortung möglich. Alter/Unsicherheitsgrenzen unverändert, keine Hintergrundabfragen; Akkuzustand wird bei sichtbarer App ausgewertet. QR-/Import-/Update-Operationen behalten ihre begrenzte Wachhaltefunktion.
+
+Prüfung: 240 Web-/Server-, 116 Android- und acht Python-Tests bestanden. Physischer OnePlus-/GPS-/Dateiauswahl-/Installer-Test bleibt separat. Originalpaket at.andrew.foamawien und Signaturschlüssel erhalten; Wear-Code 18. Öffentliche Browserabnahme erfolgreich: Routenvergleich mit realen Transitous-Zeiten (ein Umstieg weniger, vier Minuten spätere Ankunft), Wechsel der gesamten Karte ohne neue Planung, eigene Favoritennamen mit Ein-/Ausstieg, Rückfahrt Karlsplatz → Rathaus mit aktuellen U2-Zeiten Richtung Aspernstraße, Ortsanlage/-auswahl und Erhalt nach Reload, Aktualisierungsbanner mit bewusster Übernahme sowie echte Adresse Franklinstraße 19/1210 Wien in 29 m Abstand. Vorhandene zwei Stations-/drei Routenfavoriten erhalten. Öffentliche APK heruntergeladen, 3.731.884 Bytes und SHA-256 8efe899acf688f53d0629455e5dc98ad1447b95ca7a8b6e7308bdae14150bd07 bytegleich zum signierten Build. Physische Watch-Abnahme weiterhin separat.
+
+## PWA 0.4.3 · Favoriten auf schmalen Displays · 09.11.2026
+
+Lange Richtungsnamen in Verbindungsfavoriten erhalten eine eigene umbrechende Zeile. Linie/Stern und große erste/zweite Abfahrt stehen darüber, Erreichbarkeit darunter. Explizit begrenzte Grid-Spalten verhindern, dass Nachladen die Seite seitlich verbreitert. Hauptnavigation und Kopf bleiben bei kleinen Breiten lesbar. 28-px-Hauptzeiten und 44-px-Stern-Tippfläche bleiben erhalten; keine überlappenden negativen Sternränder.
+
+PWA-Version/Offline-Shell 0.4.3. Favoriten-, Linien-, QR- und Datenformate unverändert. Native Wear 0.4.2 / Code 17 und dessen signierte APK bleiben unverändert. 231 bestehende Web-/Serverprüfungen erfolgreich; Öffentliche Browserabnahme: echte PWA bei 320/360/420 px Rahmenbreite (305/345/405 px nutzbar mit Desktop-Scrollbar), Hell und Dunkel. Nach Live-Nachladen und wiederholtem Countdown-Render bleibt scrollWidth gleich clientWidth; keine sichtbaren Elemente außerhalb des Viewports. Geprüft mit langer 29B-Richtung sowie leerer Abfahrtszeile. Stern bleibt tatsächlich 44 × 44 px. Temporäre Prüfseite danach entfernt.
+
+## PWA 0.4.2 / Wear 0.4.2 · Etappenfokus und alternative Wege · 09.11.2026
+
+Stationsnamen stehen über Linie/Richtung in Suchergebnissen, gespeicherten Wegen, Reiseabschnitten und nativen Liniendetails. Antippen einer Verbindung öffnet ausschließlich diese Station/Linie/Richtung; Alle Abfahrten ist eine bewusste separate Aktion. Jede angetippte zweite/dritte Etappe erhält ihren eigenen Abruf-Scope, alte Antworten werden verworfen. 24 RBL/30 Sekunden und sichtbare App bleiben erhalten.
+
+Gehzeit antippen klappt die Karte genau dieses Fußwegs auf. Vorhandene Providergeometrie wird verwendet, fehlender Verlauf ehrlich als schematisch/fehlend bezeichnet. Kein zusätzlicher Planerabruf durch Karte oder Countdown; regelmäßige Zeiten-Updates erhalten geöffnete Abschnittskarten. GPS ist als Startquelle vorbelegt: Ort suchen ist bei gesetztem Punkt inaktiv; klare Erklärung, dass Verbindungen suchen die Planung/GPS startet. Kompaktere Abstände bei mindestens 44-px-Zielen. A nach B hat ein lokales Vektoricon. Sichern und Handy/Uhr-Übertragung liegen in Einstellungen. Rückgängig nach Entfernen verfällt nach genau 60 Sekunden und kann auch nach verspätetem Hintergrund-Timer nichts mehr herstellen.
+
+Alle unterschiedlichen Linienwege aus einer ursprünglichen Planung gehören als Alternativen zur gewählten Route. Der Planer wird einmal nach acht Verbindungen gefragt; spätere Fahrten desselben Linienwegs werden nicht dupliziert. Gemeinsame Fahrtabschnitte erscheinen einmal, Varianten beim passenden Verzweigungspunkt. Wechsel zeigt stets eine vollständige Providerverbindung, keine selbst aus unterschiedlichen Fahrtzeiten zusammengesetzte Anschlusszusage. Gespeicherte Wege bleiben zeitlose Templates mit aktuellen passenden Linienzeiten. Pro Route höchstens 16 unterschiedliche Wege; weitere Zusammenführung schlägt vor einer Änderung verständlich fehl, statt alte Varianten zu löschen. Keine Hardcodes für Beispieladressen oder Stationen.
+
+Routenfamilien bleiben ein Favorit inklusive Alternativen, Namen und ID. JSON/QR behalten das v2-Format; neue optionale alternatives. Native 0.4.1 meldet journey-alternatives-v1 zusätzlich zu journey-favorites-v1. Ältere Uhren erhalten mit sichtbarem Hinweis nur die Hauptroute. Neue Alternativen werden nach Vorschau/Bewusster Übernahme in bestehende Route ergänzt, ohne sie umzubenennen oder zu duplizieren. Alle Varianten entfernen absolute alte Zeiten/Trip-IDs, GPS-Fix und erste/letzte GPS-Geometrie; QR streicht sämtliche Geometrie/Abschnittskoordinaten. Zehn-Minuten-Verschlüsselung und Transfer-Keep-awake unverändert.
+
+231 Web-/Server-, 104 Android- und acht Python-Prüfungen bestanden. Java↔WebCrypto für Stationen, Routen und Routenfamilien geprüft. Original-Key/Paket und bestehende Gerätespeicher erhalten. Physischer OnePlus-/GPS-/Kamera-Test bleibt gesondert.
+
+## PWA 0.3.3 / Wear 0.4.0 · Fahrtkarte, Adressen und Routen auf der Uhr · 09.11.2026
+
+A nach B bleibt der dritte Haupttab. Start ist dynamisch „Dein Standort“; eine Suche löst GPS erst nach Klärung getippter Adressen aus. Adresse/Ort per Suchen oder beim Absenden auflösen, mehrdeutige Treffer ausdrücklich wählen. Start/Ziel auf lokaler Leaflet-Karte als Station oder freier Kartenpunkt auswählen. Reise/Karte zeigt echten MOTIS-v6-Verlauf (Präzision sechs); fehlende Geometrie nur ausdrücklich gestrichelt/schematisch zwischen bekannten Punkten. Kartenbewegung löst keine Neuplanung aus.
+
+Abfahrt oder Stationsname in einer Reise öffnet eine eigene ganze Stationsansicht mit allen bekannten Linien/Richtungen und eigenem Zurück-Pfad. Gemeinsames 24-RBL-/30-s-Budget bleibt erhalten, Navigation und Hintergrund verwerfen verspätete Ergebnisse. Meine Routen: große Karten/Tippflächen, eigene Namen, Menü und Rückgängig nach Entfernen. Öffnen eines Favoriten lädt aktuelle Linienzeiten, keine alte Gesamtfahrtdauer; Neu planen bleibt ausdrücklich.
+
+Aktuelle Nutzeranweisung erweitert den früheren PWA-zuerst-Umfang: gespeicherte Routen dürfen jetzt per QR auf die Uhr und zurück. Stationen bleiben im v1-Format kompatibel, Routen verwenden foama-favorites-v2 und die ausdrücklich vom neuen Watch-Code gemeldete Fähigkeit journey-favorites-v1. Vorschau und bewusste Bestätigung, unabhängige lokale Listen, bestehende Reihenfolge/Duplikate und zehn Minuten AES-GCM bleiben erhalten. GPS-Endpunkte dynamisch ohne Fix/Geometrie; QR enthält keine Liniengeometrie, alten Zeiten oder Trip-IDs. Höchstens 30 Routen/32 KiB Transferklartext. Uhr zeigt Einstieg und nächsten Umstieg mit aktuellen exakt zugeordneten Linienzeiten; Weiter zum Umstieg/Alle Abfahrten/Zurück. Keine native Vollroutensuche und keine Anschlusszusage. Transfer-Display bleibt sichtbar wach, Pause/Back/Ende geben den Bildschirm frei.
+
+## PWA 0.2.2 · A nach B im dritten Tab · 09.11.2026
+
+Aktuelle Nutzersteuerung: „A nach B“ ersetzt „Mehr“ als dritten Tab neben Nähe und Favoriten. Kein eigener Routenbanner. Einstellungen weiterhin über das Zahnrad oben. A-nach-B-Funktionen zuerst in der PWA testen, Watch-Umfang später festlegen. Wear bleibt 0.3.7 / Code 14 mit Scrollkorrektur.
+
+## PWA 0.2.1 · öffentliche Abnahme · 09.11.2026 Wiener Zeit
+
+Öffentlich geprüfte echte Transitous-Verbindung Westbahnhof → Karlsplatz mit U3 → Volkstheater → Tram 1, fünf Alternativen, Planung/Umstiege/Zeiten korrekt. Separater Geocode- und Fußwegabruf produktiv HTTP 200. Routenfavorit gespeichert, Seite neu geladen und gespeicherten Linienweg ohne alte Fahrzeiten wieder geöffnet. Aktuelle U3-Abfahrten tatsächlich aus Wiener-Linien-Monitor angezeigt; fehlende passende Tram-Abfahrt neutral erklärt. Favoritöffnung berechnet keine Vollroute. Öffentliche PWA-Liniendetails bestätigen scrollTop 0 und verbergen Übersicht; Update-Hinweis/Übernahme und Favoritensortierung erhalten. Kein Nutzer-GPS für die Abnahme freigegeben.
+
+Hosting-Fetch auf unterstütztes redirect manual umgestellt: 3xx wird abgewiesen, nie anderer Host verfolgt. Anbieter-Endpunkte unverändert. Neue Sucheingaben verwerfen alte Alternativen, damit kein alter Linienweg unter neuem Start/Ziel gespeichert wird. Geplante Wegabschnitte zeigen gewählte Ortsnamen anstelle technischer START/END-Platzhalter. Wear bleibt 0.3.7 / Code 14, nur Scrollfix; 91 native Tests. 203 Node-/PWA-/Serverprüfungen. Physische OnePlus- und schmale Telefonabnahme separat.
+
+## PWA 0.2.0 / Wear 0.3.7 · A nach B und Routenfavoriten · 08.11.2026
+
+PWA: Auf der Startseite „Von A nach B“. Start/Ziel ausdrücklich als Haltestelle, online gesuchter Ort oder GPS-Start wählen; jetzt/später/Ankunftszeit in Wiener Zeit. Eigene Ergebnisseite mit Dauer, Linien, Fußwegen, Wartezeiten und Umstiegen. Planung über Transitous, aktuelle Linienabfahrten des nächsten Einstiegs/Umstiegs über Wiener Linien. Fahrplan/Echtzeit klar getrennt; gleiche Linie/Richtung ist keine gesicherte Fahrt oder Anschlusszusage.
+
+„Weg merken“ speichert bis zu 30 Routenfavoriten lokal unter „Deine Wege“: Linien und Umsteigestationen, feste Start-/Zielorte und gespeicherte Gehwegabschnitte, keine alten absoluten Fahrzeiten oder Trip-IDs. GPS-Start bleibt dynamisch „Dein Standort“, ohne gespeicherte GPS-Koordinate. Öffnen lädt nur aktuelle Linienabfahrten; Fußweg zum ersten Einstieg auf Wunsch separat berechnen. „Neu planen“ liefert eine neue aktuelle Gesamtverbindung. Keine automatische Routenneuberechnung. Lokale Routenfavoriten sind getrennt von Stationsfavoriten und deren bestehendem JSON/QR-Format.
+
+Nutzerentscheidung: **zuerst PWA**, die passende Übernahme der Reiseplanung auf die Uhr später gemeinsam festlegen. Wear 0.3.7 / Code 14 korrigiert ausschließlich das Scrollverhalten: neue Seiten/Liniendetails starten oben; verspätete Scroll-Aufträge alter Ansichten werden verworfen, Refresh erhält die Leseposition. PWA-History verwaltet Scrollpositionen manuell und ignoriert verspätete Öffnungs-Callbacks.
+
+Eigener App-Code jetzt MIT; Daten, Bibliotheken und Dienste behalten eigene Lizenzen. Öffentlicher Quellcode mit Lizenz und sichtbarer Transitous-/OSM-Attribution. Serverseitig feste Produktions-Endpunkte, identifizierender User-Agent, POST-Eingaben, keine Such-/GPS-Historie; nur aggregierte Stundenzähler. Gemeinsame Obergrenze: 700 Planungs-/Fußwegabrufe in konservativen 25 Stunden, 500 Ortssuchen; bei fehlender Datenbank keine unbegrenzte Ersatzabfrage. Keine Hintergrundabfragen; 30 s und max. 24 RBL für aktive Linienmonitorabfragen bleiben erhalten. Transitous bleibt Best Effort; größere Nutzerzahlen/Last mit Betreiber koordinieren.
+
+## PWA 0.1.29 · 08.11.2026
+
+Kopfzeile: gleiche 44-px-Tippflächen, 22-px-SVGs und Strichstärke 1,8 für Teilen/Einstellungen. Native Version unverändert 0.3.6.
+
+A-nach-B ist als technische Grundlage vorbereitet, noch keine nutzbare öffentliche Suchfunktion. Siehe [Stand und Datenzugang](journey-planning.md).
+
+## PWA 0.1.28 · 08.11.2026
+
+Auf der Hauptseite erscheint bei verfügbarer neuer PWA-Version ein Hinweis mit **Jetzt aktualisieren**. Prüfung beim Start und alle fünf Minuten nur bei sichtbarer App; keine automatische Neuladung. Update aktiviert den vorbereiteten Worker und lädt die App neu, Favoriten/Einstellungen bleiben erhalten.
+
+App teilen ersetzt das Aktualisieren-Symbol im Kopf. Natives Teilen-Menü mit öffentlicher App-Einladung; ohne Unterstützung oder bei Browserfehlern Dialog mit Link kopieren und bewusstem WhatsApp-Link. Nativer Abbruch ohne weiteren Dialog, keine automatische Übertragung oder Kopie. Offline-Shell enthält das neue Modul. Automatische Abfahrtsaktualisierung unverändert, Wear 0.3.6 unverändert.
+
+## PWA 0.1.27 / Wear 0.3.6 · 08.11.2026
+
+- Favoritensortierung einheitlich Nähesten zuerst; zusätzlicher PWA-Standort-/Luftlinie-Hinweis entfällt bei vorhandener Position.
+- Bisherige Sortierwerte und lokale Favoriten bleiben erhalten. Wear 0.3.6 / Code 13.
+- [A-nach-B-Reiseplanung](journey-planning.md) für PWA/Uhr mit Umstiegen und passenden Abfahrten aufgenommen; noch keine Routingfunktion aktiviert.
+
+## PWA 0.1.26 / Wear 0.3.5 · 08.11.2026
+
+- Stationslinien anhand kalendergültiger Fahrgastfahrten im offiziellen GTFS bereinigt; Fahrwegvarianten bleiben interne Kandidaten. Westbahnhof ohne falsche reguläre 1-/2-Zuordnung.
+- Zentrale passive Bestätigung je Linie für 30 Tage, gemeinsame Daten für PWA/Uhr und lokale Offlinekopie. Kein Erneuern fremder Linien durch einen Stationsabruf.
+- Konservative Alterung nur nach ausreichenden vollständigen Abfragen; Nacht-/Rufbus-/Fahrplannachweis geschützt, Wiederauftauchen sofort übernommen.
+- Keine zusätzlichen WL-/GPS-Hintergrundabfragen, keine Favoritenänderung. Wear 0.3.5 / Code 12 mit ursprünglichem Schlüssel.
+
+## PWA 0.1.25 · Kompakte Linienauswahl · 08.11.2026
+
+Linienbadges in Stationskarten mit dichterem, gleichmäßigem Umbruch: keine zusätzlichen Flex-Gaps um die weiterhin mindestens 44 × 44 px großen Tippflächen, besser ausgefüllte sichtbare Badges. Verkehrsmittel und Erklärung gedimmter Linien erhalten eigene Zeilen unter der Auswahl statt konkurrierender Flex-Elemente. Schmale Karten mit kleineren Außenabständen; Farben und Verbindungsaufruf erhalten. Wear bleibt 0.3.4 / Code 11.
+
+## PWA 0.1.24 / Wear 0.3.4 · 08.11.2026
+
+Bildschirmfüllendes PWA-Verbindungsdetail mit fokussiertem Monitorabruf, Back/Forward und Rückkehr zur Listenposition. Gedimmte unbestätigte Linien; Fahrzeug-Kurzführungen korrekt zuordnen. Native Nähe-/Favoritenansicht mit gemeinsamem Stationskopf, Gehinfo und Zeilenlayout; neutrale Katalog-/Leer-/Altstände bleiben erreichbar. Wear 0.3.4 / Code 11. Bestehende Signatur, Paket, lokale Daten und QR-Transfer-Lifecycle erhalten. Keine neue Push-Aktivierung oder ÖBB-Livequelle.
+
+## Wear 0.3.3 / Code 10 · Menüs, globale Filter und kompakte Uhr-Webseite · 08.11.2026
+
+Erste Ebene unter Mehr behält ihre bisherigen Karten und Icons; der kurze Eintrag heißt Störungen. Darunter getrennte Ziele Hinweise (lokales Archiv), Push (Aktivieren/Deaktivieren, Test und Verbindung), Auswahl (Favoriten/alle Linien, Nachtruhe und optionale Aufzüge/Fahrtreppen) und Infos (Datenschutz/Handy-Spiegelung). Zurück, beide Wischrichtungen und System-Back führen aus Unterseiten zu Störungen und dann Mehr. Auswahl grün mit Haken, Hauptaktion mint, Deaktivieren dezent rot umrandet, Navigation neutral und Zurück ruhig. Push bleibt bis zur tatsächlichen Einrichtung gesperrt.
+
+Verkehrsmittelsymbole sind in Nähe und Favoriten eine eigene globale Zeile vor jeder Station, ohne Stationsname oder Gehzeit im Filterknopf. Jede Stationsgruppe zeigt ihren eigenen Namen darunter; Nähe kombiniert Name und kurze geschätzte Gehzeit. Auf kleinen Runddisplays steht die Minuten-Spalte weiter innen. Mindestens 48-dp-Tippziele, vorhandene Filterwerte, Favoriten, Abrufbudget und Transfer-Keep-awake bleiben erhalten.
+
+Öffentliche Uhr-Seite /wear.html: kurzer Einstieg, direkter Download und vier Kernfunktionen (Nähe, Favoriten, Gehzeit, verschlüsselter QR-Transfer), aktuelle native Beispielansichten. Installation, Übertragung/Updates und technische Details sind kompakt aufklappbar. Automatische Push-Zustellung ehrlich als noch in Einrichtung ausgewiesen. PWA bleibt 0.1.23.
+
+143 Node-/PWA-/Server- und 86 native Android-Tests bestanden; ursprüngliche Signatur, zipalign und Version/Code geprüft. Physische OnePlus-Abnahme bleibt separat.
+
+## Wear 0.3.2 / Code 9 · Display während Favoritentransfers wach · 08.11.2026
+
+Die Uhr hält den Transferbildschirm beim Senden ans Handy/PWA und beim Empfangen vom Handy aktiv: Vorbereitung, QR-Scan, Warten auf Daten sowie Vorschau und ausdrückliche Übernahme. Vorübergehende Verbindungsfehler dürfen innerhalb der Sitzung erneut geprüft werden. Nach erfolgreichem Abschluss, Zurück/Abbruch, endgültigem Vorbereitungsfehler oder Ablauf wird das normale Bildschirmverhalten wiederhergestellt. Ein unabhängiger Timer begrenzt die Sitzung einschließlich Bestätigungswartezeit auf höchstens zehn Minuten; ein früheres Serverablaufdatum gilt zusätzlich.
+
+Die Änderung verhindert den automatischen Display-Timeout während der sichtbaren Übertragung. Bewusstes Verlassen, Systemunterbrechung oder Ausschalten beendet weiterhin Anfragen und löscht Schlüssel; die App erzwingt keine Rückkehr in den Vordergrund. Keine zusätzlichen Berechtigungen, Dienste, GPS- oder Abfahrtsabfragen. Favoriten und ursprüngliche Signatur/Paket-ID bleiben erhalten. PWA-Version unverändert 0.1.23; Update auf der Uhr über Mehr → App & Updates → Auf Update prüfen.
+
+143 Node- und 83 native Android-Tests bestanden. Physische OnePlus-Prüfung des Screen-Timeouts und QR-Transfers bleibt erforderlich.
+
+## PWA 0.1.23 / Wear 0.3.1 · Aktuelle Warnungen und zusätzliche Hinweise · 08.11.2026
+
+Aktuelle Betriebsstörungen bleiben gelb hervorgehoben und zeigen betroffene Linien auch geschlossen. Reine Aufzugs-/Fahrtreppenmeldungen sowie noch nicht begonnene Ereignisse stehen in einem eigenen neutralen, standardmäßig geschlossenen Hinweisbereich. Sie erhöhen weder Anzahl noch Linienbadges der aktuellen Warnungen. Geplante Meldungen behalten Beginn/Ende und werden erst ab Beginn als aktuelle Betriebsstörung behandelt; reine Gerätehinweise bleiben auch dann sekundär. Störungen des Fahrbetriebs bleiben prominent, wenn ihr Text zusätzlich Aufzüge erwähnt.
+
+Gemeinsame Push-Regel für PWA und Watch: keine Zustellung vor dem tatsächlichen Beginn; Gerätehinweise nur bei gesonderter ausdrücklicher Auswahl (standardmäßig aus). Die native Uhr markiert Abfahrten nicht mehr allein wegen referenzierter Aufzugs-/Fahrtreppen- oder zukünftiger Meldungen mit ⚠. Fehlende Meldungsdetails bleiben vorsichtig als unbestätigter Hinweis erhalten.
+
+143 Node-/PWA-/Server-Prüfungen und 79 native Android-Prüfungen bestanden. Neutraler Hinweisbereich und getrennte gelbe Betriebswarnung in Hell/Dunkel mit ausdrücklich gekennzeichneten Beispieldaten im Browser geprüft. Physische Geräteabnahme bleibt separat. Push-Timer, Firebase-Konfiguration und ÖBB/S-Bahn-Datenquelle weiterhin offen; keine neue Push-Aktivierung.
+
+## PWA 0.1.22 / Wear 0.3.0 · Sichtbare Stationen und gemeinsame Favoritenkarten · 08.11.2026
+
+Favoriten derselben Station erscheinen in einer gemeinsamen Karte, auch wenn nur einzelne Linien/Richtungen gespeichert sind. Der Stationsname ist immer die Hauptüberschrift; Richtungen stehen darunter. PWA: einzelner Stern entfernt nur die gespeicherte Verbindung, ein exklusives Stationsmenü verschiebt/entfernt die gesamte Karte. Entfernungssortierung gruppiert nur die Ansicht; gespeicherte Reihenfolge, JSON, QR und lokale Datenschlüssel bleiben erhalten. Watch: gleiche Stationsgruppierung, Verbindungen weiterhin einzeln über das Detail entfernbar. Ganze Station plus einzelne Verbindungen erzeugen keine doppelten geladenen Zeilen.
+
+Warnmeldungen: betroffene Linien bleiben sowohl in der geschlossenen Warnmeldungen-Karte als auch im geschlossenen Stationshinweis als farbige Linienbadges sichtbar. Alle zusammengefassten Ereignisse tragen bei. Explizite Betreiber-Linienreferenzen haben Vorrang; bei fehlenden Referenzen werden nur eindeutige Linienlisten im Meldungstitel übernommen, keine beliebigen Zahlen aus Beschreibungstexten. Leere Warnbereiche bleiben verborgen; Relevanz, Deduplizierung und Kennzeichnung älterer Daten erhalten.
+
+Abrufpriorität: tatsächlich sichtbare Stationen verbrauchen zuerst das bestehende 24-RBL-Budget, erst danach außerhalb des Bildschirms liegende Stationen. PWA: sichtbar und aufgeklappt vor sichtbar geschlossen. Innerhalb derselben Sichtbarkeitsstufe bestätigte U-Bahn vor Tram vor Bus; bei Überlauf begrenzte Rotation. Scrollen verursacht keine zusätzlichen Requests innerhalb der 30-Sekunden-Sperre. Pause beendet normales Monitor-Polling und GPS. Offene PWA-Dialoge sowie native Unterseiten halten Monitor-Polling an. Josefstädter Straße U: Tram-RBL liegen numerisch vor den U6-RBL 4607/4622; die frühere Verteilung konnte U6 im ersten Budget verdrängen. Es gab dort keine PWA-Dreiergrenze. Öffentlicher API-Abruf mit allen acht Bahnsteigen lieferte zwei U6-Richtungen und drei Tram-Richtungen; Katalog-Badges bedeuten nicht, dass jede historische Linie aktuell fährt.
+
+Direkter Watch-Push ist im nativen Code vorbereitet: ausdrücklicher Opt-in, Android-Freigabe, Favoriten/alle Linien, Nachtruhe, Aufzüge, Test/Abmeldung und begrenztes lokales Hinweisarchiv. FCM plus Firebase Installations nur nach Opt-in; keine Analytics/Auth/Firestore/Hosting/Functions. Kein Hintergrund-GPS oder Abfahrts-Polling. Google verarbeitet Zustellkennung und Nachrichtentext, unser bestehender Dienst verschlüsselte Minimalfilter. Firebase-Projekt/Serverfreigabe und physische Zustellung sind noch nicht verbunden/geprüft. PWA verwendet weiterhin standardmäßigen Web Push. PUSH_SCHEDULER_ENABLED=false bleibt bis zum nachgewiesenen Hintergrundbetrieb erhalten; ein begrenztes Site-Werkzeug prüft während der Einrichtung ausschließlich die offizielle Quelle. [Betrieb und Konfiguration](push-notifications.md).
+
+Wear 0.3.0 / Code 7, Paket at.andrew.foamawien und ursprüngliches Zertifikat. Update: Mehr → App & Updates → Auf Update prüfen; nicht deinstallieren. 139 Node-, 77 native Android- und drei Python-Prüfungen; native Beispielrenderings. Browser bestätigt gemeinsame Karten und Bewegung ganzer Stationsgruppen; weiterer Vorschauzugriff durch interne URL-Policy blockiert, kein behaupteter kompletter mobiler Browser-Rundlauf. Physische Watch-/Push-Abnahme separat. ÖBB/S-Bahn-Datenquelle weiterhin offen.
+
+## Frühere Releases
+
+## PWA 0.1.20 · Optionale Störungsbenachrichtigungen · 08.11.2026
+
+Mehr → Einstellungen → Störungsbenachrichtigungen. Favoriten oder alle Wiener-Linien-Linien, optionale Aufzugsmeldungen/Nachtruhe, ausdrücklicher Opt-in, Testnachricht und Abmeldung. Semantisch deduplizierte Sammelhinweise, 30 Minuten Abstand und sechs automatische Hinweise pro Wiener Tag. Push-Registrierung und minimale Filter verschlüsselt in D1, Schlüssel ausschließlich Hosting-Secrets. GPS/Abfahrten unverändert nur sichtbar; Wear 0.2.4 bleibt unverändert. Implementierung und produktiver manueller Quellen-/Gerätefreigabetest erfolgreich. Automatischer Hintergrundlauf der Plattform fehlgeschlagen und pausiert; Push-Aktivierung bleibt deshalb gesperrt. Docker-Timer für einen separaten Server vorbereitet, noch nicht gestartet. [Details, Datenhaltung und Abnahme](push-notifications.md).
+
+## PWA 0.1.19 · Kompaktere Stationsabfahrten · 08.11.2026
+
+Weniger vertikaler Leerraum zwischen Linien derselben Station in Nähe und Favoriten. Nähe-Zeilen mindestens 64 statt 76 px, Abstand zwischen Linienbadge und Richtung 2 statt 6 px; Favoritenzeilen ohne eigene Interaktion mindestens 40 statt 44 px, Gruppengap 2 statt 5 px. Lange Richtungen wachsen weiter natürlich. Hauptzeit 28 px und feste Zeitspalten bleiben erhalten. Linien-Favoritenknopf in Nähe mit 44 × 44 px Tippfläche innerhalb seiner Zeile. Keine Daten-, Abruf-, Speicher- oder native Änderung; Wear 0.2.4 / Code 5 unverändert.
+
+JSON-Exporte: YYYYMMDD_foama-wien-…json, Exportdatum in Wiener Zeit; Favoriten, Watch-Transfer-Download und Diagnoseprotokolle. Produktive Browserprüfung: verschlüsselter JSON-Upload, Empfänger-Entschlüsselung, bestätigter PWA-Import und sofort gelöschter Ciphertext erfolgreich. Temporäre Prüffläche entfernt.
+
+# PWA 0.1.18 / Wear 0.2.4 · QR-Favoritenübertragung · 08.11.2026
+
+Mehr → Favoriten → Mit Handy übertragen auf der Uhr. Vom Handy empfangen oder Ans Handy senden wählen und QR-Code mit der Handy-Kamera scannen. Die eigenständige Übertragungsseite nimmt lokale PWA-Favoriten oder einen JSON-Export an. Auf der Uhr Vorschau prüfen und ausdrücklich übernehmen; auf dem Handy PWA-Import oder JSON-Download wählen. Bestehende Favoriten bleiben erhalten, Duplikate werden übersprungen. Beide Geräte bleiben unabhängig, keine dauerhafte Synchronisierung.
+
+# PWA 0.1.17 · 08.11.2026
+
+Hinweis zur manuellen Reihenfolge und sämtliche Keine-/Lade-/Teilprüfungs-Texte für Betriebsmeldungen entfernt. Relevante Meldungen erscheinen ausschließlich bei vorhandenen Einträgen zusätzlich in einer eigenen, aufklappbaren Karte **Warnmeldungen**, mit Titelvorschau und Anzahl. Sie enthält Linien-/Haltestellenbezug, Gültigkeit, Quelle und Kennzeichnung älterer Daten. Kein Platzhalter und keine Entwarnung bei fehlenden Daten. Stationsbezogene Detailhinweise bleiben erreichbar.
+
+101 Node-Tests bestanden. Browserprüfung beider Themes und Leerzustand; kein nativer Neubuild, Wear 0.2.3 unverändert.
+
+# PWA 0.1.16 / Wear 0.2.3 · 08.11.2026
+
+PWA: alle sechs Verkehrsmittel bleiben auch bei 320 px in einer Reihe, mit mindestens 44-px-Tippflächen. Suchradius im Filterkopf. Kurze Sortier- und Betriebsinfos stehen innerhalb der jeweiligen Karte; ausführliche Stationsmeldungen bleiben erhalten. Keine neue API-, Standort- oder Speicherlogik.
+
+Wear: kompakter Hauptschalter mit Pin/Stern neben Nähe/Favoriten, höchstens 184 dp breit. Sichtbare Leiste 36 dp hoch, volle 48-dp-Tippflächen. 12-sp-Beschriftungen, Auswahlzustand und bewährte Mehr-/Zurück-Gestaltung erhalten. Ursprüngliches Zertifikat, Paket und lokale Daten bleiben bei einem Update erhalten. QR-Transfer weiterhin nicht aktiviert; JSON-Export in der PWA unter Mehr → Einstellungen → Favoriten sichern.
+
+97 Node- und 54 native Android-Tests, native Runddisplay-Renderings und responsive Browser-QA bestanden. [Signiertes Paket und Prüfgrenzen](wear-os-release-0.2.3.md).
+
+# PWA 0.1.15 · Favoriten verschieben
+
+Nach oben/unten schließt nun das Bearbeitungsmenü und verschiebt genau den ausgewählten gespeicherten Favoriten. Ein zuvor offenes Menü kann sich nach Neuzeichnen nicht durch alte Toggle-Events wieder öffnen; nur ein Menü ist gleichzeitig offen. Außenklick und Escape schließen ebenfalls, Escape setzt den Fokus auf den Menüknopf zurück. Der verschobene Favorit erhält den Fokus ohne automatisches Scrollen.
+
+Stabile Schlüssel für Verschieben/Entfernen bewahren die Zuordnung nach vorangegangener Sortierung oder Neuzeichnung. Stations- und Verbindungsfavoriten, eigene Reihenfolge und Betriebsmeldungs-Klappzustände bleiben erhalten. 97 Tests, Browserprüfung beider Richtungen und Persistenz nach Reload bestanden. PWA-Shell/Importqueries auf 0.1.15; Wear-APK bleibt 0.2.2.
+
+# PWA 0.1.14 / Wear OS 0.2.2 · 07.11.2026
+
+PWA: Verkehrsmittel im eingeklappten Filter über sechs klar markierte Symbole direkt ein-/ausschalten. Ausgeschaltete Modi bleiben erreichbar; Aktivierung mit Häkchen und aria-pressed. Erweiterte Filteransicht bleibt synchron. Dein Standort startet eingeklappt, lässt sich unabhängig aufklappen und behält Status/Kartenaktion im Kopf. Bestehende Filter-/Favoriten-/Standortfreigaben und Datenschlüssel erhalten. Neue transport-controls.mjs im Offline-Cache; 89 Node-Tests und Browserprüfung bestanden.
+
+Wear: Pin-/Stern-Segment für Nähe/Favoriten; bewährte Mehr-/Zurück-Stile erhalten. Linkes/rechtes Wischen, Zurück-Button und Android-System-Back verwenden denselben Elternpfad. Native Activity-Dismiss wird intern abgefangen; Schließen erst auf der Hauptseite. SCREEN_OFF/Activity-Pause stoppen GPS, Timer und laufende/queued HTTP-Anfragen; verspätete Antworten dürfen keine Daten mehr übernehmen. Abfahrten maximal zehn Minuten / 3.000 Zeilen / 512 KiB, Bereinigung beim Öffnen und Verlassen. Temporäre APKs maximal 8 MiB und Entfernung bei Fehler, Abbruch oder Übergabe; fehlgeschlagene Installer-Sitzungen werden aufgegeben. Favoriten/Einstellungen erhalten. 54 Android-Tests, Signatur und Paketmetadaten geprüft; [Details](wear-os-release-0.2.2.md).
+
+# Wear OS 0.2.1 / PWA 0.1.13 · 07.11.2026
+
+Native Darstellung an den interaktiven Entwurf angenähert: Stationskopf und kompakte Linie/Richtung/Minuten-Zeilen, dunkle Flächen, deutlich ausgewählte Tabs. Mint nur für Hauptaktionen, gedecktes Grün für Auswahl, dezentes Rot für Entfernen, ruhiges Zurück. Mehr gruppiert Standort & Nähe, Gehen & Reserve, Favoriten sowie App & Updates.
+
+Neue foreground-only Standortsuche mit verfügbarem Plattform-fused-Provider, getrennt abgesicherten Quellen, Cacheprüfung aller geeigneten Anbieter, achtsekündigem Fallback und 30-Sekunden-Zeitlimit. Grobe Fixes bleiben nutzbar und ungewiss; stumme Quellen, verweigerte Freigaben und ausgeschaltete Ortung führen zu konkreten Aktionen. Späte verworfene Quellen dürfen einen guten Fix nicht ersetzen.
+
+39 Android-Tests und Signatur-/Paket-/Ausrichtungsprüfung bestanden. Ursprüngliches Zertifikat, Paket at.andrew.foamawien, Version Code 2. Erneute Geräteprüfung erforderlich. Update aus 0.2.0 über Mehr → Auf Update prüfen; danach Mehr → App & Updates. [Release und Prüfgrenzen](wear-os-release-0.2.1.md).
+
+# PWA 0.1.13 · 07.11.2026
+
+Abfahrtswerte an festen Spalten ausgerichtet. Qualitätslabel und nächste Abfahrt erhalten gleichbleibende Breiten, unabhängig von Minutenanzahl oder LIVE/FAHRPLAN/ÄLTER. Die 28-px-Hauptzahlen bleiben erhalten. PWA und Uhr-Webseite sind direkt in beide Richtungen verlinkt. Wear-APK weiterhin 0.2.0, kein neuer Watch-Download erforderlich.
+
+# Wear OS 0.2.0 / PWA 0.1.12 · 07.11.2026
+
+Erste native signierte Watch-Testversion: Nähe, lokale Favoriten, große Verbindungsdetails; klare kleine Mehr-Seiten. Bestehendes Java-Projekt und Paketidentität erhalten, CLI-Build ohne Nutzer-PC-Entwicklungstools. Reale WL-Daten über eigenen Relay, 30-s-/24-RBL-Grenzen, Teilcache/Backoff und ehrliche Standort-/Datenunsicherheit. 26 Android-Tests sowie Signatur/Metadaten geprüft. Echte Watch-Abnahme und QR-Transfer weiter offen. Download & Installation unter /wear.html.
+
+PWA Hell/Dunkel/System verfügbar und öffentlich kontrolliert; helle Dialogkontraste korrigiert. Dokumentation aktualisiert und mit öffentlichen Quellen als Download bereitgestellt.
+
+## v0.1.12 – 07.11.2026
+
+- Aussehen in Einstellungen mit drei Umschaltknöpfen: System, Dunkel und Hell. Standard System; explizite Auswahl bleibt im vorhandenen lokalen Settings-Objekt. System reagiert auf Änderungen der Geräteanzeige.
+- Hellpalette für Listen, Karten, Dialoge, Formulare, Menüs und Warnungen; offizielle Linienfarben und große Abfahrtszahlen unverändert. Frühe Anwendung vor dem Stylesheet vermeidet einen unnötigen Farbschemawechsel beim Start.
+- Standortstatus bleibt ausschließlich in Dein Standort; Stationsfavoriten bleiben kompakt. 83 JS-Tests einschließlich Systemwechsel und expliziter Theme-Wahl.
+- Dokumentation konsolidiert und nativer Wear-Build vorbereitet: Android API/Build Tools 34 und ZXing aus offiziellen Quellen mit Prüfsummen bereitgestellt; vorhandener CLI-Builder kann den vorhandenen Java-17-Compiler ohne separate javac-Startdatei verwenden. Noch kein APK-Erfolgsnachweis in diesem PWA-Release.
+
+## v0.1.11 – 07.11.2026
+
+- Stationsfavoriten kompakter: Mindestzeilenhöhe von 66 auf 44 px, Abstand zwischen Richtungen von zehn auf fünf Pixel. Weniger Abstand an Gruppentrennern, Meldungen und zwischen Richtung/Erreichbarkeit.
+- Haupt-Abfahrtszahlen bleiben 28 px, zweite Zeit 17 px. Mehrzeilige Richtungsnamen dürfen Zeilen weiterhin vergrößern; kein Abschneiden von Daten.
+- Standortstatus bleibt in Dein Standort zusammengeführt; Sortierknöpfe und Live-Priorität erhalten. 80 bestehende Regressionstests; öffentliche Größen-/Anzeigeprüfung.
+
+## v0.1.10 – 07.11.2026
+
+- Standortstatus in „Dein Standort“ integriert: aktiv, unterwegs, ungenau, letzter Fix, Akkupause, manuell und Berechtigungs-/Empfangsfehler an einer Stelle. Status mit Farbindikator, Genauigkeit/Alter und 30-s-Abfahrtsinfo innerhalb der Karte.
+- Separates Standortbanner entfernt; der obere Hinweis bleibt für API-/Katalog-/Startfehler erhalten. Bei API-Backoff keine normale 30-s-Aktualisierung in der Standortkarte behaupten.
+- Bestehende Standort-/Sensorlogik, Karten und Datenhaltung unverändert. Versionierte Offline-Shell erneuert; 80 Regressionstests und öffentliche Prüfung der zusammengeführten Anzeige.
+
+## v0.1.9 – 07.11.2026
+
+- Stationskarten mit klarer Namens-/Gehweg-Kopfzeile und expliziter Kartenaktion statt Personen-Icon. Favoritenstern als eigener, gut erreichbarer Knopf; Linien und Verkehrsmittel in separater ruhiger Zeile.
+- Kleine schwebende Abfahrten-Schaltfläche durch vollbreite Vorschau mit Linie/Richtung, nächster Abfahrtszeit und auf-/zuklappendem Chevron ersetzt. Aufgeklappter Zustand, Fokus und zugehöriger Inhaltsbereich zugänglich ausgezeichnet.
+- Einheitlich große nächste Abfahrtszahlen (28 px) in Vorschau, Stationsabfahrten, Einzel- und Stationsfavoriten. Zweite Abfahrt bleibt kleiner (17 px); Live-/Fahrplan-/Älter-Kennzeichnung erhalten. Kein Verkleinern der Hauptzeit bei kleinen Displays.
+- Vorhandene Karten-/Favoriten-/Meldungs-/Sortier- und API-Logik bleibt erhalten; keine neuen Abfragen durch die Darstellung.
+- 80 bestehende Regressionstests; öffentliche visuelle Prüfung sowie Auf-/Zuklappen, Stern und Kartenaufruf. Keine neuen Tests ausschließlich für reversible Darstellung.
+
+## v0.1.8 – 07.11.2026
+
+- Favoriten-Sortierung mit zwei direkt sichtbaren Umschaltknöpfen „Meine Reihenfolge“ und „Nächste zuerst“ anstelle des Dropdowns. Aktive Auswahl visuell und mit aria-pressed markiert; Tippfläche mindestens 44 px.
+- Bestehende Auswahl, manuelle Ordnung und Live-Priorisierung erhalten. Erneutes Antippen der aktiven Option startet keine weitere Aktualisierung.
+- Offline-Shell/Versionsabfragen erneuert. Bestehende 80 Regressionstests und öffentliche Bedienprüfung; keine zusätzlichen Tests nur für die reversible Kontroll-Darstellung.
+
+## v0.1.7 – 07.11.2026
+
+- Haltestellengebundene Kurzmeldungen anderer Haltepunkte nicht mehr an jede Station derselben Linie verteilen. Identische Zusammenfassungen zusammenfassen; eine passende kurze Standardmeldung tritt hinter die ausführliche Meldung desselben Ereignisses zurück. Richtung, andere Zeiträume und einzelne Lift-/Rolltreppenstörungen erhalten. Bereits gespeicherte Meldungen werden beim Anzeigen bereinigt.
+- Stationsnamen/Adresse/Navigation auf der Standortkarte um „Haltestelle merken“ ergänzt, einschließlich Listenalternative. Ohne Kartenwechsel lokal speichern; vorhandene ganze Stationsfavoriten anzeigen und Duplikate verhindern.
+- Favoriten wahlweise „Meine Reihenfolge“ oder „Nächste zuerst“, Auswahl lokal gespeichert. Entfernung als ungefähre Luftlinie. Sortieren verändert die gespeicherte manuelle Reihenfolge nicht; Auf-/Ab-Pfeile nur im manuellen Modus.
+- Live-Abfrage folgt derselben Reihenfolge. Bei mehr als 24 RBL: erste 16 je Aktualisierung, weitere acht rotierend; kleine Listen vollständig. Doppelte Stationsfavoriten verbrauchen keine zusätzlichen RBL-Slots. Weiter nur ein Request pro 30 Sekunden bei sichtbarer App, Backoff und ehrliche Alterskennzeichnung erhalten.
+- Hinweis „App-Symbol noch alt?“ entfernt; Installationshilfe bleibt verfügbar.
+- 80 automatische Tests. Echte Brunnengasse-Antwort reproduziert: sieben rohe Einträge ergeben eine detaillierte Meldung. Physische Android-/Akkuabnahme bleibt separat.
+
+## v0.1.6 – 07.11.2026
+
+- Optional unter Einstellungen → Standort: „Bei wenig Bewegung Akku sparen“; standardmäßig aus, Auswahl lokal gespeichert.
+- Niedrigfrequenter Bewegungssensor plus frische/stabile Standorte erlauben kurze echte Ortungspausen. Sofortige Wiederaufnahme bei erkannter Bewegung und Kontrollversuch spätestens nach einer Minute; kein Stillstand allein aus einem ruhigen Sensor ableiten.
+- Normaler Standortpfad bei Tunnel-/Sensorproblemen; keine grüne Geh-Ampel während der Pause. Sensoren und Timer stoppen im Hintergrund oder bei manuellem Start.
+- Keine Sensor-/Positionsprotokollierung oder neue Hintergrundarbeit; 30-s-Abfahrtsabrufe, Favoriten und App-Identität bleiben erhalten.
+- Checkboxen in Einstellungen neben dem Text ausgerichtet, mit größerer Tippfläche.
+- 70 automatische Tests; physischer Android-Sensor-/Akkutest noch offen. [Details](motion-battery-saving.md).
+
+## v0.1.5 – Ergänzter Funktionsumfang
+
+- Standortkarte mit bis zu 60 passenden Stationen, Linienkacheln, Suchradius, anklickbaren Informationen und Listenalternative.
+- Offizielle Monitor-Betriebsmeldungen und linienweite Hinweise aus `trafficInfoList` (serverseitiger Cache 120 Sekunden). Station, Linie, Zeitraum, geplant und Datenalter unterscheidbar; abgelaufene/erledigte Hinweise ausblenden. Kein zusätzliches Abfrageintervall im Telefon.
+- Fehlerprotokoll im geschlossenen Einstellungsbereich Debugging. Roh-API-Tester aus normalem UI entfernt; alte Diagnose-Links zeigen eine Umzugsmeldung.
+- Standort kompakter, Favoritenmenü hinter ⋯, Erreichbarkeit pro Verbindung. Leaflet lokal gebündelt; kontrastreicher Kartenfehler und alternative Stationenliste.
+- 60 automatische Tests einschließlich Meldungszuordnung, Cache-Fehlerisolation, Kartenfilter und tatsächlichem datensparsamem JSON-Exporthandler.
+
+## v0.1.5 – 07.11.2026
+
+- Nachtlinien (N-Präfix, einschließlich Nacht-Rufbus) mit dunkelblauem Hintergrund `#162A63` und weißer Schrift in allen bestehenden Linien-Badges.
+- Stationskarte zeigt die ungefähre Straße und Postleitzahl des Ziel-Haltepunkts aus dem vorhandenen lokalen Wiener Referenzindex, auch ohne Startposition. Keine gesicherte Hausnummer oder offizielle Stations-Postadresse behauptet, keine neue GPS-Übertragung.
+- Neue Offline-Shell und versionierte Einstiegsdateien; PWA-Identität, Icons, Standort-/API-Logik und gespeicherte Favoriten erhalten.
+
+## v0.1.4 – 2026-11-07
+
+- Verkehrsmittel samt Radius einklappbar; Zustand und Auswahl bleiben lokal gespeichert.
+- Nähe-Ansicht zeigt ausschließlich Stationen mit bestätigter Zuordnung zu mindestens einem aktivierten Verkehrsmittel. Offline-Linien aus offiziellen Linien-/Fahrweg-CSV-Dateien, ergänzt um lokal gelernte API-Linien. 1.789 von 1.811 Stopgruppen zugeordnet; 22 unzugeordnete Gruppen erscheinen nicht als leere Nähe-Karten. Ein „S“ oder „U“ im Namen beweist keine Linie.
+- Sichtbare Linien-Badges auch vor der ersten Live-Antwort. API-Batches berücksichtigen ausgewählte Bahnsteige, verteilen maximal 24 StopIDs über die Stationen und wechseln Bahnsteige/Richtungen zwischen Abrufen.
+- Kompakte Standortkarte mit ungefährem Straßenumfeld, PLZ, Genauigkeit und Fix-Alter. Straßenlookup ausschließlich lokal aus einem kompakten Wiener Referenzindex (keine GPS-Übertragung, keine Hausnummern).
+- Ungenaue Tunnelpositionen werden verwendet statt mit einer starren ±150-m-Sperre abgelehnt. Ein überlappender guter Fix bleibt bis 90 Sekunden erhalten. Veraltete Positionen sind ausdrücklich als zuletzt bekannt markiert; keine erfundenen Tunnelpositionen.
+- „Unterwegs“ bei glaubwürdiger Geschwindigkeit ab 3,5 m/s bzw. zuverlässiger Ortsänderung. Geh-Ampel und optionales Gehweg-Matrixrouting pausieren bei Bewegung, grober/veralteter Position oder Standortfehlern. Nach 45 Sekunden zuverlässig langsamer Bewegung wird der Gehmodus wieder freigegeben; Zeitgrenzen sind Heuristiken, keine Erkennung einer bestimmten Linie/Fahrzeugart.
+- Kleine Standortupdates erneuern Alter/Genauigkeit; nur die Stations-Neusuche bleibt auf etwa 40 m begrenzt. Keine GPS-/API-Abfragen im Hintergrund.
+- Eigene Standortkarte mit Genauigkeitskreis und Google-Maps-Links. Google-Maps-Fußnavigation zur Station nutzt standardmäßig den Telefonstandort; manuelle Startpunkte bleiben ausdrücklich manuell.
+- Bereits geladene Abfahrten anderer Stationen bleiben beim Ortswechsel und bei Fehlern erhalten, höchstens 10 Minuten lokal. Über 90 Sekunden alte Daten bzw. Daten nach fehlgeschlagener Abfrage sind „ÄLTER“, keine Live-/grüne Erreichbarkeitsbehauptung. Vergangene Abfahrten verschwinden.
+- 403/429: deutliche Betreiberfehlermeldung, 60–300 Sekunden steigende Wiederholungsabstände; Relay respektiert eine kurze gemeinsame Zugriffspause auch bei neuen StopIDs. Der Anbieterzugriff kann weiterhin zeitweise scheitern; kein Umgehen seiner Sperren.
+- Manifest wird aus dem Netz aktualisiert, mit Offline-Fallback und neuen Icon-Dateipfaden. App-ID, Startadresse, lokale Daten und Diagnose bleiben erhalten. Android verwaltet Launcher-/WebAPK-Iconupdates separat.
+- 50 automatische Tests bestanden. Physische Android-Bewegungs-/Tunnelprüfung und Start der externen Google-Maps-App müssen auf dem Gerät bestätigt werden.
+
+## v0.1.3 – 2026-11-07
+
+- Eigenes Tram-Symbol statt f-Punkt-Marke; Header/Favicon/PWA-Icons konsistent.
+- Farben der aktiven U-Bahn-Linien aus offiziellem Wiener-Linien-Netzplan übernommen.
+- Tippen auf Stationsnamen öffnet die Fußwegkarte, Abfahrtsliste hat separaten Knopf.
+- Favoriten nach Stationsnamen durchsuchen, ganze Station oder einzelne Verbindung speichern; tatsächliche Linie/Richtung auswählbar, Duplikate erkannt und bestehende Importe erhalten.
+- Bestätigt funktionierende GPS-Logik unverändert. 36 Tests bestanden; Metadaten-Prüfung dokumentiert.
+
+# Versionsstand / Release Notes
+
+## v0.1.2 – 2026-11-07
+
+- Fixe untere Menüleiste durch Navigation im Seitenfluss ersetzt, ausreichend Abstand zur Host-Bearbeiten-Schaltfläche.
+- Explizite Standortfreigabe auf der Hauptseite und verständliche Fehlerhinweise; bereits gewährte Freigabe wird nur sichtbar weiterverwendet.
+- Echter offizieller Haltestellenkatalog (1.811 Gruppen), manuelle Auswahl bleibt möglich.
+- API-Relay unter gleicher Site-Origin, Standard-Relay-Test in der Diagnose und konkrete Serverfehlermeldungen.
+- Bestehende PWA/Wear-Quellen erhalten. Worker-Auslieferung ohne Framework-Wechsel; neue Offline-Shell und versionierte Einstiege.
+- 34 automatische Tests bestanden; tatsächliche Android-Freigabe weiter am Gerät prüfen.
+
+
+## v0.1.1 – 2026-11-07
+
+- Öffentliche ChatGPT-Sites-PWA: https://foama-wien.endruuu.chatgpt.site
+- Vorhandene Oberfläche und Quellen erhalten, kein Framework-Wechsel.
+- Eigenständige API-Diagnose, lokale Protokolle und JSON-Export; ohne GPS/Katalog.
+- Android-Installationshilfe / browsergesteuerte Installationsaktion.
+- Offline-Shell inklusive Diagnose und Manifest; reine statische Konfiguration.
+- 27 Node-Tests erfolgreich. Android-/Live-Datenabnahme weiter erforderlich.
+
+**Testversion:** leere offizielle Datenkataloge; keine verifizierten Smartphone-Livedaten, keine Wear-APK, kein gehosteter QR-Relay.
+
+
+## v0.1.0 – 2026-11-07
+
+- Projektgerüst PWA, Wear OS Native Java und Cloudflare Worker.
+- Näherouten, Favoriten, Zügefilter, 30-Sekunden-Monitor, Erreichbarkeitsampel.
+- Geo-Bewegungsfilter, nur aktive App; Opt-in für externes Fußwegrouting.
+- Wiener-Linien-CSV- und ÖBB-GTFS-Importer, Offline-Katalogspeicherung.
+- QR-E2E-Verschlüsselung, Durable Object TTL, Watch Update-Check und SHA-256-Verifikation.
+- Tests, Dokumentation, GitHub Actions Debug-APK-Workflow.
+
+**Kein Produktionsrelease:** Keine reale API-Verifizierung, kein ausgelieferter Haltestellen-/ÖBB-Datensatz, keine kompilierte APK, keine Live-Deployment-Adresse. Aktuelle Mockups/Browsertests benutzen rein synthetische Daten.
+
+Produktionsabnahme 07.11.2026: öffentliche HTTPS-Diagnose mit aktivem Service Worker; echter Relay-Test HTTP 200, 1 Monitor / 1 Linie / 14 Abfahrten (Stephansplatz U1 → Leopoldau). Diagnose-JSON im öffentlichen Browser tatsächlich heruntergeladen und geprüft. Health-/Katalog-/Config-/Service-Worker-Endpunkte HTTP 200, Katalog 1.811 Gruppen. Maschinenlesbarer Nachweis: docs/validation-v0.1.2.json. Physische Android-GPS-Freigabe weiterhin auf dem Gerät prüfen.
+
+Favoriten-Dialog: automatische Monitorabfragen der Hauptansicht pausieren, damit sie das Fair-Use-Fenster für eine neu gesuchte Station nicht belegen. Bereits tatsächlich geladene Verbindungen werden kurzzeitig begrenzt gepuffert und beim Speichern sofort angezeigt; beim Schließen startet die normale Aktualisierung wieder.
+
+Öffentliche Abnahme v0.1.4: HTTPS und aktiver Service Worker im Diagnose-UI bestätigt; neuer Relay-Test HTTP 200 mit 1 Monitor, 1 U1-Linie und 14 echten Abfahrten; Diagnose-JSON tatsächlich im Browser heruntergeladen und Format/Version geprüft. In der Nähe echte U1/U3-Abfahrten, U-Bahn-only, gespeicherte Favoriten und Standortkarte geprüft. Öffentliche Stationskoordinaten dienten als manueller Teststart, kein privater GPS-Standort.
+
+Standortkarten-Fix: Leaflet-Ansicht vor dem Berechnen von Suchradius-/Genauigkeitskreis-Bounds initialisieren. Ohne initiale Ansicht konnten getBounds-Aufrufe abbrechen; die öffentliche Browserprüfung hat diesen Fehler sichtbar gemacht.
+
+Nach PWA-Abnahme: Wear-OS-Design 0.1 als separat verlinkte, interaktive Beispieldaten-Vorschau auf derselben Site erstellt. Zwei Hauptansichten plus Verbindungsdetail, sekundäres Mehr-Menü. Native Java-Quellen erhalten, noch keine APK gebaut/ausgegeben.
+
+Prüfung 0.5.1: 242 Web-/Server- und 118 native Tests bestanden. Neue Regressionen unterscheiden beide Karten-Favoritenaktionen und prüfen kombinierten QR-/Dateiimport über die Einstellungen. Öffentliche Browserabnahme erfolgreich: Standortkarte mit öffentlichem manuellem Floridsdorf-Testpunkt, Popup mit beiden getrennten Aktionen, vorausgewählte Haltestelle und aktuelle Linien/Richtungen, U6 Richtung Siebenhirten als einzelner Favorit gespeichert und nach Schließen zurück auf unverändert geöffnete Karte. Bestehende Favoriten erhalten, Speicherrückmeldung auf Karte sichtbar. Öffentliche Uhr-APK heruntergeladen und bytegleich zum signierten Build verifiziert: 3.731.884 Bytes, SHA-256 6843c2f93cbdf3799fe953dd5bd1909c68def222c127ce6d4520881276a2bc83.
