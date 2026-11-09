@@ -1,13 +1,14 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.6.0",
-  "versionCode": 20,
+  "versionName": "0.6.1",
+  "versionCode": 21,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Störungsauswahl umfasst jetzt auch gespeicherte A-nach-B-Wege und Alternativen.",
-    "Ein-, Umstiegs- und Ausstiegsstationen werden berücksichtigt; Aufzüge bleiben optional.",
-    "Änderungen an Routen aktualisieren die Push-Auswahl bei aktiver App."
+    "Favoriten mit Umschalter zwischen Routen und Stationen.",
+    "Haltestellen und Linien haben eine eigene klar beschriftete Ansicht.",
+    "Die zuletzt gewählte Favoritenansicht bleibt gespeichert.",
+    "Nach dem QR-Import direkt zu den übernommenen Favoriten."
   ]
 }

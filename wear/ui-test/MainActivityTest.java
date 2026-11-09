@@ -96,7 +96,7 @@ public class MainActivityTest {
         for(String tab:new String[]{"near","fav"}){
             app.changeView(tab);View decor=app.getWindow().getDecorView();int pixels=Math.round(227*app.getResources().getDisplayMetrics().density);forceLayoutTree(decor);decor.measure(View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY));decor.layout(0,0,pixels,pixels);
             View shortcut=filters();TextView heading=text(station.name);android.graphics.Rect filterBounds=new android.graphics.Rect(0,0,shortcut.getWidth(),shortcut.getHeight()),stationBounds=new android.graphics.Rect(0,0,heading.getWidth(),heading.getHeight());((ViewGroup)decor).offsetDescendantRectToMyCoords(shortcut,filterBounds);((ViewGroup)decor).offsetDescendantRectToMyCoords(heading,stationBounds);assertTrue("Global filters precede station headings: "+tab+" "+filterBounds+" / "+stationBounds,filterBounds.bottom<=stationBounds.top);
-            assertFalse(shortcut.getContentDescription().toString().contains(station.name));assertEquals(0,((ViewGroup)shortcut.getParent()).indexOfChild(shortcut));
+            assertFalse(shortcut.getContentDescription().toString().contains(station.name));assertEquals(tab.equals("fav")?2:0,((ViewGroup)shortcut.getParent()).indexOfChild(shortcut));if(tab.equals("fav"))assertEquals("favorite-switch",((ViewGroup)shortcut.getParent()).getChildAt(0).getTag());
             if(tab.equals("fav"))assertNotSame(decor.findViewWithTag("favorite-station:"+station.id),shortcut.getParent());
         }
     }

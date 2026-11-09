@@ -1,3 +1,9 @@
+# Release-Verlauf
+
+## GitHub und Dokumentation · 09.11.2026
+
+Öffentliche Erstveröffentlichung des freigegebenen 0.6.0-Quellpakets und erfolgreicher erster GitHub-CI-Lauf. Anschließend Abgleich mit dem inzwischen veröffentlichten Stand 0.6.1. Aktuelle Projekt-, Entwicklungs-, Architektur-, Konfigurations-, Build- und Betriebsanleitungen konsolidiert; alte Anweisungen als Historie erhalten. Source-Download um zuvor fehlende Migrationen, Drizzle-Konfiguration, CI und Bibliothekslizenz vervollständigt. Kein neuer nativer Funktionsrelease und keine ersetzte APK.
+
 ## 0.6.0 · Störungsbenachrichtigungen · 09.11.2026
 
 Veröffentlicht und öffentlich geprüft: PWA-Push verfügbar, nativer FCM-Empfang weiterhin unkonfiguriert. Stundentakt und Routenfilter in den Einstellungen sichtbar; Quellen-/Versandprüflauf nach Aktivierung erfolgreich. 244 Web-/Server-, 119 native und acht Python-Tests bestanden. Uhr-APK 0.6.0/20 öffentlich heruntergeladen und bytegleich zum Original-Build geprüft. Tatsächlicher Empfang erfordert Aktivierung/Test auf dem jeweiligen Gerät; Browser der Cloud-Abnahme hat Benachrichtigungen bereits verweigert.

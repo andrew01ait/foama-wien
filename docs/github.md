@@ -1,45 +1,29 @@
-# GitHub: Einrichtung und Entwicklung
+# GitHub und interne Quellen
 
-Dieses Repository enthält den aktuellen foama-wien-Quellcode für Smartphone-PWA und Wear OS. Die erste öffentliche Übernahme entspricht dem veröffentlichten App-Stand 0.6.0 / Wear-Code 20 vom 9. November 2026. Die ursprüngliche interne Commit-Historie und private Build-Dateien werden nicht übernommen. Die Projektübersicht, diese Anleitung und der GitHub-Prüfablauf wurden für den öffentlichen Einstieg ergänzt.
+Öffentliches Repository: [andrew01ait/foama-wien](https://github.com/andrew01ait/foama-wien), Hauptbranch `main`. Es enthält PWA, native Uhr-App, Server, Migrationen, öffentliche Referenzdaten, Tests und Dokumentation. Eigener App-Code steht unter MIT; eingebundene Daten/Bibliotheken behalten ihre [Lizenzen](licenses.md).
 
-## Struktur
+## Einrichtung und Rechte
 
-| Verzeichnis | Inhalt |
-| --- | --- |
-| `pwa/` | Installierbare Web-App, Karten, Service Worker und öffentliche Referenzdaten |
-| `wear/` | Native Wear-OS-App, Ressourcen und Android-Tests |
-| `cloudflare/` | API-Relay, Routenadapter, verschlüsselte Übertragung und Push-Versand |
-| `db/`, `drizzle/` | Datenbankmigrationen und Schema |
-| `scripts/` | Import, Tests, nativer Build und Veröffentlichung |
-| `tests/` | Web-/Server- und Python-Prüfungen |
-| `docs/` | Architektur, Datenquellen, Lizenzen und Release-Dokumentation |
+Die GitHub-Anmeldung und die Installation der GitHub-App sind getrennte Schritte. Für diesen Publikationsweg muss der ChatGPT Codex Connector im richtigen Konto installiert sein und Zugriff auf das gewählte Repository besitzen. Schreibzugriff durch eine tatsächlich gelungene Änderung bestätigen; die bloße Anzeige des Profils oder eines öffentlichen Repositories reicht nicht. Fehler 403 `Resource not accessible by integration` deutet auf fehlende Berechtigung oder Repository-Zuordnung, nicht auf einen erfolgreichen Upload.
 
-## Prüfen
+Repository-Zugriff in den GitHub-App-Einstellungen möglichst auf die benötigten Repositories begrenzen. Produktions-Secrets und private Signierdateien nicht als Repository-Dateien oder Commit-Historie übertragen.
 
-Mit Node.js 22 und Python 3.12:
+## Quellstände abgleichen
 
-```sh
-npm ci
-npm test
-python3 -m unittest discover -s tests -p '*test.py'
-```
+Die bestehende Site nutzt weiterhin ihr internes Git-Repository und ihren separaten Veröffentlichungsablauf. Das öffentliche GitHub ist der überprüfbare Quellstand für Beiträge und Weiterverwendung. Es gibt derzeit keinen automatischen Deploy und keinen automatischen bidirektionalen Spiegel. Für jeden Release die beteiligten Commit-SHAs und den tatsächlich veröffentlichten Stand nachvollziehbar halten.
 
-GitHub Actions führt diese Web-/Server- und Python-Tests sowie JavaScript-Syntaxprüfungen bei Push/PR auf `main` aus. Die Tests benötigen keine Produktionsschlüssel. Es werden weder neue Fahrplandaten heruntergeladen noch APKs automatisch signiert oder Produktionsversionen veröffentlicht. Der frühere Gradle-Debug-Ablauf wurde durch diesen aktuellen Prüfablauf ersetzt.
+1. Aktuelle interne Quelle und GitHub-`main` lesen. Ungeprüfte parallele Änderungen erhalten.
+2. Den vorgesehenen Quellstand festlegen; lokale Favoriten, Nutzerexporte, echte QR-/Push-Freigaben, Secrets, Keystores, SDKs und Build-Ausgaben ausschließen.
+3. README, Status, Fachseiten, Tests und Neuerungen am tatsächlichen Code ausrichten. Öffentliche Datenquellen, SQL-Migrationen und Bibliothekslizenzen müssen mitkommen.
+4. Relevante Tests ausführen. Den GitHub-Baum nach Pfad, Git-Blob-SHA und Dateimodus gegen den vorbereiteten Quellstand prüfen.
+5. Auf einem normalen Arbeitsbranch Änderungen als Pull Request vorschlagen. Für eine bewusst freigegebene Erstveröffentlichung oder Wartung direkt auf `main` den erwarteten bisherigen Branchkopf prüfen und ausschließlich vorwärts aktualisieren. Keine fremden Commits durch Force-Push ersetzen.
+6. Nach dem Commit die tatsächliche GitHub-Workflow-Ausführung für genau diese SHA lesen. Ein lokaler Erfolg ist kein Beleg für einen gelaufenen GitHub-Job.
+7. Interne Quelle und öffentlichen Source-Download passend nachziehen; Site-/APK-Veröffentlichungen zusätzlich nach [Deployment](../DEPLOYMENT.md) durchführen.
 
-Die 119 nativen Android-Prüfungen des veröffentlichten 0.6.0-Builds sind separat in [docs/tests.md](tests.md) dokumentiert. Ein grüner Web-Prüflauf ersetzt keine native oder physische Geräteabnahme.
+Die erste öffentliche Übernahme war ein geprüfter Snapshot statt der pauschalen internen Git-Historie. Startcommit für die vollständige Quelle: [b44cbe2](https://github.com/andrew01ait/foama-wien/commit/b44cbe20e6f9e082a4a2c1f700f1ad2d9e69d31c), Stand 0.6.0. Dessen [erster GitHub-Prüflauf](https://github.com/andrew01ait/foama-wien/actions/runs/42608519790) war erfolgreich. Anschließend werden die bereits veröffentlichte 0.6.1-Quelle und die konsolidierten Anleitungen abgeglichen.
 
-## Eigener Betrieb
+## Beiträge und CI
 
-Die laufende PWA bleibt unter https://foama-wien.endruuu.chatgpt.site/ erreichbar. Änderungen auf GitHub lösen dort keinen automatischen Deploy aus. Für eine eigene Site die Hosting-Projektzuordnung in `.openai/hosting.json` durch eine eigene ersetzen. Server, D1-/R2-Bindings und Migrationen nach [DEPLOYMENT.md](../DEPLOYMENT.md) einrichten. Produktive Zugangsdaten gehören ausschließlich in die jeweiligen Hosting-Secrets.
+Änderungen in einem Branch vorbereiten, passende Tests und Dokumentation ergänzen und einen Pull Request öffnen. GitHub Actions führt bei Push/PR auf `main` Web-/Server-, Python- und JavaScript-Syntaxprüfungen aus. CI benötigt keine Produktionsschlüssel, erneuert keine Verkehrsdaten und baut/signiert keine Release-APK. Native Android-Tests laufen im dokumentierten CLI-Build separat.
 
-Die reine Oberfläche ersetzt den Server nicht: API-Relay, A-nach-B-Anbieteradapter, QR-Übertragung und Push benötigen die vorgesehenen Serverrouten. Details zu Kontingenten, sparsamem Abruf und festen Anbietern stehen in [Architektur](architecture.md) und [Routenplanung](journey-planning.md). Lizenz- und Quellenangaben für öffentliche Daten und Bibliotheken erhalten.
-
-## Uhr-App bauen
-
-Der primäre Build verwendet Java/Python und die Android-SDK-Kommandozeilentools. [Build-Anleitung](squashtap-build-adaptation.md) und `python3 scripts/build.py --help` erläutern Vorbereitung und Parameter. Legacy-Gradle-Dateien sind zusätzlich vorhanden, aber nicht der erprobte Release-Weg.
-
-Originale Release-APKs werden mit einem privaten, hier nicht enthaltenen Signierschlüssel gebaut. Für eine eigene App eine eigene Paket-/Hostingkonfiguration und einen eigenen Schlüssel verwenden. Ein fremd signierter Build kann die bestehende öffentliche App nicht als Update ersetzen. Die öffentliche Installation und der Versionsfeed sind über [wear.html](https://foama-wien.endruuu.chatgpt.site/wear.html) erreichbar.
-
-## Beiträge und Lizenz
-
-Änderungen über Branch und Pull Request vorschlagen, passende Tests ausführen und Dokumentation/Release-Hinweise aktualisieren. Die enthaltene MIT-Lizenz gilt für den eigenen App-Code. Daten, Leaflet, ZXing, Firebase-Komponenten und Dienste behalten ihre jeweiligen Bedingungen; siehe [Lizenzen](licenses.md) und [Quellen](../LICENSE-SOURCES.md).
+Die laufende Site bleibt unter https://foama-wien.endruuu.chatgpt.site/ erreichbar. Ein grüner GitHub-Prüflauf veröffentlicht dort nichts und bestätigt keinen physischen Watch-/Push-Test. [Entwicklung](development.md), [Uhr-Build](squashtap-build-adaptation.md), [Konfiguration](configuration.md).

@@ -1,17 +1,18 @@
 {
-  "version": "0.6.0",
-  "wearVersionCode": 20,
-  "wearApkUrl": "/apk/foama-wien-wear-0.6.0.apk",
-  "wearApkSha256": "d112d1b0b1340623b505033f4fc48ad03320ca06b1fc75d4fe4ede74b39f5900",
-  "changelog": "Störungsbenachrichtigungen in den Einstellungen aktivierbar. Meine Favoriten berücksichtigt auch gespeicherte A-nach-B-Wege und Alternativen. Hintergrundprüfung stündlich, bei aktiver App gegebenenfalls häufiger. Aufzüge bleiben optional; geplante Hinweise erst ab Beginn.",
-  "wearVersion": "0.6.0",
+  "version": "0.6.1",
+  "wearVersionCode": 21,
+  "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
+  "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
+  "changelog": "A nach B: Beschriftung „Alternativen nach …“ korrigiert. Uhr-App mit getrennten Favoritenansichten und direkter Rückkehr nach dem QR-Import.",
+  "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 3731884,
+  "wearApkBytes": 3735980,
   "wearMinSdk": 30,
-  "wearChangelog": "Störungsauswahl umfasst jetzt auch gespeicherte A-nach-B-Wege und Alternativen. Ein-, Umstiegs- und Ausstiegsstationen werden berücksichtigt; Aufzüge bleiben optional. Änderungen an Routen aktualisieren die Push-Auswahl bei aktiver App.",
+  "wearChangelog": "Favoriten mit Umschalter zwischen Routen und Stationen. Haltestellen und Linien haben eine eigene klar beschriftete Ansicht. Die zuletzt gewählte Favoritenansicht bleibt gespeichert. Nach dem QR-Import direkt zu den übernommenen Favoriten.",
   "wearReleaseNotes": [
-    "Störungsauswahl umfasst jetzt auch gespeicherte A-nach-B-Wege und Alternativen.",
-    "Ein-, Umstiegs- und Ausstiegsstationen werden berücksichtigt; Aufzüge bleiben optional.",
-    "Änderungen an Routen aktualisieren die Push-Auswahl bei aktiver App."
+    "Favoriten mit Umschalter zwischen Routen und Stationen.",
+    "Haltestellen und Linien haben eine eigene klar beschriftete Ansicht.",
+    "Die zuletzt gewählte Favoritenansicht bleibt gespeichert.",
+    "Nach dem QR-Import direkt zu den übernommenen Favoriten."
   ]
 }

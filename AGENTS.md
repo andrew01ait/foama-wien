@@ -1,3 +1,11 @@
+# Aktuelle Dokumentations- und Veröffentlichungsregeln · 09.11.2026
+
+Für neue Arbeiten zuerst README.md, STATUS.md, DEPLOYMENT.md und docs/README.md lesen. Aktuelle Fachanleitungen ersetzen ausdrücklich alte Anweisungen in docs/history/. Öffentliche Quelle: https://github.com/andrew01ait/foama-wien, Branch main. Nutzer hat die öffentliche Quellveröffentlichung und die Pflege sowohl der internen als auch der GitHub-Dokumentation ausdrücklich freigegeben.
+
+Interne Site-Quelle, öffentliches GitHub und Quell-ZIP bewusst abgleichen; kein automatischer Deploy durch GitHub. Credentials/Keystores/Build-Caches/APKs/Nutzerexporte niemals als Quellcode übertragen. Vor Aktualisierung fremde Commits prüfen, keine Force-Pushes. Dokumentation und CI müssen den tatsächlichen Source-/Release-Stand beschreiben. Source-ZIP umfasst auch SQL-Migrationen, Drizzle-Konfiguration, CI und Bibliothekslizenzen. Reiner Dokumentationswechsel verändert weder App-Version noch signierte APK. 0.6.1/21 und die aktuellen Grenzen aus STATUS.md erhalten.
+
+## Frühere Anweisungen und Release-Kontext
+
 # Agent instructions for foama-wien
 
 Read `README.md`, `DEPLOYMENT.md`, `STATUS.md`, `docs/architecture.md`, `docs/tests.md`, and particularly `docs/squashtap-build-adaptation.md` before building.
@@ -264,3 +272,11 @@ Abnahme 0.5.1: 242 Web- und 118 native Tests bestanden. Öffentlich Karte → Li
 Aktuelle Nutzeranweisung erlaubt Fortsetzung der Störungsbenachrichtigungen. Alten Scheduler-Blocker durch tatsächlichen unbeaufsichtigten Tool-Lauf behoben (09.11.2026, 11:08 Wiener Zeit, completed plus persistierte Server-Prüfzeit). Bestehenden Auftrag Automation_49062dc550ac8191a2d0658eaad0a1d1 erhalten, genau ein Stundenauftrag mit foama_check_disruptions und foama_push_status, keine zeitversetzten Paralleljobs als Frequenzumgehung. Hosting-Gate auf true, Intervall ehrlich 60 min; aktive Monitoraufrufe ergänzen ca. fünf Minuten. Kein nicht gestarteter Hostinger-Timer als aktiv vermarkten.
 
 Push-Auswahl muss A-nach-B-Favoriten und Alternativen berücksichtigen, maximal 100 bekannte Stationen, nur Linie/RBL-Referenzen ohne Endpunktadressen/GPS/Favoritennamen. PWA bei sichtbarer Rückkehr auch innerhalb von fünf Minuten aktualisieren; Uhr nach Änderungen dirty markieren. Geplantes und Aufzüge getrennt, kein Quellenfehler als Entwarnung. Direkter FCM-Empfang auf der Uhr bleibt bis bestätigter Firebase-Konfiguration und später physischem Test offen. VAPID-/Speicherschlüssel nicht rotieren.
+
+## Wear 0.6.1 / Code 21 · Favoritenansichten und QR-Rückkehr · 09.11.2026
+
+Im Favoriten-Tab trennt ein direkt sichtbarer Umschalter **Routen** und **Stationen**. Die Stationsansicht trägt die Überschrift **Haltestellen & Linien**. Die ausdrücklich gewählte Ansicht bleibt lokal über Aktualisierung, Detailnavigation und App-Neustart erhalten. Ohne bisherige Auswahl erscheinen bei vorhandenen Routen zuerst Routen, sonst Stationen; beide Bereiche bleiben auch leer erreichbar. Nur Stationen der gewählten Ansicht sind Monitorziele, laufende alte Anfragen werden beim Wechsel verworfen. Gemeinsame Abrufgrenzen, lokale Favoriten und Push-Auswahl bleiben erhalten.
+
+Nach bewusst bestätigtem QR-Import und erfolgreichem Transferabschluss öffnet die Uhr direkt Favoriten: Routen bei mitübernommenen Routen, sonst Stationen. Der Transfer wird beendet, Schlüssel und Wachhalteflag werden freigegeben. Abbruch, Fehler und Ablauf bleiben im bisherigen Fehler-/Zurück-Pfad; bei fehlender Abschlussquittung bleibt die Übernahme gespeichert und die bestehende Wiederholung erreichbar. Dateiimport und Senden ans Handy behalten ihren bisherigen Rückweg. Originalpaket und Release-Key bleiben erhalten; PWA 0.6.1 korrigiert auf Nutzerwunsch die Routenbeschriftung zu **Alternativen nach …**; Alternativen und Planung selbst bleiben erhalten.
+
+Abnahme 0.6.1: 244 Web-/Server- und 124 native Tests erfolgreich. Originalpaket/Release-Key und lokale Daten erhalten. Neue APK unter eigenem Dateinamen, unveränderte frühere Veröffentlichungen. Physische Geräteabnahme separat.

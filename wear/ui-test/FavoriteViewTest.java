@@ -1,0 +1,49 @@
+package at.foama.wien;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.robolectric.*;
+import org.robolectric.android.controller.ActivityController;
+import org.robolectric.annotation.*;
+import static org.junit.Assert.*;
+import android.view.*;
+import android.widget.*;
+import android.os.Looper;
+import android.graphics.*;
+import org.json.*;
+import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+@RunWith(RobolectricTestRunner.class) @Config(sdk=34,qualifiers="w227dp-h227dp-round-xhdpi") @LooperMode(LooperMode.Mode.PAUSED)
+public class FavoriteViewTest {
+    private ActivityController<MainActivity> controller;private MainActivity app;
+    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
+    @After public void cleanup(){controller.stop().destroy();}
+    private JSONObject route()throws Exception{return new JSONObject(new String(Files.readAllBytes(Paths.get("tests/fixtures/transfer-routes-webcrypto.json")),StandardCharsets.UTF_8)).getJSONObject("value").getJSONArray("journeys").getJSONObject(0).put("name","Arbeitsweg");}
+    private TextView find(View v,String label){if(v instanceof TextView&&((TextView)v).getText().toString().equals(label))return (TextView)v;if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++){TextView found=find(((ViewGroup)v).getChildAt(i),label);if(found!=null)return found;}return null;}
+    private TextView text(String label){TextView result=find(app.getWindow().getDecorView(),label);assertNotNull(label,result);return result;}
+    private void click(String label){View target=text(label);while(!target.isClickable()&&target.getParent() instanceof View)target=(View)target.getParent();assertTrue(target.performClick());}
+    @SuppressWarnings("unchecked") private List<Repo.Stop> targets()throws Exception{java.lang.reflect.Method m=MainActivity.class.getDeclaredMethod("targets");m.setAccessible(true);return (List<Repo.Stop>)m.invoke(app);}
+    private Repo.Stop station(){for(Repo.Stop s:app.repo.stops)if(s.name.equals("Stephansplatz U"))return s;throw new AssertionError();}
+    @Test public void switchingSeparatesCollectionsAndCancelsOldRequestsWithoutResettingFetchBudget()throws Exception{
+        JSONObject route=route();app.repo.journeys.merge(new JSONArray().put(route));app.repo.toggleFavorite(station(),"U1","Leopoldau");app.changeView("fav");
+        assertTrue(text("Routen").isSelected());assertNotNull(text("Arbeitsweg"));assertNull(find(app.getWindow().getDecorView(),station().name));
+        Repo.Stop first=app.repo.findStop(JourneyStore.boardings(route).get(0).getJSONObject("from").getString("stopId"));assertEquals(Collections.singletonList(first),targets());
+        java.lang.reflect.Field field=MainActivity.class.getDeclaredField("requests");field.setAccessible(true);RequestScope old=(RequestScope)field.get(app);app.repo.nextFetchElapsed=Long.MAX_VALUE;
+        click("Stationen");assertTrue(old.isCancelled());assertTrue(text("Stationen").isSelected());assertNotNull(text("Haltestellen & Linien"));assertNotNull(text(station().name));assertNull(find(app.getWindow().getDecorView(),"Arbeitsweg"));assertEquals(Collections.singletonList(station()),targets());assertEquals(Long.MAX_VALUE,app.repo.nextFetchElapsed);
+        app.openConnection(station(),"U1","Leopoldau");app.navigateBack();assertTrue(text("Stationen").isSelected());assertEquals(1,app.repo.favorites.size());assertEquals(1,app.repo.journeys.all().length());
+    }
+    @Test public void chosenSectionSurvivesRefreshTabChangeAndActivityRestart()throws Exception{
+        app.repo.journeys.merge(new JSONArray().put(route()));app.repo.toggleFavorite(station(),"U1","Leopoldau");app.changeView("fav");click("Stationen");app.renderContent();assertTrue(text("Stationen").isSelected());app.changeView("near");app.changeView("fav");assertTrue(text("Stationen").isSelected());
+        controller.stop().destroy();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();assertEquals("fav",app.view);assertTrue(text("Stationen").isSelected());assertNotNull(text(station().name));assertEquals(1,app.repo.journeys.all().length());
+        click("Routen");click("Arbeitsweg");app.navigateBack();assertTrue(text("Routen").isSelected());assertNotNull(text("Arbeitsweg"));
+    }
+    @Test @GraphicsMode(GraphicsMode.Mode.NATIVE) public void bothEmptySectionsRemainReachableAndButtonsFitSmallRoundWatchWithLargeText()throws Exception{
+        app.changeView("fav");assertNotNull(text("Deine wichtigsten Wege"));click("Routen");assertNotNull(text("Noch keine Routen"));click("Stationen");assertNotNull(text("Haltestellen & Linien"));
+        app.repo.journeys.merge(new JSONArray().put(route()));app.repo.toggleFavorite(station(),"U1","Leopoldau");
+        for(int size:new int[]{227,192}){RuntimeEnvironment.setQualifiers("w"+size+"dp-h"+size+"dp-round-xhdpi");android.content.res.Configuration config=new android.content.res.Configuration(app.getResources().getConfiguration());config.fontScale=size==192?1.3f:1f;app.getResources().updateConfiguration(config,app.getResources().getDisplayMetrics());
+            for(String label:new String[]{"Routen","Stationen"}){click(label);render(size,".local/wear-favorite-"+label.toLowerCase()+"-"+size+".png");for(String name:new String[]{"Routen","Stationen"}){TextView tab=text(name);float density=app.getResources().getDisplayMetrics().density;assertTrue(tab.getHeight()/density>=48);assertTrue(tab.getWidth()/density>=48);assertEquals(1,tab.getLayout().getLineCount());assertEquals(0,tab.getLayout().getEllipsisCount(0));assertTrue(tab.getLayout().getLineRight(0)<=tab.getWidth()-tab.getPaddingLeft()-tab.getPaddingRight()+1);}}
+        }
+    }
+    private void layoutTree(View v){v.forceLayout();if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++)layoutTree(((ViewGroup)v).getChildAt(i));}
+    private void render(int size,String path)throws Exception{View decor=app.getWindow().getDecorView();int pixels=Math.round(size*app.getResources().getDisplayMetrics().density);layoutTree(decor);decor.measure(View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY));decor.layout(0,0,pixels,pixels);org.robolectric.Shadows.shadowOf(Looper.getMainLooper()).idle();Bitmap bitmap=Bitmap.createBitmap(pixels,pixels,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(bitmap);android.graphics.Path round=new android.graphics.Path();round.addCircle(pixels/2f,pixels/2f,pixels/2f,android.graphics.Path.Direction.CW);canvas.clipPath(round);decor.draw(canvas);try(java.io.OutputStream out=new java.io.FileOutputStream(path)){bitmap.compress(Bitmap.CompressFormat.PNG,100,out);}bitmap.recycle();}
+}

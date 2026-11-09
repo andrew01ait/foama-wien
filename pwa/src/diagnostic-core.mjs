@@ -67,7 +67,7 @@ export function sanitizeEvent(event){
 }
 export function appendDiagnostic(previous,next,max=MAX_DIAGNOSTIC_EVENTS){return [...(Array.isArray(previous)?previous:[]).map(sanitizeEvent),sanitizeEvent(next)].slice(-max);}
 export function buildReport({events,environment,rawIncluded=false,raw=null,generatedAt=new Date().toISOString()}){
-  const result={format:'foama-wien-api-diagnose-v1',generatedAt,app:'foama-wien',version:'0.6.0',
+  const result={format:'foama-wien-api-diagnose-v1',generatedAt,app:'foama-wien',version:'0.6.1',
     privacy:'Keine GPS-Koordinaten, Favoriten, QR-Schlüssel oder Standortfreigabe protokolliert.',
     environment:{secureContext:Boolean(environment.secureContext),online:Boolean(environment.online),
       serviceWorkerControlled:Boolean(environment.serviceWorkerControlled),pageProtocol:String(environment.pageProtocol||'')},

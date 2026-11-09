@@ -27,6 +27,7 @@ public final class MainActivity extends Activity {
     WatchPush push;
     TransferManager transfer;TransferManager.Preview transferPreview;
     private RequestScope transferRequests;RequestScope.ConnectionFactory transferConnectionFactory;private Future<?> transferRequest;private boolean transferBusy;
+    private String importedFavoriteView="";
     private String transferMessage="";private android.graphics.Bitmap transferQr;
     private final Runnable transferTicker=new Runnable(){public void run(){pollTransfer();}};
     private long transferDeadlineElapsed;
@@ -52,6 +53,7 @@ public final class MainActivity extends Activity {
     private LinearLayout root,content;
     private TextView status;
     String view="near",screen="home";
+    private String favoriteView="";
     volatile boolean active=false;
     private volatile boolean fetching=false;
     private Repo.Stop detailStop;
@@ -72,6 +74,7 @@ public final class MainActivity extends Activity {
         super.onCreate(state);getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         repo=new Repo(this);view=repo.prefs.getString("view","near");if(!view.equals("fav"))view="near";
+        favoriteView=repo.prefs.getString("favoriteView","");if(!favoriteView.equals("routes")&&!favoriteView.equals("stations"))favoriteView="";
         powerSaver=new WatchPowerSaver(repo.prefs.getBoolean("ultraBattery",false),repo.prefs.getBoolean("ultraBatteryActive",false));
         push=new WatchPush(this,repo,network,handler,()->{if(content!=null&&screen.equals("more")&&settingsSection.startsWith("push"))refreshMore();});repo.onFavoritesChanged=push::favoritesChanged;
         if(getIntent().getBooleanExtra("foama_alerts",false)){screen="alerts";dataPausedForAlerts=true;getIntent().removeExtra("foama_alerts");}
@@ -205,6 +208,20 @@ public final class MainActivity extends Activity {
         scroll.scrollTo(0,0);
     }
     void changeView(String name){view=name;screen="home";repo.prefs.edit().putString("view",name).apply();renderLayout();refresh();}
+    private boolean favoriteRoutes(){return favoriteView.equals("routes")||favoriteView.isEmpty()&&repo.journeys.all().length()>0;}
+    private void changeFavoriteView(String name){
+        if((!name.equals("routes")&&!name.equals("stations"))||name.equals(favoriteView))return;
+        favoriteView=name;repo.prefs.edit().putString("favoriteView",name).apply();resetDepartureScope();renderLayout();refresh();
+    }
+    private void favoriteSwitcher(){
+        LinearLayout row=horizontal();row.setTag("favorite-switch");
+        for(String name:new String[]{"routes","stations"}){
+            boolean selected=favoriteRoutes()==name.equals("routes");Button tab=button(name.equals("routes")?"Routen":"Stationen",selected?"selected":"secondary");
+            tab.setPadding(dp(3),dp(5),dp(3),dp(5));tab.setContentDescription(name.equals("routes")?"Gespeicherte Routen":"Haltestellen & Linien");tab.setOnClickListener(v->changeFavoriteView(name));
+            LinearLayout.LayoutParams item=new LinearLayout.LayoutParams(0,-2,1);if(name.equals("routes"))item.setMarginEnd(dp(4));row.addView(tab,item);
+        }
+        content.addView(row,new LinearLayout.LayoutParams(-1,-2));space(content,3);
+    }
     void openConnection(Repo.Stop stop,String route,String towards){if(screen.equals("journey")){detailFromJourney=true;resetDepartureScope();}else if(screen.equals("home"))detailFromJourney=false;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
     private void resetDepartureScope(){requests.cancel();if(departureRequest!=null)departureRequest.cancel(true);requests=new RequestScope();fetching=false;}
     void openJourney(String id){if(repo.journeys.get(id)==null)return;if(screen.equals("home")||screen.equals("routes"))journeyFromRoutes=screen.equals("routes");resetDepartureScope();journeyId=id;journeyBoarding=0;journeyVariant=0;screen="journey";renderLayout();refresh();}
@@ -215,7 +232,8 @@ public final class MainActivity extends Activity {
     private List<Repo.Stop> targets(){
         if(screen.equals("journey-options"))return journeyOptionTargets();if(screen.equals("journey"))return journeyTargets();
         if(screen.equals("detail")&&detailStop!=null)return Collections.singletonList(detailStop);
-        if(screen.equals("routes")||view.equals("fav")){ArrayList<Repo.Stop> out=screen.equals("routes")?new ArrayList<>():new ArrayList<>(repo.favoriteStops());JSONArray journeys=repo.journeys.all();for(int i=0;i<journeys.length();i++){List<JSONObject> legs=JourneyStore.boardings(journeys.optJSONObject(i));if(!legs.isEmpty()){Repo.Stop stop=repo.findStop(legs.get(0).optJSONObject("from").optString("stopId"));if(stop!=null&&!out.contains(stop))out.add(stop);}}return out;}ArrayList<Repo.Stop> near=repo.nearby();return new ArrayList<>(near.subList(0,Math.min(12,near.size())));
+        if(screen.equals("home")&&view.equals("fav")&&!favoriteRoutes())return new ArrayList<>(repo.favoriteStops());
+        if(screen.equals("routes")||view.equals("fav")){ArrayList<Repo.Stop> out=new ArrayList<>();JSONArray journeys=repo.journeys.all();for(int i=0;i<journeys.length();i++){List<JSONObject> legs=JourneyStore.boardings(journeys.optJSONObject(i));if(!legs.isEmpty()){Repo.Stop stop=repo.findStop(legs.get(0).optJSONObject("from").optString("stopId"));if(stop!=null&&!out.contains(stop))out.add(stop);}}return out;}ArrayList<Repo.Stop> near=repo.nearby();return new ArrayList<>(near.subList(0,Math.min(12,near.size())));
     }
     private void refresh(){
         if(!active||fetching||screen.equals("more")||screen.equals("transfer")||screen.equals("file-import")||screen.equals("alerts")||SystemClock.elapsedRealtime()<repo.nextFetchElapsed)return;
@@ -236,7 +254,7 @@ public final class MainActivity extends Activity {
         else status.setText("");
         status.setVisibility(status.getText().length()==0?View.GONE:View.VISIBLE);
         if(!batteryMessage.isEmpty()){status.setText(status.getText().length()==0?batteryMessage:status.getText()+"\n"+batteryMessage);status.setVisibility(View.VISIBLE);}
-        if(screen.equals("home")){transportShortcut();if(powerSaver.percent>=0&&powerSaver.percent<20&&!powerSaver.enabled)fullButton(content,"Akku sparen?",()->{screen="more";section("battery");renderLayout();});}
+        if(screen.equals("home")){if(view.equals("fav"))favoriteSwitcher();transportShortcut();if(powerSaver.percent>=0&&powerSaver.percent<20&&!powerSaver.enabled)fullButton(content,"Akku sparen?",()->{screen="more";section("battery");renderLayout();});}
         if(screen.equals("routes"))renderRoutes();else if(screen.equals("alerts"))renderAlerts();else if(screen.equals("journey-options"))renderJourneyOptions();else if(screen.equals("journey"))renderJourney();else if(screen.equals("detail"))renderDetail();else if(view.equals("fav"))renderFavorites();else renderNear();
         restoreScroll(openingPage?0:y);
     }
@@ -280,8 +298,13 @@ public final class MainActivity extends Activity {
         actionable(row,s.name+", "+d.route+" Richtung "+d.towards+", "+repo.countdown(d)+" Minuten, "+repo.quality(d)+", "+reach+(group.size()>1?", danach "+repo.countdown(group.get(1))+" Minuten":""),()->openConnection(s,favorite==null?d.route:favorite.route,favorite==null?d.towards:favorite.towards));
     }
     private void renderFavorites(){
-        renderJourneyCards();
-        if(repo.favorites.isEmpty()){if(repo.journeys.all().length()==0)placeholder("Deine wichtigsten Wege","Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Routen aus der PWA kommen per QR auf deine Uhr.");return;}
+        if(favoriteRoutes()){
+            if(repo.journeys.all().length()==0)placeholder("Noch keine Routen","Am Handy planen und als Routenfavorit speichern. Unter Mehr → Favoriten → Aus PWA importieren auf diese Uhr übernehmen.");
+            else renderJourneyCards();
+            return;
+        }
+        centered(content,"Haltestellen & Linien",14,MINT,true);space(content,7);
+        if(repo.favorites.isEmpty()){placeholder("Deine wichtigsten Wege","Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Mehr → Favoriten → Aus PWA importieren übernehmen.");return;}
         for(Map.Entry<String,List<Repo.Favorite>> entry:repo.favoriteGroups().entrySet()){
             Repo.Stop s=repo.findStop(entry.getKey());if(s==null)continue;
             LinearLayout panel=stationPanel(s,true);
@@ -572,6 +595,12 @@ public final class MainActivity extends Activity {
         transferPreview=null;transferBusy=false;transferMessage=message;updateTransferScreenAwake();
         if(screen.equals("transfer"))renderContent();
     }
+    private void completeTransfer(String message){
+        String imported=importedFavoriteView;finishTransfer(message);importedFavoriteView="";
+        if(imported.isEmpty())return;
+        closeTransfer();favoriteView=imported;repo.prefs.edit().putString("favoriteView",imported).apply();settingsSection="";detailFromJourney=false;dataPausedForAlerts=false;
+        resetDepartureScope();changeView("fav");if(active)startLocation(false);Toast.makeText(this,"Favoriten übernommen",Toast.LENGTH_SHORT).show();
+    }
     static android.graphics.Bitmap qrBitmap(String url)throws Exception{
         java.util.Map<com.google.zxing.EncodeHintType,Object> hints=new java.util.EnumMap<>(com.google.zxing.EncodeHintType.class);hints.put(com.google.zxing.EncodeHintType.MARGIN,4);hints.put(com.google.zxing.EncodeHintType.ERROR_CORRECTION,com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.M);
         com.google.zxing.common.BitMatrix matrix=new com.google.zxing.qrcode.QRCodeWriter().encode(url,com.google.zxing.BarcodeFormat.QR_CODE,420,420,hints);int[] pixels=new int[matrix.getWidth()*matrix.getHeight()];for(int y=0;y<matrix.getHeight();y++)for(int x=0;x<matrix.getWidth();x++)pixels[y*matrix.getWidth()+x]=matrix.get(x,y)?android.graphics.Color.BLACK:android.graphics.Color.WHITE;
@@ -596,16 +625,17 @@ public final class MainActivity extends Activity {
         handler.removeCallbacks(transferTicker);if(transferExpired()){finishTransfer("Code abgelaufen. Zurück und neuen Code öffnen.");return;}
         TransferManager current=transfer;RequestScope scope=transferRequests;transferBusy=true;
         transferRequest=network.submit(()->{try{org.json.JSONObject value=current.poll(scope);TransferManager.Preview preview=value.optString("status").equals("ready")&&current.direction.equals("to-watch")?TransferManager.preview(current.decrypt(value),repo):null;scope.check();
-            runOnUiThread(()->{if(!transferValid(current,scope))return;transferBusy=false;if(transferExpired()){finishTransfer("Code abgelaufen. Zurück und neuen Code öffnen.");return;}if(value.optString("status").equals("done")){finishTransfer("Übertragung abgeschlossen.");return;}else if(preview!=null){transferPreview=preview;transferMessage="Favoriten prüfen";if(transferQr!=null){transferQr.recycle();transferQr=null;}}else{handler.postDelayed(transferTicker,4000);}renderContent();});
+            runOnUiThread(()->{if(!transferValid(current,scope))return;transferBusy=false;if(transferExpired()){finishTransfer("Code abgelaufen. Zurück und neuen Code öffnen.");return;}if(value.optString("status").equals("done")){completeTransfer("Übertragung abgeschlossen.");return;}else if(preview!=null){transferPreview=preview;transferMessage="Favoriten prüfen";if(transferQr!=null){transferQr.recycle();transferQr=null;}}else{handler.postDelayed(transferTicker,4000);}renderContent();});
         }catch(Exception e){runOnUiThread(()->{if(!transferValid(current,scope))return;transferBusy=false;transferMessage="Noch keine Übernahme. Verbindung prüfen oder erneut versuchen.";renderContent();handler.postDelayed(transferTicker,5000);});}});
     }
     void confirmTransfer(){
         if(transferPreview==null||transferBusy||transfer==null||transfer.closed)return;
         if(transferExpired()){finishTransfer("Code abgelaufen. Zurück und neuen Code öffnen.");return;}
-        try{repo.mergeTransfer(transferPreview);}catch(Exception error){transferMessage="Speichern nicht möglich. Bitte erneut versuchen.";renderContent();return;}transferPreview=null;transferMessage="Favoriten gespeichert. Transfer wird abgeschlossen …";transferBusy=true;renderContent();TransferManager current=transfer;RequestScope scope=transferRequests;
-        transferRequest=network.submit(()->{try{current.acknowledge(scope);runOnUiThread(()->{if(!transferValid(current,scope))return;finishTransfer("Favoriten übernommen. Transferinhalt gelöscht.");});}catch(Exception e){runOnUiThread(()->{if(!transferValid(current,scope))return;transferBusy=false;transferMessage="Favoriten gespeichert. Abschluss bitte erneut prüfen.";renderContent();handler.postDelayed(transferTicker,4000);});}});
+        String importedView=transferPreview.journeys.length()>0?"routes":transferPreview.favorites.length()>0?"stations":favoriteRoutes()?"routes":"stations";
+        try{repo.mergeTransfer(transferPreview);importedFavoriteView=importedView;}catch(Exception error){transferMessage="Speichern nicht möglich. Bitte erneut versuchen.";renderContent();return;}transferPreview=null;transferMessage="Favoriten gespeichert. Transfer wird abgeschlossen …";transferBusy=true;renderContent();TransferManager current=transfer;RequestScope scope=transferRequests;
+        transferRequest=network.submit(()->{try{current.acknowledge(scope);runOnUiThread(()->{if(!transferValid(current,scope))return;completeTransfer("Favoriten übernommen. Transferinhalt gelöscht.");});}catch(Exception e){runOnUiThread(()->{if(!transferValid(current,scope))return;transferBusy=false;transferMessage="Favoriten gespeichert. Abschluss bitte erneut prüfen.";renderContent();handler.postDelayed(transferTicker,4000);});}});
     }
-    private void closeTransfer(){handler.removeCallbacks(transferTicker);handler.removeCallbacks(transferTimeout);getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);if(transferRequests!=null)transferRequests.cancel();if(transferRequest!=null)transferRequest.cancel(true);if(transfer!=null)transfer.destroy();if(transferQr!=null){transferQr.recycle();transferQr=null;}transfer=null;transferRequests=null;transferPreview=null;transferBusy=false;}
+    private void closeTransfer(){handler.removeCallbacks(transferTicker);handler.removeCallbacks(transferTimeout);getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);if(transferRequests!=null)transferRequests.cancel();if(transferRequest!=null)transferRequest.cancel(true);if(transfer!=null)transfer.destroy();if(transferQr!=null){transferQr.recycle();transferQr=null;}transfer=null;transferRequests=null;transferPreview=null;transferBusy=false;importedFavoriteView="";}
     void chooseFavoriteFile(){
         if(!screen.equals("file-import"))fileParent=screen.equals("more")&&settingsSection.equals("import")?"import":"routes";
         cancelFileRead();filePreview=null;fileMessage="Wähle eine foama-wien-Favoriten-Datei (JSON).";screen="file-import";renderLayout();
