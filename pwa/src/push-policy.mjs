@@ -1,5 +1,5 @@
 // Shared, pure relevance and notification limits. Contains no subscription/GPS data.
-import {isCurrentNotice} from './traffic-info.mjs?v=0.7.2';
+import {isCurrentNotice} from './traffic-info.mjs?v=0.7.3';
 export const PUSH_LIMITS=Object.freeze({gap:30*60_000,daily:6,expiry:90*86400_000,history:90*86400_000,batch:32,subscriptions:256});
 // Keep the legacy field false for older clients; equipment never triggers a push.
 export function pushPreferences(value={}){return {scope:value.scope==='all'?'all':'favorites',equipment:false,quiet:value.quiet===true};}

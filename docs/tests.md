@@ -1,3 +1,7 @@
+## PWA 0.7.3 · automatische Ortung nach manueller Stadtwahl · 09.11.2026
+
+Rückkehr von einem manuell gesetzten Stadtzentrum zu Automatisch prüft die vorhandene Standortberechtigung erneut und startet bei bereits erteilter Freigabe wieder die Vordergrundortung. Es wird keine neue Freigabe angefordert. Eine noch laufende Berechtigungsprüfung darf einen späteren ausdrücklichen Stopp nicht aufheben. Schnelle manuelle Profilwechsel verwerfen überholte Katalogantworten, bevor diese die Position verändern. Vier Regressionen ergänzen insgesamt 301 Web-/Server-Tests; zehn Python-Prüfungen und 67 JavaScript-Syntaxprüfungen. Native 0.6.1/21 unverändert.
+
 ## PWA 0.7.2 · abschließender Stand
 
 297 Web-/Server- und zehn Python-Prüfungen; 67 JavaScript-Dateien syntaktisch geprüft. Neue Regression: echte unterschiedliche Modi mit gleicher numerischer Linie und gleichem Ziel werden separat gruppiert/ausgewählt; bekannte Favoritenmodi bleiben verbindlich. Öffentliche 0.7.1-Abnahme: Salzburg Hbf liefert 49 Fahrplanabfahrten ohne LIVE-Angabe; Eltern-/Bahnsteigkorrektur im echten Worker bestätigt. Bewusster Jetzt-aktualisieren-Schritt im öffentlichen Browser ausgelöst. Bereits dokumentierte Linzer/Grazer Echtzeitproben und unveränderte Wear-APK bleiben gültig. Physische GPS-Städtefahrt und Telefon-Push weiter separat; kein Anbieterannahme-/showNotification-Signal als Lesebeweis.

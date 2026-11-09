@@ -33,6 +33,18 @@ test('denial explains missing permission prompt and never retries on foregroundi
  assert.match(locationMessage(f.states.at(-1)).detail,/Wenn keine Frage erscheint/);
  f.control.resume();assert.equal(f.calls.length,1);assert.deepEqual(f.cleared,[1]);
 });
+test('automatic mode can restart previously requested and then stopped location only with an already granted permission',async()=>{
+ const f=fixture('granted');f.control.request();f.control.stop();await f.control.init();
+ assert.equal(f.calls.length,2);assert.equal(f.control.enabled,true);
+ const denied=fixture('denied');denied.control.request();denied.control.stop();await denied.control.init();
+ assert.equal(denied.calls.length,1);assert.equal(denied.control.enabled,false);assert.equal(denied.states.at(-1).phase,'denied');
+});
+test('a pending permission check cannot reactivate location after a newer explicit stop',async()=>{
+ let resolvePermission;const calls=[];const win={isSecureContext:true};win.top=win.self=win;
+ const control=createLocationController({nav:{permissions:{query:()=>new Promise(resolve=>resolvePermission=resolve)},geolocation:{watchPosition:()=>calls.push('watch'),clearWatch(){}}},doc:{hidden:false},win});
+ const pending=control.init();control.stop();resolvePermission({state:'granted'});await pending;
+ assert.equal(calls.length,0);assert.equal(control.enabled,false);
+});
 test('a blocked permissions policy is shown without an impossible location request',async()=>{
  const f=fixture('prompt',false);await f.control.init();f.control.request();
  assert.equal(f.calls.length,0);assert.equal(f.states.at(-1).phase,'policy');

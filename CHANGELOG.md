@@ -1,3 +1,7 @@
+## PWA 0.7.3 · automatische Ortung nach manueller Stadtwahl · 09.11.2026
+
+Rückkehr von einem manuell gesetzten Stadtzentrum zu Automatisch prüft die vorhandene Standortberechtigung erneut und startet bei bereits erteilter Freigabe wieder die Vordergrundortung. Es wird keine neue Freigabe angefordert. Eine noch laufende Berechtigungsprüfung darf einen späteren ausdrücklichen Stopp nicht aufheben. Schnelle manuelle Profilwechsel verwerfen überholte Katalogantworten, bevor diese die Position verändern. Vier Regressionen ergänzen insgesamt 301 Web-/Server-Tests; zehn Python-Prüfungen und 67 JavaScript-Syntaxprüfungen. Native 0.6.1/21 unverändert.
+
 ## PWA 0.7.2 · getrennte Verkehrsmittel und manueller Neustart · 09.11.2026
 
 Bei der Salzburger Abnahme bestätigt: Derselbe öffentliche Linienname „3“ kommt für Bus und S-Bahn vor. Gruppen und Vollbildfokus berücksichtigen deshalb zusätzlich den echten Modus; eine Bus-Auswahl zeigt keine gleichnamige Bahn. Vorhandene Favoritenidentitäten bleiben erhalten, gespeicherte Modusangaben werden beachtet. Manuell gewählte Stadtprofile starten nach Reload wieder beim öffentlichen Stadtzentrum, ohne zusätzliche GPS-Freigabe oder gespeicherten GPS-Fix. Reiner Text für anfangs leere regionale Linien korrigiert. Native 0.6.1/21 unverändert.

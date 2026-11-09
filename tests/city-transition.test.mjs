@@ -2,11 +2,31 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {CITY_PROFILES} from '../pwa/src/city-profiles.mjs';
+import {CITY_PROFILES,CITY_PREFERENCE,cityPreference,createCityController} from '../pwa/src/city-profiles.mjs';
 import {lineHasCurrentDeparture,connectionDepartures} from '../pwa/src/connection-detail.mjs';
-import {availableDeparts,favoriteMatches} from '../pwa/src/core.mjs';
+import {availableDeparts,favoriteMatches,haversineMeters} from '../pwa/src/core.mjs';
 import {connectionsAtStation} from '../pwa/src/station-search.mjs';
 const app=await readFile(new URL('../pwa/src/app.mjs',import.meta.url),'utf8');
+
+function preferenceFixture(preference='auto'){
+ const waits=new Map(),positions=[],calls={init:0,stop:0,refresh:0},favorites=[{stopId:'wl:60201468',route:'U6'}];
+ const state={manual:preference!=='auto',position:preference==='auto'?null:CITY_PROFILES[preference].center,locationData:{old:true},nearby:[{id:'old'}],favorites};
+ const cityControl=createCityController({preference});
+ const context=vm.createContext({state,cityControl,CITY_PREFERENCE,cityPreference,haversineMeters,localStorage:{setItem(){}},renderCity(){},
+  ensureCityStops:city=>new Promise(resolve=>waits.set(city,resolve)),locationControl:{init:()=>calls.init++,stop:()=>calls.stop++},
+  setPosition(position,manual){state.position=position;state.manual=manual;positions.push(position);},refreshNearby:()=>calls.refresh++});
+ vm.runInContext(app.slice(app.indexOf('async function chooseCityPreference('),app.indexOf('function learnedFor(')),context);
+ return {context,state,waits,positions,calls,favorites,cityControl};
+}
+test('returning from a manual city to automatic rechecks existing GPS permission and removes only the manual position',async()=>{
+ const f=preferenceFixture('linz'),choice=f.context.chooseCityPreference('auto');f.waits.get('wien')();await choice;
+ assert.equal(f.calls.init,1);assert.equal(f.state.manual,false);assert.equal(f.state.position,null);assert.equal(f.state.nearby.length,0);assert.equal(f.state.favorites,f.favorites);assert.equal(f.cityControl.current().id,'wien');
+});
+test('a late earlier manual choice cannot move the map or position away from the newer selected city',async()=>{
+ const f=preferenceFixture(),graz=f.context.chooseCityPreference('graz'),linz=f.context.chooseCityPreference('linz');
+ f.waits.get('linz')();await linz;f.waits.get('graz')();await graz;
+ assert.equal(f.cityControl.current().id,'linz');assert.deepEqual(f.positions,[CITY_PROFILES.linz.center]);assert.equal(f.calls.stop,1);assert.equal(f.state.favorites,f.favorites);
+});
 
 test('a city switch clears prior cards and timestamps immediately; a late catalogue cannot overwrite a newer city or its favorites',async()=>{
  const waits=new Map(),renders=[],favorites=[{stopId:'wl:60201468',route:'U6'}];let refreshes=0,cancelled=0;

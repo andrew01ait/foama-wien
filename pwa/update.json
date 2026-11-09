@@ -1,9 +1,9 @@
 {
-  "version": "0.7.2",
+  "version": "0.7.3",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Fahrplan-Fallback und Stadtprofile: Wien standardmäßig, manuelle Wahl nur in Einstellungen. Salzburg mit vollständigem Bahnsteigabruf. Gleiche Liniennummern verschiedener Verkehrsmittel bleiben getrennt. Manuelles Stadtprofil startet auch nach Neustart bei der Stadtmitte. Push-Tests und Zustellstatus unter Debug Push.",
+  "changelog": "Wiener Fahrplan-Fallback, Stadtprofile und Push-Diagnose. Wien bleibt Standard; manuelle Stadtwahl nur in Einstellungen. Rückkehr zur automatischen Ortung und schnelle Profilwechsel abgesichert. Push-Tests und Zustellstatus unter Debug Push.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,

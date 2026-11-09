@@ -1,4 +1,4 @@
-# Stadtprofile · PWA 0.7.2
+# Stadtprofile · PWA 0.7.3
 
 Eine Installation, bestehende URL/Manifest-ID und vorhandene Speicherschlüssel. **Wien ist Standard.** Nur bei sichtbarer App und vorhandener Standortfreigabe darf ein frischer genauer GPS-Fix zu Graz, Linz oder Salzburg wechseln. Es werden keine zusätzlichen Hintergrundortungen eingeführt.
 
@@ -30,3 +30,5 @@ Störungen/Push und amtliche Hausnummern sind weiterhin ausschließlich für Wie
 Die native Uhr bleibt unverändert bei 0.6.1/21 und ihrem Wiener Katalog. QR-Auswahl sperrt explizit noch nicht unterstützte regionale Stationen/Routen statt sie auf der Uhr als funktionsfähig auszugeben; die lokalen PWA-Favoriten bleiben erhalten. JSON-Sicherung bewahrt alle Städte. Ein späterer nativer Ausbau kann dieselben IFOPT-/Providergrenzen übernehmen.
 
 Quellen und ursprüngliche Proben: [Machbarkeitsanalyse](multi-city-feasibility.md), [Transitous API](https://transitous.org/api/), [Datenquellen](https://transitous.org/sources/), [LINZ AG EFA](https://data.linz.gv.at/katalog/linz_ag/linz_ag_linien/fahrplan/).
+
+Rückkehr zu Automatisch: Eine vorhandene GPS-Freigabe wird erneut geprüft; ohne Freigabe bleibt der bewusste Standort-Button erforderlich. Ein späterer Stopp verwirft eine noch laufende Berechtigungsantwort. Bei konkurrierender manueller Auswahl darf nur die zuletzt gewählte Stadt die manuelle Position setzen.

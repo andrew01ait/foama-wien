@@ -1,4 +1,4 @@
-import {motionSample,motionQuiet,mayRest,stillPosition,SENSOR_GAP_MS,POSITION_CHECK_MS,FRESH_FIX_MS} from './motion-state.mjs?v=0.7.2';
+import {motionSample,motionQuiet,mayRest,stillPosition,SENSOR_GAP_MS,POSITION_CHECK_MS,FRESH_FIX_MS} from './motion-state.mjs?v=0.7.3';
 
 // Permission inspection never requests or records a position.
 export function locationEnvironment(nav=navigator,doc=document,win=window){
@@ -105,9 +105,10 @@ export function createLocationController({nav=navigator,doc=document,win=window,
   }
   return {
     async init(){
+      const current=generation;
       battery(batterySaving?'waiting-location':'off');
       try{const result=await nav.permissions?.query({name:'geolocation'});permission=result?.state||'unknown';}catch{}
-      if(requested)return;
+      if(current!==generation||requested&&enabled)return;
       const env=locationEnvironment(nav,doc,win);
       if(!env.supported)return report('unsupported');
       if(!env.secureContext)return report('insecure');
