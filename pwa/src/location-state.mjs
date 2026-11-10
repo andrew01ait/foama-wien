@@ -1,4 +1,4 @@
-import {haversineMeters} from './core.mjs?v=0.7.5';
+import {haversineMeters} from './core.mjs?v=0.7.6';
 
 export const LOCATION_STALE_MS=90_000;
 // State is session-only: neither positions nor movement history are persisted.

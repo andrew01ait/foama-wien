@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.7.5 / Wear 0.6.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.7.6 / Wear 0.6.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -20,7 +20,7 @@ Der frühere Durable-Object-Entwurf ist historisch. Der aktuelle QR-Dienst verwe
 
 ## Einstellungen
 
-Native HTML-Klappbereiche gliedern die bisherigen Bedienelemente in acht Themen. Aufklappen startet weder Ortung noch Abfragen oder Berechtigungsdialoge. Bestehende IDs, Ereignisbindungen und Speicherschlüssel bleiben erhalten. Debug Push ist ein direkter eigener Bereich; ausführliche Hilfen liegen beim jeweiligen Feld. Der Dialogkopf bleibt beim Scrollen sichtbar. App-Version steht zusätzlich im Kopf und unter App & Installation.
+Native HTML-Klappbereiche gliedern die bisherigen Bedienelemente in neun Themen. Aufklappen startet weder Ortung noch Abfragen oder Berechtigungsdialoge. Bestehende IDs, Ereignisbindungen und Speicherschlüssel bleiben erhalten. Debug Push ist ein direkter eigener Bereich; ausführliche Hilfen liegen beim jeweiligen Feld. Der Dialogkopf bleibt beim Scrollen sichtbar. App-Version steht zusätzlich im Kopf und unter App & Installation.
 
 ## Standort und Abfahrten
 

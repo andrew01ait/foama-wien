@@ -1,9 +1,9 @@
 {
-  "version": "0.7.5",
+  "version": "0.7.6",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Kompakte Einstellungen mit acht aufklappbaren Themenbereichen und Erklärungen bei Bedarf. Alle Optionen, Importe und Übertragungen bleiben erhalten. Push-Diagnose direkt erreichbar; App-Version und Komponentenupdates klar unterscheidbar.",
+  "changelog": "Einstellungen mit getrennten Bereichen Deine App und Technik & Diagnose. Stadtprofil und Darstellung sind jetzt eigenständige Einträge. Ruhige Karten, einheitliche Symbole und übersichtliche Abstände; alle Funktionen bleiben erhalten.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,
