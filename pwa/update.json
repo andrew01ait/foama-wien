@@ -1,9 +1,9 @@
 {
-  "version": "0.8.2",
+  "version": "0.8.3",
   "wearVersionCode": 23,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.1.apk",
   "wearApkSha256": "c49d58bdab1053650614086ad9bfa90b564e18344e84543e9675fb1666ae4397",
-  "changelog": "Neue Städtecollage mit Wien, Graz, Linz und Salzburg. Salzburg-Hinweis aus dem Seitenkopf entfernt und im FAQ LIVE oder Fahrplan erklärt.",
+  "changelog": "Neue Willkommen-Seite mit Städtepanorama, App-Einstieg, Installation, Funktionen und Wear-OS-Infos. App teilen führt zur Willkommen-Seite; der Abfahrtsmonitor bleibt direkt erreichbar.",
   "wearVersion": "0.7.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3838570,

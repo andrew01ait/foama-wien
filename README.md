@@ -2,7 +2,7 @@
 
 Öffis, die du noch erreichst. Abfahrtsmonitor als installierbare Smartphone-PWA mit Profilen für Wien, Graz, Linz und Salzburg; native Wear-OS-App für alle vier Städte.
 
-[**Städte & Funktionen**](https://foama-wien.endruuu.chatgpt.site/staedte.html) · [**PWA öffnen**](https://foama-wien.endruuu.chatgpt.site/) · [**Uhr-App**](https://foama-wien.endruuu.chatgpt.site/wear.html) · [**GitHub**](https://github.com/andrew01ait/foama-wien) · [Dokumentation](docs/README.md)
+[**Willkommen**](https://foama-wien.endruuu.chatgpt.site/willkommen.html) · [**Städte & Funktionen**](https://foama-wien.endruuu.chatgpt.site/staedte.html) · [**PWA öffnen**](https://foama-wien.endruuu.chatgpt.site/) · [**Uhr-App**](https://foama-wien.endruuu.chatgpt.site/wear.html) · [**GitHub**](https://github.com/andrew01ait/foama-wien) · [Dokumentation](docs/README.md)
 
 ## Funktionen
 
@@ -17,7 +17,7 @@
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.8.2 und Wear 0.7.1**, nativer Versionscode **23**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.8.3 und Wear 0.7.1**, nativer Versionscode **23**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

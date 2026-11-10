@@ -18,6 +18,7 @@ function harness(navigator={}){
 test('native app sharing sends only the public invitation after a click, never the current transfer URL',async()=>{
  const calls=[];const h=harness({share:async data=>calls.push(data)});
  assert.equal(calls.length,0);
+ assert.equal(APP_INVITATION.url,'https://foama-wien.endruuu.chatgpt.site/willkommen.html');
  await h.click('shareApp');
  assert.deepEqual(calls,[{...APP_INVITATION}]);
  assert.ok(!JSON.stringify(calls).includes('PRIVATE_'));

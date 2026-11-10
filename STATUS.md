@@ -1,11 +1,12 @@
 # Aktueller Projektstand
 
-Stand: 10. November 2026. **PWA 0.8.2, Wear 0.7.1 / Code 23.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 10. November 2026. **PWA 0.8.3, Wear 0.7.1 / Code 23.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
 | Bereich | Stand |
 | --- | --- |
+| Willkommen | Eigene Startinfo mit Panorama, App-Einstieg, Installationshilfe, Funktionen und FAQ; App-Teilen führt zur Willkommen-Seite |
 | Stadtprofile | Wien, Graz, Linz, Salzburg in PWA und nativer Uhr; Wien als Standard, frische Vordergrundortung oder manuelle Auswahl nur Einstellungen/Mehr → Stadtprofil |
 | Abfahrten | Nähe/Favoriten, Filter, Gehzeit und Erreichbarkeit; sichtbare Aktualisierung alle 30 Sekunden mit gemeinsamen Budgets und Rücksicht auf Sichtbarkeit |
 | Datenqualität | Wien/Wiener Linien, Graz/Transitous und Linz/EFA nach Datenlage live; Salzburg ausschließlich Fahrplan im Monitor |

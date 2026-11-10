@@ -1,3 +1,9 @@
+## PWA 0.8.3 · Willkommen bei Foama · 10.11.2026
+
+Neue öffentliche Willkommen-Seite unter willkommen.html im Stil des Städtevergleichs, mit der vorhandenen vollständigen Städtecollage, klarem App-Einstieg, Funktionen, Stadtlinks, Wear-OS-Verweis, Installationshilfe und aufklappbarem FAQ. Themenwahl wird übernommen. Die Seite ist über App-Footer/Einstellungen, Städtevergleich und Uhr-Webseite erreichbar; App teilen verwendet die feste öffentliche Willkommen-Adresse statt der aktuellen Seite.
+
+Die bestehende PWA-Identität, Startadresse und Geräte-Daten bleiben erhalten. Browser bieten Installation nach ihren eigenen Regeln an; die gemeinsame Installationskomponente öffnet einen nativen Dialog erst nach Nutzeraktion. Die Willkommen-Seite startet keine Standort-, Monitor-, Routen- oder Push-Anfragen. Offline-Shell und Navigationsfallback schließen den Einstieg ein. Wear bleibt 0.7.1/23.
+
 ## Wear 0.7.1 · Stadtbezogene Routen und schnelleres Laden · 10.11.2026
 
 A nach B und Routenfavoriten zeigen die gewählte Stadt; alle gespeicherten Routen bleiben erhalten. Hauptnavigation bleibt in A nach B sichtbar, Mehr/Einstellungen kehren dorthin zurück. Fällige Abfragen starten sofort bei Rückkehr, gemeinsame Sperren exakt nach Restzeit; Fehlerpausen bleiben pro Stadt getrennt. Globales 30-Sekunden-Limit und Ultra-Sparmodus bleiben erhalten. Expliziter App-User-Agent ohne Gerätekennung. Signierter Build und aktuelle Abnahme: [Wear 0.7.1](docs/wear-os-release-0.7.1.md). PWA bleibt 0.8.2.

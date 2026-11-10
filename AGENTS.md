@@ -1,3 +1,9 @@
+## PWA 0.8.3 · allgemeine Willkommen-Seite · 10.11.2026
+
+Aktueller Nutzerwunsch: allgemeiner PWA-Einstieg im bestehenden Städte-Design. willkommen.html ist die teilbare Willkommen-Seite; ./ öffnet den Abfahrtsmonitor. Die vorhandene Städtecollage darf dafür wiederverwendet werden. Manifest-ID, scope und start_url erhalten, keine Zwangsumleitung für bestehende Installationen. App-Teilen zeigt nun ausschließlich die feste Willkommen-URL; dies ersetzt die frühere Root-URL-Vorgabe. Private aktuelle URL/QR-Fragmente weiterhin niemals teilen.
+
+Einstiegsseite nur Themenwahl, vorhandene bewusste Browser-Installation und Offline-Shell, keine Geolocation-, Monitor-, Routen- oder Push-Anfragen. Alle Nutzenaussagen am aktuellen Funktionsstand ausrichten; keine Linienkarte oder Fahrzeugpositionen als verfügbar bewerben. Nach dieser Seite hat der Nutzer die weitere Ausarbeitung von Linienkarte und interaktiven Fahrzeugschätzungen beauftragt; Fahrzeugkonzept ausdrücklich vor Implementierung klären.
+
 ## Wear 0.7.1 · Routen je Stadt und Ladezeiten · 10.11.2026
 
 Aktuelle Nutzerentscheidung ersetzt auf der Uhr die frühere stadtübergreifende Routendarstellung: A nach B und Favoriten → Routen zeigen die gewählte Stadt. Gesamten lokalen Routenspeicher und alle QR-/Dateiexporte erhalten; keine Migration oder Löschung. Stationskennungen und feste Endpunktkoordinaten verwenden, nie Namen oder den momentanen GPS-Fix. Stadtübergreifende Familien einschließlich Alternativen dürfen in mehreren passenden Profilen erscheinen.

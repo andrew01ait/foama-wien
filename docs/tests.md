@@ -1,3 +1,9 @@
+## PWA 0.8.3 · Willkommen · 10.11.2026
+
+315 Web-/Server- und zehn Python-Tests erfolgreich; 72 JavaScript-Dateien auf Syntax geprüft. Bestehende echte Worker-/Offline-Shell-Prüfungen um willkommen.html erweitert; feste öffentliche Einladungsadresse geprüft, private aktuelle URLs bleiben ausgeschlossen. Manifest-ID/start_url/scope unverändert. Die aktuelle öffentliche Wear-0.7.1-APK wurde per freigegebener Größe/SHA-256 bytegleich wiederhergestellt; kein neuer nativer Build.
+
+Lokaler Browser: Begrüßung über App-Footer geöffnet; App-CTA zurück zum Monitor, Installationsanker und FAQ-Aufklappen geprüft. Jeweils vier Funktionskarten und fünf FAQ, vollständig geladene 1920-px-Städtecollage, Hell/Dunkel und kein seitlicher Überlauf bei 1348 px geprüft. Kein physischer Smartphone-Installationsnachweis. Dekorative Pfeile als lokale SVG statt Schriftzeichen.
+
 ## Wear 0.7.1 · Stadtfilter, Hauptnavigation und Abfrageplanung · 10.11.2026
 
 147 Android-Tests, 315 Web-/Server-Tests, zehn Python-Tests und 69 JavaScript-Syntaxprüfungen bestanden. Neue Fälle: beide Routenlisten und Monitorziele nach Stadt filtern; Gesamtspeicher und Neustart erhalten; ehrliche leere Graz-Ansicht bei nur Wiener Routen; Familien mit Alternativen und feste Endpunkte ohne Zuordnung aus Namen/GPS; Hauptnavigation mit aktivem Tab und Rückkehr nach Stadtwechsel; Runddisplays 227 dp und 192 dp mit 1,3-facher Schrift. Ein doppelter Gehzeit-Hinweis und die redundante A-nach-B-Überschrift entfallen.

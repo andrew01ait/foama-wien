@@ -3,7 +3,7 @@
 export const APP_INVITATION=Object.freeze({
  title:'foama-wien',
  text:'foama-wien – Öffis, die du noch erreichst. Schau dir die App an!',
- url:'https://foama-wien.endruuu.chatgpt.site/'
+ url:'https://foama-wien.endruuu.chatgpt.site/willkommen.html'
 });
 
 export function bindAppShare({document=globalThis.document,navigator=globalThis.navigator}={}){

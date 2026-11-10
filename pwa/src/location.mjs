@@ -1,4 +1,4 @@
-import {motionSample,motionQuiet,mayRest,stillPosition,SENSOR_GAP_MS,POSITION_CHECK_MS,FRESH_FIX_MS} from './motion-state.mjs?v=0.8.2';
+import {motionSample,motionQuiet,mayRest,stillPosition,SENSOR_GAP_MS,POSITION_CHECK_MS,FRESH_FIX_MS} from './motion-state.mjs?v=0.8.3';
 
 // Permission inspection never requests or records a position.
 export function locationEnvironment(nav=navigator,doc=document,win=window){

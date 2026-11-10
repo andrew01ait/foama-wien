@@ -17,17 +17,17 @@ test('native APK download preserves binary bytes, MIME and attachment filename',
 });
 
 test('the site retains app and diagnostics routes, serves real bytes and allows asking for location',async()=>{
- const assets={};for(const file of ['index.html','diagnose.html','manifest.webmanifest','icons/icon-192.png']){
+ const assets={};for(const file of ['index.html','willkommen.html','diagnose.html','manifest.webmanifest','icons/icon-192.png']){
   assets['/'+file]={type:file.endsWith('.png')?'image/png':'text/html',base64:(await readFile(new URL('../pwa/'+file,import.meta.url))).toString('base64')};
  }
  const worker=createSiteWorker(apiWorker,assets);
- for(const path of ['/','/index.html','/diagnose','/diagnose.html','/icons/icon-192.png']){
+ for(const path of ['/','/index.html','/willkommen.html','/diagnose','/diagnose.html','/icons/icon-192.png']){
   const r=await worker.fetch(new Request('https://foama.example'+path),{},{});
   assert.equal(r.status,200);assert.equal(r.headers.get('permissions-policy'),'geolocation=(self), accelerometer=(self)');assert.ok((await r.arrayBuffer()).byteLength>0);
  }
  assert.equal((await worker.fetch(new Request('https://foama.example/missing'),{},{})).status,404);
  const health=await worker.fetch(new Request('https://foama.example/api/health'),{},{});
- assert.equal((await health.json()).version,'0.8.2');
+ assert.equal((await health.json()).version,'0.8.3');
 });
 test('line-wide construction is added from the official notice feed while unrelated lift closures stay out',async()=>{
  const oldFetch=globalThis.fetch,oldCaches=globalThis.caches;const saved=new Map(),jobs=[];
