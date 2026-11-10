@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 10. November 2026. **PWA 0.8.0, Wear 0.7.0 / Code 22.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 10. November 2026. **PWA 0.8.1, Wear 0.7.0 / Code 22.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -11,8 +11,8 @@ Stand: 10. November 2026. **PWA 0.8.0, Wear 0.7.0 / Code 22.** Verbindlich sind 
 | Datenqualität | Wien/Wiener Linien, Graz/Transitous und Linz/EFA nach Datenlage live; Salzburg ausschließlich Fahrplan im Monitor |
 | Favoriten/QR | Lokale Gerätefavoriten, Stationen und Linien, stadtübergreifende importierte Routen; Vorschau/bewusste Übernahme, zehn Minuten verschlüsselt; alte Uhren sperren regionale Auswahl weiter |
 | A nach B | Vollplanung, Karten, Alternativen und Orte in der PWA; Uhr zeigt importierte Routen mit aktuellen passenden Linienzeiten |
-| Tagesfahrpläne | 173 Wiener Linien, Datum/Haltestelle/Richtung, Stundenübersicht und ausdrückliche Offline-Sicherung einer ganzen Linie |
-| Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
+| Tagesfahrpläne | 173 Wiener Linien, Heute zuerst, Datum/Haltestelle/Richtung, aktuelle Stunde farbig und ausdrückliche Offline-Sicherung einer ganzen Linie |
+| Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), mit Verfügbarkeitssymbolen und aufklappbaren FAQ; verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
 | Störungen | Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
 | Veröffentlichung | Öffentliches GitHub, Source-ZIP und Site getrennt abgleichen; Originalsignatur, Paket und lokale Daten erhalten |
 
@@ -24,7 +24,7 @@ Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens
 
 ## Verifikation und Grenzen
 
-313 Web-/Server-, zehn Python- und 138 native Android-Tests erfolgreich. Native Kompilierung, D8, zipalign, Originalzertifikat, Paket, Version, Dateigröße und SHA-256 geprüft. Browser-Vorschau wurde versucht, aber von der URL-Richtlinie gesperrt; daher kein erfolgreicher visueller PWA-Abnahmebeleg dieses Release. Kleine native Runddarstellungen sind durch Robolectric-Prüfungen abgedeckt. Physische OnePlus-Tests bleiben separat.
+315 Web-/Server- und zehn Python-Tests sowie 71 JavaScript-Syntaxprüfungen für PWA 0.8.1 erfolgreich. Lokale Browserabnahme: Heute/aktuelle Stunde, kein Jetzt für einen anderen Tag und lesbare Haltestellenadresse im Hellmodus. Der erneute Vorschauzugriff nach dem FAQ-Build wurde durch die Browser-URL-Richtlinie gesperrt; die öffentliche Abnahme bleibt ein eigener Veröffentlichungsschritt. Die unveränderte Wear-0.7.0-APK wurde bytegleich zum freigegebenen SHA-256/Größenstand wiederhergestellt. Der vorherige native Release hat 138 Tests und Signatur-/Paketprüfungen; diese sind kein neuer nativer Testlauf. Physische OnePlus-Tests bleiben separat.
 
 Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver PWA ungefähr alle fünf Minuten ergänzend. Kein neuer externer Timer, keine Hintergrundortung oder Abfahrtsabfragen. Nutzer bestätigt Empfang einer PWA-Testnachricht; tatsächliche lokale Geräteanzeige und reale Störungszustellung weiter praktisch beobachten.
 

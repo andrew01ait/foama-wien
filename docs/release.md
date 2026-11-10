@@ -1,3 +1,9 @@
+## PWA 0.8.1 · Fahrplanorientierung und lesbare Hilfen · 10.11.2026
+
+Der Linienfahrplan startet immer mit Heute. Die aktuelle Stunde erhält nach Wiener Datum, Uhrzeit und Zeitzonenwechseln eine mintfarbene Zeile und Jetzt; andere Tage bleiben unmarkiert. Die lokale Anzeige aktualisiert sich nur sichtbar, folgt bei Heute über Mitternacht dem neuen Tag und behält bewusst gewählte spätere Termine. Kein zusätzlicher Abfahrtsabruf für die Uhrzeitanzeige. Eindeutige Linienlinks tolerieren einen fehlenden oder ungültigen Verkehrsmittelwert; mehrdeutige Linien bleiben in der Auswahl.
+
+Haltestellenadressen im Fußwegdialog verwenden themengerechte Hintergründe, 14-px-Adresszeilen, 12-px-Hinweise und kontrastreiche Quellenlinks. Der Städtevergleich behält alle Einschränkungen im Text und ergänzt kleine grüne Haken bzw. rote Kreuze. Die fünf Erklärungen sind unabhängig aufklappbare FAQ, der Barrierefreiheitslink öffnet die passende Antwort. Der Versions-/Geltungshinweis steht als Fußnote direkt unter der Tabelle. Wear bleibt 0.7.0/22.
+
 ## PWA 0.8.0 / Wear 0.7.0 · Städte und Linienfahrpläne · 10.11.2026
 
 Die Uhr unterstützt jetzt Wien, Graz, Linz und Salzburg. Wien ist Standard; automatische Erkennung nur durch frische genaue Vordergrundfixes, veraltete Erkennung fällt auf Wien zurück. Manuelle Stadtwahl ausschließlich Mehr → Stadtprofil. Frische Position innerhalb des manuell gewählten Profils erhalten; nur bei fehlender/fremder Position klar bezeichnete Stadtmitte, niemals verlässliche Gehzeit. Alle lokalen Favoriten bleiben erhalten, Stationsfavoriten werden je Stadt angezeigt. Routen bleiben stadtübergreifend. Regionale Boards verwenden exakte bekannte Stations-IDs, maximal drei Stationen und das gemeinsame 30-s-/Serverbudget. Alle sichtbaren Stationen haben Vorrang. Salzburg bleibt Sollfahrplan; keine regionalen Störungs- oder nativen Push-Versprechen. Bus und S-Bahn mit gleicher Liniennummer werden einschließlich Detail/Import nach Modus getrennt.

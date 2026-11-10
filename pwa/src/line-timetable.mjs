@@ -1,6 +1,19 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.8.0';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.8.1';
 
 const clockFormat=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZoneName:'short'});
+const dayFormat=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Vienna',weekday:'short',day:'numeric',month:'numeric',year:'numeric'});
+export function timetableHourKey(time=Date.now()){
+ const parts=Object.fromEntries(clockFormat.formatToParts(time).map(part=>[part.type,part.value]));
+ return timetableDate(time)+'|'+parts.hour+'|'+parts.timeZoneName;
+}
+export function timetableDayOptions(manifest,now=Date.now()){
+ const today=timetableDate(now),out=[{value:today,label:'Heute · '+dayFormat.format(Date.parse(today+'T12:00Z'))}];
+ for(let at=Date.parse(today+'T12:00Z')+86400000;Number.isFinite(at);at+=86400000){
+  const day=new Date(at).toISOString().slice(0,10);if(!manifest?.validThrough||day>manifest.validThrough)break;
+  if(day>=manifest.validFrom)out.push({value:day,label:dayFormat.format(at)});
+ }
+ return out;
+}
 export function lineDayDepartures(manifest,stationRows,{route,mode,stopId,towards='',day}={}){
  const parsed=Date.parse(day+'T12:00Z');
  if(!Number.isFinite(parsed)||!/^\d{4}-\d{2}-\d{2}$/.test(day||'')||new Date(parsed).toISOString().slice(0,10)!==day||manifest?.format!==1||manifest.timezone!=='Europe/Vienna'||day<manifest.validFrom||day>manifest.validThrough)return [];
@@ -20,6 +33,6 @@ export function lineDayDepartures(manifest,stationRows,{route,mode,stopId,toward
 }
 export function hourlyTimetable(departures){
  const zones=new Map();for(const d of departures){if(!zones.has(d.hour))zones.set(d.hour,new Set());zones.get(d.hour).add(d.zone);}
- const groups=new Map();for(const departure of departures){const key=departure.hour+'|'+departure.zone;if(!groups.has(key))groups.set(key,{label:departure.hour+' Uhr'+(zones.get(departure.hour).size>1?' · '+departure.zone:''),departures:[]});groups.get(key).departures.push(departure);}
+ const groups=new Map();for(const departure of departures){const key=timetableHourKey(departure.time);if(!groups.has(key))groups.set(key,{key,label:departure.hour+' Uhr'+(zones.get(departure.hour).size>1?' · '+departure.zone:''),departures:[]});groups.get(key).departures.push(departure);}
  return [...groups.values()];
 }

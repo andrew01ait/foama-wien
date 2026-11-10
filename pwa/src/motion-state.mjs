@@ -1,4 +1,4 @@
-import {haversineMeters} from './core.mjs?v=0.8.0';
+import {haversineMeters} from './core.mjs?v=0.8.1';
 
 export const QUIET_MS=60_000;
 export const SENSOR_GAP_MS=3_000;

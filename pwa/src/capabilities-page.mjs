@@ -1,5 +1,5 @@
-import {createThemeController} from './theme.mjs?v=0.8.0';
-import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.8.0';
+import {createThemeController} from './theme.mjs?v=0.8.1';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.8.1';
 
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}
 createThemeController({preference:theme});
@@ -15,3 +15,9 @@ for(const button of document.querySelectorAll('[data-city-view]'))button.addEven
 let initial=new URL(location.href).searchParams.get('stadt');
 if(!initial&&matchMedia('(max-width: 600px)').matches){try{initial=cityPreference(JSON.parse(localStorage.getItem(CITY_PREFERENCE)));if(initial==='auto')initial=recentDetectedCity();}catch{initial='wien';}}
 show(initial||'all');
+
+function revealFaq(id=location.hash.slice(1)){
+ const faq=document.getElementById(id);if(faq?.matches('.capabilities-explanations details'))faq.open=true;
+}
+for(const link of document.querySelectorAll('a[href^="#"]'))link.addEventListener('click',()=>revealFaq(link.getAttribute('href').slice(1)));
+window.addEventListener('hashchange',()=>revealFaq());revealFaq();

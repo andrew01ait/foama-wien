@@ -1,4 +1,4 @@
-import {isEnabled,withinRadius} from './core.mjs?v=0.8.0';
+import {isEnabled,withinRadius} from './core.mjs?v=0.8.1';
 
 export const MODE_LABELS={metro:'U-Bahn',tram:'Tram',bus:'Bus',sbahn:'S-Bahn',regional:'Regional',long:'Fernverkehr'};
 export function stationPriority(stop,settings,learned=[]){

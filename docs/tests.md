@@ -1,3 +1,11 @@
+## PWA 0.8.1 · 10.11.2026
+
+315 Web-/Server-, zehn Python- und 71 JavaScript-Syntaxprüfungen erfolgreich. Neue Datumsregressionen prüfen Heute in Wiener Zeit vor/nach Mitternacht, zukünftige Gültigkeit, abgelaufene Pakete und die getrennten Herbst-Doppelstunden. Andere Tage erhalten keinen aktuellen Stundenmarker. Die bestehenden Offline-Shell-/Fahrplanprüfungen bestehen unverändert.
+
+Lokale Browserabnahme mit dem echten U1-Fahrplan: Heute zuerst/ausgewählt, aktuelle Stunde mit Jetzt, Wechsel auf morgen ohne Stundenmarkierung und zurück. Fußwegdialog an der bewusst manuell gewählten öffentlichen Station Thaliastraße U: im Hellmodus lesbare Adresse mit 14 px und Hinweis mit 12 px; Kontrast 12,29:1 für Haupttext und 4,90:1 für Hinweise. Quellenlink verwendet ebenfalls die Haupttextfarbe. Keine privaten Standortdaten für diese Abnahme. Nach dem FAQ-Build brach die Vorschauverbindung ab; der Browser sperrte die Beobachtung der Fehlerseite. Öffentliche Abnahme nach Veröffentlichung bleibt ein eigener Schritt.
+
+Unveränderte Wear-0.7.0-APK mit exakter freigegebener Größe/SHA-256 wiederhergestellt; kein neuer nativer Build oder physischer Gerätetest.
+
 ## PWA 0.8.0 / Wear 0.7.0 · 10.11.2026
 
 313 Web-/Server-Tests, zehn Python-Prüfungen und 138 native Android-Tests erfolgreich. Neue Fälle: vollständige Kalendertage, Nachtfahrten, DST-Doppelstunden/Lücke, Kalendergrenzen, exakte Linien-/Modus-/Stationsfilter, versionsgebundener Linienindex, kalter Offline-Zugriff, fehlgeschlagene Speicherung und Sichtbarkeit aller drei regionalen Stationen. Offline-Shell umfasst Städteübersicht und Fahrplanseite. Native Fälle: Stadtalter/Genauigkeit, manuelle echte Position/öffentliche Mitte, regionale Parser und Cache, Salzburg, gleichnamige Modi, begrenzte sichtbare Abfragen, QR-/Routenkennungen und Menü-Rückweg. Alle bestehenden Lifecycle-/Transfer-/Runddisplay-Prüfungen bestanden.

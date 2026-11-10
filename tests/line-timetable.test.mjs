@@ -2,11 +2,29 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {gzipSync} from 'node:zlib';
 import {readFile} from 'node:fs/promises';
-import {lineDayDepartures,hourlyTimetable} from '../pwa/src/line-timetable.mjs';
+import {lineDayDepartures,hourlyTimetable,timetableHourKey,timetableDayOptions} from '../pwa/src/line-timetable.mjs';
 import {createTimetable} from '../pwa/src/timetable.mjs';
 
 const manifest={format:1,city:'wien',timezone:'Europe/Vienna',version:'test',validFrom:'2026-11-09',validThrough:'2026-11-12',services:[['2026-11-09'],['2026-11-10'],['2026-11-11']],stations:{'wl:1':0},shards:{0:'hash'}};
 const rows={'wl:1':[['3','Nord','bus','at:49:1:0:1','0',0,[93600]],['3','Nord','bus','at:49:1:0:1','0',1,[3600,43200]],['3','Süd','bus','at:49:1:0:2','1',1,[43200]],['3','Nord','tram','at:49:1:0:3','0',1,[36000]],['3','Nord','bus','at:49:1:0:1','0',2,[43200]]]};
+test('date choices always start with Heute in Vienna, roll over at local midnight and stay within future coverage',()=>{
+ const before=timetableDayOptions(manifest,Date.parse('2026-11-09T22:59:00Z'));
+ assert.equal(before[0].value,'2026-11-09');assert.match(before[0].label,/^Heute ·/);
+ const after=timetableDayOptions(manifest,Date.parse('2026-11-09T23:01:00Z'));
+ assert.deepEqual(after.map(day=>day.value),['2026-11-10','2026-11-11','2026-11-12']);assert.match(after[0].label,/^Heute ·/);
+ assert.deepEqual(timetableDayOptions(manifest,Date.parse('2026-11-13T12:00Z')).map(day=>day.value),['2026-11-13']);
+ const notStarted=timetableDayOptions({...manifest,validFrom:'2026-11-11'},Date.parse('2026-11-09T23:01Z'));
+ assert.deepEqual(notStarted.map(day=>day.value),['2026-11-10','2026-11-11','2026-11-12']);
+});
+test('current-hour markers distinguish dates and both occurrences of the autumn clock hour',()=>{
+ const autumn={...manifest,validFrom:'2026-10-25',validThrough:'2026-10-25',services:[['2026-10-25']]};
+ const hours=hourlyTimetable(lineDayDepartures(autumn,{'wl:1':[['U1','Nord','metro','p','0',0,[3600,7200]]]}, {route:'U1',mode:'metro',stopId:'wl:1',day:'2026-10-25'}));
+ const first=timetableHourKey(Date.parse('2026-10-25T00:30Z')),second=timetableHourKey(Date.parse('2026-10-25T01:30Z'));
+ assert.notEqual(first,second);assert.deepEqual(hours.filter(hour=>hour.key===first).map(hour=>hour.departures[0].time),[Date.parse('2026-10-25T00:00Z')]);
+ assert.deepEqual(hours.filter(hour=>hour.key===second).map(hour=>hour.departures[0].time),[Date.parse('2026-10-25T01:00Z')]);
+ assert.equal(hours.filter(hour=>hour.key===timetableHourKey(Date.parse('2026-10-26T01:30Z'))).length,0);
+ assert.notEqual(timetableHourKey(Date.parse('2026-11-09T23:59Z')),timetableHourKey(Date.parse('2026-11-10T00:00Z')));
+});
 test('whole-day line timetable respects the real service date, overnight runs, mode, direction and station',()=>{
  const d=lineDayDepartures(manifest,rows,{route:'3',mode:'bus',stopId:'wl:1',towards:'Nord',day:'2026-11-10'});
  assert.deepEqual(d.map(row=>row.clock),['01:00','02:00','12:00']);assert.equal(d[1].serviceDay,'2026-11-09');
