@@ -1,18 +1,18 @@
 {
   "version": "0.8.2",
-  "wearVersionCode": 22,
-  "wearApkUrl": "/apk/foama-wien-wear-0.7.0.apk",
-  "wearApkSha256": "c445582a8a2ed5ddd4559cbec3c0cb5a1eac09318276bea2e239c94b3f88efac",
+  "wearVersionCode": 23,
+  "wearApkUrl": "/apk/foama-wien-wear-0.7.1.apk",
+  "wearApkSha256": "c49d58bdab1053650614086ad9bfa90b564e18344e84543e9675fb1666ae4397",
   "changelog": "Neue Städtecollage mit Wien, Graz, Linz und Salzburg. Salzburg-Hinweis aus dem Seitenkopf entfernt und im FAQ LIVE oder Fahrplan erklärt.",
-  "wearVersion": "0.7.0",
+  "wearVersion": "0.7.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3838570,
   "wearMinSdk": 30,
-  "wearChangelog": "Wien, Graz, Linz und Salzburg auf deiner Uhr. Automatische Stadterkennung und manuelle Auswahl unter Mehr → Stadtprofil. Regionale Stationen und Routen per QR oder Datei übernehmen. Salzburg mit klar gekennzeichneten Fahrplanzeiten; lokale Favoriten bleiben erhalten.",
+  "wearChangelog": "Routen in A nach B und Favoriten passend zur gewählten Stadt. Hauptnavigation bleibt auch in A nach B sichtbar. Schnellerer Start der Abfahrtsabfragen nach Stadt- und Ansichtswechseln. Lokale Favoriten bleiben erhalten; Fehlerpausen gelten je Stadt.",
   "wearReleaseNotes": [
-    "Wien, Graz, Linz und Salzburg auf deiner Uhr.",
-    "Automatische Stadterkennung und manuelle Auswahl unter Mehr → Stadtprofil.",
-    "Regionale Stationen und Routen per QR oder Datei übernehmen.",
-    "Salzburg mit klar gekennzeichneten Fahrplanzeiten; lokale Favoriten bleiben erhalten."
+    "Routen in A nach B und Favoriten passend zur gewählten Stadt.",
+    "Hauptnavigation bleibt auch in A nach B sichtbar.",
+    "Schnellerer Start der Abfahrtsabfragen nach Stadt- und Ansichtswechseln.",
+    "Lokale Favoriten bleiben erhalten; Fehlerpausen gelten je Stadt."
   ]
 }

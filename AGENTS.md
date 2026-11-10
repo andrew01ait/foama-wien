@@ -1,3 +1,9 @@
+## Wear 0.7.1 · Routen je Stadt und Ladezeiten · 10.11.2026
+
+Aktuelle Nutzerentscheidung ersetzt auf der Uhr die frühere stadtübergreifende Routendarstellung: A nach B und Favoriten → Routen zeigen die gewählte Stadt. Gesamten lokalen Routenspeicher und alle QR-/Dateiexporte erhalten; keine Migration oder Löschung. Stationskennungen und feste Endpunktkoordinaten verwenden, nie Namen oder den momentanen GPS-Fix. Stadtübergreifende Familien einschließlich Alternativen dürfen in mehreren passenden Profilen erscheinen.
+
+Hauptleiste bleibt in A nach B sichtbar, aktiven Tab einschließlich Icon markieren. Mehr → Stadtprofil kehrt zur aufrufenden Routenliste zurück. Nach Rückkehr aus Einstellungen fällige Abfrage sofort starten, eine vorhandene Sperre exakt an ihrem Ende fortsetzen. Gemeinsamen 30-s-Mindestabstand auch bei Stadtwechsel erhalten, Ultra-Sparen weiter 90 s; Fehlerpause je Stadt behalten, nicht auf fremde Stadt übertragen. Pause/Display aus/Transfer/Einstellungen keine Hintergrundabfrage. App-User-Agent ohne Gerätekennung. Originalpaket/-key und lokale Speicher erhalten. Wear 0.7.1/23, PWA 0.8.2 bleibt gleich. Verbindliche Abnahme: docs/wear-os-release-0.7.1.md.
+
 ## PWA 0.8.2 · Städtebild und Salzburg-Hinweis · 10.11.2026
 
 Auf ausdrücklichen Nutzerwunsch kein eigener Salzburg-Banner auf staedte.html. Die fachliche Einschränkung im aufklappbaren FAQ LIVE oder Fahrplan und im bestehenden Vergleich erhalten. Neues Titelbild pwa/images/foama-vier-staedte-v1.webp für genau diese Seite: vier übergehende Stadtansichten und Verkehrsmittel, Foama und alle Stadtnamen. Original-Logo unverändert; Hero immer vollständig und proportional anzeigen, kein Beschnitt. Lokales Asset in Offline-Shell und Quell-ZIP erhalten. Bildherkunft/Prompt in docs/assets/foama-vier-staedte.md.

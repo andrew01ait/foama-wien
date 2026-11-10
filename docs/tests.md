@@ -1,3 +1,11 @@
+## Wear 0.7.1 · Stadtfilter, Hauptnavigation und Abfrageplanung · 10.11.2026
+
+147 Android-Tests, 315 Web-/Server-Tests, zehn Python-Tests und 69 JavaScript-Syntaxprüfungen bestanden. Neue Fälle: beide Routenlisten und Monitorziele nach Stadt filtern; Gesamtspeicher und Neustart erhalten; ehrliche leere Graz-Ansicht bei nur Wiener Routen; Familien mit Alternativen und feste Endpunkte ohne Zuordnung aus Namen/GPS; Hauptnavigation mit aktivem Tab und Rückkehr nach Stadtwechsel; Runddisplays 227 dp und 192 dp mit 1,3-facher Schrift. Ein doppelter Gehzeit-Hinweis und die redundante A-nach-B-Überschrift entfallen.
+
+Abfrageprüfungen: genau am gemeinsamen Freigabetermin fortsetzen, fällige Abfrage nach Einstellungen sofort starten, keine Abfragen in Einstellungen/nach Pause, getrennte und beim Zurückwechseln erhaltene Stadt-Fehlerpausen bei weiter gemeinsamem 30-s-Mindestabstand. Bestehende Ultra-Spar-/Sichtbarkeits-/Transfer-/Abbruchtests bestehen weiter; expliziter App-User-Agent ohne Gerätekennung geprüft.
+
+Öffentliche Einzelproben gegen reale Katalogstationen: Graz Hauptplatz/Congress und Linz/Donau Hauptplatz je 64 Live-Abfahrten, Salzburg Pauernfeindstraße 64 Fahrplanabfahrten, HTTP 200 und jeweils rund sieben Sekunden aus der Buildumgebung. Diese Messung ist weder eine Watch-Laufzeit noch eine Garantie für alle Stationen. Paket-/Signaturdaten: [Release-Protokoll](wear-os-release-0.7.1.md). Physische OnePlus-Abnahme bleibt separat.
+
 ## PWA 0.8.2 · 10.11.2026
 
 315 Web-/Server-Tests, zehn Python-Prüfungen und 71 JavaScript-Syntaxprüfungen erfolgreich. Vorhandene Offline-Shell-Abnahme schließt das neue lokale WebP-Titelbild ein. Bannerentfernung, Salzburg-Erläuterung im vorhandenen FAQ, alle 52 Verfügbarkeitssymbole und echte Bildabmessungen 1920 × 819 geprüft. Das 472.402-Byte-WebP zeigt die komplette Collage proportional; keine zusätzliche native APK oder Geräteprüfung.

@@ -53,6 +53,12 @@
       "version": "0.7.0",
       "bytes": 3838570,
       "sha256": "c445582a8a2ed5ddd4559cbec3c0cb5a1eac09318276bea2e239c94b3f88efac"
+    },
+    {
+      "filename": "foama-wien-wear-0.7.1.apk",
+      "version": "0.7.1",
+      "bytes": 3838570,
+      "sha256": "c49d58bdab1053650614086ad9bfa90b564e18344e84543e9675fb1666ae4397"
     }
   ]
 }

@@ -15,9 +15,9 @@
 - Tagesfahrpläne für 173 Wiener Linien mit Heute-Auswahl, farbiger aktueller Stunde und bewusster Offline-Sicherung ganzer Linien.
 - Teilbarer Städtevergleich mit grünen Haken, roten Kreuzen und aufklappbaren FAQ.
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
-- Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
+- Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.8.2 und Wear 0.7.0**, nativer Versionscode **22**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.8.2 und Wear 0.7.1**, nativer Versionscode **23**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

@@ -59,6 +59,23 @@ final class JourneyStore {
     int merge(JSONArray incoming)throws Exception {JSONArray before=all(),after=merged(incoming);if(!prefs.edit().putString(KEY,after.toString()).commit())throw new IllegalStateException("Routen konnten nicht gespeichert werden");return after.length()-before.length();}
     void remove(String id){JSONArray out=new JSONArray(),rows=all();for(int i=0;i<rows.length();i++){JSONObject row=rows.optJSONObject(i);if(!row.optString("id").equals(id))out.put(row);}prefs.edit().putString(KEY,out.toString()).apply();}
     static List<JSONObject> boardings(JSONObject journey){ArrayList<JSONObject> out=new ArrayList<>();JSONArray legs=journey==null?null:journey.optJSONArray("legs");if(legs!=null)for(int i=0;i<legs.length();i++){JSONObject leg=legs.optJSONObject(i);if(leg!=null&&!leg.optString("mode").equals("walk"))out.add(leg);}return out;}
+    /** Local view only: route families can belong to several cities without changing storage/export. */
+    static boolean matchesCity(JSONObject journey,String city,Repo repo){
+        if(journey==null||CityProfiles.index(city)<0)return false;
+        for(int i=0;i<variantCount(journey);i++)for(JSONObject leg:boardings(variant(journey,i)))for(String end:new String[]{"from","to"}){
+            JSONObject place=leg.optJSONObject(end);String id=place==null?"":place.optString("stopId");Repo.Stop stop=repo.findStop(id);
+            if(stop!=null&&city.equals(stop.city))return true;
+            if(stop==null&&id.startsWith(city+":at:"))return true;
+        }
+        // Some imported routes lack catalogued stops. Only their fixed endpoints may identify a city.
+        // A dynamic GPS endpoint never inherits the watch's current position or profile.
+        for(String end:new String[]{"from","to"}){
+            JSONObject place=journey.optJSONObject(end);if(place==null||!place.optString("kind").equals("point"))continue;
+            double lat=place.optDouble("lat"),lon=place.optDouble("lon");double[] region=CityProfiles.REGIONS[CityProfiles.index(city)];
+            if(Double.isFinite(lat)&&Double.isFinite(lon)&&CityProfiles.distance(lat,lon,region[0],region[1])<=region[2])return true;
+        }
+        return false;
+    }
     static List<Repo.Departure> departures(JSONObject leg,Repo repo){
         ArrayList<Repo.Departure> out=new ArrayList<>();JSONObject origin=leg.optJSONObject("from");Repo.Stop stop=origin==null?null:repo.findStop(origin.optString("stopId"));String towards=direction(leg.optString("towards"));if(stop==null||towards.isEmpty())return out;
         for(Repo.Departure d:new ArrayList<>(repo.departures))if(d.stopKey.equals(stop.id)&&d.route.equals(leg.optString("route"))&&d.mode.equals(leg.optString("mode"))&&directionMatches(towards,d.towards)&&d.when>=System.currentTimeMillis()&&repo.fresh(d))out.add(d);out.sort(Comparator.comparingLong(d->d.when));return out;

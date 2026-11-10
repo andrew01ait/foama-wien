@@ -1,6 +1,6 @@
 # Dokumentation
 
-Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 10. November 2026, PWA 0.8.2 / Wear 0.7.0.
+Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 10. November 2026, PWA 0.8.2 / Wear 0.7.1.
 
 | Frage | Maßgebliche Anleitung |
 | --- | --- |
@@ -16,7 +16,7 @@ Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Reposito
 | Wie funktionieren Routen, QR und Push? | [Routenplanung](journey-planning.md), [QR-Übertragung](qr-transfer.md), [Push](push-notifications.md) |
 | Wie werden Zeitkorrekturen und Fahrzeug-Barrierefreiheit gezeigt? | [Abfahrtshinweise](departure-indicators.md) |
 | Wie funktionieren Fahrplan-Fallback und Städte? | [Wiener Fahrplan](timetable-fallback.md), [Stadtprofile](city-profiles.md), [ursprüngliche Recherche](multi-city-feasibility.md) |
-| Was wurde tatsächlich geprüft? | [Prüfprotokoll](tests.md), [native Release-Protokolle](wear-os-release-0.7.0.md) |
+| Was wurde tatsächlich geprüft? | [Prüfprotokoll](tests.md), [native Release-Protokolle](wear-os-release-0.7.1.md) |
 | Welche Rechte gelten für Code und Daten? | [Lizenzen](licenses.md), [Quellen](../LICENSE-SOURCES.md) |
 
 [Release-Verlauf](release.md) und [Changelog](../CHANGELOG.md) dokumentieren frühere Entscheidungen. Dateien unter `docs/history/` sind ausdrücklich archiviert; dortige Versionsnummern und Anweisungen beschreiben historische Stände. Für neue Arbeiten gelten die oben verlinkten aktuellen Anleitungen und die neueste passende Release-Abnahme.

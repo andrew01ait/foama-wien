@@ -25,6 +25,10 @@ final class Repo {
     final ArrayList<Favorite> favorites=new ArrayList<>();
     volatile String lastError="";
     volatile long lastFetch=0,nextFetchElapsed=0;
+    private long requestSpacingUntil;
+    private String departureCity="";
+    private final Map<String,DepartureCooldown> cityCooldowns=new HashMap<>();
+    private static final class DepartureCooldown {long until;int failures;String error;DepartureCooldown(long until,int failures,String error){this.until=until;this.failures=failures;this.error=error;}}
     int failures=0,cycle=0;
     Location currentLocation;
     long movingUntil=0;
@@ -67,6 +71,11 @@ final class Repo {
         if(!s.id.isEmpty()&&Double.isFinite(s.lat)&&Double.isFinite(s.lon))stops.add(s);
     }
     Stop findStop(String id){for(Stop s:stops)if(s.id.equals(id))return s;return null;}
+    JSONArray cityJourneys(){
+        JSONArray out=new JSONArray(),all=journeys.all();
+        for(int i=0;i<all.length();i++){JSONObject journey=all.optJSONObject(i);if(JourneyStore.matchesCity(journey,cities.current(),this))out.put(journey);}
+        return out;
+    }
     void applyLineEvidence(Stop stop,long now){
         if(!stop.provider.equals("wl"))return;
         JSONObject evidence=lineEvidence.optJSONObject(stop.id);if(evidence==null)return;
@@ -177,7 +186,7 @@ final class Repo {
                 double minimum=Math.max(0,previous.distanceTo(location)-previous.getAccuracy()-location.getAccuracy());
                 if(minimum/seconds>2.8)movingUntil=now+60000;
             }}
-        currentLocation=new Location(location);return recalc||cityChanged;
+        currentLocation=new Location(location);syncDepartureCity();return recalc||cityChanged;
     }
     String locationStatus(){
         if(manualLocation)return CityProfiles.name(cities.current())+" · Stadtmitte manuell · Gehzeit ungewiss";
@@ -189,6 +198,14 @@ final class Repo {
     void ensureCityPosition(){
         cities.expire(System.currentTimeMillis());
         if(!cities.preference.equals("auto")&&currentLocation==null){double[] region=CityProfiles.REGIONS[CityProfiles.index(cities.current())];Location center=new Location("manual-city");center.setLatitude(region[0]);center.setLongitude(region[1]);center.setTime(System.currentTimeMillis());center.setAccuracy(10000);currentLocation=center;manualLocation=true;}
+        syncDepartureCity();
+    }
+    /** Keep the common request spacing across cities, but never lend one city's retry penalty to another. */
+    synchronized void syncDepartureCity(){
+        String city=cities.current();if(city.equals(departureCity))return;
+        if(!departureCity.isEmpty())cityCooldowns.put(departureCity,new DepartureCooldown(nextFetchElapsed,failures,regionalError));
+        departureCity=city;DepartureCooldown saved=cityCooldowns.get(city);
+        nextFetchElapsed=Math.max(requestSpacingUntil,saved==null?0:saved.until);failures=saved==null?0:saved.failures;regionalError=saved==null?"":saved.error;
     }
     boolean insideCity(Location fix,String city){int i=CityProfiles.index(city);return fix!=null&&i>=0&&fix.hasAccuracy()&&fix.getAccuracy()<=250&&System.currentTimeMillis()-fix.getTime()>=-1000&&System.currentTimeMillis()-fix.getTime()<=90000&&CityProfiles.distance(fix.getLatitude(),fix.getLongitude(),CityProfiles.REGIONS[i][0],CityProfiles.REGIONS[i][1])+fix.getAccuracy()<=CityProfiles.REGIONS[i][2];}
     void selectCity(String choice){Location previous=manualLocation?null:currentLocation;cities.select(choice);prefs.edit().putString("cityPreference",cities.preference).apply();currentLocation=null;manualLocation=false;movingUntil=0;if(previous!=null){if(cities.preference.equals("auto"))acceptLocation(previous);else if(insideCity(previous,cities.current()))currentLocation=previous;}ensureCityPosition();}
@@ -222,7 +239,7 @@ final class Repo {
         if(!"https".equals(requested.getScheme())||!origin.getHost().equals(requested.getHost())||origin.getPort()!=requested.getPort()||requested.getUserInfo()!=null||!(requested.getPath().startsWith("/api/")||requested.getPath().equals("/update.json")))throw new IOException("Ungültiges API-Ziel");
         HttpURLConnection con=scope.open(new URL(url));
         try{
-            con.setInstanceFollowRedirects(false);con.setRequestMethod(method);con.setConnectTimeout(12000);con.setReadTimeout(12000);con.setRequestProperty("Accept","application/json");if(transferSecret!=null)con.setRequestProperty("X-Transfer-Secret",transferSecret);scope.check();
+            con.setInstanceFollowRedirects(false);con.setRequestMethod(method);con.setConnectTimeout(12000);con.setReadTimeout(12000);con.setRequestProperty("Accept","application/json");con.setRequestProperty("User-Agent","foama-wien-wear/"+BuildConfig.VERSION_NAME);if(transferSecret!=null)con.setRequestProperty("X-Transfer-Secret",transferSecret);scope.check();
             if(payload!=null){con.setDoOutput(true);con.setRequestProperty("Content-Type","application/json");try(OutputStream out=con.getOutputStream()){out.write(payload.toString().getBytes(StandardCharsets.UTF_8));}}
             int code=con.getResponseCode();scope.check();if(code<200||code>=300)throw new IOException("HTTP "+code);
             String result=new String(readBytes(con.getInputStream()),StandardCharsets.UTF_8);scope.check();return result;
@@ -235,7 +252,7 @@ final class Repo {
         fetchDepartures(selected,ids,regionalRequestStops(selected,Collections.emptySet()),scope);
     }
     void fetchDepartures(List<Stop> selected,List<String> ids,List<Stop> regional,RequestScope scope)throws Exception{
-        scope.check();long elapsed=SystemClock.elapsedRealtime();if(ids.isEmpty()&&regional.isEmpty()||elapsed<nextFetchElapsed)return;nextFetchElapsed=elapsed+WearPolicy.REFRESH_MS;
+        final boolean[] reserved={false};scope.commit(()->{syncDepartureCity();long elapsed=SystemClock.elapsedRealtime();if(ids.isEmpty()&&regional.isEmpty()||elapsed<nextFetchElapsed)return;requestSpacingUntil=elapsed+WearPolicy.REFRESH_MS;nextFetchElapsed=requestSpacingUntil;reserved[0]=true;});if(!reserved[0])return;
         boolean failed=false;
         if(!ids.isEmpty())try{
             StringBuilder url=new StringBuilder(BuildConfig.FOAMA_BASE_URL+"/api/monitor?");for(String id:ids){if(!id.matches("[0-9]{1,8}"))throw new IOException("Ungültiger Haltepunkt");url.append("stopId=").append(id).append('&');}

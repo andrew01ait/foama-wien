@@ -1,3 +1,7 @@
+## Wear 0.7.1 · Stadtbezogene Routen und schnelleres Laden · 10.11.2026
+
+A nach B und Routenfavoriten zeigen die gewählte Stadt; alle gespeicherten Routen bleiben erhalten. Hauptnavigation bleibt in A nach B sichtbar, Mehr/Einstellungen kehren dorthin zurück. Fällige Abfragen starten sofort bei Rückkehr, gemeinsame Sperren exakt nach Restzeit; Fehlerpausen bleiben pro Stadt getrennt. Globales 30-Sekunden-Limit und Ultra-Sparmodus bleiben erhalten. Expliziter App-User-Agent ohne Gerätekennung. Signierter Build und aktuelle Abnahme: [Wear 0.7.1](wear-os-release-0.7.1.md). PWA bleibt 0.8.2.
+
 ## PWA 0.8.2 · Vier Städte im Bild · 10.11.2026
 
 Eigenes breites Titelbild auf Städte & Funktionen: ineinander übergehende Ansichten von Wien, Graz, Linz und Salzburg, mit U-Bahn, Straßenbahnen und Obus sowie Foama-Schriftzug. Das vollständige Bild bleibt auf kleinen und großen Displays sichtbar, ohne Beschnitt; lokale WebP-Datei mit Alternativtext und Offline-Shell. Die Illustration ist kein geografischer Linienplan.

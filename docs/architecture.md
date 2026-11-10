@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.8.2 / Wear 0.7.0. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.8.2 / Wear 0.7.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -26,7 +26,7 @@ Native HTML-Klappbereiche gliedern die bisherigen Bedienelemente in neun Themen.
 
 Die Clients fragen neue Abfahrten und Standortdaten nur bei sichtbarer App ab. Normaler Monitorabstand: 30 Sekunden. Die gemeinsame Monitorsteuerung priorisiert sichtbare Stationen und begrenzt die RBL-Auswahl auf 24 je gemeinsamem Intervall. PWA-Hauptansicht und Routenansicht teilen diese Begrenzung. Verlassen einer Ansicht verwirft verspätete Antworten; auf der Uhr werden laufende Requests und Standortlistener beendet.
 
-Stadtprofile: Wien ist Standard, automatische Erkennung ausschließlich aus frischen Vordergrundfixes; manuelle Auswahl nur unter Einstellungen. Stadtwechsel verändert weder Favoriten noch Manifest-ID. Der regionale Relay verarbeitet ausschließlich bekannte öffentliche IFOPT-Stationen. Boards zählen im gemeinsamen 700-Abruf-Budget; kein GPS im Monitorrequest. [Stadtprofile](city-profiles.md).
+Stadtprofile: Wien ist Standard, automatische Erkennung ausschließlich aus frischen Vordergrundfixes; manuelle Auswahl nur unter Einstellungen. Stadtwechsel verändert weder Favoriten noch Manifest-ID. Die Uhr filtert beide Routenlisten mit derselben lokalen Zuordnung, ebenso die Monitorziele. Unveränderte Gesamtliste für Speicherung und Export; stadtübergreifende Familien können mehreren Profilen entsprechen. Gemeinsame Abfragesperre und je Stadt getrennte Fehlerpausen verhindern sowohl Zusatzabfragen als auch übertragene Wartezeiten. Der regionale Relay verarbeitet ausschließlich bekannte öffentliche IFOPT-Stationen. Boards zählen im gemeinsamen 700-Abruf-Budget; kein GPS im Monitorrequest. [Stadtprofile](city-profiles.md).
 
 Der unabhängige Wiener Fahrplan wird stationsweise aus versionierten komprimierten GTFS-Paketen geladen, mit Kalender-/Nachtfahrtenprüfung und lokalem Offlinecache. Frische API-Verbindungen haben Vorrang; reine Fahrplanabfahrten erzeugen keine Live-Lernbestätigung. [Fahrplanvertrag](timetable-fallback.md).
 

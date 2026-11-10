@@ -1,3 +1,7 @@
+## Uhr 0.7.1 · Stadtbezogene Routen und Laden
+
+Nähe/Favoriten/A nach B bleiben als Hauptleiste erreichbar. A nach B und Favoriten → Routen zeigen dasselbe Stadtprofil. Mehr → Stadtprofil → Stadt wählen → zweimal Zurück führt zur aufrufenden Routenliste. Keine Route wird durch den Filter gelöscht; Wien wählen macht vorhandene Wien-Routen wieder sichtbar. Fällige Abfahrten starten bei Rückkehr sofort, eine laufende Sperre genau nach ihrer verbleibenden Dauer. Pause/Display aus/Einstellungen/Transfer führen zu keinen Hintergrundabfragen.
+
 ## Aktueller Ablauf 0.4.0 / 0.4.1
 
 A nach B → Start/Ziel/GPS → Verbindungen suchen → ursprüngliche Alternativen → Reise. Station vor Linie, unter Umstiegen alternative Weiterwege. Variante wählen erhält dieselbe Route/Favoritenfamilie. Abfahrtszahl/Linie antippen → exakt diese Linie/Richtung → optional Alle Abfahrten. Gehzeit antippen → nur diese Fußwegkarte auf/zu. Uhr → Favorit → Alternative Wege → Variante → aktueller Verzweigungseinstieg; Zeilen-Tap fokussiert genau diese Verbindung.

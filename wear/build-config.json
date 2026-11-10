@@ -1,14 +1,14 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.7.0",
-  "versionCode": 22,
+  "versionName": "0.7.1",
+  "versionCode": 23,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Wien, Graz, Linz und Salzburg auf deiner Uhr.",
-    "Automatische Stadterkennung und manuelle Auswahl unter Mehr → Stadtprofil.",
-    "Regionale Stationen und Routen per QR oder Datei übernehmen.",
-    "Salzburg mit klar gekennzeichneten Fahrplanzeiten; lokale Favoriten bleiben erhalten."
+    "Routen in A nach B und Favoriten passend zur gewählten Stadt.",
+    "Hauptnavigation bleibt auch in A nach B sichtbar.",
+    "Schnellerer Start der Abfahrtsabfragen nach Stadt- und Ansichtswechseln.",
+    "Lokale Favoriten bleiben erhalten; Fehlerpausen gelten je Stadt."
   ]
 }
