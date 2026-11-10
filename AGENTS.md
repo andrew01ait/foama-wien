@@ -1,5 +1,7 @@
 ## PWA 0.8.3 · allgemeine Willkommen-Seite · 10.11.2026
 
+Nach der Willkommen-Veröffentlichung docs/line-maps.md mit Datenprüfung und A/B-Konzept ergänzt. Noch keine Linienkarte oder Fahrzeugschätzung implementiert. Wiener Monitor ohne Fahrt-ID: Abfahrtsrang niemals als Fahrzeugidentität verwenden. Transitous-Kennungen und Linzer AVMS-Kandidaten fachlich validieren. Konzeptvorschau nur Beispieldaten; Prognosepositionen bleiben Schätzungen. Nächste Umsetzung beginnt mit echten Wiener Linienpaketen für A.
+
 Aktueller Nutzerwunsch: allgemeiner PWA-Einstieg im bestehenden Städte-Design. willkommen.html ist die teilbare Willkommen-Seite; ./ öffnet den Abfahrtsmonitor. Die vorhandene Städtecollage darf dafür wiederverwendet werden. Manifest-ID, scope und start_url erhalten, keine Zwangsumleitung für bestehende Installationen. App-Teilen zeigt nun ausschließlich die feste Willkommen-URL; dies ersetzt die frühere Root-URL-Vorgabe. Private aktuelle URL/QR-Fragmente weiterhin niemals teilen.
 
 Einstiegsseite nur Themenwahl, vorhandene bewusste Browser-Installation und Offline-Shell, keine Geolocation-, Monitor-, Routen- oder Push-Anfragen. Alle Nutzenaussagen am aktuellen Funktionsstand ausrichten; keine Linienkarte oder Fahrzeugpositionen als verfügbar bewerben. Nach dieser Seite hat der Nutzer die weitere Ausarbeitung von Linienkarte und interaktiven Fahrzeugschätzungen beauftragt; Fahrzeugkonzept ausdrücklich vor Implementierung klären.

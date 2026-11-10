@@ -26,7 +26,7 @@ Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens
 
 ## Verifikation und Grenzen
 
-315 Web-/Server- und zehn Python-Tests des bisherigen PWA-0.8.2-Stands bleiben dokumentiert. Der neue native Release ergänzt Stadtfilter für beide Routenlisten, dauerhaft erreichbare Hauptnavigation und genaue Wiederholungsplanung. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.1](docs/wear-os-release-0.7.1.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
+315 Web-/Server- und zehn Python-Tests sowie 72 JavaScript-Syntaxprüfungen für PWA 0.8.3 bestanden. Der neue native Release ergänzt Stadtfilter für beide Routenlisten, dauerhaft erreichbare Hauptnavigation und genaue Wiederholungsplanung. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.1](docs/wear-os-release-0.7.1.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
 
 Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver PWA ungefähr alle fünf Minuten ergänzend. Kein neuer externer Timer, keine Hintergrundortung oder Abfahrtsabfragen. Nutzer bestätigt Empfang einer PWA-Testnachricht; tatsächliche lokale Geräteanzeige und reale Störungszustellung weiter praktisch beobachten.
 
@@ -34,7 +34,7 @@ Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver 
 
 - Physisches Uhr-Update über bestehende Installation; GPS-Stadtwechsel, regionale Favoriten und QR auf OnePlus abnehmen.
 - Wiener Fahrplan vor dem 13.12. erneuern; später automatischen Import-/Veröffentlichungsbetrieb ergänzen.
-- [Linienkarte und Fahrzeugschätzungen](docs/line-maps.md): Daten/Machbarkeit geprüft, noch nicht umgesetzt.
+- [Linienkarte und Fahrzeugschätzungen](docs/line-maps.md): konkretes A/B-Konzept, zwei echte U1-Proben und Identitätsgrenzen dokumentiert; noch nicht umgesetzt. Zuerst Wiener Linienpakete für A, dann Datenversuch für B.
 - Regionale Störungsfeeds und unabhängige regionale Offlinepakete gesondert anbinden; nötige MVO-Registrierung/Lizenzannahme erfolgt nicht automatisch.
 
 Neue Arbeiten starten über die [Dokumentationsübersicht](docs/README.md).
