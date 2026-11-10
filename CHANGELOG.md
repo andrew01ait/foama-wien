@@ -1,3 +1,11 @@
+## PWA 0.9.0 · geografische Linienkarte und PDF · 10.11.2026
+
+Echte OpenStreetMap-Linienkarte für 173 Wiener Linien mit 965 geografischen Varianten, Richtungen, Kurzführungen und antippbaren Halten in Fahrtfolge. Versionierte Pakete aus exakt passendem offiziellen GTFS; gewählte Linie lokal gespeichert. Straßenkartenkacheln benötigen Internet. Keine Fahrzeugpositionen in diesem Release.
+
+Im Linienfahrplan echter PDF-Download für Haltestelle/Richtung oder ganze Linie am ausgewählten Datum; lokal aus denselben Kalenderdaten, auch mit gespeicherten Paketen offline. A4, Herkunft/Gültigkeit und Seitenzahlen. Dateinamen beginnen mit Wiener Exportdatum und foama-wien. U1-Browserprüfung: echte Kartenkacheln, Richtung/Variante, Station zum passenden Fahrplan und beide PDF-Downloads. Überlappende Marker berücksichtigen den tatsächlichen Zeigerabstand.
+
+B-Konzept um Stationsübergabe anhand richtungstreuer Prognosen und plausibler Abschnittsfahrzeiten erweitert; noch kein Schätzer im Produkt. Wear 0.7.1/23 samt ursprünglicher APK unverändert.
+
 ## PWA 0.8.3 · Willkommen bei Foama · 10.11.2026
 
 Neue öffentliche Willkommen-Seite unter willkommen.html im Stil des Städtevergleichs, mit der vorhandenen vollständigen Städtecollage, klarem App-Einstieg, Funktionen, Stadtlinks, Wear-OS-Verweis, Installationshilfe und aufklappbarem FAQ. Themenwahl wird übernommen. Die Seite ist über App-Footer/Einstellungen, Städtevergleich und Uhr-Webseite erreichbar; App teilen verwendet die feste öffentliche Willkommen-Adresse statt der aktuellen Seite.

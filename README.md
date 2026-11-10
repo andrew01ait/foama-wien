@@ -12,12 +12,13 @@
 - Import gespeicherter Wege auf die Uhr per Datei oder kurzlebiger verschlüsselter QR-Übertragung.
 - Dezente spätere Live-Zeitkorrekturen und Rollstuhl-Symbol bei ausdrücklich gemeldeter Fahrzeug-Barrierefreiheit in der PWA.
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
-- Tagesfahrpläne für 173 Wiener Linien mit Heute-Auswahl, farbiger aktueller Stunde und bewusster Offline-Sicherung ganzer Linien.
+- Tagesfahrpläne für 173 Wiener Linien mit Heute-Auswahl, farbiger aktueller Stunde und bewusster Offline-Sicherung ganzer Linien sowie PDF-Download für Tagesfahrplan oder ganze Linie.
+- Geografische OpenStreetMap-Linienkarte für 173 Wiener Linien, mit Richtungen, 965 echten Varianten und antippbaren Haltestellen in Fahrtfolge.
 - Teilbarer Städtevergleich mit grünen Haken, roten Kreuzen und aufklappbaren FAQ.
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.8.3 und Wear 0.7.1**, nativer Versionscode **23**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.9.0 und Wear 0.7.1**, nativer Versionscode **23**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

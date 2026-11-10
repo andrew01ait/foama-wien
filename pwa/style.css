@@ -325,3 +325,5 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 @media(max-width:370px){#settings .settings-header{padding:14px 14px 10px}#settings .settings-category{padding-inline:10px}#settings .settings-group>summary{padding-inline:10px;gap:9px}#settings .settings-body{padding-inline:8px;margin-inline:9px}#settings .settings-label strong{font-size:13px}#settings .settings-label small{font-size:10px}}
 
 .station-address a{color:var(--text);text-underline-offset:2px}
+
+.connection-view .timetable-tools{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.connection-view .timetable-tools>a{flex:1 1 220px;min-height:48px;text-align:center;justify-content:center;padding:10px 14px}

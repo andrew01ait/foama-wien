@@ -1,3 +1,11 @@
+## PWA 0.9.0 · geografische Linienkarte und PDF · 10.11.2026
+
+326 Web-/Server-Tests, zwölf Python-Tests und 73 JavaScript-Syntaxprüfungen nach CI-Auswahl bestanden. Importprüfungen: unsortierte Stopzeilen, kalendergleiche Shapes zusammenführen, echte Kurzführung anhand Streckenentfernung zuschneiden, identische Liniennummer in Bus/Tram getrennt und falsche Kalender/Quellen ablehnen. Alle 173 ausgelieferten Linien und 965 Varianten gegen Hash, Kalender, Koordinaten, geordnete Halte und dekodierbare echte Geometrie geprüft. Offizielle 98.436.733-Byte-GTFS-Datei bytegleich zum vorhandenen Fahrplan (SHA c3e98ec9381a0f610a3164d0336ea93c097b0382aa81fbabb6c739becc25412f).
+
+PDF: echte A4-Struktur, bytegenaue PDF-Querverweise, Umlaute/volle Namen, Auswahl nach Richtung/Datum, ganze Linie, unvollständige Pakete, ungültige Tage, MEZ/MESZ-Doppelstunde, Pagination und Wiener Dateinamen. Echte U1-Ausgaben mit Poppler gerendert und geprüft; Tagesauswahl Stephansplatz/Leopoldau eine Seite, gesamte U1 67 Seiten. Monospaced PDF-Standardschriften für unveränderte Zeichenabstände; keine zusätzliche Bibliothek oder externen PDF-Dienste.
+
+Lokaler Browser: echte OpenStreetMap-Kacheln geladen, U1-Richtungswechsel, Kurzführung ab Alaudagasse (22 Halte), Station aus geordneter Liste zum passenden Tagesfahrplan, beide echten PDF-Downloads erhalten. In der Gesamtansicht überlappende Marker lösten zunächst den Nachbarhalt aus; Zeigerabstandsauflösung samt Regression ergänzt und richtigen Leopoldau-Halt geprüft. Einzelne eigene Popups vermeiden die kurzzeitige Nachbaranzeige. 1348-px-Seitenbreite ohne Überlauf. Cachetests prüfen kalten Offline-Neustart, fehlende/alte Pakete, Speicherfehler und Abbruch; SW-Prüfung umfasst Karten-HTML/Module und Navigation zur eigenen Offline-Seite. Keine physische Smartphone-/Watch-Abnahme und keine implementierte Fahrzeugschätzung in diesem Release.
+
 ## PWA 0.8.3 · Willkommen · 10.11.2026
 
 315 Web-/Server- und zehn Python-Tests erfolgreich; 72 JavaScript-Dateien auf Syntax geprüft. Bestehende echte Worker-/Offline-Shell-Prüfungen um willkommen.html erweitert; feste öffentliche Einladungsadresse geprüft, private aktuelle URLs bleiben ausgeschlossen. Manifest-ID/start_url/scope unverändert. Die aktuelle öffentliche Wear-0.7.1-APK wurde per freigegebener Größe/SHA-256 bytegleich wiederhergestellt; kein neuer nativer Build.

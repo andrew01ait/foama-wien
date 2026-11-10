@@ -58,7 +58,7 @@ test('diagnostics controls export valid JSON after hosting success and network f
     const text=await (await fetch(downloads[0].url)).text();
     const report=JSON.parse(text);
     assert.equal(report.format,'foama-wien-api-diagnose-v1');
-    assert.equal(report.version,'0.8.3');
+    assert.equal(report.version,'0.9.0');
     assert.equal(report.events[0].category,'hosting-ok');
     assert.equal(report.events[0].httpStatus,200);
     assert.equal(report.events[1].category,'browser-network');
@@ -106,7 +106,7 @@ test('service worker installs the complete shell and serves app and diagnostics 
   let activation;handlers.message({data:{type:'FOAMA_ACTIVATE_UPDATE'},waitUntil:promise=>activation=promise});await activation;
   assert.equal(skipped,true,'the update action explicitly activates the waiting worker');
   assert.equal(stores.has('foama-old-shell'),false);
-  for(const path of ['/','/diagnose.html','/staedte.html','/willkommen.html','/fahrplan.html','/src/install.mjs','/manifest.webmanifest']){
+  for(const path of ['/','/diagnose.html','/staedte.html','/willkommen.html','/fahrplan.html','/linienkarte.html','/src/line-map-page.mjs?v=0.9.0','/src/timetable-pdf.mjs?v=0.9.0','/src/install.mjs','/manifest.webmanifest']){
     let pending;handlers.fetch({request:new Request(origin+path),respondWith:promise=>pending=promise});
     const response=await pending;assert.equal(response.status,200);assert.ok((await response.text()).length>0);
   }
@@ -114,4 +114,8 @@ test('service worker installs the complete shell and serves app and diagnostics 
   handlers.fetch({request:new Request(origin+'/config.json?diagnostic=hosting'),respondWith(){intercepted=true;}});
   assert.equal(intercepted,false,'hosting diagnosis must measure the network');
   assert.equal(networkCalls,1,'manifest revalidates once, then uses the offline fallback');
+  let navigation;handlers.fetch({request:{url:origin+'/linienkarte.html?linie=U1',method:'GET',mode:'navigate'},respondWith:promise=>navigation=promise});
+  assert.match(await (await navigation).text(),/Geografische Linienkarte/,'offline navigation returns the map page, not the monitor');
+  let mapDataIntercepted=false;handlers.fetch({request:new Request(origin+'/data/line-maps/wien/index.json'),respondWith(){mapDataIntercepted=true;}});
+  assert.equal(mapDataIntercepted,false,'map packages use the versioned data cache, not unversioned shell caching');
 });

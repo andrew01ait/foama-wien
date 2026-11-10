@@ -34,3 +34,5 @@ Graz/Linz/Salzburg verwenden im ersten Ausbau aktuelle Transitous-Boards bzw. EF
 Das Quellen-ZIP enthält kein explizites Veröffentlichungsdatum. Verifiziert am 10.11.2026 um 09:47 Wiener Zeit: vollständige SHA-256 identisch mit dem Import; HTTP Last-Modified 09.11.2026 05:09:41 UTC, ZIP-Dateizeitstempel 09.11.2026. Diese Daten sind getrennte Felder, kein abgeleitetes Veröffentlichungsversprechen. Die Quellenprüfung lässt sich mit `python3 scripts/check_timetable_source.py --record` wiederholen; der Befehl lädt die feste offizielle Quelle und protokolliert den Vergleich.
 
 Eine wöchentliche Prüfung ist ab 16.11. montags eingerichtet. Sie meldet geänderte Quellen, höchstens 14 Tage Restgültigkeit, abgelaufene Daten oder anhaltend nicht prüfbaren Stand. Kein automatischer Neuimport/Deploy. Die App zeigt ausdrücklich den gespeicherten Prüfstand.
+
+Ab PWA 0.9.0: [PDF-Download](timetable-pdf.md) und [geografische Linienkarte](line-maps.md) ergänzen diese Ansicht. Datum/Kalender und bekannte Stationskennungen bleiben dieselbe Datenbasis.

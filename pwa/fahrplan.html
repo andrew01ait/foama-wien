@@ -1,7 +1,7 @@
 <!doctype html><html lang="de-AT"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071724"><meta name="referrer" content="no-referrer">
 <title>Fahrpläne nach Linie · foama-wien</title><meta name="description" content="Wiener Linienfahrpläne: Linie, Haltestelle, Richtung und Datum auswählen. Tagesabfahrten übersichtlich nach Stunden und ganze Linien offline speichern.">
-<link rel="icon" type="image/svg+xml" href="./icons/foama-mark.svg"><link rel="stylesheet" href="./style.css?v=0.8.3"><link rel="stylesheet" href="./fahrplan.css?v=0.8.3">
+<link rel="icon" type="image/svg+xml" href="./icons/foama-mark.svg"><link rel="stylesheet" href="./style.css?v=0.9.0"><link rel="stylesheet" href="./fahrplan.css?v=0.9.0">
 <script>try{const t=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch{}</script></head>
 <body><main class="app timetable-page"><header class="header"><a class="brand home-brand" href="./"><img class="brand-mark" src="./icons/foama-mark.svg" width="44" height="44" alt=""><h1>foama<span class="accent">-wien</span></h1></a><a class="back-link" href="./">Zur App ↗</a></header>
 <p class="eyebrow">WIENER LINIEN · SOLLFAHRPLAN</p><h2 id="timetableTitle">Fahrpläne nach Linie</h2>
@@ -10,9 +10,9 @@
 <section id="linePicker" aria-label="Linie auswählen"><label for="lineSearch">Welche Linie suchst du?</label><input type="search" id="lineSearch" placeholder="z. B. U1, 43 oder N25" autocomplete="off"><p class="fineprint">Die Linien stammen aus dem importierten Wiener Fahrplan. Für Graz, Linz und Salzburg gibt es noch kein eigenes Offline-Paket. <a href="./staedte.html">Städte vergleichen</a></p><div id="timetableLines"></div></section>
 <section id="lineSchedule" hidden aria-labelledby="lineTitle"><a class="all-lines" href="./fahrplan.html">‹ Alle Linien</a><div class="line-title"><span id="lineBadge" class="route-pill"></span><h3 id="lineTitle"></h3></div>
 <div class="timetable-selectors"><div><label for="timetableStop">Haltestelle <small>alphabetisch</small></label><select id="timetableStop"></select></div><div><label for="timetableDirection">Richtung</label><select id="timetableDirection"></select></div><div><label for="timetableDay">Datum</label><select id="timetableDay"><option value="">Heute</option></select></div></div>
-<p id="timetableSource" class="fineprint"></p><div id="dayTimetable" aria-live="polite"></div>
+<p id="timetableSource" class="fineprint"></p><div class="timetable-tools"><a id="lineMapLink" class="outline-btn" href="./linienkarte.html">Linie auf der Karte ansehen</a><button id="downloadDayPdf" type="button" class="outline-btn" disabled>Tagesfahrplan als PDF</button><button id="downloadLinePdf" type="button" class="outline-btn" disabled>Ganze Linie als PDF</button></div><p class="fineprint">PDF für das gewählte Datum: aktuelle Haltestelle und Richtung oder alle Haltestellen der Linie mit allen Richtungen.</p><p id="pdfDownloadStatus" class="fineprint" role="status" aria-live="polite"></p><div id="dayTimetable" aria-live="polite"></div>
 <div class="save-line"><button id="saveLineOffline" type="button" class="outline-btn">Ganze Linie offline speichern</button><p id="lineOfflineStatus" class="fineprint" role="status" aria-live="polite">Geladene Stationspakete bleiben bei verfügbarem Gerätespeicher offline nutzbar.</p></div>
 </section>
 <p class="timetable-caution"><strong>Geplante Zeiten.</strong> Verspätungen, Ausfälle und kurzfristige Änderungen können fehlen. Für aktuelle Abfahrten öffne den Monitor in der App.</p>
 <footer><a href="./">Abfahrtsmonitor</a> · <a href="./staedte.html">Städte &amp; Funktionen</a> · <a href="./licenses.html">Daten &amp; Lizenzen</a></footer>
-</main><script type="module" src="./src/timetable-page.mjs?v=0.8.3"></script></body></html>
+</main><script type="module" src="./src/timetable-page.mjs?v=0.9.0"></script></body></html>
