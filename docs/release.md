@@ -1,3 +1,9 @@
+## PWA 0.8.2 · Vier Städte im Bild · 10.11.2026
+
+Eigenes breites Titelbild auf Städte & Funktionen: ineinander übergehende Ansichten von Wien, Graz, Linz und Salzburg, mit U-Bahn, Straßenbahnen und Obus sowie Foama-Schriftzug. Das vollständige Bild bleibt auf kleinen und großen Displays sichtbar, ohne Beschnitt; lokale WebP-Datei mit Alternativtext und Offline-Shell. Die Illustration ist kein geografischer Linienplan.
+
+Der eigenständige Salzburg-Banner ist vollständig entfernt. Der bestehende FAQ LIVE oder Fahrplan erklärt ausdrücklich Salzburgs geplante Abfahrtszeiten und mögliche fehlende Verspätungen/kurzfristige Änderungen. Funktionsvergleich und Bedingungen bleiben erhalten. Wear bleibt 0.7.0/22.
+
 ## PWA 0.8.1 · Fahrplanorientierung und lesbare Hilfen · 10.11.2026
 
 Der Linienfahrplan startet immer mit Heute. Die aktuelle Stunde erhält nach Wiener Datum, Uhrzeit und Zeitzonenwechseln eine mintfarbene Zeile und Jetzt; andere Tage bleiben unmarkiert. Die lokale Anzeige aktualisiert sich nur sichtbar, folgt bei Heute über Mitternacht dem neuen Tag und behält bewusst gewählte spätere Termine. Kein zusätzlicher Abfahrtsabruf für die Uhrzeitanzeige. Eindeutige Linienlinks tolerieren einen fehlenden oder ungültigen Verkehrsmittelwert; mehrdeutige Linien bleiben in der Auswahl.

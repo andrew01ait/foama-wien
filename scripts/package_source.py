@@ -5,7 +5,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 def package():
     files=set(ROOT.glob('*.md'))|set(ROOT.glob('*.json'))|set(ROOT.glob('*.ts'))|{ROOT/'LICENSE',ROOT/'.gitignore',ROOT/'.openai/hosting.json'}
-    allowed={'.py','.sh','.mjs','.js','.java','.xml','.json','.md','.html','.css','.svg','.png','.txt','.gradle','.properties','.toml','.webmanifest','.ts','.sql','.yml','.yaml'}
+    allowed={'.py','.sh','.mjs','.js','.java','.xml','.json','.md','.html','.css','.svg','.png','.webp','.txt','.gradle','.properties','.toml','.webmanifest','.ts','.sql','.yml','.yaml'}
     for directory in ('.github','scripts','site','cloudflare','pwa','tests','docs','wear','db','drizzle','deploy'):
         for file in (ROOT/directory).rglob('*'):
             if not file.is_file():continue

@@ -1,3 +1,9 @@
+## PWA 0.8.2 · 10.11.2026
+
+315 Web-/Server-Tests, zehn Python-Prüfungen und 71 JavaScript-Syntaxprüfungen erfolgreich. Vorhandene Offline-Shell-Abnahme schließt das neue lokale WebP-Titelbild ein. Bannerentfernung, Salzburg-Erläuterung im vorhandenen FAQ, alle 52 Verfügbarkeitssymbole und echte Bildabmessungen 1920 × 819 geprüft. Das 472.402-Byte-WebP zeigt die komplette Collage proportional; keine zusätzliche native APK oder Geräteprüfung.
+
+Die öffentliche Abnahme von 0.8.1 hat nach erfolgreicher Veröffentlichung die U1-Heute-Auswahl und aktuelle Stunde sowie 36 grüne Haken, 16 rote Kreuze, fünf zunächst geschlossene FAQ und das automatische Öffnen der Barrierefreiheitsantwort bestätigt. Helle Adressfarben erreichen 12,29:1 (Adresse/Quelle) und 4,90:1 (Hinweis), dunkle 12,17:1 bzw. 6,53:1.
+
 ## PWA 0.8.1 · 10.11.2026
 
 315 Web-/Server-, zehn Python- und 71 JavaScript-Syntaxprüfungen erfolgreich. Neue Datumsregressionen prüfen Heute in Wiener Zeit vor/nach Mitternacht, zukünftige Gültigkeit, abgelaufene Pakete und die getrennten Herbst-Doppelstunden. Andere Tage erhalten keinen aktuellen Stundenmarker. Die bestehenden Offline-Shell-/Fahrplanprüfungen bestehen unverändert.

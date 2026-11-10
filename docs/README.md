@@ -1,6 +1,6 @@
 # Dokumentation
 
-Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 10. November 2026, PWA 0.8.1 / Wear 0.7.0.
+Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 10. November 2026, PWA 0.8.2 / Wear 0.7.0.
 
 | Frage | Maßgebliche Anleitung |
 | --- | --- |

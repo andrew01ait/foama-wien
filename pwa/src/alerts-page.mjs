@@ -1,4 +1,4 @@
-import {createThemeController} from './theme.mjs?v=0.8.1';
+import {createThemeController} from './theme.mjs?v=0.8.2';
 let preference='system';try{preference=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}
 createThemeController({preference});
 const $=id=>document.getElementById(id),escape=value=>String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

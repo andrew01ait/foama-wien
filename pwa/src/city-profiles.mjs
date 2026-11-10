@@ -1,4 +1,4 @@
-import {haversineMeters} from './core.mjs?v=0.8.1';
+import {haversineMeters} from './core.mjs?v=0.8.2';
 
 export const CITY_PREFERENCE='foama.cityPreference.v1';
 export const CITY_PROFILES=Object.freeze({
@@ -43,7 +43,7 @@ export function renderCityBrand(root,profile){
 }
 export async function loadCityCatalogue(city,{fetch=globalThis.fetch}={}){
  if(city==='wien'||!Object.hasOwn(CITY_PROFILES,city))return [];
- const response=await fetch(`./data/cities/${city}.json?v=0.8.1`,{credentials:'omit'});
+ const response=await fetch(`./data/cities/${city}.json?v=0.8.2`,{credentials:'omit'});
  if(!response.ok)throw Error('Stadt-Haltestellen derzeit nicht verfügbar.');
  const data=await response.json();if(data?.city!==city||!Array.isArray(data.stops)||data.stops.length>3000)throw Error('Ungültiger Stadtkatalog');return data.stops;
 }

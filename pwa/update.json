@@ -1,9 +1,9 @@
 {
-  "version": "0.8.1",
+  "version": "0.8.2",
   "wearVersionCode": 22,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.0.apk",
   "wearApkSha256": "c445582a8a2ed5ddd4559cbec3c0cb5a1eac09318276bea2e239c94b3f88efac",
-  "changelog": "Fahrplan startet mit Heute und markiert die aktuelle Stunde. Besser lesbare Haltestellenadresse im Fußwegdialog. Städtevergleich mit grünen Haken, roten Kreuzen und aufklappbaren FAQ; Versionshinweis unter der Tabelle.",
+  "changelog": "Neue Städtecollage mit Wien, Graz, Linz und Salzburg. Salzburg-Hinweis aus dem Seitenkopf entfernt und im FAQ LIVE oder Fahrplan erklärt.",
   "wearVersion": "0.7.0",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3838570,

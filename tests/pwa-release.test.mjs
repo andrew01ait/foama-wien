@@ -58,7 +58,7 @@ test('diagnostics controls export valid JSON after hosting success and network f
     const text=await (await fetch(downloads[0].url)).text();
     const report=JSON.parse(text);
     assert.equal(report.format,'foama-wien-api-diagnose-v1');
-    assert.equal(report.version,'0.8.1');
+    assert.equal(report.version,'0.8.2');
     assert.equal(report.events[0].category,'hosting-ok');
     assert.equal(report.events[0].httpStatus,200);
     assert.equal(report.events[1].category,'browser-network');

@@ -1,3 +1,7 @@
+## PWA 0.8.2 · Städtebild und Salzburg-Hinweis · 10.11.2026
+
+Auf ausdrücklichen Nutzerwunsch kein eigener Salzburg-Banner auf staedte.html. Die fachliche Einschränkung im aufklappbaren FAQ LIVE oder Fahrplan und im bestehenden Vergleich erhalten. Neues Titelbild pwa/images/foama-vier-staedte-v1.webp für genau diese Seite: vier übergehende Stadtansichten und Verkehrsmittel, Foama und alle Stadtnamen. Original-Logo unverändert; Hero immer vollständig und proportional anzeigen, kein Beschnitt. Lokales Asset in Offline-Shell und Quell-ZIP erhalten. Bildherkunft/Prompt in docs/assets/foama-vier-staedte.md.
+
 ## PWA 0.8.1 · aktuelle UI-Entscheidungen · 10.11.2026
 
 Linienfahrplan-Datum als Auswahl mit Heute an erster Stelle und als Startwert. Aktuelle Stunde ausschließlich bei gleichem Wiener Datum und Zeitzone farbig mit Jetzt markieren; herbstliche Doppelstunden getrennt behandeln. Nur sichtbarer lokaler Minutentimer, im Hintergrund stoppen; Mitternachtswechsel ohne zusätzliche API-Abfrage aus geladenen Daten. Bewusst gewählte spätere Daten erhalten.

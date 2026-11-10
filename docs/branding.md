@@ -19,3 +19,7 @@ Die RGB-Füllfarben der Linienmarkierungen wurden aus dem offiziellen [Wiener-Li
 ## Nachtlinien v0.1.5
 
 Auf Nutzerwunsch: Nachtlinien mit N-Präfix (auch N30R usw.) erhalten dunkelblau `#162A63` mit weißem Text. Shared `.route-pill[data-route^="N"]` gilt für Stationsübersichten, Abfahrten, Favoriten und Verbindungsauswahl. Keine Änderung der offiziellen U-Bahn-Zuordnung.
+
+## Städtecollage ab PWA 0.8.2
+
+Die Seite Städte & Funktionen verwendet `pwa/images/foama-vier-staedte-v1.webp` als vollständiges proportionales Titelbild. Stadtwahrzeichen und Fahrzeuge sind eine dekorative Collage; sie stellen keinen tatsächlichen Linienverlauf dar. Das originale Foama-Logo bleibt separat unverändert. [Bildherkunft und Gestaltungsbrief](assets/foama-vier-staedte.md).
