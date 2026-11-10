@@ -1,8 +1,22 @@
 // Bounded event verification and receipts only. Never GPS or departure polling.
 function installPushHandlers(scope){
- scope.addEventListener('message',event=>{if(event.data?.type==='FOAMA_PUSH_PROTOCOL')event.ports?.[0]?.postMessage({protocol:2});});
  const store=scope.foamaPushStore,fetcher=(...args)=>scope.fetch(...args),clock=()=>Date.now();
  const sameOrigin=client=>{try{return new URL(client.url).origin===scope.location.origin;}catch{return false;}};
+ scope.addEventListener('message',event=>{
+  if(event.data?.type==='FOAMA_PUSH_PROTOCOL'){event.ports?.[0]?.postMessage({protocol:2,localDisplayTest:true});return;}
+  if(event.data?.type!=='FOAMA_LOCAL_NOTIFICATION_TEST'||!event.ports?.[0])return;
+  const reply=value=>{try{event.ports[0].postMessage(value);}catch{}};
+  event.waitUntil((async()=>{
+   if(!sameOrigin(event.source)){reply({ok:false,code:'client'});return;}
+   if(scope.Notification?.permission!=='granted'){reply({ok:false,code:'permission'});return;}
+   const tag='foama-wien-local-test',listing=typeof scope.registration.getNotifications==='function';
+   // Replace only our own local test. Do not touch disruption notifications.
+   if(listing)try{for(const notice of await scope.registration.getNotifications({tag}))notice.close();}catch{}
+   await scope.registration.showNotification('foama-wien: Anzeigetest',{body:'Lokale Testanzeige · '+new Date(clock()).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'})+' · ohne Push-Transport. Öffne bei Bedarf die Benachrichtigungsleiste.',tag,silent:true,renotify:false,icon:'/icons/icon-192-v0.1.4.png',badge:'/icons/icon-192-v0.1.4.png',data:{kind:'local-test'}});
+   let listed=null;if(listing)try{listed=(await scope.registration.getNotifications({tag})).length>0;}catch{}
+   reply(listed===false?{ok:false,code:'not-listed'}:{ok:true,listed});
+  })().catch(()=>reply({ok:false,code:'display-failed'})));
+ });
  async function visible(){return (await scope.clients.matchAll({type:'window',includeUncontrolled:true})).some(client=>sameOrigin(client)&&client.visibilityState==='visible');}
  async function api(device,eventId,suffix='',body){
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6000);
@@ -37,9 +51,9 @@ function installPushHandlers(scope){
  scope.addEventListener('notificationclick',event=>{
   event.notification.close();
   event.waitUntil((async()=>{
-   const data=event.notification.data,device=await store.getDevice().catch(()=>null);
+   const data=event.notification.data,local=data?.kind==='local-test',device=local?null:await store.getDevice().catch(()=>null);
    if(device?.enabled&&device.id===data?.deviceId&&/^[A-Za-z0-9_-]{32}$/.test(data?.eventId))await receipt(device,data.eventId,'clicked');
-   const url=new URL('/alerts.html',scope.location.origin).href;
+   const url=new URL(local?'/?settings=1':'/alerts.html',scope.location.origin).href;
    const windows=await scope.clients.matchAll({type:'window',includeUncontrolled:true}),existing=windows.find(sameOrigin);
    if(existing){await existing.navigate(url);await existing.focus();}else await scope.clients.openWindow(url);
   })());

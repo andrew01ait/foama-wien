@@ -11,7 +11,7 @@ async function fixture({visible=false,quiet=false,verification=true,onVerify,now
  await store.setDevice(device);
  const value={format:'foama-push-v2',deviceId:id,eventId,sentAt:now,expiresAt:now+300000,tag:'foama-wien-disruptions',title:'U6',body:'Verzögerungen'};
  const handlers={},shown=[],calls=[],navigations=[],window={url:'https://foama.example/',visibilityState:visible?'visible':'hidden',navigate:async url=>navigations.push(url),focus:async()=>{}};
- const scope={foamaPushStore:store,location:{origin:'https://foama.example'},clients:{matchAll:async()=>[window],openWindow:async url=>navigations.push(url)},registration:{showNotification:async(...args)=>shown.push(args)},addEventListener:(name,handler)=>handlers[name]=handler,fetch:async(url,options)=>{
+ const scope={Notification:{permission:'granted'},foamaPushStore:store,location:{origin:'https://foama.example'},clients:{matchAll:async()=>[window],openWindow:async url=>navigations.push(url)},registration:{showNotification:async(...args)=>shown.push(args)},addEventListener:(name,handler)=>handlers[name]=handler,fetch:async(url,options)=>{
   calls.push({url,options});assert.equal(options.headers['X-Push-Secret'],secret);assert.equal(new URL(url).origin,'https://foama.example');
   if(options.method==='POST')return Response.json({recorded:true});
   if(onVerify)await onVerify({store,device,window});
@@ -49,4 +49,19 @@ test('opt-out and visible navigation during verification are rechecked before no
 test('Vienna quiet time suppresses automatic messages while an explicitly requested test remains available',async()=>{
  const f=await fixture({quiet:true,now:Date.parse('2026-11-09T22:30Z')});await f.push();assert.equal(f.shown.length,0);
  f.value.tag='foama-wien-test';await f.push();assert.equal(f.shown.length,1);
+});
+async function localMessage(f,source=f.window){const replies=[];let pending;f.handlers.message({data:{type:'FOAMA_LOCAL_NOTIFICATION_TEST'},source,ports:[{postMessage:value=>replies.push(value)}],waitUntil:value=>pending=value});await pending;return replies[0];}
+test('local display test runs within the worker event lifetime, replaces only an earlier local test and confirms browser listing without any transport',async()=>{
+ const f=await fixture({visible:true,quiet:true});let closed=0,listed=0;
+ f.scope.registration.getNotifications=async({tag})=>{assert.equal(tag,'foama-wien-local-test');listed++;return listed===1?[{close(){closed++;}}]:[{tag}];};
+ const result=await localMessage(f);assert.equal(result.ok,true);assert.equal(result.listed,true);assert.equal(closed,1);assert.equal(f.shown.length,1);assert.equal(f.calls.length,0);assert.equal(f.shown[0][1].silent,true);assert.equal(f.shown[0][1].data.kind,'local-test');
+ let pending;f.handlers.notificationclick({notification:{data:f.shown[0][1].data,close(){}},waitUntil:value=>pending=value});await pending;
+ assert.deepEqual(f.navigations,['https://foama.example/?settings=1']);assert.equal(f.calls.length,0);
+});
+test('local worker test distinguishes missing permission, a foreign client, rejected display and missing browser listing',async()=>{
+ const denied=await fixture();denied.scope.Notification.permission='denied';assert.equal((await localMessage(denied)).code,'permission');assert.equal(denied.shown.length,0);
+ const foreign=await fixture();assert.equal((await localMessage(foreign,{url:'https://other.example/'})).code,'client');assert.equal(foreign.shown.length,0);
+ const rejected=await fixture();rejected.scope.registration.showNotification=async()=>{throw Error('OS denied');};assert.equal((await localMessage(rejected)).code,'display-failed');
+ const missing=await fixture();missing.scope.registration.getNotifications=async()=>[];assert.equal((await localMessage(missing)).code,'not-listed');assert.equal(missing.shown.length,1);
+ for(const f of [denied,foreign,rejected,missing])assert.equal(f.calls.length,0);
 });

@@ -36,7 +36,13 @@ test('a waiting worker activates only after update now and reload follows contro
  const worker={postMessage(message){messages++;assert.deepEqual(message,{type:'FOAMA_ACTIVATE_UPDATE'});h.serviceWorker.controller={new:true};h.serviceWorker.emit('controllerchange');}};
  const registration=events({waiting:worker,installing:null,async update(){updateCalls++;}});
  h.updates.setRegistration(registration);h.updates.start();await h.flush();assert.equal(messages,0);assert.equal(h.reloads,0);
+ assert.match(h.get('appUpdateText').textContent,/Offline-\/Push-Komponenten/);assert.match(h.get('appUpdateText').textContent,/0\.1\.29/);assert.doesNotMatch(h.get('appUpdateText').textContent,/Neue Version/);
  await h.click();assert.equal(updateCalls,1);assert.equal(messages,1);assert.equal(h.reloads,1);h.updates.destroy();
+});
+test('a waiting offline worker never overwrites a known newer app version with an unversioned update notice',async()=>{
+ const h=harness();h.updates.start();await h.flush();
+ h.updates.setRegistration(events({waiting:{},installing:null}));
+ assert.match(h.get('appUpdateText').textContent,/Neue Version 0\.1\.30/);assert.match(h.get('appUpdateText').textContent,/aktuell 0\.1\.29/);h.updates.destroy();
 });
 
 test('a worker already installing at registration is detected, and failed/offline updates remain retryable',async()=>{

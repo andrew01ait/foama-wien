@@ -1,5 +1,5 @@
-import './push-storage.js?v=0.7.3';
-import {pushPreferences,favoritePushTargets} from './push-policy.mjs?v=0.7.3';
+import './push-storage.js?v=0.7.4';
+import {pushPreferences,favoritePushTargets} from './push-policy.mjs?v=0.7.4';
 const KEY='foama.push.v1';
 const decode=value=>Uint8Array.from(atob(value.replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(value.length/4)*4,'=')),c=>c.charCodeAt(0));
 const token=cryptoApi=>btoa(String.fromCharCode(...cryptoApi.getRandomValues(new Uint8Array(24)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -45,11 +45,24 @@ export function createNotifications({root=document,getFavorites,getStops,getJour
  }
  async function currentWorker(reg){
   if(!environment.MessageChannel||!reg.active)throw Error('Bitte zuerst die App mit „Jetzt aktualisieren“ aktualisieren.');
-  await new Promise((resolve,reject)=>{
+  return await new Promise((resolve,reject)=>{
    const channel=new environment.MessageChannel(),timer=setTimeout(()=>{channel.port1.close();channel.port2.close();reject(Error('Bitte zuerst die App mit „Jetzt aktualisieren“ aktualisieren.'));},1500);
-   channel.port1.onmessage=event=>{clearTimeout(timer);channel.port1.close();channel.port2.close();event.data?.protocol===2?resolve():reject(Error('Bitte zuerst die App mit „Jetzt aktualisieren“ aktualisieren.'));};
+   channel.port1.onmessage=event=>{clearTimeout(timer);channel.port1.close();channel.port2.close();event.data?.protocol===2?resolve(event.data):reject(Error('Bitte zuerst die App mit „Jetzt aktualisieren“ aktualisieren.'));};
    reg.active.postMessage({type:'FOAMA_PUSH_PROTOCOL'},[channel.port2]);
   });
+ }
+ async function localDisplayTest(){
+  if(NotificationApi.permission!=='granted')throw Error('Bitte Benachrichtigungen zuerst erlauben.');
+  debugMessage='Lokaler Anzeigetest läuft …';render();
+  const reg=await registration(),worker=await currentWorker(reg);
+  if(worker.localDisplayTest!==true)throw Error('Bitte zuerst die Offline-/Push-Komponenten mit „Jetzt aktualisieren“ übernehmen.');
+  const result=await new Promise((resolve,reject)=>{
+   const channel=new environment.MessageChannel(),timer=setTimeout(()=>{channel.port1.close();channel.port2.close();reject(Error('Keine Antwort vom lokalen Anzeigetest. Bitte die App aktualisieren und erneut versuchen.'));},12000);
+   channel.port1.onmessage=event=>{clearTimeout(timer);channel.port1.close();channel.port2.close();resolve(event.data);};
+   try{reg.active.postMessage({type:'FOAMA_LOCAL_NOTIFICATION_TEST'},[channel.port2]);}catch{clearTimeout(timer);channel.port1.close();channel.port2.close();reject(Error('Lokaler Anzeigetest konnte nicht gestartet werden. Bitte die App aktualisieren.'));}
+  });
+  if(!result?.ok){const reasons={permission:'Benachrichtigungen sind auf diesem Gerät nicht erlaubt.',client:'Lokaler Anzeigetest konnte dieser App nicht zugeordnet werden.', 'not-listed':'Der Browser führt die Testnachricht nach dem Anzeigeaufruf nicht auf. Prüfe die Android-/Browser-Benachrichtigungseinstellungen.'};throw Error(reasons[result?.code]||'Der Browser hat die lokale Testanzeige abgelehnt. Prüfe die Android-/Browser-Benachrichtigungseinstellungen.');}
+  debugMessage=result.listed===true?'Lokale Testnachricht vom Browser übernommen. Öffne die Benachrichtigungsleiste; die Anzeige ist lautlos. Das ist kein Nachweis, dass sie sichtbar war.':'Lokale Anzeige vom Browser angefordert. Öffne die Benachrichtigungsleiste; die Anzeige ist lautlos. Der Browser bietet hier keine zusätzliche Bestätigung.';
  }
  async function cleanupPending(){if(!saved.pendingDelete||!owned())return;try{await request('/api/push/subscriptions/'+saved.id,{method:'DELETE',auth:true});saved={};persist();await syncStore();}catch(error){if(error.status===410){saved={};persist();await syncStore();}}}
  function body(subscription){return {protocol:2,subscription:subscription.toJSON(),targets:preferences.scope==='favorites'?targets():[],preferences};}
@@ -115,7 +128,7 @@ export function createNotifications({root=document,getFavorites,getStops,getJour
    debugMessage=!test?'Noch keine Testnachricht vorhanden.':test.clickedAt?'Testnachricht wurde angetippt.':test.shownAt?'Der Browser hat die Anzeige der Testnachricht angefordert. Ob sie sichtbar war, entscheidet dein Gerät.':test.suppressedAt?'Die Testnachricht wurde vor der Anzeige verworfen. Bitte erneut testen.':test.acceptedAt?'Vom Push-Anbieter angenommen; keine Browserbestätigung. Das beweist noch keinen Empfang auf deinem Telefon.':test.status==='pending'||test.status==='sending'?'Testnachricht wartet auf Zustellung.':'Testnachricht konnte nicht zugestellt werden.';await workerDiagnostics();
   },{debug:true}));
   $('pushDebug')?.addEventListener('toggle',()=>{if($('pushDebug').open)void workerDiagnostics();});
-  $('pushLocalTest')?.addEventListener('click',()=>void work(async()=>{if(NotificationApi.permission!=='granted')throw Error('Bitte Benachrichtigungen zuerst erlauben.');const reg=await registration();await reg.showNotification('foama-wien: Anzeigetest',{body:'Lokale Testanzeige auf diesem Gerät. Dieser Test verwendet keinen Push-Transport.',tag:'foama-wien-local-test',silent:true,icon:'/icons/icon-192-v0.1.4.png'});debugMessage='Der Browser hat die lokale Anzeige angefordert. Bleibt auch sie aus, prüfe die Android-/Browser-Benachrichtigungseinstellungen.';},{debug:true}));
+  $('pushLocalTest')?.addEventListener('click',()=>void work(localDisplayTest,{debug:true}));
   $('pushScopeFavorites').addEventListener('click',()=>changePreferences({scope:'favorites'}));$('pushScopeAll').addEventListener('click',()=>changePreferences({scope:'all'}));
   $('pushQuiet').addEventListener('change',()=>changePreferences({quiet:$('pushQuiet').checked}));
   root.addEventListener('visibilitychange',()=>{if(root.visibilityState!=='hidden')void refresh();});

@@ -1,9 +1,9 @@
 {
-  "version": "0.7.3",
+  "version": "0.7.4",
   "wearVersionCode": 21,
   "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
   "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Wiener Fahrplan-Fallback, Stadtprofile und Push-Diagnose. Wien bleibt Standard; manuelle Stadtwahl nur in Einstellungen. Rückkehr zur automatischen Ortung und schnelle Profilwechsel abgesichert. Push-Tests und Zustellstatus unter Debug Push.",
+  "changelog": "Lokaler Anzeigetest über den aktiven Push-Worker mit Fortschritt und konkreter Rückmeldung. Neue App-Versionen und Updates der Offline-/Push-Komponenten werden klar unterschieden; aktuelle und neue App-Version sind sichtbar.",
   "wearVersion": "0.6.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3735980,
