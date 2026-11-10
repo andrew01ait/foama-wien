@@ -12,9 +12,10 @@
 - Import gespeicherter Wege auf die Uhr per Datei oder kurzlebiger verschlüsselter QR-Übertragung.
 - Dezente spätere Live-Zeitkorrekturen und Rollstuhl-Symbol bei ausdrücklich gemeldeter Fahrzeug-Barrierefreiheit in der PWA.
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
+- Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.7.4 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.7.5 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

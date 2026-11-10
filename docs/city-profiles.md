@@ -1,4 +1,4 @@
-# Stadtprofile · PWA 0.7.4
+# Stadtprofile · PWA 0.7.5
 
 Eine Installation, bestehende URL/Manifest-ID und vorhandene Speicherschlüssel. **Wien ist Standard.** Nur bei sichtbarer App und vorhandener Standortfreigabe darf ein frischer genauer GPS-Fix zu Graz, Linz oder Salzburg wechseln. Es werden keine zusätzlichen Hintergrundortungen eingeführt.
 

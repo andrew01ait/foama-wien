@@ -1,10 +1,10 @@
-# Störungs-Push · PWA 0.7.4
+# Störungs-Push · PWA 0.7.5
 
 Aktuelle Nutzerentscheidung (09.11.2026): Push ausschließlich für die PWA, kein direkter Uhr-Push. Kein eigenes Firebase-Projekt oder Firebase-SDK nötig. Die native App 0.6.1/21 bleibt unverändert; vorhandene FCM-Vorbereitung bleibt deaktiviert. Der Browser wählt seinen Pushdienst; Chrome/Android kann darunter Google-Infrastruktur verwenden.
 
 ## Bedienung und Auswahl
 
-Einstellungen → Störungsbenachrichtigungen. Erst „Benachrichtigungen aktivieren“ fordert die Browserfreigabe an. Standard: Meine Favoriten einschließlich Stationen, Linien und bekannter Ein-/Umstiegs-/Ausstiegsstationen gespeicherter A-nach-B-Wege samt Alternativen (maximal 100 Stationen). Alternativ Alle Linien. Optionale Nachtruhe 22–7 Uhr, Europe/Vienna einschließlich Sommerzeit.
+Einstellungen → Störungsbenachrichtigungen (aufklappbar). Erst „Benachrichtigungen aktivieren“ fordert die Browserfreigabe an. Standard: Meine Favoriten einschließlich Stationen, Linien und bekannter Ein-/Umstiegs-/Ausstiegsstationen gespeicherter A-nach-B-Wege samt Alternativen (maximal 100 Stationen). Alternativ Alle Linien. Optionale Nachtruhe 22–7 Uhr, Europe/Vienna einschließlich Sommerzeit.
 
 Aufzüge und Fahrtreppen lösen **niemals** Push aus, auch nicht bei alten gespeicherten equipment:true-Freigaben. Maßgeblich sind die offiziellen Kategorien; eine echte Betriebsstörung wird nicht wegen des Worts „Aufzug“ im Text verworfen. Geplantes frühestens ab Beginn; beendete/abgelaufene Störungen und reine Informationen sind ausgeschlossen. Stationsgebundene Kurzmeldungen benötigen den tatsächlichen RBL-Bezug. Keine Entwarnung aus fehlenden Daten oder Quellenfehlern.
 

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {localD1} from '../site/local-d1.mjs';
-import {sealPush,pushHash} from '../cloudflare/src/push-crypto.mjs';
+import {sealPush,openPush,pushHash} from '../cloudflare/src/push-crypto.mjs';
 import {enqueuePush,drainPushOutbox,verifyPushEvent,purgeOutbox} from '../cloudflare/src/push-outbox.mjs';
 import {pushFingerprint} from '../pwa/src/push-policy.mjs';
 const now=Date.parse('2026-11-09T12:00Z');
@@ -16,7 +16,11 @@ async function fixture(){
 }
 test('outbox persists a unique encrypted device/event and never resends provider-accepted work without a receipt',async()=>{
  const f=await fixture();try{
-  const again=await enqueuePush(f.env,f.record,{hashes:f.hashes},now+1);assert.equal(again.id,f.job.id);assert.doesNotMatch(f.job.sealed,/U6|Unterbrechung/);
+  const again=await enqueuePush(f.env,f.record,{hashes:f.hashes},now+1);assert.equal(again.id,f.job.id);
+  // Random encoded ciphertext can contain short line names by chance. Verify
+  // the authenticated encrypted record itself, rather than searching its text.
+  assert.deepEqual(await openPush(f.job.sealed,f.job.id,f.env.PUSH_STORAGE_KEY),{hashes:f.hashes,test:false});
+  await assert.rejects(openPush(f.job.sealed,'different-event',f.env.PUSH_STORAGE_KEY));
   let calls=0;const deliver=async(v,p)=>{calls++;assert.equal(p.format,'foama-push-v2');assert.equal(p.deviceId,f.record.id);assert.equal(p.eventId,f.job.id);return {ok:true};};
   assert.equal((await drainPushOutbox(f.env,{now,feed:f.feed,deliver})).sent,1);
   assert.equal((await f.read()).status,'accepted');assert.equal((await f.read()).shown_at,0);

@@ -259,7 +259,7 @@ test('push debug separates provider acceptance from normal status and the local 
  const count=f.requests.length;f.element('pushLocalTest').handlers.click();assert.match(f.element('pushDebugStatus').textContent,/Anzeigetest läuft/);await settle(f);assert.equal(f.requests.length,count);assert.deepEqual(f.localMessages,[{type:'FOAMA_LOCAL_NOTIFICATION_TEST'}]);
  assert.match(f.element('pushDebugStatus').textContent,/vom Browser übernommen/);assert.match(f.element('pushDebugStatus').textContent,/kein Nachweis/);
  const html=await readFile(new URL('../pwa/index.html',import.meta.url),'utf8');
- const debug=html.slice(html.indexOf('<details class="push-debug"'),html.indexOf('</details>',html.indexOf('<details class="push-debug"')));
+ const debug=html.match(/<details[^>]*id="pushDebug"[^>]*>([\s\S]*?)<\/details>/)?.[0]||'';
  assert.match(debug,/>Debug Push</);assert.match(debug,/id="pushTest"/);assert.match(debug,/id="pushReceipt"/);assert.match(debug,/id="pushDebugStatus"/);
 });
 test('local display testing is independent of backend enrollment and never asks for a new notification permission',async()=>{
