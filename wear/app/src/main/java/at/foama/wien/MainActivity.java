@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
     int journeyVariant=0;
     int journeyBoarding;
     private boolean detailFromJourney,journeyFromRoutes,transferFromRoutes;
-    private String detailRoute="",detailTowards="",locationMessage="",operationMessage="",settingsSection="";
+    private String detailMode="",detailRoute="",detailTowards="",locationMessage="",operationMessage="",settingsSection="";
     private float touchX,touchY;
     private boolean swipeConsumed,verticalGesture;
     private boolean locationDenied;
@@ -84,7 +84,7 @@ public final class MainActivity extends Activity {
         if(Build.VERSION.SDK_INT>=33)backRegistration=Api33Back.register(this);
         watchLocation=new WatchLocation((LocationManager)getSystemService(LOCATION_SERVICE),handler,getMainExecutor(),new WatchLocation.Callback(){
             public boolean onFix(Location fix){
-                if(!active)return false;Location before=repo.currentLocation;boolean changed=repo.acceptLocation(fix);
+                if(!active)return false;String beforeCity=repo.cities.current();Location before=repo.currentLocation;boolean changed=repo.acceptLocation(fix);if(!beforeCity.equals(repo.cities.current())){resetDepartureScope();if(screen.equals("detail")&&!detailFromJourney){screen="home";detailStop=null;}renderLayout();}
                 if(repo.currentLocation==before)return false;
                 updateLocationUi();if(changed)refresh();return true;
             }
@@ -98,7 +98,7 @@ public final class MainActivity extends Activity {
     @Override protected void onResume(){super.onResume();resumed=true;startForegroundWork();}
     private void startForegroundWork(){
         PowerManager power=(PowerManager)getSystemService(POWER_SERVICE);if(!resumed||active||(power!=null&&!power.isInteractive()))return;
-        active=true;requests=new RequestScope();push.resume();batteryRegistered=true;Intent battery=registerReceiver(batteryReceiver,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));readBattery(battery);if(locationScreen())startLocation(false);if(screen.equals("more"))refreshMore();handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.post(departureTicker);handler.post(renderTicker);consumePendingFile();
+        active=true;String previousCity=repo.cities.current();repo.ensureCityPosition();if(!previousCity.equals(repo.cities.current())&&screen.equals("detail")&&!detailFromJourney){screen="home";detailStop=null;renderLayout();}requests=new RequestScope();push.resume();batteryRegistered=true;Intent battery=registerReceiver(batteryReceiver,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));readBattery(battery);if(locationScreen())startLocation(false);if(screen.equals("more"))refreshMore();handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.post(departureTicker);handler.post(renderTicker);consumePendingFile();
     }
     private void stopForegroundWork(){
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -222,7 +222,8 @@ public final class MainActivity extends Activity {
         }
         content.addView(row,new LinearLayout.LayoutParams(-1,-2));space(content,3);
     }
-    void openConnection(Repo.Stop stop,String route,String towards){if(screen.equals("journey")){detailFromJourney=true;resetDepartureScope();}else if(screen.equals("home"))detailFromJourney=false;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
+    void openConnection(Repo.Stop stop,String route,String towards){openConnection(stop,route,towards,"");}
+    void openConnection(Repo.Stop stop,String route,String towards,String mode){detailMode=mode;if(screen.equals("journey")){detailFromJourney=true;resetDepartureScope();}else if(screen.equals("home"))detailFromJourney=false;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
     private void resetDepartureScope(){requests.cancel();if(departureRequest!=null)departureRequest.cancel(true);requests=new RequestScope();fetching=false;}
     void openJourney(String id){if(repo.journeys.get(id)==null)return;if(screen.equals("home")||screen.equals("routes"))journeyFromRoutes=screen.equals("routes");resetDepartureScope();journeyId=id;journeyBoarding=0;journeyVariant=0;screen="journey";renderLayout();refresh();}
     void openRoutes(){stopLocation();resetDepartureScope();screen="routes";operationMessage="";renderLayout();refresh();}
@@ -238,9 +239,9 @@ public final class MainActivity extends Activity {
     private void refresh(){
         if(!active||fetching||screen.equals("more")||screen.equals("transfer")||screen.equals("file-import")||screen.equals("alerts")||SystemClock.elapsedRealtime()<repo.nextFetchElapsed)return;
         if(powerSaver.active&&lastDepartureAttempt>=0&&SystemClock.elapsedRealtime()-lastDepartureAttempt<powerSaver.departureInterval())return;
-        List<Repo.Stop> stops=new ArrayList<>(targets());List<String> ids=repo.requestIds(stops,view.equals("fav")||screen.equals("routes")||screen.equals("detail")||screen.equals("journey")||screen.equals("journey-options"),StationViewport.visible(content,scroll,dp(8)));if(ids.isEmpty())return;
+        List<Repo.Stop> stops=new ArrayList<>(targets());Set<String> visible=StationViewport.visible(content,scroll,dp(8));List<Repo.Stop> regional=repo.regionalRequestStops(stops,visible);List<String> ids=repo.requestIds(stops,view.equals("fav")||screen.equals("routes")||screen.equals("detail")||screen.equals("journey")||screen.equals("journey-options"),visible);if(ids.isEmpty()&&regional.isEmpty())return;
         RequestScope session=requests;fetching=true;lastDepartureAttempt=SystemClock.elapsedRealtime();departureRequest=network.submit(()->{
-            try{if(!session.isCancelled())repo.fetchDepartures(stops,ids,session);}catch(Exception ignored){}finally{runOnUiThread(()->{if(requests==session&&!session.isCancelled()){fetching=false;if(active&&!isFinishing())renderContent();}});}
+            try{if(!session.isCancelled())repo.fetchDepartures(stops,ids,regional,session);}catch(Exception ignored){}finally{runOnUiThread(()->{if(requests==session&&!session.isCancelled()){fetching=false;if(active&&!isFinishing())renderContent();}});}
         });
     }
     void renderContent(){
@@ -249,7 +250,8 @@ public final class MainActivity extends Activity {
         if(screen.equals("file-import")){content.removeAllViews();renderFileImport();return;}
         if(screen.equals("more")){if(content.getChildCount()==0)renderMore();return;}
         int y=scroll.getScrollY();content.removeAllViews();
-        if(!repo.lastError.isEmpty())status.setText(repo.lastError+" · gespeicherter Stand");
+        String currentError=repo.currentError(targets());
+        if(!currentError.isEmpty())status.setText(currentError+" · gespeicherter Stand");
         else if(repo.currentLocation!=null&&!repo.reliableLocation())status.setText(locationMessage.isEmpty()?repo.locationStatus()+" · Gehzeit ungewiss":locationMessage);
         else status.setText("");
         status.setVisibility(status.getText().length()==0?View.GONE:View.VISIBLE);
@@ -295,7 +297,7 @@ public final class MainActivity extends Activity {
         if(group.size()>1){TextView second=text("→ "+repo.countdown(group.get(1))+"′",12,MUTED,false);second.setGravity(timeGravity);times.addView(second,new LinearLayout.LayoutParams(-1,-2));}
         TextView quality=text(repo.quality(d),12,repo.fresh(d)?MUTED:AMBER,false);quality.setGravity(timeGravity);times.addView(quality,new LinearLayout.LayoutParams(-1,-2));row.addView(times,new LinearLayout.LayoutParams(dp(smallRound?64:50),-2));
         parent.addView(row,new LinearLayout.LayoutParams(-1,-2));space(parent,grouped?2:7);
-        actionable(row,s.name+", "+d.route+" Richtung "+d.towards+", "+repo.countdown(d)+" Minuten, "+repo.quality(d)+", "+reach+(group.size()>1?", danach "+repo.countdown(group.get(1))+" Minuten":""),()->openConnection(s,favorite==null?d.route:favorite.route,favorite==null?d.towards:favorite.towards));
+        actionable(row,s.name+", "+d.route+" Richtung "+d.towards+", "+repo.countdown(d)+" Minuten, "+repo.quality(d)+", "+reach+(group.size()>1?", danach "+repo.countdown(group.get(1))+" Minuten":""),()->openConnection(s,favorite==null?d.route:favorite.route,favorite==null?d.towards:favorite.towards,d.mode));
     }
     private void renderFavorites(){
         if(favoriteRoutes()){
@@ -304,30 +306,30 @@ public final class MainActivity extends Activity {
             return;
         }
         centered(content,"Haltestellen & Linien",14,MINT,true);space(content,7);
-        if(repo.favorites.isEmpty()){placeholder("Deine wichtigsten Wege","Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Mehr → Favoriten → Aus PWA importieren übernehmen.");return;}
+        if(repo.orderedFavorites().isEmpty()){placeholder(repo.favorites.isEmpty()?"Deine wichtigsten Wege":"Noch keine Favoriten in "+CityProfiles.name(repo.cities.current()),"Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Mehr → Favoriten → Aus PWA importieren übernehmen.");return;}
         for(Map.Entry<String,List<Repo.Favorite>> entry:repo.favoriteGroups().entrySet()){
             Repo.Stop s=repo.findStop(entry.getKey());if(s==null)continue;
             LinearLayout panel=stationPanel(s,true);
             LinkedHashSet<String> rendered=new LinkedHashSet<>();Repo.Favorite whole=null;
             for(Repo.Favorite favorite:entry.getValue()){
                 if(favorite.route.isEmpty()){whole=favorite;continue;}
-                List<List<Repo.Departure>> groups=repo.connections(s,favorite.route,favorite.towards,true);
+                List<List<Repo.Departure>> groups=repo.connections(s,favorite.route,favorite.towards,true,favorite.mode);
                 if(groups.isEmpty()){
                     LinearLayout empty=vertical();empty.setPadding(dp(6),dp(5),dp(6),dp(5));empty.addView(text(favorite.route+" → "+(favorite.towards.isEmpty()?"Alle Richtungen":favorite.towards),12,MUTED,false));space(empty,3);empty.addView(text(fetching?"Abfahrten laden …":"Keine aktuellen Abfahrten",12,MUTED,false));panel.addView(empty,new LinearLayout.LayoutParams(-1,-2));
-                    actionable(empty,s.name+", gespeicherte Verbindung "+favorite.route+" öffnen",()->openConnection(s,favorite.route,favorite.towards));
+                    actionable(empty,s.name+", gespeicherte Verbindung "+favorite.route+" öffnen",()->openConnection(s,favorite.route,favorite.towards,favorite.mode));
                 }
-                for(List<Repo.Departure> group:groups){Repo.Departure d=group.get(0);if(rendered.add(d.route+"|"+d.towards))connectionCard(panel,s,group,true,favorite);}
+                for(List<Repo.Departure> group:groups){Repo.Departure d=group.get(0);if(rendered.add(d.mode+"|"+d.route+"|"+d.towards))connectionCard(panel,s,group,true,favorite);}
             }
             if(whole!=null){
-                for(List<Repo.Departure> group:repo.connections(s,"","",true)){Repo.Departure d=group.get(0);if(rendered.add(d.route+"|"+d.towards))connectionCard(panel,s,group,true,null);}
+                for(List<Repo.Departure> group:repo.connections(s,"","",true)){Repo.Departure d=group.get(0);if(rendered.add(d.mode+"|"+d.route+"|"+d.towards))connectionCard(panel,s,group,true,null);}
                 if(rendered.isEmpty()&&entry.getValue().size()==1){centered(panel,fetching?"Abfahrten laden …":"Keine aktuellen Abfahrten",12,MUTED,false);}
                 fullButton(panel,"Ganze Haltestelle","quiet",()->openConnection(s,"",""));
             }
         }
     }
     private void favoriteAction(Repo.Stop stop,String route,String towards){
-        boolean saved=repo.hasFavorite(stop,route,towards);
-        fullButton(content,saved?"Favorit entfernen":"☆ Als Favorit speichern",saved?"danger":"primary",()->{repo.toggleFavorite(stop,route,towards);renderContent();});
+        String mode=route.isEmpty()?"":detailMode;boolean saved=repo.hasFavorite(stop,route,towards,mode);
+        fullButton(content,saved?"Favorit entfernen":"☆ Als Favorit speichern",saved?"danger":"primary",()->{repo.toggleFavorite(stop,route,towards,mode);renderContent();});
     }
     private JSONObject currentJourney(){return JourneyStore.variant(repo.journeys.get(journeyId),journeyVariant);}
     private int optionBranch(JSONObject bundle,int index){JSONObject option=JourneyStore.variant(bundle,index);int common=JourneyStore.commonBoardings(currentJourney(),option);if(index==journeyVariant){common=Integer.MAX_VALUE;for(int j=0;j<JourneyStore.variantCount(bundle);j++)if(j!=index)common=Math.min(common,JourneyStore.commonBoardings(option,JourneyStore.variant(bundle,j)));if(common==Integer.MAX_VALUE)common=journeyBoarding;}return Math.min(common,Math.max(0,JourneyStore.boardings(option).size()-1));}
@@ -381,7 +383,7 @@ public final class MainActivity extends Activity {
     }
     private void renderDetail(){
         if(detailStop==null){screen="home";renderLayout();return;}
-        Repo.Stop s=detailStop;List<List<Repo.Departure>> groups=repo.connections(s,detailRoute,detailFromJourney?"":detailTowards,true);
+        Repo.Stop s=detailStop;List<List<Repo.Departure>> groups=repo.connections(s,detailRoute,detailFromJourney?"":detailTowards,true,detailMode);
         if(detailFromJourney&&!detailTowards.isEmpty())groups.removeIf(group->group.isEmpty()||!JourneyStore.directionMatches(detailTowards,group.get(0).towards));
         if(detailFromJourney&&!detailTowards.isEmpty()&&!groups.isEmpty())detailTowards=groups.get(0).get(0).towards;
         if(detailRoute.isEmpty()){
@@ -457,12 +459,17 @@ public final class MainActivity extends Activity {
     }
     private void renderMore(){
         status.setVisibility(View.GONE);
-        String title=settingsSection.isEmpty()?"Mehr":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
+        String title=settingsSection.isEmpty()?"Mehr":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
         centered(content,title,17,WHITE,true);space(content,14);
         if(settingsSection.equals("push")){renderPush();
         }else if(settingsSection.equals("push-delivery")){renderPushDelivery();
         }else if(settingsSection.equals("push-filters")){renderPushFilters();
         }else if(settingsSection.equals("push-info")){renderPushInfo();
+        }else if(settingsSection.equals("city")){
+            centered(content,"Aktuell: "+CityProfiles.name(repo.cities.current()),12,MINT,true);space(content,8);
+            for(String city:new String[]{"auto","wien","graz","linz","salzburg"}){boolean selected=repo.cities.preference.equals(city);fullButton(content,(selected?"✓ ":"")+(city.equals("auto")?"Automatisch":CityProfiles.name(city)),selected?"selected":"secondary",()->chooseCity(city));}
+            centered(content,"Wien ist Standard. Automatisch wechselt nur mit frischem, genauem Standort in der sichtbaren App. Manuell beginnt die Ansicht in der Stadtmitte; Gehzeiten bleiben dabei ungewiss.",12,MUTED,false);space(content,7);
+            centered(content,"Salzburg: Fahrplanzeiten. Regionale Störungsmeldungen sind noch nicht angebunden. Smartphone und Uhr wählen ihre Stadt unabhängig.",12,MUTED,false);
         }else if(settingsSection.equals("radius")){
             centered(content,"Stationen im Umkreis",12,MUTED,false);space(content,10);
             for(int r:new int[]{300,600,1000})fullButton(content,(repo.prefs.getInt("radius",300)==r?"✓ ":"")+r+" m",repo.prefs.getInt("radius",300)==r?"selected":"secondary",()->{repo.prefs.edit().putInt("radius",r).apply();refreshMore();});
@@ -509,6 +516,7 @@ public final class MainActivity extends Activity {
             fullButton(content,powerSaver.enabled?"✓ Automatisch unter 20 %":"Unter 20 % aktivieren",powerSaver.enabled?"selected":"primary",()->{powerSaver.enabled=!powerSaver.enabled;repo.prefs.edit().putBoolean("ultraBattery",powerSaver.enabled).apply();applyBattery(powerSaver.percent);refreshMore();});
             centered(content,"Optional: Standort höchstens alle 5 Minuten als einzelne Ortung, Abfahrten alle 90 Sekunden, Anzeige alle 30 Sekunden. Eine manuelle Standortsuche bleibt möglich. Alte Positionen und Abfahrten werden weiterhin als unsicher markiert.",12,MUTED,false);space(content,8);centered(content,"Ab 25 % Akku automatisch zurück zum Normalbetrieb mit Hinweis. Keine Abfragen im Hintergrund. QR-Übertragung und bestätigter Update-Download bleiben sichtbar wach.",12,MUTED,false);
         }else{
+            menuRow("Stadtprofil",CityProfiles.name(repo.cities.current())+(repo.cities.preference.equals("auto")?" · automatisch":" · manuell"),"⌖",()->section("city"));
             menuRow("Standort & Nähe",repo.prefs.getInt("radius",300)+" m · Verkehrsmittel","⌖",()->section("location"));
             menuRow("Gehen & Reserve",String.valueOf(repo.prefs.getFloat("speed",4.5f)).replace('.',',')+" km/h · "+repo.prefs.getInt("buffer",1)+" Min.","↗",()->section("walking"));
             menuRow("Favoriten",repo.favorites.size()+" Station/Linie · "+repo.journeys.all().length()+" Routen","☆",()->section("favorites"));
@@ -519,6 +527,7 @@ public final class MainActivity extends Activity {
     }
     private void refreshMore(){int y=openingPage?0:scroll.getScrollY();content.removeAllViews();renderMore();restoreScroll(y);}
     private boolean hasLocationPermission(){return checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED||checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED;}
+    private void chooseCity(String city){stopLocation();resetDepartureScope();repo.selectCity(city);locationMessage="";detailStop=null;refreshMore();if(active&&hasLocationPermission())startLocation(false);}
     private boolean locationScreen(){return screen.equals("home")||screen.equals("detail")||screen.equals("journey")&&currentJourney()!=null&&currentJourney().optJSONObject("from").optString("kind").equals("current")||screen.equals("more")&&settingsSection.equals("location");}
     private void readBattery(Intent intent){if(intent==null)return;int level=intent.getIntExtra(BatteryManager.EXTRA_LEVEL,-1),scale=intent.getIntExtra(BatteryManager.EXTRA_SCALE,-1);if(level<0||scale<=0)return;applyBattery(Math.min(100,Math.round(level*100f/scale)));}
     void applyBattery(int percent){

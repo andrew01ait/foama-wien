@@ -1,3 +1,17 @@
+## PWA 0.8.0 / Wear 0.7.0 · Städte und Linienfahrpläne · 10.11.2026
+
+Die Uhr unterstützt jetzt Wien, Graz, Linz und Salzburg. Wien ist Standard; automatische Erkennung nur durch frische genaue Vordergrundfixes, veraltete Erkennung fällt auf Wien zurück. Manuelle Stadtwahl ausschließlich Mehr → Stadtprofil. Frische Position innerhalb des manuell gewählten Profils erhalten; nur bei fehlender/fremder Position klar bezeichnete Stadtmitte, niemals verlässliche Gehzeit. Alle lokalen Favoriten bleiben erhalten, Stationsfavoriten werden je Stadt angezeigt. Routen bleiben stadtübergreifend. Regionale Boards verwenden exakte bekannte Stations-IDs, maximal drei Stationen und das gemeinsame 30-s-/Serverbudget. Alle sichtbaren Stationen haben Vorrang. Salzburg bleibt Sollfahrplan; keine regionalen Störungs- oder nativen Push-Versprechen. Bus und S-Bahn mit gleicher Liniennummer werden einschließlich Detail/Import nach Modus getrennt.
+
+QR-Handschlag ergänzt city-profiles-v1; alte Uhren bleiben weiterhin für regionale Auswahl gesperrt. Originalpaket, Originalsignatur, Geräte-/Favoritenschlüssel und Zehn-Minuten-Transfer bleiben erhalten. Wear 0.7.0/22: 138 Android-Tests, Signatur, Paket und Größe geprüft. Physische OnePlus-Abnahme bleibt separat.
+
+PWA fahrplan.html zeigt 173 Wiener Linien mit Haltestelle, Richtung, Datum und vollständigem Tagesfahrplan nach Stunden. Nachtfahrten und Zeitumstellung kalendergenau; Stationsliste ausdrücklich alphabetisch, keine erfundene Linienführung. Ganze Linie nur nach Nutzeraktion offline laden; Speicherfehler und Abbruch ehrlich anzeigen. Vorhandenen versionierten IndexedDB-Speicher verwenden. Linienindex stets an dieselbe Fahrplanversion binden und bei Neuimport erneuern. Quelle, Serveränderung, Archivdateistand, Import, Gültigkeit und letzte Quellenprüfung unterscheiden; kein Veröffentlichungsdatum ableiten. Wöchentliche Quellenprüfung eingerichtet, kein automatischer Neuimport/Deploy. Die tatsächliche Quell-ZIP-Prüfsumme war am 10.11. identisch zum Import; Fahrplan gültig bis 12.12.2026.
+
+Städtevergleich staedte.html, App-Links und Uhr-Webseite sind an den neuen Funktionsstand angepasst. Vollständige Linienkarten und Fahrzeugschätzungen sind geprüft und dokumentiert, aber noch nicht umgesetzt. Native/öffentliche Versionsangaben nur zusammen mit der verifizierten APK veröffentlichen.
+
+## PWA 0.7.7 · Öffentliche Städteübersicht · 10.11.2026
+
+Eigene teilbare Seite `staedte.html` mit Funktionsvergleich für Wien, Graz, Linz und Salzburg. Auf dem Smartphone einzelne Stadt oder alle vergleichen; Links im Stadtprofil, unter App & Installation, im PWA-Footer und auf der Uhr-Webseite. Fahrzeug-Barrierefreiheit, reine Fahrplanzeiten, regionale Störungsgrenzen und Offline-Nutzung sind verständlich erklärt. Die Seite ist Teil der Offline-Shell. Native Wear bleibt 0.6.1/21; regionale Uhr-Funktionen folgen separat.
+
 ## PWA 0.7.4 · lokaler Anzeigetest und eindeutige Updatehinweise · 10.11.2026
 
 Der Nutzer bestätigt den Empfang der echten Push-Testnachricht. Die lokale Probe läuft nun als bestätigter MessageChannel-Auftrag im aktiven Worker mit waitUntil statt als bloßer Anzeigeaufruf aus der Seite. Sie prüft vorhandene Freigabe und Browser-Auflistung, ersetzt nur ihre eigene vorige Testanzeige und meldet fehlende Unterstützung, Ablehnung oder ausbleibende Bestätigung im Debug-Bereich. Kein Transport, keine neue Freigabe, keine Änderung echter Störungsanzeigen; lautlos, Benachrichtigungsleiste beachten. Physische Anzeige der überarbeiteten lokalen Probe bleibt am Zieltelefon zu prüfen.

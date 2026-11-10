@@ -17,7 +17,7 @@ final class JourneyStore {
     }
     static JSONObject place(JSONObject p)throws Exception {
         if(p==null||text(p.opt("name"),160).isEmpty())throw new IllegalArgumentException("Stationsname fehlt");String id=p.optString("stopId","");
-        return new JSONObject().put("name",text(p.opt("name"),160)).put("stopId",id.matches("^(wl|rail):[\\w:-]{1,100}$")?id:JSONObject.NULL).put("platform",text(p.opt("platform"),30));
+        return new JSONObject().put("name",text(p.opt("name"),160)).put("stopId",id.matches("^(wl|rail|graz|linz|salzburg):[\\w:-]{1,100}$")?id:JSONObject.NULL).put("platform",text(p.opt("platform"),30));
     }
     static JSONObject sanitize(JSONObject input)throws Exception {
         if(input==null)throw new IllegalArgumentException("Ungültige Route");String id=input.optString("id");long saved=input.optLong("savedAt",-1);JSONArray raw=input.optJSONArray("legs");
@@ -61,7 +61,7 @@ final class JourneyStore {
     static List<JSONObject> boardings(JSONObject journey){ArrayList<JSONObject> out=new ArrayList<>();JSONArray legs=journey==null?null:journey.optJSONArray("legs");if(legs!=null)for(int i=0;i<legs.length();i++){JSONObject leg=legs.optJSONObject(i);if(leg!=null&&!leg.optString("mode").equals("walk"))out.add(leg);}return out;}
     static List<Repo.Departure> departures(JSONObject leg,Repo repo){
         ArrayList<Repo.Departure> out=new ArrayList<>();JSONObject origin=leg.optJSONObject("from");Repo.Stop stop=origin==null?null:repo.findStop(origin.optString("stopId"));String towards=direction(leg.optString("towards"));if(stop==null||towards.isEmpty())return out;
-        if(!repo.lastError.isEmpty())return out;for(Repo.Departure d:new ArrayList<>(repo.departures))if(d.stopKey.equals(stop.id)&&d.route.equals(leg.optString("route"))&&d.mode.equals(leg.optString("mode"))&&directionMatches(towards,d.towards)&&d.when>=System.currentTimeMillis()&&repo.fresh(d))out.add(d);out.sort(Comparator.comparingLong(d->d.when));return out;
+        for(Repo.Departure d:new ArrayList<>(repo.departures))if(d.stopKey.equals(stop.id)&&d.route.equals(leg.optString("route"))&&d.mode.equals(leg.optString("mode"))&&directionMatches(towards,d.towards)&&d.when>=System.currentTimeMillis()&&repo.fresh(d))out.add(d);out.sort(Comparator.comparingLong(d->d.when));return out;
     }
     static String direction(String value){return value.replaceFirst("(?i)^Wien\\s+","").trim().toLowerCase(java.util.Locale.GERMAN);}
     static String[] directionParts(String value){String label=direction(value);java.util.regex.Matcher via=java.util.regex.Pattern.compile("\\s+\\((?:über|üb\\.?|via)\\s+(.+)\\)$").matcher(label);boolean hasVia=via.find();String name=(hasVia?label.substring(0,via.start()):label).replaceFirst("\\s+(?:s\\s+u|u\\s+s|s|u)$","").trim();return new String[]{name,hasVia?via.group(1):""};}

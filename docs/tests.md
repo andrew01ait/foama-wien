@@ -1,3 +1,15 @@
+## PWA 0.8.0 / Wear 0.7.0 · 10.11.2026
+
+313 Web-/Server-Tests, zehn Python-Prüfungen und 138 native Android-Tests erfolgreich. Neue Fälle: vollständige Kalendertage, Nachtfahrten, DST-Doppelstunden/Lücke, Kalendergrenzen, exakte Linien-/Modus-/Stationsfilter, versionsgebundener Linienindex, kalter Offline-Zugriff, fehlgeschlagene Speicherung und Sichtbarkeit aller drei regionalen Stationen. Offline-Shell umfasst Städteübersicht und Fahrplanseite. Native Fälle: Stadtalter/Genauigkeit, manuelle echte Position/öffentliche Mitte, regionale Parser und Cache, Salzburg, gleichnamige Modi, begrenzte sichtbare Abfragen, QR-/Routenkennungen und Menü-Rückweg. Alle bestehenden Lifecycle-/Transfer-/Runddisplay-Prüfungen bestanden.
+
+Wear-APK 0.7.0/22 mit ursprünglichem Zertifikat signiert und per apksigner, zipalign, Paket-/Versionsmetadaten geprüft; 3.838.570 Bytes, SHA-256 c445582a8a2ed5ddd4559cbec3c0cb5a1eac09318276bea2e239c94b3f88efac. Physische OnePlus-Abnahme ist kein Ergebnis dieser Tests. Verwaltete Browser-Vorschau versucht; Browser-URL-Richtlinie sperrte die Beobachtung. Keine erfolgreiche visuelle PWA-Abnahme behaupten.
+
+Offizielle GTFS-Quelle vollständig mit 98.436.733 Bytes geladen und mit dem Import verglichen: SHA-256 identisch. Server Last-Modified 09.11.2026 05:09:41 UTC, Prüfzeit 10.11.2026 08:47 UTC. Kein bestätigtes Veröffentlichungsdatum.
+
+## PWA 0.7.7 · Städteübersicht · 10.11.2026
+
+306 Web-/Server-Tests und zehn Python-Prüfungen erfolgreich. Die vorhandene Offline-Shell-Prüfung umfasst die neue Städteübersicht. Die verwaltete Browser-Vorschau wurde versucht, die Beobachtung jedoch von der Browser-URL-Richtlinie gesperrt; deshalb keine erfolgreiche visuelle oder physische Abnahme behaupten.
+
 ## PWA 0.7.6 · Einstellungen nach Zweck gegliedert · 10.11.2026
 
 Auf Nutzerfeedback sind tägliche Einstellungen und technische Werkzeuge sichtbar getrennt. Deine App: Darstellung, Stadtprofil, Standort & Gehzeit, Störungshinweise und Favoriten & Uhr. Technik & Diagnose: App & Installation, Fahrplandaten importieren, Debug Push und Debugging. Stadt und Farbschema sind unabhängige Einträge; sie haben keinen gemeinsamen Aufklappbereich mehr. Neun dezente Karten mit einheitlichen Vektorsymbolen, ruhigen Hintergründen und besser getrennten Abständen ersetzen die flache Liste. Technische Symbole sind zurückhaltend, Alltagssymbole mint. Alle bisherigen Optionen, IDs, Hilfen und Speicherformate bleiben erhalten. Push und native Wear 0.6.1/21 unverändert.

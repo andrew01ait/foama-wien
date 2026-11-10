@@ -47,8 +47,9 @@ export function normalizeLinzBoard(payload,stop,now=Date.now()){
 export function regionalRequestStops(stops,{visible=new Set(),expanded=new Set(),cycle=0,limit=3}={}){
  const rows=[...new Map(stops.filter(stop=>stop?.provider==='transitous').map(stop=>[stop.id,stop])).values()];
  rows.sort((a,b)=>Number(visible.has(b.id))-Number(visible.has(a.id))||Number(expanded.has(b.id))-Number(expanded.has(a.id)));
- if(rows.length<=limit)return rows;
- const pinned=Math.max(1,limit-1),tail=rows.slice(pinned);return [...rows.slice(0,pinned),tail[Math.max(0,cycle)%tail.length]];
+ const pick=(items,count)=>{if(count<=0)return [];if(items.length<=count)return items;const pinned=count-1;return [...items.slice(0,pinned),items[pinned+Math.max(0,cycle)%(items.length-pinned)]];};
+ const shown=rows.filter(stop=>visible.has(stop.id)),rest=rows.filter(stop=>!visible.has(stop.id));
+ return shown.length>=limit?pick(shown,limit):[...shown,...pick(rest,limit-shown.length)];
 }
 export async function fetchRegionalBoards(stops,{fetch=globalThis.fetch,signal}={}){
  if(!stops.length)return {departures:[],stations:[]};

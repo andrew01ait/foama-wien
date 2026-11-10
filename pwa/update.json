@@ -1,18 +1,18 @@
 {
-  "version": "0.7.6",
-  "wearVersionCode": 21,
-  "wearApkUrl": "/apk/foama-wien-wear-0.6.1.apk",
-  "wearApkSha256": "bbf73cd515ba01fbf6d709ed6b8f9f166de77984640f3dccffde1f6607e6ff59",
-  "changelog": "Einstellungen mit getrennten Bereichen Deine App und Technik & Diagnose. Stadtprofil und Darstellung sind jetzt eigenständige Einträge. Ruhige Karten, einheitliche Symbole und übersichtliche Abstände; alle Funktionen bleiben erhalten.",
-  "wearVersion": "0.6.1",
+  "version": "0.8.0",
+  "wearVersionCode": 22,
+  "wearApkUrl": "/apk/foama-wien-wear-0.7.0.apk",
+  "wearApkSha256": "c445582a8a2ed5ddd4559cbec3c0cb5a1eac09318276bea2e239c94b3f88efac",
+  "changelog": "Tagesfahrpläne für 173 Wiener Linien: Haltestelle, Richtung und Datum wählen, Stundenübersicht und ganze Linie offline speichern. Datenstand, Gültigkeit und Quellenprüfung sichtbar. Städtevergleich aktualisiert; regionale Favoritenübertragung zur neuen Uhr-App 0.7.0.",
+  "wearVersion": "0.7.0",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 3735980,
+  "wearApkBytes": 3838570,
   "wearMinSdk": 30,
-  "wearChangelog": "Favoriten mit Umschalter zwischen Routen und Stationen. Haltestellen und Linien haben eine eigene klar beschriftete Ansicht. Die zuletzt gewählte Favoritenansicht bleibt gespeichert. Nach dem QR-Import direkt zu den übernommenen Favoriten.",
+  "wearChangelog": "Wien, Graz, Linz und Salzburg auf deiner Uhr. Automatische Stadterkennung und manuelle Auswahl unter Mehr → Stadtprofil. Regionale Stationen und Routen per QR oder Datei übernehmen. Salzburg mit klar gekennzeichneten Fahrplanzeiten; lokale Favoriten bleiben erhalten.",
   "wearReleaseNotes": [
-    "Favoriten mit Umschalter zwischen Routen und Stationen.",
-    "Haltestellen und Linien haben eine eigene klar beschriftete Ansicht.",
-    "Die zuletzt gewählte Favoritenansicht bleibt gespeichert.",
-    "Nach dem QR-Import direkt zu den übernommenen Favoriten."
+    "Wien, Graz, Linz und Salzburg auf deiner Uhr.",
+    "Automatische Stadterkennung und manuelle Auswahl unter Mehr → Stadtprofil.",
+    "Regionale Stationen und Routen per QR oder Datei übernehmen.",
+    "Salzburg mit klar gekennzeichneten Fahrplanzeiten; lokale Favoriten bleiben erhalten."
   ]
 }

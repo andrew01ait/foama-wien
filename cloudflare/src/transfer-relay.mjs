@@ -5,7 +5,7 @@ const reply=(body,status=200)=>new Response(JSON.stringify(body),{status,headers
 const error=(message,status=400)=>reply({error:message},status);
 const validToken=s=>typeof s==='string'&&/^[A-Za-z0-9_-]{32}$/.test(s);
 const validSecret=s=>typeof s==='string'&&/^[A-Za-z0-9_-]{32}$/.test(s);
-const KNOWN_CAPABILITIES=['journey-favorites-v1','journey-alternatives-v1'];
+const KNOWN_CAPABILITIES=['journey-favorites-v1','journey-alternatives-v1','city-profiles-v1'];
 function capabilities(value){try{const rows=Array.isArray(value)?value:value==='journey-favorites-v1'?[value]:JSON.parse(value||'[]');return KNOWN_CAPABILITIES.filter(key=>Array.isArray(rows)&&rows.includes(key));}catch{return [];}}
 export async function transferHash(value){return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))].map(b=>b.toString(16).padStart(2,'0')).join('');}
 export async function purgeTransfers(db,now=Date.now()){if(db)await db.prepare('DELETE FROM foama_transfers WHERE expires <= ?').bind(now).run();}

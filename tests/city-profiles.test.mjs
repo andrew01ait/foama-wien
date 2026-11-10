@@ -6,6 +6,10 @@ import {sanitizeJourneyFavorites} from '../pwa/src/journey-favorites.mjs';
 import {providerStationIdentity,regionalRequestStops} from '../pwa/src/regional-departures.mjs';
 
 const now=Date.parse('2026-11-09T12:00Z');
+test('all three visible regional stations outrank offscreen stations when they fit the request limit',()=>{
+ const stops=Array.from({length:8},(_,i)=>({id:'graz:'+i,provider:'transitous'})),visible=new Set(['graz:4','graz:6','graz:7']);
+ for(let cycle=0;cycle<8;cycle++){const requested=regionalRequestStops(stops,{visible,cycle});assert.equal(requested.length,3);assert.ok(requested.every(stop=>visible.has(stop.id)));}
+});
 const fix=(city,options={})=>({...CITY_PROFILES[city].center,accuracy:20,timestamp:now,...options});
 test('Vienna is the default; only fresh foreground GPS can select another city, without changing the manual preference',()=>{
  let at=now;const changes=[],controller=createCityController({onChange:city=>changes.push(city.id),now:()=>at});

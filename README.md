@@ -1,8 +1,8 @@
 # foama-wien
 
-Öffis, die du noch erreichst. Abfahrtsmonitor als installierbare Smartphone-PWA mit Profilen für Wien, Graz, Linz und Salzburg; native Wear-OS-App für Wien.
+Öffis, die du noch erreichst. Abfahrtsmonitor als installierbare Smartphone-PWA mit Profilen für Wien, Graz, Linz und Salzburg; native Wear-OS-App für alle vier Städte.
 
-[**PWA öffnen**](https://foama-wien.endruuu.chatgpt.site/) · [**Uhr-App**](https://foama-wien.endruuu.chatgpt.site/wear.html) · [**GitHub**](https://github.com/andrew01ait/foama-wien) · [Dokumentation](docs/README.md)
+[**Städte & Funktionen**](https://foama-wien.endruuu.chatgpt.site/staedte.html) · [**PWA öffnen**](https://foama-wien.endruuu.chatgpt.site/) · [**Uhr-App**](https://foama-wien.endruuu.chatgpt.site/wear.html) · [**GitHub**](https://github.com/andrew01ait/foama-wien) · [Dokumentation](docs/README.md)
 
 ## Funktionen
 
@@ -12,10 +12,11 @@
 - Import gespeicherter Wege auf die Uhr per Datei oder kurzlebiger verschlüsselter QR-Übertragung.
 - Dezente spätere Live-Zeitkorrekturen und Rollstuhl-Symbol bei ausdrücklich gemeldeter Fahrzeug-Barrierefreiheit in der PWA.
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
+- Tagesfahrpläne für 173 Wiener Linien mit Stundenübersicht und bewusster Offline-Sicherung ganzer Linien.
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.7.6 und Wear 0.6.1**, nativer Versionscode **21**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.8.0 und Wear 0.7.0**, nativer Versionscode **22**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

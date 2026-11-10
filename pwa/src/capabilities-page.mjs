@@ -1,0 +1,17 @@
+import {createThemeController} from './theme.mjs?v=0.8.0';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.8.0';
+
+let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}
+createThemeController({preference:theme});
+const table=document.getElementById('capabilitiesTable');
+function show(city){
+ const selected=['wien','graz','linz','salzburg'].includes(city)?city:'all';
+ for(const cell of table.querySelectorAll('[data-city-column]'))cell.hidden=selected!=='all'&&cell.dataset.cityColumn!==selected;
+ for(const button of document.querySelectorAll('[data-city-view]'))button.setAttribute('aria-pressed',String(button.dataset.cityView===selected));
+ table.classList.toggle('single-city',selected!=='all');
+}
+for(const cell of table.querySelectorAll('td'))if(['Verfügbar','Nach Aktivierung'].includes(cell.textContent))cell.classList.add('available');
+for(const button of document.querySelectorAll('[data-city-view]'))button.addEventListener('click',()=>show(button.dataset.cityView));
+let initial=new URL(location.href).searchParams.get('stadt');
+if(!initial&&matchMedia('(max-width: 600px)').matches){try{initial=cityPreference(JSON.parse(localStorage.getItem(CITY_PREFERENCE)));if(initial==='auto')initial=recentDetectedCity();}catch{initial='wien';}}
+show(initial||'all');

@@ -1,4 +1,4 @@
-# Stadtprofile · PWA 0.7.6
+# Stadtprofile · PWA 0.8.0 / Wear 0.7.0
 
 Eine Installation, bestehende URL/Manifest-ID und vorhandene Speicherschlüssel. **Wien ist Standard.** Nur bei sichtbarer App und vorhandener Standortfreigabe darf ein frischer genauer GPS-Fix zu Graz, Linz oder Salzburg wechseln. Es werden keine zusätzlichen Hintergrundortungen eingeführt.
 
@@ -27,7 +27,7 @@ Kataloge sind datierte öffentliche Transitous-Map-Snapshots mit MVO-/regionalen
 
 Störungen/Push und amtliche Hausnummern sind weiterhin ausschließlich für Wien angebunden. Ohne regionalen Störungsfeed gibt es keine Entwarnung. Salzburg hat im ersten Profil einen Fahrplanmodus; die Echtzeitabdeckung anderer Städte ist Best Effort und betreiberabhängig. EFA ist ein Legacy-Zugang ohne zugesicherte Verfügbarkeit. Andere Städte haben noch kein eigenes vollständiges Offline-Sollfahrplanpaket. Eigener MVO-Download verlangt manuelle Betreiberregistrierung/Lizenzannahme; im Rahmen dieser Umsetzung wurden keine Konten oder Verträge angelegt.
 
-Die native Uhr bleibt unverändert bei 0.6.1/21 und ihrem Wiener Katalog. QR-Auswahl sperrt explizit noch nicht unterstützte regionale Stationen/Routen statt sie auf der Uhr als funktionsfähig auszugeben; die lokalen PWA-Favoriten bleiben erhalten. JSON-Sicherung bewahrt alle Städte. Ein späterer nativer Ausbau kann dieselben IFOPT-/Providergrenzen übernehmen.
+Die native Uhr 0.7.0/22 unterstützt dieselben vier Stadtprofile mit eigenen lokalen Favoriten. Manuelle Wahl ausschließlich Mehr → Stadtprofil; präzise Vordergrundortung kann automatisch wechseln. Regionale Stationen und Routen werden per QR/Datei bewusst übernommen; der neue QR-Handschlag city-profiles-v1 hält ältere Uhren weiterhin geschützt. Native Vollplanung, Karten und vollständige Offline-Linienfahrpläne bleiben in der PWA. Direkter Uhr-Push bleibt deaktiviert.
 
 Quellen und ursprüngliche Proben: [Machbarkeitsanalyse](multi-city-feasibility.md), [Transitous API](https://transitous.org/api/), [Datenquellen](https://transitous.org/sources/), [LINZ AG EFA](https://data.linz.gv.at/katalog/linz_ag/linz_ag_linien/fahrplan/).
 

@@ -1,4 +1,4 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.7.6';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.8.0';
 
 const zone='Europe/Vienna', dayMs=86400_000;
 const dateParts=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
@@ -51,7 +51,7 @@ async function decodeShard(data,version){
  if(result.length>16_000_000)throw Error('Fahrplanpaket zu groß');return JSON.parse(result);
 }
 export function createTimetable({fetch=globalThis.fetch,get=getCatalogue,put=putCatalogue,now=()=>Date.now()}={}){
- let manifest=null,checked=0;const shards=new Map();
+ let manifest=null,checked=0,manifestStored=false;const shards=new Map(),savedShards=new Set();
  async function metadata(signal){
   if(manifest&&now()-checked<600000)return manifest;
   const key='timetable:wien:manifest';
@@ -61,36 +61,37 @@ export function createTimetable({fetch=globalThis.fetch,get=getCatalogue,put=put
    const data=await response.json();
    if(data?.format!==1||typeof data.version!=='string'||!data.stations||!data.shards||!Array.isArray(data.services))throw Error('Fahrplanformat');
    if(signal?.aborted)throw new DOMException('Beendet','AbortError');
-   if(manifest?.version!==data.version)shards.clear();manifest=data;checked=now();
-   void put(key,data).catch(()=>{});return data;
+   if(manifest?.version!==data.version){shards.clear();savedShards.clear();}manifest=data;checked=now();
+   manifestStored=await put(key,data).then(()=>true).catch(()=>false);return data;
   }catch(error){
    if(signal?.aborted)throw error;
-   manifest=manifest||await get(key).catch(()=>null);checked=now();return manifest;
+   const cached=await get(key).catch(()=>null);manifest=manifest||cached;manifestStored=!!cached&&cached.version===manifest?.version;checked=now();return manifest;
   }
  }
- async function load(stops,{signal}={}){
-  const selected=stops.filter(stop=>stop.provider==='wl');if(!selected.length)return [];
-  const data=await metadata(signal);if(!data)return [];
-  const today=timetableDate(now());if(today<data.validFrom||today>data.validThrough)return [];
+ async function stationRows(stops,{signal}={}){
+  const selected=stops.filter(stop=>stop.provider==='wl');if(!selected.length)return {manifest:null,rows:{},offline:false};
+  const data=await metadata(signal);if(!data)return {manifest:null,rows:{},offline:false};
   const ids=[...new Set(selected.map(stop=>data.stations[stop.id]).filter(id=>Number.isInteger(id)))];
-  const rows={};
+  const rows={};let offline=manifestStored;
   for(const id of ids){
    if(signal?.aborted)throw new DOMException('Beendet','AbortError');
    let shard=shards.get(id);const key='timetable:wien:shard:'+id;
    if(!shard){
     const cached=await get(key).catch(()=>null);
-    if(cached?.version===data.version)shard=await decodeShard(cached.data,data.version).catch(()=>null);
+    if(cached?.version===data.version){shard=await decodeShard(cached.data,data.version).catch(()=>null);if(shard)savedShards.add(id);}
     if(!shard){
      const response=await fetch(`./data/timetables/wien/${id}.json?v=${data.shards[id]}`,{signal,credentials:'omit'});
-     if(!response.ok)continue;const packed=await response.json();shard=await decodeShard(packed,data.version);
+     if(!response.ok){offline=false;continue;}const packed=await response.json();shard=await decodeShard(packed,data.version);
      if(signal?.aborted)throw new DOMException('Beendet','AbortError');
-     void put(key,{version:data.version,data:packed}).catch(()=>{});
+     if(await put(key,{version:data.version,data:packed}).then(()=>true).catch(()=>false))savedShards.add(id);else savedShards.delete(id);
     }
     shards.set(id,shard);while(shards.size>12)shards.delete(shards.keys().next().value);
    }
+   offline=offline&&savedShards.has(id);
    for(const stop of selected)if(data.stations[stop.id]===id&&shard[stop.id])rows[stop.id]=shard[stop.id];
   }
-  return timetableDepartures(data,rows,now());
+  return {manifest:data,rows,offline};
  }
- return {load,metadata};
+ async function load(stops,options={}){const result=await stationRows(stops,options);return timetableDepartures(result.manifest,result.rows,now());}
+ return {load,metadata,stationRows};
 }

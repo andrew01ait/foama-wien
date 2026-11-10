@@ -1,4 +1,4 @@
-# Unabhängiger Wiener Fahrplan · PWA 0.7.0
+# Unabhängiger Wiener Fahrplan · PWA 0.8.0
 
 Der Monitor lädt beim Zugriff auf eine Station zusätzlich einen kompakten offiziellen GTFS-Sollfahrplan. Damit gibt es bereits vor der ersten erfolgreichen Monitorantwort und bei leeren/fehlgeschlagenen Live-Antworten echte geplante Abfahrtszeiten. **Fahrplan** ist keine Live-Prognose oder Zusage, dass ein Fahrzeug tatsächlich fährt. Störungsinformationen und die bisherige Datenqualitätsanzeige bleiben separat.
 
@@ -24,3 +24,13 @@ python3 scripts/prepare_timetable.py /tmp/foama-wien-gtfs.zip --date 2026-11-09 
 Datum/Zeitraum durch tatsächlich verfügbare aktuelle Daten ersetzen. Anschließend Tests, Quell-ZIP, Site-Build und bewussten internen/GitHub-/Site-Abgleich durchführen. Die Paketabfrage prüft Metadaten sichtbar höchstens alle zehn Minuten, ersetzt jedoch keinen serverseitigen Neuimport. **Es läuft noch kein automatischer Fahrplan-Import-/Deploy-Auftrag.** Vor dem 13.12. muss die nächste veröffentlichte Fahrplanperiode importiert und veröffentlicht werden; geänderte Rohdaten regelmäßig prüfen. Das ist von den bereits aktiven stündlichen Störungsprüfungen unabhängig.
 
 Graz/Linz/Salzburg verwenden im ersten Ausbau aktuelle Transitous-Boards bzw. EFA. Deren Sollzeiten sind kein vollständiges unabhängiges Offline-GTFS-Paket. Ein eigener regionaler MVO-Import benötigt weiterhin die einmalige Betreiberregistrierung und manuelle Lizenzannahme.
+
+## Tagesfahrpläne und Datenstand ab 0.8.0
+
+[Linienfahrpläne](https://foama-wien.endruuu.chatgpt.site/fahrplan.html) enthält 173 Linien, ausgewählte Haltestelle/Richtung/Datum und Stunden-Minuten-Tabellen. Der vollständige Kalendertag umfasst auch Nachmitternachtsfahrten vom vorigen Verkehrstag; doppelte Herbststunden bleiben mit Zeitzone getrennt. Keine Fahrtidentitäten oder Stationsreihenfolgen werden aus Abfahrtszeiten erfunden. Die Stationsauswahl ist alphabetisch.
+
+`prepare_timetable.py` erzeugt nun beim Import auch `lines.json`, gebunden an die Kalender-/Stationspaketversion. Bestehende Pakete können mit `scripts/prepare_line_index.py` indiziert werden. Die bewusste Aktion Ganze Linie offline speichern lädt die benötigten Stationspakete und prüft deren dauerhafte Speicherung. Fehler, Abbruch und unvollständige Pakete werden nicht als erfolgreiche Offline-Sicherung ausgegeben. Keine Live-/Karten-/Routensuche im Hintergrund.
+
+Das Quellen-ZIP enthält kein explizites Veröffentlichungsdatum. Verifiziert am 10.11.2026 um 09:47 Wiener Zeit: vollständige SHA-256 identisch mit dem Import; HTTP Last-Modified 09.11.2026 05:09:41 UTC, ZIP-Dateizeitstempel 09.11.2026. Diese Daten sind getrennte Felder, kein abgeleitetes Veröffentlichungsversprechen. Die Quellenprüfung lässt sich mit `python3 scripts/check_timetable_source.py --record` wiederholen; der Befehl lädt die feste offizielle Quelle und protokolliert den Vergleich.
+
+Eine wöchentliche Prüfung ist ab 16.11. montags eingerichtet. Sie meldet geänderte Quellen, höchstens 14 Tage Restgültigkeit, abgelaufene Daten oder anhaltend nicht prüfbaren Stand. Kein automatischer Neuimport/Deploy. Die App zeigt ausdrücklich den gespeicherten Prüfstand.

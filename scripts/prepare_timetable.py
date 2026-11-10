@@ -95,7 +95,7 @@ def build(archive, known, anchor, days):
               for stop, rows in sorted(groups.items())}
     return services, {stop: rows for stop, rows in result.items() if rows}
 
-def write_bundle(groups, services, out, anchor, days, digest, source=GTFS_SOURCE):
+def write_bundle(groups, services, out, anchor, days, digest, source=GTFS_SOURCE, line_stops=None, source_archive_date=None, source_version=None):
     version = hashlib.sha256(json.dumps([services, groups], sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()).hexdigest()[:20]
     count = 32
     buckets = [{} for _ in range(count)]
@@ -116,11 +116,16 @@ def write_bundle(groups, services, out, anchor, days, digest, source=GTFS_SOURCE
     manifest = {'format': 1, 'city': 'wien', 'timezone': 'Europe/Vienna', 'source': source,
         'attribution': 'Datenquelle: Stadt Wien – data.wien.gv.at · CC BY 4.0',
         'generated': dt.datetime.now(dt.timezone.utc).isoformat(), 'sourceSha256': digest,
+        'sourcePublishedAt': None, 'sourceArchiveDate': source_archive_date, 'sourceVersion': source_version,
         'validFrom': anchor.isoformat(), 'validThrough': (anchor + dt.timedelta(days=days-1)).isoformat(),
         'services': services, 'stations': station_index, 'shards': hashes}
     # Version binds the calendars and all shard hashes; no mixed old/new tables.
     manifest['version'] = version
     (out / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, separators=(',', ':')))
+    if line_stops is not None:
+        from prepare_line_index import line_index
+        index=line_index(manifest,[json.loads((out/(key+'.json')).read_text()) for key in hashes],line_stops)
+        (out/'lines.json').write_text(json.dumps(index,ensure_ascii=False,separators=(',',':')))
     return manifest
 
 def main():
@@ -132,9 +137,13 @@ def main():
     args = parser.parse_args()
     if not 1 <= args.days <= 90: parser.error('--days must be between 1 and 90')
     known = {stop['id']: stop for stop in json.loads((ROOT / 'pwa/data/stops.json').read_text())['stops']}
-    with zipfile.ZipFile(args.gtfs) as archive: services, groups = build(archive, known, args.date, args.days)
+    with zipfile.ZipFile(args.gtfs) as archive:
+        services, groups = build(archive, known, args.date, args.days)
+        source_archive_date='-'.join(str(value).zfill(2) for value in max(info.date_time for info in archive.infolist())[:3])
+        feed_info=list(csv_rows(archive,'feed_info.txt')) if 'feed_info.txt' in archive.namelist() else []
+        source_version=feed_info[0].get('feed_version') if feed_info else None
     if len(groups) < 1500: raise ValueError('Incomplete Vienna passenger timetable')
-    manifest = write_bundle(groups, services, args.out, args.date, args.days, hashlib.sha256(args.gtfs.read_bytes()).hexdigest())
+    manifest = write_bundle(groups, services, args.out, args.date, args.days, hashlib.sha256(args.gtfs.read_bytes()).hexdigest(), line_stops=known, source_archive_date=source_archive_date, source_version=source_version)
     print(f'{len(groups)} stations; {sum(len(v) for v in groups.values())} schedule groups; valid {manifest["validFrom"]}–{manifest["validThrough"]}; {sum(p.stat().st_size for p in args.out.glob("*.json")):,} bytes')
 
 if __name__ == '__main__': main()

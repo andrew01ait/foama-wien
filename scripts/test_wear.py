@@ -3,6 +3,7 @@
 from pathlib import Path
 import argparse,hashlib,json,os,subprocess,urllib.parse,urllib.request,zipfile,xml.sax.saxutils
 import firebase_sdk
+from java_compile import java8_compiler
 
 ROOT=Path(__file__).resolve().parents[1]
 CACHE=ROOT/'.local'
@@ -59,7 +60,7 @@ def run(apk, generated,manifest=None):
     test_classes=CACHE/'wear-test-classes';test_classes.mkdir(exist_ok=True)
     cp=os.pathsep.join(str(p) for p in [*libraries,CACHE/'deps/zxing-core-3.5.3.jar'])
     def command(args):subprocess.run([str(a) for a in args],cwd=ROOT,check=True)
-    compiler=['java','-m','jdk.compiler/com.sun.tools.javac.Main','--release','8','-encoding','UTF-8']
+    compiler=java8_compiler()
     command(compiler+['-classpath',cp,'-d',app_classes,*sorted((ROOT/'wear/app/src/main/java').rglob('*.java')),*sorted(Path(generated).rglob('*.java'))])
     cp=str(app_classes)+os.pathsep+cp
     tests=sorted((ROOT/'wear/ui-test').rglob('*Test.java'))

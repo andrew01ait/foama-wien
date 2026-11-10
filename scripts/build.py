@@ -8,6 +8,7 @@ Never package or commit the private signing keystore.
 from __future__ import annotations
 import argparse, hashlib, json, os, re, shutil, subprocess, sys, tempfile, zipfile
 import firebase_sdk
+from java_compile import java8_compiler
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG=ROOT/'wear/build-config.json'
@@ -85,7 +86,7 @@ def build(args):
         classes=t/'classes';classes.mkdir()
         java_sources=sorted((ROOT/'wear/app/src/main/java').rglob('*.java'))+sorted(gen.rglob('*.java'))
         if not java_sources:raise RuntimeError('Keine Java-Dateien')
-        call(*([shutil.which('javac')] if shutil.which('javac') else ['java','-m','jdk.compiler/com.sun.tools.javac.Main']),'--release','8','-encoding','UTF-8','-cp',os.pathsep.join([str(android),str(zxing),*map(str,firebase_jars)]),
+        call(*java8_compiler(android),'-cp',os.pathsep.join([str(android),str(zxing),*map(str,firebase_jars)]),
              '-d',classes,*java_sources)
         call(sys.executable,ROOT/'scripts/test_wear.py','--apk',base,'--generated',gen,'--manifest',manifest)
         if args.check_only:
