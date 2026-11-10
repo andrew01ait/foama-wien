@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {createLineMaps,validateLineMap,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,nearestLineStop} from '../pwa/src/line-maps.mjs';
+import {createLineMaps,validateLineMap,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,nearestLineStop,bindLineStopInteraction} from '../pwa/src/line-maps.mjs';
 import {decodeJourneyPolyline} from '../pwa/src/journey-geometry.mjs';
 
 const data=name=>readFile(new URL('../pwa/data/'+name,import.meta.url),'utf8');
@@ -64,4 +64,26 @@ test('failed storage is reported honestly and aborted responses cannot save new 
  let writes=0;const store=createLineMaps({get:async()=>null,put:async()=>{writes++;throw Error('full');},fetch:async()=>new Response(raw)});
  assert.equal((await store.line(entry,manifest)).offline,false);
  const abort=new AbortController();abort.abort();await assert.rejects(()=>store.line(entry,manifest,{signal:abort.signal}),{name:'AbortError'});assert.equal(writes,1);
+});
+
+test('a map stop offers separate schedule and monitor links only when the exact monitor station is known',()=>{
+ const line={route:'U6',mode:'metro'},pattern={towards:'Siebenhirten'},stop={id:'wl:60201372',name:'Thaliastraße U'},catalogue=[{...stop,provider:'wl',rbl:['5668']}];
+ const href=lineMapMonitorUrl(line,pattern,stop,catalogue),url=new URL(href,'https://foama-wien.endruuu.chatgpt.site/');
+ assert.equal(url.searchParams.get('halt'),stop.id);assert.equal(url.searchParams.get('linie'),'U6');assert.equal(url.searchParams.get('richtung'),'Siebenhirten');
+ assert.match(lineMapTimetableUrl(line,pattern,stop),/^\.\/fahrplan.html/);
+ assert.equal(lineMapMonitorUrl(line,pattern,{id:'gtfs:outside'},catalogue),null);
+});
+
+test('hover, movement inside an overlapping hit area and click resolve the same station; keyboard keeps its own marker',()=>{
+ const handlers={},marker={on(names,fn){for(const name of names.split(' '))handlers[name]=fn;return this;}},events=[];
+ const stops=[{lat:100,lon:100},{lat:100,lon:120}],map={latLngToContainerPoint:([x,y])=>({x,y}),mouseEventToContainerPoint:mouse=>({x:mouse.clientX,y:mouse.clientY})};
+ bindLineStopInteraction(marker,map,stops,1,{hover:i=>events.push(['hover',i]),leave:()=>events.push(['leave']),select:i=>events.push(['select',i])});
+ const at=(x,y)=>({originalEvent:{clientX:x,clientY:y}});
+ handlers.mouseover(at(100,100));handlers.click(at(100,100));assert.deepEqual(events,[['hover',0],['leave'],['select',0]]);
+ events.length=0;handlers.mousemove(at(100,120));handlers.click(at(100,120));assert.deepEqual(events,[['hover',1],['leave'],['select',1]]);
+ events.length=0;handlers.click({originalEvent:{key:'Enter'}});assert.deepEqual(events,[['leave'],['select',1]]);
+ events.length=0;handlers.keypress({originalEvent:{key:'Enter'}});assert.deepEqual(events,[['leave'],['select',1]]);
+ events.length=0;handlers.keypress({originalEvent:{keyCode:13}});assert.deepEqual(events,[['leave'],['select',1]]);
+ events.length=0;handlers.keypress({originalEvent:{key:'a'}});assert.deepEqual(events,[]);
+ handlers.mouseout();assert.deepEqual(events.at(-1),['leave']);
 });

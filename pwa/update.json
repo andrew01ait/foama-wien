@@ -1,18 +1,18 @@
 {
-  "version": "0.9.0",
-  "wearVersionCode": 23,
-  "wearApkUrl": "/apk/foama-wien-wear-0.7.1.apk",
-  "wearApkSha256": "c49d58bdab1053650614086ad9bfa90b564e18344e84543e9675fb1666ae4397",
-  "changelog": "Neu: geografische Linienkarte für 173 Wiener Linien mit echten Fahrwegen, Richtungen, Varianten und antippbaren Haltestellen. Tagesfahrplan oder ganze Linie als PDF herunterladen, auch aus gespeicherten Offline-Daten.",
-  "wearVersion": "0.7.1",
+  "version": "0.9.5",
+  "wearVersionCode": 25,
+  "wearApkUrl": "/apk/foama-wien-wear-0.7.3.apk",
+  "wearApkSha256": "79d7be677bb2a70168da41a6c3d3a40b559e184770fca87522819a645d5141ca",
+  "changelog": "Linienkarte: Stationsnamen beim Darüberfahren stimmen jetzt mit dem angeklickten Halt überein, auch bei überlappenden Trefferflächen. Große Touchflächen und Tastaturbedienung bleiben erhalten.",
+  "wearVersion": "0.7.3",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3838570,
   "wearMinSdk": 30,
-  "wearChangelog": "Routen in A nach B und Favoriten passend zur gewählten Stadt. Hauptnavigation bleibt auch in A nach B sichtbar. Schnellerer Start der Abfahrtsabfragen nach Stadt- und Ansichtswechseln. Lokale Favoriten bleiben erhalten; Fehlerpausen gelten je Stadt.",
+  "wearChangelog": "Aktive Stadt statt foama-wien als Titel über der Hauptnavigation. Weniger Abstand zwischen Routen/Stationen und den Verkehrsmitteln. Stadttitel folgt manueller Auswahl und automatischer Erkennung. Große getrennte Tippflächen und gespeicherte Favoriten bleiben erhalten.",
   "wearReleaseNotes": [
-    "Routen in A nach B und Favoriten passend zur gewählten Stadt.",
-    "Hauptnavigation bleibt auch in A nach B sichtbar.",
-    "Schnellerer Start der Abfahrtsabfragen nach Stadt- und Ansichtswechseln.",
-    "Lokale Favoriten bleiben erhalten; Fehlerpausen gelten je Stadt."
+    "Aktive Stadt statt foama-wien als Titel über der Hauptnavigation.",
+    "Weniger Abstand zwischen Routen/Stationen und den Verkehrsmitteln.",
+    "Stadttitel folgt manueller Auswahl und automatischer Erkennung.",
+    "Große getrennte Tippflächen und gespeicherte Favoriten bleiben erhalten."
   ]
 }

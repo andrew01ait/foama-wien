@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,connectionTarget,createConnectionNavigation} from '../pwa/src/connection-detail.mjs';
+import {connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,connectionTarget,createConnectionNavigation,connectionMonitorUrl,connectionUrlTarget} from '../pwa/src/connection-detail.mjs';
 import {parseWlMonitors} from '../pwa/src/core.mjs';
 import {retainDepartures,retryDelay} from '../pwa/src/departure-cache.mjs';
 
@@ -130,4 +130,23 @@ test('a delayed open callback cannot scroll a restored overview back to the top'
  const state={focusedConnection:null,departures:[],connectionOpener:null},frames=[],scrolls=[];
  const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$:()=>({hidden:false,focus(){},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);ctx.showConnection(target);ctx.showConnection(null);while(frames.length)frames.shift()();assert.deepEqual(scrolls.map(s=>s.top),[640]);
+});
+
+test('monitor links round-trip the exact station, line, mode and Unicode direction without requesting data',()=>{
+ const value={...target,towards:'Siebenhirten (über Zentrum)'};
+ const href=connectionMonitorUrl(value,[stop]),url=new URL(href,'https://foama-wien.endruuu.chatgpt.site/');
+ assert.equal(url.origin,'https://foama-wien.endruuu.chatgpt.site');assert.equal(url.hash,'#verbindung');
+ assert.deepEqual(connectionUrlTarget(url.search,[stop]),value);
+ assert.equal(connectionUrlTarget('?halt=unknown&linie=U6',[stop]),null);
+ assert.equal(connectionUrlTarget('?halt='+encodeURIComponent(stop.id)+'&linie='+'x'.repeat(31),[stop]),null);
+});
+test('a monitor link requires an exact known station with a Wiener Linien platform, rather than merely a timetable stop',()=>{
+ for(const catalogue of [[],[{...stop,rbl:[]}],[{...stop,rbl:['invalid']}],[{...stop,provider:'gtfs'}]])assert.equal(connectionMonitorUrl(target,catalogue),null);
+ assert.equal(connectionMonitorUrl({...target,stopId:'another'},[stop]),null);
+});
+test('opening a link replaces its initial entry and a standalone Back returns to the overview without reopening the link',()=>{
+ const {win,entries}=fakeWindow(),changes=[];win.location={pathname:'/'};Object.defineProperty(win.history,'length',{get:()=>entries.length});
+ const nav=createConnectionNavigation({window:win,onChange:value=>changes.push(value)});nav.open(target,{replace:true});
+ assert.equal(entries.length,1);assert.equal(win.history.state.existing,'kept');assert.equal(changes.at(-1).route,'U6');
+ nav.back();assert.equal(changes.at(-1),null);assert.equal(entries[0].hash,'/#naehe');assert.equal(win.history.state.foamaConnection,null);nav.stop();
 });

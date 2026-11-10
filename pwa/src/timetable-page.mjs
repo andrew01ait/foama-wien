@@ -1,15 +1,17 @@
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.9.0';
-import {lineDayDepartures,hourlyTimetable,timetableHourKey,timetableDayOptions} from './line-timetable.mjs?v=0.9.0';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.9.0';
-import {createThemeController} from './theme.mjs?v=0.9.0';
-import {createTimetablePdf,timetablePdfName} from './timetable-pdf.mjs?v=0.9.0';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.9.5';
+import {lineDayDepartures,hourlyTimetable,timetableHourKey,timetableDayOptions} from './line-timetable.mjs?v=0.9.5';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.9.5';
+import {createThemeController} from './theme.mjs?v=0.9.5';
+import {createTimetablePdf,timetablePdfName} from './timetable-pdf.mjs?v=0.9.5';
+import {createLineMaps} from './line-maps.mjs?v=0.9.5';
+import {pdfRoutePatterns,pdfMapViewport,createPdfMapBackground} from './timetable-pdf-map.mjs?v=0.9.5';
 
 const $=id=>document.getElementById(id),escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const modes={metro:'U-Bahn',tram:'Straßenbahn',bus:'Bus',sbahn:'S-Bahn',regional:'Regionalzug',long:'Fernverkehr'};
 const colors={U1:'#ed1c24',U2:'#a066aa',U3:'#f58220',U4:'#009a49',U6:'#9a6b38'};
 const color=line=>/^N\d/.test(line.route)?'#162a63':colors[line.route]||(line.mode==='tram'?'#c13e45':line.mode==='metro'?'#3b6175':'#225a7c');
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
-const timetable=createTimetable(),params=new URL(location.href).searchParams;
+const timetable=createTimetable(),lineMaps=createLineMaps(),params=new URL(location.href).searchParams;
 let index=null,manifest=null,line=null,request=null,revision=0,clockTimer=null,optionsToday=null,loadedStation=null,exporting=false;
 function status(message){$('timetableStatus').textContent=message;}
 function cancel(){revision++;request?.abort();request=null;}
@@ -69,6 +71,10 @@ function updatePdfButtons(){
  $('downloadDayPdf').disabled=exporting||!valid||loadedStation?.stop.id!==selectedStop()?.id;
  $('downloadLinePdf').disabled=exporting||!valid;
 }
+async function loadPdfLine(meta,signal){
+ const catalogue=await lineMaps.index(meta,{signal}),entry=catalogue.lines.find(row=>row.route===line.route&&row.mode===line.mode);
+ if(!entry)throw Error('Für diese Linie fehlt der geografische Verlauf.');return lineMaps.line(entry,meta,{signal});
+}
 async function exportPdf(wholeLine){
  if(exporting||!line||!wholeLine&&!loadedStation)return;
  const chosen=line,stop=selectedStop(),day=$('timetableDay').value,towards=$('timetableDirection').value,current=loadedStation;
@@ -78,9 +84,14 @@ async function exportPdf(wholeLine){
   const result=wholeLine?await timetable.stationRows(chosen.stops.map(row=>({id:row.id,provider:'wl'})),{signal:controller.signal}):current.result;
   if(own!==revision||controller.signal.aborted||document.hidden)return;
   if(result.manifest?.version!==index.version)throw Error('Der Fahrplan wurde erneuert. Bitte die Seite neu öffnen.');
-  const bytes=createTimetablePdf({manifest:result.manifest,rows:result.rows,line:chosen,stops:wholeLine?chosen.stops:[stop],day,towards,wholeLine});
+  $('pdfDownloadStatus').textContent='Haltestellenfolge und Kartenhintergrund werden für das PDF vorbereitet …';
+  const routeMap=(await loadPdfLine(result.manifest,controller.signal)).data;
+  const patterns=pdfRoutePatterns({manifest:result.manifest,line:chosen,routeMap,day,stopId:stop.id,towards,wholeLine});
+  const mapBackground=patterns.length?await createPdfMapBackground(pdfMapViewport(patterns),{signal:controller.signal}):null;
+  if(own!==revision||controller.signal.aborted||document.hidden)return;
+  const bytes=createTimetablePdf({manifest:result.manifest,rows:result.rows,line:chosen,stops:wholeLine?chosen.stops:[stop],day,towards,wholeLine,routeMap,mapBackground,selectedStopId:stop.id});
   const url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),link=document.createElement('a');link.href=url;link.download=timetablePdfName({route:chosen.route,day,wholeLine,stopName:stop.name});document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-  $('pdfDownloadStatus').textContent='PDF-Download gestartet · '+(wholeLine?'alle Haltestellen und Richtungen':stop.name)+' · '+shortDate(day)+'.';
+  $('pdfDownloadStatus').textContent='PDF-Download gestartet · '+(wholeLine?'alle Haltestellen und Richtungen':stop.name)+' · '+shortDate(day)+(patterns.length&&!mapBackground?' · geografischer Verlauf ohne Straßenkartenhintergrund.':' · mit Streckenführung und Haltestellen.');
  }catch(error){if(own===revision&&error.name!=='AbortError')$('pdfDownloadStatus').textContent='PDF konnte nicht erstellt werden: '+error.message;}
  finally{exporting=false;if(request===controller)request=null;$('saveLineOffline').disabled=false;updatePdfButtons();}
 }
@@ -95,7 +106,7 @@ async function loadStation(){
 }
 async function saveLine(){
  cancel();const own=revision,controller=new AbortController();request=controller;$('saveLineOffline').disabled=true;$('lineOfflineStatus').textContent='Fahrplanpakete der Linie werden gespeichert …';
- try{const result=await timetable.stationRows(line.stops.map(stop=>({id:stop.id,provider:'wl'})),{signal:controller.signal});if(revision!==own||controller.signal.aborted||document.hidden)return;if(result.manifest?.version!==index.version)throw Error('Fahrplan erneuert. Bitte Seite neu öffnen.');const complete=line.stops.every(stop=>Array.isArray(result.rows[stop.id]));$('lineOfflineStatus').textContent=complete&&result.offline?'Linie '+line.route+' ist für alle '+line.stops.length+' Haltestellen offline gespeichert · gültig bis '+shortDate(manifest.validThrough)+'.':'Die Linie konnte nicht vollständig auf diesem Gerät gespeichert werden. Bitte Verbindung und verfügbaren Gerätespeicher prüfen.';}
+ try{const result=await timetable.stationRows(line.stops.map(stop=>({id:stop.id,provider:'wl'})),{signal:controller.signal});if(revision!==own||controller.signal.aborted||document.hidden)return;if(result.manifest?.version!==index.version)throw Error('Fahrplan erneuert. Bitte Seite neu öffnen.');const route=await loadPdfLine(result.manifest,controller.signal);if(revision!==own||controller.signal.aborted||document.hidden)return;const complete=line.stops.every(stop=>Array.isArray(result.rows[stop.id]));$('lineOfflineStatus').textContent=complete&&result.offline&&route.offline?'Fahrplan und Linienverlauf '+line.route+' sind für alle '+line.stops.length+' Haltestellen offline gespeichert · gültig bis '+shortDate(manifest.validThrough)+'.':'Die Linie konnte nicht vollständig auf diesem Gerät gespeichert werden. Bitte Verbindung und verfügbaren Gerätespeicher prüfen.';}
  catch(error){if(revision===own&&error.name!=='AbortError')$('lineOfflineStatus').textContent='Speichern nicht abgeschlossen. Bitte erneut versuchen.';}
  finally{if(request===controller)request=null;$('saveLineOffline').disabled=false;}
 }

@@ -10,6 +10,14 @@ Reproduzierbarer Import: scripts/prepare_line_maps.py. Er prüft Quell-SHA und K
 
 Linienindex und Pakete unter pwa/data/line-maps/wien, insgesamt 2.736.758 Bytes. Browser lädt nur die gewählte Linie, prüft Hash/Version und speichert im vorhandenen IndexedDB-Store. Kein neuer API-/GPS-/Hintergrundtakt. OSM-Kacheln nur für die sichtbare Karte, mit öffentlichem Origin-Referer und Attribution; kein Vorabladen. Gespeicherter Verlauf/Stationsliste offline, Straßenkartenhintergrund online.
 
+Seit PWA 0.9.1 bleibt die Gesamtkarte durch kleine Haltepunkte übersichtlich; Stationsnummern erscheinen ab Zoom 16, beim Herauszoomen verschwinden sie wieder. Treffflächen und Tastatur-/Popup-Navigation bleiben erhalten. Stationsliste und ausführliche Daten-/Offline-Hinweise starten zugeklappt; Speicherfehler bleiben sichtbar.
+
+Seit PWA 0.9.2 öffnet ein Stationslink mit halt die gewählte Station unmittelbar als Popup und markiert Karte/Liste. Datum-/Richtungstreue PDF-Exporte ergänzen reale Fahrwege und geordnete Haltestellen; Kartenhintergrund dort basemap.at, interaktive Karte weiterhin OpenStreetMap.
+
+Seit PWA 0.9.3 führen Popup und Stationsauswahl zusätzlich zum Abfahrtsmonitor mit derselben Station, Linie, Verkehrsmittel und Richtung. Verfügbarkeit aus bekannten Wiener-Linien-RBLs, ohne Abfrage beim Öffnen der Karte. Fahrplan/PDF bleibt ein getrennt beschrifteter Link. Cold-Start-Direktlinks und Zurück-Navigation werden unterstützt; keine neue GPS-Anfrage für die bekannte Station.
+
+Seit PWA 0.9.4 verwenden Hover und Klick dieselbe Zeigerauflösung. Native title-Texte auf überlappenden Markern sind durch einen gemeinsamen stationsgebundenen Tooltip ersetzt. Bewegung innerhalb einer Trefferfläche kann den benannten Halt wechseln; Tastatur und aria-label behalten die Identität ihres Markers.
+
 ## Geprüfte Grundlage
 
 Der Wiener GTFS enthält `shape_id`, `shapes.txt`, geordnete `stop_sequence`, Ankunft/Abfahrt und `shape_dist_traveled`. Die ausgelieferten stationsweisen Offlinepakete behalten diese Zusammenhänge nicht. Der Linienindex für Tagesfahrpläne listet Haltestellen alphabetisch und ersetzt keine Linienführung. Diese Beziehungen erhalten nun die getrennten versionierten Linienpakete aus dem Import. Bestehende lokale Leaflet-Komponenten können verwendet werden.

@@ -1,5 +1,5 @@
-import {jsonExportName} from './export-file.mjs?v=0.9.0';
-import {transferLink,transferBundle,mergeTransferBundle,encryptTransfer,decryptTransfer} from './transfer.mjs?v=0.9.0';
+import {jsonExportName} from './export-file.mjs?v=0.9.5';
+import {transferLink,transferBundle,mergeTransferBundle,encryptTransfer,decryptTransfer} from './transfer.mjs?v=0.9.5';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const FAVORITES='foama.favorites.v1',ROUTES='foama.journeyFavorites.v1';let link=null,source={favorites:[],journeys:[]},received=null,expires=0,timer,request=null,finished=false,busy=false,generation=0,routeSupport=false,alternativeSupport=false,citySupport=false;
 const status=(message,error=false)=>{$('transferStatus').textContent=message;$('transferStatus').dataset.error=String(error);};

@@ -1,4 +1,4 @@
-import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.9.0';
+import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.9.5';
 let pending;
 export function ensureJourneyMap(){
  if(window.L)return Promise.resolve(window.L);

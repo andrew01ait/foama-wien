@@ -6,8 +6,8 @@ android {
         applicationId 'at.andrew.foamawien'
         minSdk 30
         targetSdk 34
-        versionCode 7
-        versionName '0.3.0'
+        versionCode 25
+        versionName '0.7.3'
         def baseUrl = (project.findProperty("foamaPwaBase") ?: System.getenv("FOAMA_PWA_BASE") ?: "https://foama-wien.endruuu.chatgpt.site").toString()
         buildConfigField 'String', 'FOAMA_BASE_URL', '"' + baseUrl + '"'
     }

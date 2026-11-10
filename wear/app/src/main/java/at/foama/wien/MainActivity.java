@@ -167,8 +167,15 @@ public final class MainActivity extends Activity {
         tab.setAccessibilityDelegate(new View.AccessibilityDelegate(){public void onInitializeAccessibilityNodeInfo(View host,android.view.accessibility.AccessibilityNodeInfo info){super.onInitializeAccessibilityNodeInfo(host,info);info.setClassName(Button.class.getName());info.setSelected(host.isSelected());}});
         return tab;
     }
+    private boolean compactFavoriteControls(){return screen.equals("home")&&view.equals("fav")&&!(powerSaver.percent>=0&&powerSaver.percent<20&&!powerSaver.enabled);}
+    private void tightenFavoriteHeading(View heading){
+        // The non-interactive heading can use the filter's empty lower padding.
+        // Station and route actions still start below its full 48dp touch area.
+        if(!compactFavoriteControls())return;
+        LinearLayout.LayoutParams params=(LinearLayout.LayoutParams)heading.getLayoutParams();params.topMargin=-dp(10);heading.setLayoutParams(params);
+    }
     private LinearLayout transportShortcut(){
-        LinearLayout target=vertical();target.setGravity(Gravity.CENTER);target.setPadding(dp(4),dp(3),dp(4),dp(3));
+        LinearLayout target=vertical();target.setGravity(compactFavoriteControls()?Gravity.TOP|Gravity.CENTER_HORIZONTAL:Gravity.CENTER);target.setPadding(dp(4),dp(3),dp(4),dp(3));
         target.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4073e0b7),surface(BG,Color.TRANSPARENT,14),null));
         LinearLayout row=horizontal();row.setGravity(Gravity.CENTER);row.setPadding(dp(8),0,dp(8),0);
         ArrayList<String> enabled=new ArrayList<>();
@@ -183,7 +190,7 @@ public final class MainActivity extends Activity {
         row.addView(text("›",18,MUTED,false),new LinearLayout.LayoutParams(dp(10),-2));target.addView(row,new LinearLayout.LayoutParams(-1,-2));
         actionable(target,"Verkehrsmittel für In der Nähe: "+(enabled.isEmpty()?"keine aktiviert":String.join(", ",enabled))+". Einstellungen öffnen",()->{modesFromHome=true;screen="more";settingsSection="modes";renderLayout();});
         target.setTag("transport-shortcut");target.setAccessibilityDelegate(new View.AccessibilityDelegate(){public void onInitializeAccessibilityNodeInfo(View host,android.view.accessibility.AccessibilityNodeInfo info){super.onInitializeAccessibilityNodeInfo(host,info);info.setClassName(Button.class.getName());}});
-        content.addView(target,new LinearLayout.LayoutParams(-1,-2));space(content,2);return target;
+        content.addView(target,new LinearLayout.LayoutParams(-1,-2));space(content,1);return target;
     }
     private void stationHeading(LinearLayout parent,Repo.Stop stop){
         LinearLayout row=horizontal();row.setPadding(dp(6),0,dp(6),0);row.setTag(at.andrew.foamawien.R.id.station_id,stop.id);
@@ -201,10 +208,19 @@ public final class MainActivity extends Activity {
         openingPage=true;scrollRevision++;
         root.removeAllViews();
         int width=Math.round(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);
-        root.setPadding(dp(width<210?16:20),dp(screen.equals("transfer")?Math.round((width-Math.min(156,Math.round(width*.69f)))/2f):width<210?16:24),dp(width<210?16:20),dp(34));
-        if(screen.equals("home")||screen.equals("routes")){
+        boolean mainScreen=screen.equals("home")||screen.equals("routes");
+        root.setPadding(dp(width<210?16:20),dp(mainScreen?10:screen.equals("transfer")?Math.round((width-Math.min(156,Math.round(width*.69f)))/2f):width<210?16:24),dp(width<210?16:20),dp(34));
+        if(mainScreen){
+            // The title uses the round cap and the navigation's empty upper
+            // inset, so its text does not add another full row above departures.
+            FrameLayout header=new FrameLayout(this);
+            TextView brand=text(CityProfiles.name(repo.cities.current()),12,MUTED,true);brand.setGravity(Gravity.CENTER);brand.setTag("main-title");brand.setSingleLine(true);brand.setHorizontallyScrolling(false);brand.setAccessibilityHeading(true);
+            header.addView(brand,new FrameLayout.LayoutParams(-1,-2,Gravity.TOP|Gravity.CENTER_HORIZONTAL));
             LinearLayout tabs=horizontal();tabs.setTag("main-navigation");tabs.setBackground(new InsetDrawable(surface(0xff09141d,BORDER,19),0,dp(6),0,dp(6)));
-            for(String name:new String[]{"near","fav","routes"})tabs.addView(homeTab(name,name.equals("near")?"Nähe":name.equals("fav")?"Favoriten":"A nach B",name.equals("fav")),new LinearLayout.LayoutParams(0,dp(48),1));LinearLayout.LayoutParams compact=new LinearLayout.LayoutParams(Math.min(dp(190),getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight()),dp(48));compact.gravity=Gravity.CENTER_HORIZONTAL;root.addView(tabs,compact);space(root,1);
+            for(String name:new String[]{"near","fav","routes"})tabs.addView(homeTab(name,name.equals("near")?"Nähe":name.equals("fav")?"Favoriten":"A nach B",name.equals("fav")),new LinearLayout.LayoutParams(0,dp(48),1));
+            header.addView(tabs,new FrameLayout.LayoutParams(Math.min(dp(190),getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight()),dp(48),Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL));
+            float extraTitleSpace=Math.max(0,getResources().getConfiguration().fontScale-1)*14;
+            root.addView(header,new LinearLayout.LayoutParams(-1,dp(56+extraTitleSpace)));
         }
         status=text("",12,AMBER,false);status.setGravity(Gravity.CENTER);status.setPadding(0,0,0,dp(7));root.addView(status);
         content=vertical();root.addView(content);renderContent();
@@ -219,12 +235,22 @@ public final class MainActivity extends Activity {
     }
     private void favoriteSwitcher(){
         LinearLayout row=horizontal();row.setTag("favorite-switch");
+        row.setBackground(new InsetDrawable(surface(0xff09141d,BORDER,16),0,dp(10),0,dp(6)));
+        row.setPadding(0,0,0,0);
         for(String name:new String[]{"routes","stations"}){
             boolean selected=favoriteRoutes()==name.equals("routes");Button tab=button(name.equals("routes")?"Routen":"Stationen",selected?"selected":"secondary");
-            tab.setPadding(dp(3),dp(5),dp(3),dp(5));tab.setContentDescription(name.equals("routes")?"Gespeicherte Routen":"Haltestellen & Linien");tab.setOnClickListener(v->changeFavoriteView(name));
-            LinearLayout.LayoutParams item=new LinearLayout.LayoutParams(0,-2,1);if(name.equals("routes"))item.setMarginEnd(dp(4));row.addView(tab,item);
+            tab.setIncludeFontPadding(false);tab.setSingleLine(true);tab.setHorizontallyScrolling(false);
+            StateListDrawable states=new StateListDrawable();
+            int fill=selected?0xff20443b:Color.TRANSPARENT;
+            states.addState(new int[]{android.R.attr.state_focused},surface(fill,MINT,14));
+            states.addState(new int[]{},surface(fill,selected?0xff427e68:Color.TRANSPARENT,14));
+            tab.setBackground(new InsetDrawable(new RippleDrawable(ColorStateList.valueOf(0x4873e0b7),states,null),dp(2),dp(10),dp(2),dp(6)));
+            tab.setPadding(dp(4),dp(4),dp(4),0);
+            tab.setContentDescription(name.equals("routes")?"Gespeicherte Routen":"Haltestellen & Linien");tab.setOnClickListener(v->changeFavoriteView(name));
+            row.addView(tab,new LinearLayout.LayoutParams(0,dp(48),1));
         }
-        content.addView(row,new LinearLayout.LayoutParams(-1,-2));space(content,3);
+        LinearLayout.LayoutParams compact=new LinearLayout.LayoutParams(Math.min(dp(176),getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight()),dp(48));compact.gravity=Gravity.CENTER_HORIZONTAL;
+        content.addView(row,compact);space(content,1);
     }
     void openConnection(Repo.Stop stop,String route,String towards){openConnection(stop,route,towards,"");}
     void openConnection(Repo.Stop stop,String route,String towards,String mode){detailMode=mode;if(screen.equals("journey")){detailFromJourney=true;resetDepartureScope();}else if(screen.equals("home"))detailFromJourney=false;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
@@ -252,6 +278,7 @@ public final class MainActivity extends Activity {
         });
     }
     void renderContent(){
+        TextView cityTitle=root==null?null:root.findViewWithTag("main-title");if(cityTitle!=null)cityTitle.setText(CityProfiles.name(repo.cities.current()));
         if(screen.equals("transfer")){content.removeAllViews();renderTransfer();return;}
         if(content==null)return;
         if(screen.equals("file-import")){content.removeAllViews();renderFileImport();return;}
@@ -268,7 +295,7 @@ public final class MainActivity extends Activity {
         restoreScroll(openingPage?0:y);
     }
     private void restoreScroll(int y){int revision=++scrollRevision;scroll.post(()->{if(revision!=scrollRevision)return;scroll.scrollTo(0,y);openingPage=false;});}
-    private void placeholder(String heading,String explanation){LinearLayout c=card(content);c.addView(text(heading,16,WHITE,true));space(c,6);c.addView(text(explanation,12,MUTED,false));}
+    private LinearLayout placeholder(String heading,String explanation){LinearLayout c=card(content);c.addView(text(heading,16,WHITE,true));space(c,6);c.addView(text(explanation,12,MUTED,false));return c;}
     private void renderNear(){
         if(repo.currentLocation==null){
             space(content,5);centered(content,"Was fährt in der Nähe?",17,WHITE,true);space(content,8);
@@ -308,11 +335,11 @@ public final class MainActivity extends Activity {
     }
     private void renderFavorites(){
         if(favoriteRoutes()){
-            if(repo.cityJourneys().length()==0)placeholder(repo.journeys.all().length()==0?"Noch keine Routen":"Noch keine Routen in "+CityProfiles.name(repo.cities.current()),"Am Handy planen und als Routenfavorit speichern. Unter Mehr → Favoriten → Aus PWA importieren auf diese Uhr übernehmen.");
+            if(repo.cityJourneys().length()==0)tightenFavoriteHeading(placeholder(repo.journeys.all().length()==0?"Noch keine Routen":"Noch keine Routen in "+CityProfiles.name(repo.cities.current()),"Am Handy planen und als Routenfavorit speichern. Unter Mehr → Favoriten → Aus PWA importieren auf diese Uhr übernehmen."));
             else renderJourneyCards();
             return;
         }
-        centered(content,"Haltestellen & Linien",14,MINT,true);space(content,7);
+        tightenFavoriteHeading(centered(content,"Haltestellen & Linien",14,MINT,true));space(content,7);
         if(repo.orderedFavorites().isEmpty()){placeholder(repo.favorites.isEmpty()?"Deine wichtigsten Wege":"Noch keine Favoriten in "+CityProfiles.name(repo.cities.current()),"Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Mehr → Favoriten → Aus PWA importieren übernehmen.");return;}
         for(Map.Entry<String,List<Repo.Favorite>> entry:repo.favoriteGroups().entrySet()){
             Repo.Stop s=repo.findStop(entry.getKey());if(s==null)continue;
@@ -359,7 +386,7 @@ public final class MainActivity extends Activity {
         centered(content,"Aktuelle Abfahrten je Abschnitt. Neue Routen planst du in der PWA.",12,MUTED,false);space(content,8);fullButton(content,"Zurück","quiet",this::navigateBack);
     }
     private void renderJourneyCards(){
-        JSONArray journeys=repo.cityJourneys();if(journeys.length()==0)return;centered(content,"Meine Routen",14,MINT,true);space(content,2);centered(content,CityProfiles.name(repo.cities.current()),12,MUTED,false);space(content,7);
+        JSONArray journeys=repo.cityJourneys();if(journeys.length()==0)return;tightenFavoriteHeading(centered(content,"Meine Routen",14,MINT,true));space(content,2);centered(content,CityProfiles.name(repo.cities.current()),12,MUTED,false);space(content,7);
         for(int i=0;i<journeys.length();i++){
             JSONObject journey=journeys.optJSONObject(i);List<JSONObject> legs=JourneyStore.boardings(journey);LinearLayout panel=card(content);panel.addView(text(journey.optString("name"),15,WHITE,true));if(JourneyStore.variantCount(journey)>1){space(panel,3);panel.addView(text((JourneyStore.variantCount(journey)-1)+" alternative Wege",12,MINT,false));}
             if(!legs.isEmpty()){JSONObject leg=legs.get(0);JSONObject from=leg.optJSONObject("from"),last=legs.get(legs.size()-1).optJSONObject("to");Repo.Stop stop=repo.findStop(from.optString("stopId"));if(stop!=null)panel.setTag(at.andrew.foamawien.R.id.station_id,stop.id);space(panel,5);panel.addView(text(from.optString("name")+" → "+last.optString("name"),12,MUTED,false));space(panel,7);LinearLayout row=horizontal();row.addView(badge(leg.optString("route"),leg.optString("mode"),!JourneyStore.departures(leg,repo).isEmpty()));List<Repo.Departure> departures=JourneyStore.departures(leg,repo);TextView time=text(departures.isEmpty()?"—":repo.countdown(departures.get(0))+"′",28,WHITE,true);time.setGravity(Gravity.END);row.addView(time,new LinearLayout.LayoutParams(0,-2,1));panel.addView(row);space(panel,3);panel.addView(text(departures.isEmpty()?"Keine aktuelle Abfahrt bestätigt":repo.quality(departures.get(0)),12,MUTED,false));}
