@@ -327,3 +327,17 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 .station-address a{color:var(--text);text-underline-offset:2px}
 
 .connection-view .timetable-tools{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.connection-view .timetable-tools>a{flex:1 1 220px;min-height:48px;text-align:center;justify-content:center;padding:10px 14px}
+
+/* Connection actions: save by the title, walking first, two equal planning links. */
+.connection-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.connection-title-row h1{flex:1;min-width:0;overflow-wrap:anywhere}
+.connection-title-row .connection-favorite{display:grid;place-items:center;flex:0 0 44px;min-width:44px;width:44px;min-height:44px;height:44px;margin:2px 0 0;font-size:27px;border:1px solid var(--stroke);border-radius:12px;background:var(--surface)}
+.connection-actions{grid-template-columns:minmax(0,1fr);gap:8px;margin:0 0 16px}
+.connection-actions>.primary-btn{width:100%;min-height:48px;margin:0}
+.connection-plan-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.connection-plan-links a{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;min-height:52px;margin:0;padding:10px 7px;text-align:center;text-decoration:none;font-size:13px;line-height:1.35}
+.connection-plan-links svg{flex-shrink:0}
+.connection-plan-links span{min-width:0;overflow-wrap:anywhere}
+.connection-walk{margin:14px 0 9px}
+
+.connection-refresh-status{min-height:0;margin:0 2px 18px}

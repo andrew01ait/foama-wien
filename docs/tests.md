@@ -1,3 +1,37 @@
+## Wear 0.7.3 · Stadttitel und Filterabstand · 10.11.2026
+
+150 Android- und 338 Web-/Server-Tests erfolgreich. Titel für alle vier manuell gewählten Städte und alle drei Hauptziele, Menü-Rückkehr sowie automatische Erkennung/Ablauf ohne Neubau der Titelsicht oder Rücksetzen des Abrufbudgets geprüft. Native Rundprüfung für Routen/Stationen bei 227 dp sowie 192 dp mit 1,3-facher Schrift: vollständiger Stadttitel, enger sichtbarer Filterabstand, getrennte mindestens 48-dp-Zeilen, Stationsaktionen nach dem vollständigen Filterziel und getrennt erreichbarer Akku-Sparbutton. Unveränderte Views vor Native-Canvas-Aufnahmen invalidieren; die vier betroffenen Favoriten-UI-Tests nach dieser Renderhelferänderung erneut erfolgreich geprüft. Auswahlpersistenz, Speicher, Import, Hintergrund-/Abbruch-/Abrufregeln und erste Abfahrtszahl weiterhin erfolgreich. Signatur, Paket/Version, D8 und zipalign geprüft. [Metadaten](wear-os-release-0.7.3.md); keine physische Geräteabnahme.
+
+## Wear 0.7.2 · kompakte Auswahl und Rundkappe · 10.11.2026
+
+147 Android- und 338 Web-/Server-Tests erfolgreich. Bestehende native Runddarstellung um echte Textlayout- und Glyphenprüfungen erweitert: foama-wien innerhalb des runden Displays, oberhalb der Navigationsicons, beide Segmentbeschriftungen vollständig und mindestens 48 × 48 dp große Tippflächen. Beide Favoritenbereiche bei 227 dp und 192 dp mit 1,3-facher Schrift gerendert und visuell geprüft. Erste Abfahrtszahl auf kleinem Runddisplay sowie Persistenz/Wechsel/Import/Navigation und bisherige Hintergrund-/Abrufregeln weiterhin erfolgreich. Java, D8, Paket-/Version, Originalsignatur und zipalign geprüft. [Signierte Metadaten](wear-os-release-0.7.2.md); physische OnePlus-Abnahme separat.
+
+## PWA 0.9.5 · finale Hover- und Eingabetastenprüfung · 10.11.2026
+
+338 Web-/Server-Tests bestanden, einschließlich zusätzlicher Enter-/keyCode-13-/Fremdtastenfälle in der Stationsereignisregression. Zwölf Python-Tests bestanden bereits für dieselben unveränderten Import-/Buildhelfer. Öffentliche Mausabnahme der vorangehenden Korrektur bestätigt Thaliastraße mit richtigem Hover und Popup sowie Gumpendorfer Straße → Längenfeldgasse unter derselben überlappenden Trefferfläche. Enter-Handler nach dem Browserbefund ergänzt; finale öffentliche Abnahme separat.
+
+## PWA 0.9.4 · Stationsnamen beim Hover · 10.11.2026
+
+338 Web-/Server-Tests, zwölf Python-Tests und 74 JavaScript-Syntaxprüfungen bestanden. Neue Ereignisregression: überlappende 44-px-Treffflächen liefern beim Darüberfahren und Klicken denselben nächsten Stationspunkt; Bewegung innerhalb derselben Trefferfläche aktualisiert den Namen. Tastaturaktivierung wählt weiterhin den fokussierten Marker, Verlassen entfernt den Hover-Hinweis. Bestehende Karten-/Fahrplan-/Offline-Prüfungen bestanden. Die lokale verwaltete Vorschau ist durch ein anderes Projekt belegt; visuelle Abnahme erfolgt separat auf der veröffentlichten Version. Keine physische Smartphone-Abnahme.
+
+## PWA 0.9.3 · Monitor-Verlinkung und Datenfußnote · 10.11.2026
+
+337 Web-/Server-Tests, zwölf Python-Tests und 74 Syntaxprüfungen bestanden. Neue Tests: exakte Station/RBL-Verfügbarkeit, keine Monitorlinks für unbekannte oder reine Fahrplanhalte, URL-Rundlauf mit Linie/Modus/Unicode-Richtung, keine zusätzliche Navigationsebene beim initialen Direktlink und Zurück im alleinstehenden Tab. Bestehende Abruf-/Budget-/Favoritenregressionen bestanden.
+
+Lokaler Browser: Thaliastraße/U6 öffnet aus dem Popup die Richtung Siebenhirten; der separate Link unter der Karte führt zur identischen Verbindung, Fahrplan/PDF bleibt eindeutig beschriftet. Einmal Zurück kehrt zur ursprünglichen Karte samt Stationsmarkierung zurück. Meidling/U6-Fahrplan: Datenstand als zunächst geschlossene Fußnote nach der Tabelle, alle Quellen-/Prüfungsfelder nach Aufklappen vorhanden. Keine physische Smartphone-Abnahme.
+
+## PWA 0.9.2 · Karten-PDF und Stationskontext · 10.11.2026
+
+333 Web-/Server-Tests, zwölf Python-Tests und 74 JavaScript-Syntaxprüfungen bestanden. PDF-Tests prüfen Datum/Richtung/Stationsidentität, beide Richtungen und abweichende Tage, Projektion und begrenzte Kachelanfragen, Offline-Fallback, Abbruch während laufender Abrufe, gemeinsame Bildressource, Quellenlinks und bytegenaue Xref-Offsets sowie lange Stationslisten über mehrere Seiten. Browser erzeugt echte U6-Exporte: Thaliastraße/Floridsdorf vier Seiten einschließlich drei Variantenkarten, ganze U6 55 Seiten einschließlich neun Karten, unter einem MB. Poppler-Renderkontrolle von erster Karte, letzter Variante und Stundentabelle; Markierung, Attribution, Links und volle Namen geprüft. Keine physische Smartphone-Abnahme.
+
+Stationslink aus Thaliastraße/U6/Alle Richtungen öffnet genau Thaliastraße, zeigt passendes Popup und genau einen gedrückten Marker. Verbindungsaktionen bei 320/360/420-px-Rahmen (Client 305/345/405) ohne horizontalen Überlauf; Stern 44 px, zwei gleich breite Planungslinks mit mindestens 52 px Höhe. Temporäre Prüfseiten vor Veröffentlichung entfernen.
+
+## PWA 0.9.1 · A-nach-B-Seitenstruktur · 10.11.2026
+
+326 Web-/Server- und zwölf Python-Tests bestanden. Browserabnahme: Titel vor Hauptnavigation, danach Routenauswahl/Formular; Meine Routen einschließlich Leerzustand erreichbar. Helles und dunkles Farbschema in temporären 320/360/420-px-Rahmen geprüft (Clientbreiten 305/345/405 px): scrollWidth jeweils gleich clientWidth. Voller App-Name und Routenanzahl auch am schmalsten Rahmen lesbar, Hauptnavigation in einer Zeile. Temporäre Prüfseite vor dem Paketbau entfernt. Keine physische Smartphone-Abnahme.
+
+Linienkarte mit echter U1: Gesamtansicht mit 24 kleinen Haltepunkten und 44-px-Treffflächen, Nummern beim Heranzoomen ab Stufe 16 (26 px / 12-px-Schrift), beim Herauszoomen wieder Punkte. Stephansplatz aus Stationsliste und als kleiner Kartenpunkt korrekt gewählt; Popup und Fahrplanlink erhalten. Daten-/Offline-Hinweise aufklappbar und nach Neuladen wieder geschlossen. 17 gezielte Karten-/Fahrplan-/Offline-Shell-Tests nach der Ergänzung bestanden. OpenStreetMap-Kacheln im Browser tatsächlich geladen.
+
 ## PWA 0.9.0 · geografische Linienkarte und PDF · 10.11.2026
 
 326 Web-/Server-Tests, zwölf Python-Tests und 73 JavaScript-Syntaxprüfungen nach CI-Auswahl bestanden. Importprüfungen: unsortierte Stopzeilen, kalendergleiche Shapes zusammenführen, echte Kurzführung anhand Streckenentfernung zuschneiden, identische Liniennummer in Bus/Tram getrennt und falsche Kalender/Quellen ablehnen. Alle 173 ausgelieferten Linien und 965 Varianten gegen Hash, Kalender, Koordinaten, geordnete Halte und dekodierbare echte Geometrie geprüft. Offizielle 98.436.733-Byte-GTFS-Datei bytegleich zum vorhandenen Fahrplan (SHA c3e98ec9381a0f610a3164d0336ea93c097b0382aa81fbabb6c739becc25412f).

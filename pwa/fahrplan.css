@@ -3,3 +3,13 @@
 .timetable-metadata{border:1px solid var(--stroke);border-radius:14px;background:var(--surface);margin-bottom:22px;padding:0 14px}.timetable-metadata summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:650;font-size:13px}.timetable-metadata dl{display:grid;grid-template-columns:minmax(110px,1fr) minmax(0,1.2fr);gap:9px 12px;font-size:12px;margin:5px 0 16px}.timetable-metadata dt{color:var(--muted)}.timetable-metadata dd{margin:0;overflow-wrap:anywhere}.timetable-metadata p{font-size:12px;color:var(--muted)}
 .hour-table .hour-current>th,.hour-table .hour-current>td{background:color-mix(in srgb,var(--mint) 13%,var(--surface))}.hour-table .hour-current>th{box-shadow:inset 3px 0 var(--mint)}.current-hour-label:not([hidden]){display:block;margin-top:4px;color:var(--mint);font-size:11px;font-weight:750;line-height:1.3}
 .timetable-tools{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0}.timetable-tools>*{flex:1 1 210px;min-height:48px;white-space:normal;text-align:center;justify-content:center;padding:10px 14px}.timetable-tools button:disabled{opacity:.5;cursor:default}
+
+/* Explanatory information starts closed; status and failures stay visible. */
+.timetable-help{margin:16px 0}
+.timetable-help .timetable-caution{margin:0 0 14px;padding:0;background:transparent}
+.timetable-metadata summary::after,.line-stops-details summary::after{content:'⌄';margin-inline-start:auto;padding-inline-start:12px;color:var(--muted);font-size:16px}
+.timetable-metadata:not([open]) summary::after,.line-stops-details:not([open]) summary::after{content:'›'}
+
+.timetable-footnote{margin:24px 0 0;padding:12px 0;border-top:1px solid var(--stroke)}
+.timetable-footnote .timetable-metadata{border:0;border-radius:0;background:transparent;margin:0;padding:0}
+.timetable-footnote summary{color:var(--muted);font-size:12px;font-weight:600;min-height:44px}

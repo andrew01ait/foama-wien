@@ -52,6 +52,20 @@ public class CityRouteViewTest {
         click("Mehr");click("Stadtprofil");click("Graz");app.navigateBack();app.navigateBack();assertEquals("routes",app.screen);assertNotNull(find(app.getWindow().getDecorView(),"Noch keine Routen in Graz"));
         app.repo.nextFetchElapsed=Long.MAX_VALUE;click("Nähe");assertEquals("home",app.screen);assertEquals("near",app.view);assertEquals(Long.MAX_VALUE,app.repo.nextFetchElapsed);click("A nach B");click("Favoriten");assertEquals("home",app.screen);assertEquals("fav",app.view);
     }
+    private TextView cityTitle(){TextView title=app.getWindow().getDecorView().findViewWithTag("main-title");assertNotNull(title);return title;}
+    @Test public void titleFollowsAllManualCityProfilesAndMainDestinations(){
+        for(String city:new String[]{"graz","linz","salzburg","wien"}){
+            app.openRoutes();click("Mehr");click("Stadtprofil");click(CityProfiles.name(city));app.navigateBack();app.navigateBack();assertEquals(CityProfiles.name(city),cityTitle().getText().toString());
+            for(String view:new String[]{"near","fav"}){app.changeView(view);assertEquals(CityProfiles.name(city),cityTitle().getText().toString());}
+            app.openRoutes();assertEquals(CityProfiles.name(city),cityTitle().getText().toString());
+        }
+    }
+    @Test public void automaticCityAndExpiryUpdateExistingTitleWithoutResettingRequestBudget(){
+        app.changeView("near");TextView title=cityTitle();assertEquals("Wien",title.getText().toString());long now=System.currentTimeMillis();
+        android.location.Location fix=new android.location.Location("test");fix.setLatitude(47.0707);fix.setLongitude(15.4395);fix.setAccuracy(5);fix.setTime(now);app.repo.acceptLocation(fix);
+        app.repo.nextFetchElapsed=Long.MAX_VALUE;app.renderContent();assertSame(title,cityTitle());assertEquals("Graz",title.getText().toString());assertEquals(Long.MAX_VALUE,app.repo.nextFetchElapsed);
+        app.repo.cities.expire(now+90001);app.renderContent();assertSame(title,cityTitle());assertEquals("Wien",title.getText().toString());assertEquals(Long.MAX_VALUE,app.repo.nextFetchElapsed);
+    }
     private void layoutTree(View view){view.forceLayout();if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)layoutTree(((ViewGroup)view).getChildAt(i));}
     @Test @GraphicsMode(GraphicsMode.Mode.NATIVE) public void routesNavigationFitsRoundWatchesWithLargeText()throws Exception{
         app.repo.selectCity("graz");app.repo.journeys.merge(new JSONArray().put(route("graz")));

@@ -1,24 +1,24 @@
-import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.9.0';
-import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.9.0';
-import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.9.0';
-import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.9.0';
-import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.9.0';
-import {createThemeController} from './theme.mjs?v=0.9.0';
-import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.9.0';
-import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from './journey-client.mjs?v=0.9.0';
-import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.9.0';
-import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.9.0';
-import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.9.0';
-import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.9.0';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.9.0';
-import {createJourneyMap} from './journey-map.mjs?v=0.9.0';
-import {coordinate} from './journey-geometry.mjs?v=0.9.0';
-import {journeyStationMarkup} from './journey-station.mjs?v=0.9.0';
-import {selectStopIds} from './station-catalog.mjs?v=0.9.0';
-import {retainDepartures} from './departure-cache.mjs?v=0.9.0';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.9.0';
-import {jsonExportName} from './export-file.mjs?v=0.9.0';
-import {bindAppShare} from './app-share.mjs?v=0.9.0';
+import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.9.5';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.9.5';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.9.5';
+import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.9.5';
+import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.9.5';
+import {createThemeController} from './theme.mjs?v=0.9.5';
+import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.9.5';
+import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from './journey-client.mjs?v=0.9.5';
+import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.9.5';
+import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.9.5';
+import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.9.5';
+import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.9.5';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.9.5';
+import {createJourneyMap} from './journey-map.mjs?v=0.9.5';
+import {coordinate} from './journey-geometry.mjs?v=0.9.5';
+import {journeyStationMarkup} from './journey-station.mjs?v=0.9.5';
+import {selectStopIds} from './station-catalog.mjs?v=0.9.5';
+import {retainDepartures} from './departure-cache.mjs?v=0.9.5';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.9.5';
+import {jsonExportName} from './export-file.mjs?v=0.9.5';
+import {bindAppShare} from './app-share.mjs?v=0.9.5';
 
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -317,4 +317,4 @@ function pause(){cancelSearch();pauseMonitor();closePicker();clearWalkMaps();pla
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();resumeMonitor();}});window.addEventListener('pagehide',pause);window.addEventListener('storage',event=>{if(event.key==='foama.journeyFavorites.v1')refreshSavedJourneys();if(event.key==='foama.journeyPlaces.v1')placesUI?.refresh();});window.addEventListener('pageshow',()=>{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();if(!document.hidden)resumeMonitor();});
 placesUI=mountJourneyPlaces({client:createJourneyClient(),escape,getPoint:kind=>state[kind],onOpen:cancelSearch,onChoose:(kind,point)=>{cancelSearch();invalidateResults();setOverviewMode('search');selectPoint(kind,point);},onChange:()=>{if(state.selected&&!state.station)renderRouteOverview();}});
 pointControls();renderFavorites();setJourneyPreference(state.preference);setOverviewMode(location.hash==='#routen'?'saved':'search');
-try{const response=await fetch('./data/stops.json?v=0.9.0');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}
+try{const response=await fetch('./data/stops.json?v=0.9.5');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}

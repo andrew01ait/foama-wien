@@ -1,5 +1,6 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.9.0';
-import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.9.0';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.9.5';
+import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.9.5';
+import {connectionMonitorUrl} from './connection-detail.mjs?v=0.9.5';
 
 const abort=signal=>{if(signal?.aborted)throw new DOMException('Beendet','AbortError');};
 export function nearestLineStop(points,pointer,fallback){
@@ -7,6 +8,21 @@ export function nearestLineStop(points,pointer,fallback){
  let selected=fallback,best=Infinity;
  points.forEach((point,i)=>{const distance=(point.x-pointer.x)**2+(point.y-pointer.y)**2;if(distance<best-0.01||Math.abs(distance-best)<=0.01&&i===fallback){best=distance;selected=i;}});
  return best<=32*32?selected:fallback;
+}
+export function bindLineStopInteraction(marker,map,stops,index,{hover,leave,select}){
+ // Hover and click must resolve the same physical point even when a neighbour's
+ // 44px accessible hit area is on top. Keyboard activation keeps its own marker.
+ const resolve=event=>{
+  const mouse=event?.originalEvent;
+  return Number.isFinite(mouse?.clientX)&&Number.isFinite(mouse?.clientY)?nearestLineStop(stops.map(s=>map.latLngToContainerPoint([s.lat,s.lon])),map.mouseEventToContainerPoint(mouse),index):index;
+ };
+ marker.on('mouseover mousemove',event=>hover(resolve(event)));
+ marker.on('mouseout',leave);
+ marker.on('click',event=>{leave();select(resolve(event));});
+ marker.on('keypress',event=>{
+  const key=event?.originalEvent;
+  if(key?.key==='Enter'||key?.keyCode===13){leave();select(index);}
+ });
 }
 export function validateLineMap(data,entry,manifest){
  if(data?.format!==1||data.city!=='wien'||data.version!==manifest.version||data.sourceSha256!==manifest.sourceSha256||data.id!==entry.id||data.route!==entry.route||data.mode!==entry.mode||!Array.isArray(data.patterns)||!data.patterns.length||data.patterns.length>500||!data.shapes)throw Error('Linienkarte und Fahrplan passen nicht zusammen. Bitte die Seite neu öffnen.');
@@ -31,6 +47,9 @@ export function preferredLinePattern(patterns,manifest,{day,stopId,towards}={}){
 export function lineMapTimetableUrl(line,pattern,stop){
  if(!stop.id.startsWith('wl:'))return null;
  return './fahrplan.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:stop.id,richtung:pattern.towards});
+}
+export function lineMapMonitorUrl(line,pattern,stop,stops){
+ return connectionMonitorUrl({stopId:stop.id,route:line.route,mode:line.mode,towards:pattern.towards},stops);
 }
 export function createLineMaps({fetch=globalThis.fetch,get=getCatalogue,put=putCatalogue}={}){
  async function index(manifest,{signal}={}){

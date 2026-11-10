@@ -1,8 +1,8 @@
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.9.0';
-import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,nearestLineStop} from './line-maps.mjs?v=0.9.0';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.9.0';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.9.0';
-import {createThemeController} from './theme.mjs?v=0.9.0';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.9.5';
+import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.9.5';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.9.5';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.9.5';
+import {createThemeController} from './theme.mjs?v=0.9.5';
 
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams;
 const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -12,6 +12,9 @@ const shortDate=value=>new Date(value+'T12:00Z').toLocaleDateString('de-AT',{tim
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
 const timetable=createTimetable(),source=createLineMaps();
 let manifest,index,line,pattern,direction,controller,map,tiles,layers,markers=[],popups=[],revision=0;
+let selectedStopId=params.get('halt');
+let monitorStops=[];
+let stopTooltip=null,hoveredStop=null;
 const status=value=>{$('mapStatus').textContent=value;};
 function cancel(){revision++;controller?.abort();controller=null;}
 function renderLines(){
@@ -21,57 +24,70 @@ function renderLines(){
 }
 function selectStop(number,{pan=false}={}){
  const stop=pattern.stops[number];if(!stop)return;
+ selectedStopId=stop.id;
  $('mapSelectedStop').hidden=false;$('mapSelectedName').textContent=(number+1)+'. '+stop.name;
  const href=lineMapTimetableUrl(line,pattern,stop);$('mapSelectedTimetable').hidden=!href;$('mapSelectedNotice').hidden=!!href;if(href)$('mapSelectedTimetable').href=href;
+ const monitor=lineMapMonitorUrl(line,pattern,stop,monitorStops);$('mapSelectedMonitor').hidden=!monitor;if(monitor)$('mapSelectedMonitor').href=monitor;else $('mapSelectedMonitor').removeAttribute('href');
  for(const button of $('mapStops').querySelectorAll('button'))button.setAttribute('aria-pressed',String(Number(button.dataset.stopIndex)===number));
+ markers.forEach((marker,i)=>marker.getElement()?.setAttribute('aria-pressed',String(i===number)));
  if(pan&&map&&markers[number]){map.panTo([stop.lat,stop.lon],{animate:false});openStopPopup(number);}
 }
 function openStopPopup(number){
  const stop=pattern.stops[number];if(!map||!stop||!popups[number])return;
  window.L.popup({autoPan:false}).setLatLng([stop.lat,stop.lon]).setContent(popups[number]).openOn(map);
 }
+function hideStopHover(){
+ if(stopTooltip)map?.removeLayer(stopTooltip);stopTooltip=null;hoveredStop=null;
+}
+function showStopHover(stops,number){
+ const stop=stops[number];if(!map||!stop)return hideStopHover();if(hoveredStop===stop)return;
+ const label=document.createElement('span');label.textContent=(number+1)+'. '+stop.name;
+ if(!stopTooltip)stopTooltip=window.L.tooltip({direction:'top',offset:[0,-8],opacity:1,interactive:false,className:'line-stop-tooltip'});
+ stopTooltip.setLatLng([stop.lat,stop.lon]).setContent(label).addTo(map);hoveredStop=stop;
+}
+function syncStopNumbers(){
+ if(map)$('lineMap').classList.toggle('line-map-numbered',map.getZoom()>=16);
+}
 function fit(){
  if(!map||!pattern)return;const points=pattern.geometry?decodeJourneyPolyline(line.shapes[pattern.geometry]):pattern.stops.map(s=>[s.lat,s.lon]);
- if(points.length){map.invalidateSize();map.fitBounds(window.L.latLngBounds(points).pad(.1),{maxZoom:16,animate:false});}
+ if(points.length){map.invalidateSize();map.fitBounds(window.L.latLngBounds(points).pad(.1),{maxZoom:16,animate:false});syncStopNumbers();}
 }
 async function draw(){
  const own=++revision,selected=pattern;
  $('mapSelectedStop').hidden=true;$('mapTileStatus').hidden=true;
  $('mapStopsTitle').textContent=selected.stops.length+' Haltestellen in Fahrtfolge';
  $('mapStops').innerHTML=selected.stops.map((stop,i)=>`<li><button type="button" data-stop-index="${i}" aria-pressed="false">${escape(stop.name)}</button></li>`).join('');
- $('mapVariantInfo').textContent=selected.stops[0].name+' → '+selected.stops.at(-1).name+' · '+selected.stops.length+' Haltestellen'+(selected.geometry?' · geografischer Verlauf':' · Verlauf fehlt, nur Haltepunkte')+'. Varianten können an unterschiedlichen Tagen oder zu unterschiedlichen Zeiten fahren.';
+ $('mapVariantInfo').textContent=selected.stops[0].name+' → '+selected.stops.at(-1).name+' · '+selected.stops.length+' Haltestellen'+(selected.geometry?'':' · Verlauf fehlt, nur Haltepunkte');
  $('mapTimetable').href='./fahrplan.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,richtung:selected.towards});
  status('Linie '+line.route+' · Richtung '+(selected.towards||selected.stops.at(-1).name));
  try{
   const L=await ensureJourneyMap();if(document.hidden||own!==revision||selected!==pattern)return;
   if(!map){
    $('lineMap').textContent='';map=L.map($('lineMap'),{scrollWheelZoom:false,zoomControl:true,attributionControl:true});
+   map.on('zoomend',syncStopNumbers);map.on('movestart zoomstart mouseout',hideStopHover);
    tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,referrerPolicy:'strict-origin-when-cross-origin',attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>'}).addTo(map);
    tiles.on('tileerror',()=>{if(document.hidden)return;$('mapTileStatus').hidden=false;$('mapTileStatus').textContent='Kartenhintergrund teilweise oder vollständig nicht verfügbar. Linienverlauf und Haltestellenliste bleiben sichtbar; ohne Kartenkacheln ist dies keine vollständige Straßenkarte.';});
    layers=L.layerGroup().addTo(map);
   }
-  layers.clearLayers();map.closePopup();markers=[];popups=[];
+  hideStopHover();layers.clearLayers();map.closePopup();markers=[];popups=[];
   const route=color(line),points=selected.geometry?decodeJourneyPolyline(line.shapes[selected.geometry]):[];
   if(points.length)L.polyline(points,{color:route,weight:5,opacity:.9,interactive:false}).addTo(layers);
   selected.stops.forEach((stop,i)=>{
    const icon=L.divIcon({className:'line-stop-marker',html:`<span style="--line-color:${route}">${i+1}</span>`,iconSize:[44,44],iconAnchor:[22,22]});
-   const marker=L.marker([stop.lat,stop.lon],{icon,title:(i+1)+'. '+stop.name,keyboard:true}).addTo(layers);
+   const marker=L.marker([stop.lat,stop.lon],{icon,keyboard:true}).addTo(layers);
    const popup=document.createElement('div');popup.className='line-map-popup';const title=document.createElement('strong');title.textContent=(i+1)+'. '+stop.name;popup.append(title);
+   const monitor=lineMapMonitorUrl(line,selected,stop,monitorStops);
+   if(monitor){const link=document.createElement('a');link.href=monitor;link.textContent='Abfahrtsmonitor';popup.append(link);}
    const href=lineMapTimetableUrl(line,selected,stop);
    if(href){const link=document.createElement('a');link.href=href;link.textContent='Tagesfahrplan & PDF';popup.append(link);}
    else{const note=document.createElement('span');note.textContent='Halt außerhalb des verfügbaren Stationsfahrplans';popup.append(note);}
    popups.push(popup);
-   marker.on('click',event=>{
-    // At whole-line zoom the 44px hit areas overlap. Resolve the actual pointer
-    // against station centres, rather than choosing the topmost neighbouring
-    // Leaflet icon. Keyboard activation keeps the focused station.
-    const mouse=event.originalEvent;
-    const chosen=Number.isFinite(mouse?.clientX)&&Number.isFinite(mouse?.clientY)?nearestLineStop(selected.stops.map(s=>map.latLngToContainerPoint([s.lat,s.lon])),map.mouseEventToContainerPoint(mouse),i):i;
-    openStopPopup(chosen);selectStop(chosen);
-   });
+   bindLineStopInteraction(marker,map,selected.stops,i,{hover:number=>showStopHover(selected.stops,number),leave:hideStopHover,select:number=>{openStopPopup(number);selectStop(number);}});
    marker.getElement()?.setAttribute('aria-label',(i+1)+'. '+stop.name);markers.push(marker);
   });fit();
   markers.forEach((marker,i)=>marker.getElement()?.setAttribute('aria-label',(i+1)+'. '+selected.stops[i].name));
+  const initialStop=selected.stops.findIndex(stop=>stop.id===selectedStopId);
+  if(initialStop>=0)selectStop(initialStop,{pan:true});
  }catch{if(own===revision){$('lineMap').textContent='Das Kartenmodul konnte nicht geladen werden. Die Haltestellen stehen unten in Fahrtfolge zur Verfügung.';}}
 }
 function renderVariants(preferred){
@@ -90,13 +106,16 @@ async function start(){
   const matches=index.lines.filter(row=>row.route===params.get('linie')),entry=matches.find(row=>row.mode===params.get('verkehrsmittel'))||(matches.length===1?matches[0]:null);
   status(index.lines.length+' Wiener Linien · Fahrwege gültig '+shortDate(manifest.validFrom)+' bis '+shortDate(manifest.validThrough));
   if(!entry){renderLines();return;}
-  const result=await source.line(entry,manifest,{signal:request.signal});if(own!==revision||request.signal.aborted||document.hidden)return;
+  const catalogue=fetch('./data/stops.json?v=0.9.5',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
+  const result=await source.line(entry,manifest,{signal:request.signal}),monitors=await catalogue;if(own!==revision||request.signal.aborted||document.hidden)return;
+  monitorStops=monitors;
   line=result.data;$('mapLinePicker').hidden=true;$('mapLineView').hidden=false;
   $('mapTitle').textContent='Linienkarte '+line.route;document.title='Linie '+line.route+' · Karte · foama-wien';$('mapLineBadge').textContent=line.route;$('mapLineBadge').style.background=color(line);$('mapLineTitle').textContent=modes[line.mode]||'Linie';
   const directions=lineMapDirections(line),initial=line.patterns.find(p=>p.id===params.get('variante'))||preferredLinePattern(line.patterns,manifest,{day:timetableDate(),stopId:params.get('halt'),towards:params.get('richtung')});
   direction=initial.direction;
   $('mapDirections').innerHTML=directions.map(d=>`<button type="button" data-direction="${escape(d.id)}" aria-pressed="false">→ ${escape(d.label)}</button>`).join('');
-  $('mapOfflineStatus').textContent=result.offline?'Linienverlauf und Haltestellen sind auf diesem Gerät gespeichert. Der Kartenhintergrund benötigt Internet.':'Linie geladen, konnte aber nicht dauerhaft auf dem Gerät gespeichert werden.';
+  $('mapOfflineStatus').hidden=result.offline;
+  $('mapOfflineStatus').textContent=result.offline?'':'Linie geladen, konnte aber nicht dauerhaft auf dem Gerät gespeichert werden.';
   $('mapSource').textContent='Fahrwege gültig '+shortDate(manifest.validFrom)+'–'+shortDate(manifest.validThrough)+' · '+manifest.attribution;
   if(timetableDate()>manifest.validThrough)$('mapSource').textContent+=' · Fahrplan abgelaufen';
   renderVariants(initial.id);

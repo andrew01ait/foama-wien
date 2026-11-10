@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 10. November 2026. **PWA 0.9.0, Wear 0.7.1 / Code 23.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 10. November 2026. **PWA 0.9.5, Wear 0.7.3 / Code 25.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -11,9 +11,9 @@ Stand: 10. November 2026. **PWA 0.9.0, Wear 0.7.1 / Code 23.** Verbindlich sind 
 | Abfahrten | Nähe/Favoriten, Filter, Gehzeit und Erreichbarkeit; sichtbare Aktualisierung alle 30 Sekunden mit gemeinsamen Budgets und Rücksicht auf Sichtbarkeit |
 | Datenqualität | Wien/Wiener Linien, Graz/Transitous und Linz/EFA nach Datenlage live; Salzburg ausschließlich Fahrplan im Monitor |
 | Favoriten/QR | Lokale Gerätefavoriten, Stationen und Linien, importierte Routen auf der Uhr je gewählter Stadt; stadtübergreifende Wege in allen betroffenen Profilen; Vorschau/bewusste Übernahme, zehn Minuten verschlüsselt; alte Uhren sperren regionale Auswahl weiter |
-| A nach B | Vollplanung, Karten, Alternativen und Orte in der PWA; Uhr zeigt importierte Routen mit aktuellen passenden Linienzeiten |
-| Tagesfahrpläne | 173 Wiener Linien, Heute zuerst, Datum/Haltestelle/Richtung, aktuelle Stunde farbig, ausdrückliche Offline-Sicherung und PDF-Download für Haltestelle/Richtung oder ganze Linie am gewählten Datum |
-| Linienkarte | 173 Wiener Linien, 965 reale Varianten, OpenStreetMap-Hintergrund, Richtungen/Kurzführungen, antippbare Halte und geordnete Stationsliste; geladene Geometrie offline, Kartenkacheln online |
+| A nach B | Gemeinsamer Seitenaufbau mit Titel vor Hauptnavigation, Vollplanung, Karten, Alternativen und Orte in der PWA; Uhr zeigt importierte Routen mit aktuellen passenden Linienzeiten |
+| Tagesfahrpläne | 173 Wiener Linien, Heute zuerst, Datum/Haltestelle/Richtung, aktuelle Stunde farbig, ausdrückliche Offline-Sicherung und PDF für Haltestelle/Richtung oder ganze Linie mit datumsgültigen Variantenkarten und Haltestellen in Fahrtfolge |
+| Linienkarte | 173 Wiener Linien, 965 reale Varianten, OpenStreetMap-Hintergrund, Richtungen/Kurzführungen, Haltepunkte mit zoomabhängigen Nummern und aufklappbare Hinweise und geordnete Stationsliste; geladene Geometrie offline, Kartenkacheln online |
 | Städtebild | Proportionale Collage Wien/Graz/Linz/Salzburg mit Bahn, Tram und Obus; Salzburg-Einschränkung im FAQ statt separatem Banner |
 | Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), mit Verfügbarkeitssymbolen und aufklappbaren FAQ; verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
 | Störungen | Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
@@ -27,7 +27,7 @@ Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens
 
 ## Verifikation und Grenzen
 
-Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache, Marker-Auswahl und PDF mit echten U1-Daten; Prüfzahlen siehe [Tests](docs/tests.md). Der neue native Release ergänzt Stadtfilter für beide Routenlisten, dauerhaft erreichbare Hauptnavigation und genaue Wiederholungsplanung. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.1](docs/wear-os-release-0.7.1.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
+Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache, Marker-Auswahl und PDF mit echten U1-Daten; Prüfzahlen siehe [Tests](docs/tests.md). Der aktuelle native Release zeigt die aktive Stadt über der Hauptnavigation und rückt Favoritensegmente, Verkehrsmittel und Abschnittsüberschrift enger zusammen; große getrennte Tippflächen bleiben erhalten. Stadtfilter für beide Routenlisten, erreichbare Hauptnavigation und genaue Wiederholungsplanung bleiben erhalten. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.3](docs/wear-os-release-0.7.3.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
 
 Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver PWA ungefähr alle fünf Minuten ergänzend. Kein neuer externer Timer, keine Hintergrundortung oder Abfahrtsabfragen. Nutzer bestätigt Empfang einer PWA-Testnachricht; tatsächliche lokale Geräteanzeige und reale Störungszustellung weiter praktisch beobachten.
 

@@ -1,46 +1,46 @@
-import {CITY_PREFERENCE,CITY_PROFILES,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.9.0';
-import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.9.0';
-import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.9.0';
-import {createAppUpdates} from './app-updates.mjs?v=0.9.0';
-import {bindAppShare} from './app-share.mjs?v=0.9.0';
-import {createNotifications} from './notifications.mjs?v=0.9.0&r=3';
-import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.9.0';
-import {jsonExportName} from './export-file.mjs?v=0.9.0';
-import {transferableJourneys} from './journey-favorites.mjs?v=0.9.0';
-import {mergeTransferBundle} from './transfer.mjs?v=0.9.0';
-import {warningsForTargets,updateWarningPanel,stationNoticeSections} from './warning-panel.mjs?v=0.9.0';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.9.0';
-import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.9.0';
-import {createThemeController} from './theme.mjs?v=0.9.0';
-import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.9.0';
-import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.9.0';
-import {connectionsAtStation} from './station-search.mjs?v=0.9.0';
-import {createLocationController,locationMessage} from './location.mjs?v=0.9.0';
-import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.9.0';
-import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.9.0';
-import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.9.0';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.9.0';
-import {stationAddressMarkup} from './station-addresses.mjs?v=0.9.0';
-import {createAddressLookup} from './address-index.mjs?v=0.9.0';
-import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.9.0';
-import {updateTrafficCache,trafficAtStation,affectedNoticeLines,noticeLines} from './traffic-info.mjs?v=0.9.0';
-import {createDebugging} from './debugging.mjs?v=0.9.0&r=2';
-import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.9.0';
-import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.9.0';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.9.0';
-import {departureAtStation,connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation} from './connection-detail.mjs?v=0.9.0';
+import {CITY_PREFERENCE,CITY_PROFILES,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.9.5';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.9.5';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.9.5';
+import {createAppUpdates} from './app-updates.mjs?v=0.9.5';
+import {bindAppShare} from './app-share.mjs?v=0.9.5';
+import {createNotifications} from './notifications.mjs?v=0.9.5&r=3';
+import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.9.5';
+import {jsonExportName} from './export-file.mjs?v=0.9.5';
+import {transferableJourneys} from './journey-favorites.mjs?v=0.9.5';
+import {mergeTransferBundle} from './transfer.mjs?v=0.9.5';
+import {warningsForTargets,updateWarningPanel,stationNoticeSections} from './warning-panel.mjs?v=0.9.5';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.9.5';
+import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.9.5';
+import {createThemeController} from './theme.mjs?v=0.9.5';
+import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.9.5';
+import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.9.5';
+import {connectionsAtStation} from './station-search.mjs?v=0.9.5';
+import {createLocationController,locationMessage} from './location.mjs?v=0.9.5';
+import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.9.5';
+import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.9.5';
+import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.9.5';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.9.5';
+import {stationAddressMarkup} from './station-addresses.mjs?v=0.9.5';
+import {createAddressLookup} from './address-index.mjs?v=0.9.5';
+import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.9.5';
+import {updateTrafficCache,trafficAtStation,affectedNoticeLines,noticeLines} from './traffic-info.mjs?v=0.9.5';
+import {createDebugging} from './debugging.mjs?v=0.9.5&r=2';
+import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.9.5';
+import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.9.5';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.9.5';
+import {departureAtStation,connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation,connectionUrlTarget} from './connection-detail.mjs?v=0.9.5';
 const $=id=>document.getElementById(id), escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const WL_RATE_KEY='foama.wl.lastApiAttempt.v1';
 let notifications=null;
 const timetable=createTimetable();
 let plannedDepartures=[],scheduleRequest=null,regionalRequest=null,regionalRetry=0,regionalCycle=0;const cityLoads=new Map();
-const appUpdates=createAppUpdates({version:'0.9.0'});
+const appUpdates=createAppUpdates({version:'0.9.5'});
 const keys={settings:'foama.settings.v1',favorites:'foama.favorites.v1',stops:'foama.stops.v1',rail:'foama.rail.v1',departures:'foama.departures.v1',lines:'foama.stationLines.v1'};
 function datasetDB(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window))return reject(Error('IndexedDB fehlt'));const request=indexedDB.open('foama-wien',1);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains('datasets'))db.createObjectStore('datasets');};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function datasetGet(key){let db;try{db=await datasetDB();return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readonly'),request=tx.objectStore('datasets').get(key);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error);});}catch{return null;}finally{db?.close();}}
 async function datasetPut(key,value){const db=await datasetDB();try{return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readwrite');tx.objectStore('datasets').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
 function retrieve(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}}
-const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.9.0'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
+const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.9.5'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
 Object.assign(state,{locationData:{},locationPhase:'ready',locationInfo:{phase:'ready'},nearbyAnchor:null,addressLookup:null,bundledStops:[],learnedLines:retrieve(keys.lines,{}),apiFailures:0,retryAt:0,batchCycle:0,queriedIds:new Set(),platformChecks:new Map(),positionMap:null});
 const themeControl=createThemeController({preference:state.settings.theme});
 state.trafficCache=retrieve('foama.traffic.v1',{});state.noticesError=false;
@@ -220,15 +220,16 @@ function renderConnection(){
  const checked=target.ids.length&&target.ids.every(id=>Date.now()-(state.platformChecks.get(id)||0)<=90_000);
  const empty=state.fetchError?'Live-Daten derzeit nicht verfügbar.':checked?'Derzeit keine Abfahrten für diese Verbindung gemeldet.':stop.provider==='rail'?'Keine aktuellen Fahrplandaten für diese Verbindung.':'Für diese Verbindung ist noch keine aktuelle Abfahrt bestätigt.';
  const clock=iso=>new Date(iso).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit'});
- $('connectionContent').innerHTML=`<div class="connection-heading"><div class="eyebrow">${escape(MODE_LABELS[target.mode]||'VERBINDUNG')}</div><h1 id="connectionTitle" tabindex="-1">${escape(stop.name)}</h1><div class="connection-destination ${lineHasCurrentDeparture(stop,target,displayDepartures(),{hasError:stop.provider==='transitous'?!!state.regionalError:!!state.fetchError})?'':'line-unconfirmed'}">${routeBadge(target.route,target.mode||first?.mode||'bus')}<h2>→ ${escape(target.towards||'Alle Richtungen')}</h2></div></div>
+ $('connectionContent').innerHTML=`<div class="connection-heading"><div class="eyebrow">${escape(MODE_LABELS[target.mode]||'VERBINDUNG')}</div><div class="connection-title-row"><h1 id="connectionTitle" tabindex="-1">${escape(stop.name)}</h1><button type="button" class="star-btn connection-favorite ${saved?'saved':''}" data-connection-action="favorite" id="connectionFavorite" aria-pressed="${saved}" aria-label="${saved?'Favorit entfernen':'Als Favorit speichern'}" title="${saved?'Favorit entfernen':'Als Favorit speichern'}">${saved?'★':'☆'}</button></div><div class="connection-destination ${lineHasCurrentDeparture(stop,target,displayDepartures(),{hasError:stop.provider==='transitous'?!!state.regionalError:!!state.fetchError})?'':'line-unconfirmed'}">${routeBadge(target.route,target.mode||first?.mode||'bus')}<h2>→ ${escape(target.towards||'Alle Richtungen')}</h2></div></div>
   ${!target.towards&&directions.length?`<div class="connection-directions" aria-label="Richtung auswählen">${directions.map((direction,i)=>`<button type="button" class="small-btn" data-connection-action="direction-${i}" data-connection-direction="${escape(direction)}">→ ${escape(direction)}</button>`).join('')}</div>`:''}
   <section class="connection-countdown" aria-label="Nächste Abfahrt">${first?`<span class="connection-next-label">Nächste Abfahrt${!target.towards?' → '+escape(first.towards):''}</span><div class="connection-time">${timeMarkup(first)}</div><p class="connection-clock">um ${escape(clock(first.actual))}${first.platform?' · Bahnsteig '+escape(first.platform):''}</p>${correctionMarkup(first)}<p class="mini-status ${reach.status}">${statusSymbol(reach.status)} ${statusText(reach.status)}</p>`:`<div class="connection-time">—</div><p>${escape(empty)}</p>`}</section>
+  <div class="connection-walk"><strong>${state.position?escape(walkText(stop)):'Gehzeit ohne Standort ungewiss'}</strong><span>${escape(state.settings.buffer)} Min. Reserve berücksichtigt</span></div>
+  <div class="connection-actions" role="group" aria-label="Aktionen für diese Verbindung"><button type="button" class="primary-btn" data-connection-action="map" id="connectionMap">Fußweg zur Haltestelle</button>
+  ${stop.provider==='wl'?`<nav class="connection-plan-links" aria-label="Linieninformationen"><a class="outline-btn" href="./linienkarte.html?${new URLSearchParams({linie:target.route,verkehrsmittel:target.mode||first?.mode||'bus',halt:stop.id,richtung:target.towards||''})}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 5 6-3 6 3 6-3v17l-6 3-6-3-6 3V5Zm6-3v17m6-14v17"/></svg><span>Linienkarte</span></a><a class="outline-btn" href="./fahrplan.html?${new URLSearchParams({linie:target.route,verkehrsmittel:target.mode||first?.mode||'bus',halt:stop.id,richtung:target.towards||''})}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6m10-6v6M3 11h18m-13 4h3m3 0h3"/></svg><span>Fahrplan &amp; PDF</span></a></nav>`:''}</div>
   <p class="connection-refresh-status" id="connectionRefreshStatus" role="status">${escape(connectionRefreshText())}</p>
   ${departures.length>1?`<section class="connection-following"><h3>Danach</h3><ol>${departures.slice(1,7).map(d=>`<li><span>${escape(clock(d.actual))}${!target.towards?`<small>→ ${escape(d.towards)}</small>`:''}${correctionMarkup(d)}</span><strong>${timeMarkup(d)}</strong></li>`).join('')}</ol></section>`:''}
   ${stationNotices(stop,target.route)}
-  ${stop.provider==='wl'?`<div class="timetable-tools"><a class="outline-btn" href="./fahrplan.html?${new URLSearchParams({linie:target.route,verkehrsmittel:target.mode||first?.mode||'bus',halt:stop.id})}">Tagesfahrplan & PDF</a><a class="outline-btn" href="./linienkarte.html?${new URLSearchParams({linie:target.route,verkehrsmittel:target.mode||first?.mode||'bus',halt:stop.id,richtung:target.towards||''})}">Linienverlauf auf der Karte</a></div>`:''}
-  <div class="connection-walk"><strong>${state.position?escape(walkText(stop)):'Gehzeit ohne Standort ungewiss'}</strong><span>${escape(state.settings.buffer)} Min. Reserve berücksichtigt</span></div>
-  <div class="connection-actions"><button type="button" class="primary-btn" data-connection-action="favorite" id="connectionFavorite" aria-pressed="${saved}">${saved?'★ Favorit entfernen':'☆ Als Favorit speichern'}</button><button type="button" class="small-btn" data-connection-action="map" id="connectionMap">Fußweg & Karte ↗</button></div>`;
+`;
  if(focusAction)[...$('connectionContent').querySelectorAll('[data-connection-action]')].find(b=>b.dataset.connectionAction===focusAction)?.focus({preventScroll:true});
 }
 function renderFavoriteTools(visible){
@@ -583,18 +584,18 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopActive();else startActive();});window.addEventListener('pagehide',stopActive);
 }
 async function prepareTransfer(){if(location.hash.includes('session='))location.replace('./transfer.html'+location.hash);}
-async function init(){try{const config=await fetchJson('./config.json?v=0.9.0');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
-  try{const baked=await fetchJson('./data/stops.json?v=0.9.0');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
+async function init(){try{const config=await fetchJson('./config.json?v=0.9.5');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
+  try{const baked=await fetchJson('./data/stops.json?v=0.9.5');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
   const storedStops=(await datasetGet('wl'))||retrieve(keys.stops,[]);if(storedStops.length)state.stops=[...state.stops.filter(s=>s.provider!=='wl'),...enrichStops(storedStops,state.bundledStops)];
   try{state.rail=(await datasetGet('rail'))||retrieve(keys.rail,null)||await fetchJson('./data/rail.json');if(state.rail?.stops)state.stops.push(...state.rail.stops);}catch{}
   await ensureCityStops(state.cityProfile.id).catch(()=>{});renderCity();if(cityControl.preference()!=='auto'&&!state.position)setPosition(state.cityProfile.center,true);
   state.stopsUnavailable=!state.stops.length;$('stopNames').innerHTML=activeStops().slice(0,9000).map(s=>`<option value="${escape(s.name)}"></option>`).join('');
   // Request a prepared WL index from the proxy only if the static bundle contains none.
   if(state.stopsUnavailable&&(!state.config.staticOnly||state.settings.proxyBase||state.config.apiBase)){try{const api=state.settings.proxyBase||state.config.apiBase||(location.origin!=='null'?location.origin:'');if(!api)throw Error('Kein Index-Backend konfiguriert');const index=await fetchJson(`${api}/api/stops-index`,10_000);if(index.stops?.length){state.stops=index.stops;state.stopsUnavailable=false;$('stopNames').innerHTML=state.stops.map(s=>`<option value="${escape(s.name)}"></option>`).join('');}}catch{}}
-  void fetchJson('./data/station-addresses.json?v=0.9.0').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
-  void fetchJson('./data/streets.json?v=0.9.0').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
+  void fetchJson('./data/station-addresses.json?v=0.9.5').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
+  void fetchJson('./data/streets.json?v=0.9.5').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
   for(const stop of state.stops.filter(s=>s.provider==='rail')){const departures=(state.rail?.departures||[]).filter(d=>(stop.platformIds||[stop.id.slice(5)]).includes(d.stop));stop.lines=[...new Map(departures.map(d=>[(d.mode||'regional')+'|'+d.route,{route:d.route,mode:d.mode||'regional'}])).values()];}
-  if(['#favoriten','#naehe'].includes(location.hash)){state.settings.view=location.hash==='#favoriten'?'fav':'near';saveSettings();}saveFavorites();connectionNavigation.sync();render();await prepareTransfer();if(!state.manual)void locationControl.init();startActive();if(state.stopsUnavailable)msgStatus('Haltestellenkatalog fehlt · CSV importieren oder Serverdaten aktivieren',true);
+  if(['#favoriten','#naehe'].includes(location.hash)){state.settings.view=location.hash==='#favoriten'?'fav':'near';saveSettings();}saveFavorites();const linkedConnection=connectionUrlTarget(location.search,state.stops);if(linkedConnection&&!window.history.state?.foamaConnection)connectionNavigation.open(linkedConnection,{replace:true});else connectionNavigation.sync();render();await prepareTransfer();if(!state.manual&&!state.focusedConnection)void locationControl.init();startActive();if(state.stopsUnavailable)msgStatus('Haltestellenkatalog fehlt · CSV importieren oder Serverdaten aktivieren',true);
   notifications=createNotifications({getFavorites:()=>state.favorites,getStops:()=>state.stops,getJourneys:()=>retrieve('foama.journeyFavorites.v1',[])});
   if('serviceWorker'in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js').then(registration=>{appUpdates.setRegistration(registration);return notifications.init();}).catch(()=>notifications.init());
   else void notifications.init();

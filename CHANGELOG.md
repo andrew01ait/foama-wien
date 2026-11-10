@@ -1,3 +1,43 @@
+## Wear 0.7.3 · aktive Stadt und engere Favoritensteuerung · 10.11.2026
+
+Kopftitel auf den Hauptseiten ist die tatsächlich aktive Stadt aus CityProfiles.current(): Wien, Graz, Linz oder Salzburg. Bei jeder sichtbaren Inhaltsaktualisierung mitführen, auch nach automatischer Erkennung oder Ablauf der automatischen Zuordnung; kein eigener Timer und keine zusätzlichen Anfragen. Manuelle Profilwahl und alle bestehenden Stadt-/Standortregeln erhalten.
+
+Sichtbaren Abstand der Favoritensegmente zur Verkehrsmittelleiste durch angepasste zeichnerische Insets und oben ausgerichtete Symbole verkleinern. Die nicht interaktive Abschnittsüberschrift nutzt den unteren Leerraum des Filterziels; erste Stations-/Routenaktion bleibt außerhalb seiner kompletten 48-dp-Fläche. Explizites Containerpadding verhindert, dass Drawable-Insetpadding die 48-dp-Kinder über den Gruppenrand schiebt. Bei direkt folgender Akku-Sparaktion keine Überschneidung. Auswahlpersistenz, Favoriten, Requestbudgets und Hintergrundregeln erhalten. Neuer APK-Dateiname 0.7.3 / Code 25, Originalpaket/-zertifikat, PWA bleibt 0.9.5.
+
+## Wear 0.7.2 · kompakte Favoritenauswahl und Kopftitel · 10.11.2026
+
+Routen/Stationen als gemeinsame 176-dp-breite, optisch 32-dp-hohe Segmentleiste statt zweier voller Aktionsbuttons. Mindestens 48 × 48 dp große getrennte Tippflächen, 12-sp-Beschriftung, aktive Auswahl und Fokusmarkierung erhalten. Kleiner foama-wien-Titel in der bisher freien Rundkappe über Nähe/Favoriten/A nach B; geringerer oberer Außenabstand gleicht den Titel aus. Keine zusätzliche Aktionszeile und keine Titelkopie auf Unterseiten. Große Systemschrift und 192-/227-dp-Runddisplays prüfen. Ansichtspräferenz, Stadtfilter, Favoritenspeicher, Rückwege und sämtliche Abruf-/Pausenregeln bleiben erhalten. Originalpaket/-zertifikat, eigener APK-Dateiname 0.7.2 / Code 24. PWA-Version bleibt 0.9.5.
+
+## PWA 0.9.5 · Stationsnamen und Tastaturprüfung · 10.11.2026
+
+Öffentliche Mausabnahme bestätigt identische Hover-/Klicknamen für Thaliastraße sowie den Wechsel Gumpendorfer Straße → Längenfeldgasse innerhalb derselben überlappenden Trefferfläche. Der ergänzende Tastaturcheck zeigte, dass die eigenen Popups bisher keinen Leaflet-keypress-Handler hatten. Enter wählt jetzt ausdrücklich den fokussierten Stationsmarker; andere Tasten lösen keine Auswahl aus. Neuer PWA-Cache für die finale Korrektur, Wear unverändert.
+
+## PWA 0.9.4 · konsistente Stationsnamen beim Hover · 10.11.2026
+
+Native Marker-Titel entfernen: überlappende 44-px-Treffflächen konnten einen Nachbarhalt benennen, obwohl die Klickauflösung den richtigen Punkt auswählte. Hover und Klick über dieselbe zentrale Zeigerauflösung verdrahten, bei Bewegung innerhalb einer Trefferfläche erneut auflösen. Ein eigener nicht interaktiver Leaflet-Tooltip zeigt genau den aufgelösten Stationsnamen. Beim Verlassen, Klick, Kartenbewegung, Zoom und Variantenwechsel schließen. Marker behalten ihren echten statischen aria-label-Namen und ihre 44-px-Fläche; Tastaturaktivierung wählt den fokussierten Marker. Keine zusätzlichen Anfragen. Wear 0.7.1/23 unverändert.
+
+## PWA 0.9.3 · Monitor-Links und Datenfußnote · 10.11.2026
+
+Datenstand & Aktualität im Linienfahrplan als geschlossene aufklappbare Fußnote nach den Fahrplaninhalten. Vollständige Metadaten und Quellenprüfung erhalten, mindestens 44-px-Ziel.
+
+Linienkarte bietet im Stationspopup und unter der Karte getrennt Abfahrtsmonitor sowie Tagesfahrplan & PDF. Monitor nur für exakt bekannte Wiener-Linien-Stationen mit gültigen RBLs aus dem lokalen Stationskatalog; kein Probeabruf oder LIVE-Versprechen. Öffentliche Direktlinks enthalten Stations-ID, Linie, Modus und Richtung. Die PWA validiert den Katalogkontext nach dem Laden und öffnet genau die Verbindung. Initialen Link per replaceState übernehmen, damit Zurück zur Karte keinen leeren App-Zwischenschritt benötigt; in einem alleinstehenden Tab zurück zur Übersicht. Keine Standortinitialisierung für die direkt geöffnete Verbindung. Abrufbudgets/Favoriten und Wear 0.7.1/23 erhalten.
+
+## PWA 0.9.2 · PDF-Streckenführung und Verbindungsaktionen · 10.11.2026
+
+Beide Fahrplan-PDFs enthalten Karten und nummerierte Haltestellen in tatsächlicher Fahrtfolge. Tagesexport filtert exakt nach Datum, Richtung und gewählter Haltestelle; ganze Linie enthält alle an diesem Tag aktiven Varianten. Ausgewählte Station in Karte und Liste markieren. Fahrplantabellen danach weiterhin alphabetisch mit allen bisherigen Kalender-/MEZ-/MESZ-Regeln. Ein gemeinsamer geografischer Ausschnitt je Export, eine wiederverwendete JPEG-Hintergrundressource, echte GTFS-Shapes als Vektoren und klickbare Linien-/Quellenlinks. Fehlende Shapes niemals durch gerade Verbindungen ersetzen.
+
+PDF-Hintergrund aus basemap.at Standard (CC BY 4.0), ausschließlich nach bewusstem Export, begrenzter Ausschnitt mit maximal 32 Kacheln/vier gleichzeitigen Abrufen. Keine OSM-Community-Kacheln für Downloads. Normale Browser-Caches, keine Offline-Kachelpakete, keine neue Serverroute. Ohne Hintergrund klar beschriftete geografische Karte aus lokalen Daten; Abbruch/Sichtbarkeit verhindern verspätete Downloads. Offline-Liniensicherung enthält jetzt zusätzlich Liniengeometrie. Basisdaten/Version/Quelldigest müssen zusammenpassen.
+
+Linienkarte übernimmt halt aus dem Link, öffnet Popup, zentriert und hebt genau diese Haltestelle hervor. Gewählte Stations-ID bei Varianten-/Richtungswechsel erhalten, soweit sie dort vorkommt; unbekannte ID wählt keine Ersatzstation. Verbindungsansicht: Favoritenstern 44 px neben Titel, Fußweg als Hauptaktion unter der nächsten Abfahrt, Linienkarte und Fahrplan & PDF gleichwertig nebeneinander. Fachliche Abrufgrenzen, Favoritenschlüssel und Fokus bei Aktualisierungen erhalten. Wear 0.7.1/23 unverändert.
+
+## PWA 0.9.1 · Seitenaufbau und übersichtliche Linienkarte · 10.11.2026
+
+A nach B verwendet dieselbe Reihenfolge wie Nähe/Favoriten: gemeinsame App-Kopfzeile, Seitenüberschrift, Hauptnavigation und anschließend Route suchen/Meine Routen mit den zugehörigen Inhalten. Überschrift und Navigation liegen in derselben DOM- und Lesereihenfolge. Gemeinsame view-heading-Abstände und 29-px-Titel statt abweichender Sonderregeln. Suchformular, gespeicherte Orte und kompakte Reise-/Stationsdetails bleiben erhalten; kein verändertes Abfrageverhalten. Wear 0.7.1/23 unverändert.
+
+Allgemeine Daten-, Quellen- und Offline-Erklärungen beginnen als geschlossene native details/summary-Abschnitte. In Linienkarte und Linienfahrplan anwenden; Fehler und fehlende Speicherbarkeit weiterhin direkt anzeigen. Die Stationsliste der Linienkarte beginnt ebenfalls geschlossen. Kompakte Streckenangabe bleibt sichtbar.
+
+Linienkarte zeigt bei Zoom unter 16 nur 8-px-Haltepunkte auf der echten Linie; ab Zoom 16 die bisherigen 26-px-Stationsnummern. 44-px-Treffflächen, Stationsnamen, Popups und geordnete Liste bleiben erreichbar. Tastaturfokus darf seine Nummer auch in der Übersicht hervorheben. Zoomende schaltet nur die Darstellung am Kartencontainer um, ohne neue Datenabfrage oder Neubau der Geometrie.
+
 ## PWA 0.9.0 · geografische Linienkarte und PDF · 10.11.2026
 
 Echte OpenStreetMap-Linienkarte für 173 Wiener Linien mit 965 geografischen Varianten, Richtungen, Kurzführungen und antippbaren Halten in Fahrtfolge. Versionierte Pakete aus exakt passendem offiziellen GTFS; gewählte Linie lokal gespeichert. Straßenkartenkacheln benötigen Internet. Keine Fahrzeugpositionen in diesem Release.

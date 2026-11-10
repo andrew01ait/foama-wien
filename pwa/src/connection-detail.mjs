@@ -1,5 +1,5 @@
-import {directionEquivalent} from './core.mjs?v=0.9.0';
-import {departureIsFresh} from './departure-cache.mjs?v=0.9.0';
+import {directionEquivalent} from './core.mjs?v=0.9.5';
+import {departureIsFresh} from './departure-cache.mjs?v=0.9.5';
 
 export function departureAtStation(stop,departure){
  return !!stop&&(departure.source==='gtfs'?departure.stopId===stop.id:departure.provider==='wl'?stop.provider==='wl'&&(stop.rbl||[]).map(String).includes(String(departure.rbl)):departure.provider==='transitous'?stop.provider==='transitous'&&departure.stopId===stop.id:departure.provider==='rail'&&stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId));
@@ -30,6 +30,18 @@ export function connectionTarget(value){
  if(towards.length>160)return null;
  return {stopId:value.stopId,route:value.route,towards,mode:['metro','tram','bus','sbahn','regional','long'].includes(value.mode)?value.mode:''};
 }
+function monitoredConnection(value,stops){
+ const target=connectionTarget(value),stop=target&&stops.find(s=>s.id===target.stopId);
+ return stop?.provider==='wl'&&Array.isArray(stop.rbl)&&stop.rbl.some(id=>/^\d+$/.test(String(id)))?target:null;
+}
+export function connectionMonitorUrl(value,stops){
+ const target=monitoredConnection(value,stops);if(!target)return null;
+ return './?'+new URLSearchParams({halt:target.stopId,linie:target.route,verkehrsmittel:target.mode,richtung:target.towards})+'#verbindung';
+}
+export function connectionUrlTarget(search,stops){
+ const params=new URLSearchParams(search);
+ return monitoredConnection({stopId:params.get('halt'),route:params.get('linie'),mode:params.get('verkehrsmittel'),towards:params.get('richtung')||''},stops);
+}
 export function createConnectionNavigation({window,onChange}){
  if('scrollRestoration' in window.history)window.history.scrollRestoration='manual';
  const key='foamaConnection';
@@ -37,8 +49,8 @@ export function createConnectionNavigation({window,onChange}){
  window.addEventListener('popstate',sync);
  return {
   sync,
-  open(value){const target=connectionTarget(value);if(!target)return;const method=window.history.state?.[key]?'replaceState':'pushState';window.history[method]({...window.history.state,[key]:target},'','#verbindung');onChange(target);},
-  back(){if(window.history.state?.[key])window.history.back();else onChange(null);},
+  open(value,{replace=false}={}){const target=connectionTarget(value);if(!target)return;const method=replace||window.history.state?.[key]?'replaceState':'pushState';window.history[method]({...window.history.state,[key]:target},'','#verbindung');onChange(target);},
+  back(){if(window.history.state?.[key]&&window.history.length===1){window.history.replaceState({...window.history.state,[key]:null},'',(window.location?.pathname||'./')+'#naehe');onChange(null);}else if(window.history.state?.[key])window.history.back();else onChange(null);},
   stop(){window.removeEventListener('popstate',sync);}
  };
 }
