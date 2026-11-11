@@ -116,8 +116,8 @@ test('background cancellation does not turn into a network error or a retry',asy
 test('opening and closing the real connection page retains overview scroll, selection and favorite values',()=>{
  const state={focusedConnection:null,departures:[departure()],favorites:[{...target}],connectionOpener:{dataset:{connectionStop:stop.id,connectionRoute:'U6',connectionTowards:'Floridsdorf'}}},nodes=new Map(),frames=[],scrolls=[];let focuses=0;
  const opener={dataset:state.connectionOpener.dataset,focus(options){assert.equal(options.preventScroll,true);focuses++;}};
- const $=id=>{if(!nodes.has(id))nodes.set(id,{hidden:false,focus(){},querySelectorAll:()=>[opener]});return nodes.get(id);};
- const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$,createStationVehiclePanel:()=>({dispose(){},ids:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:432,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
+ const $=id=>{if(!nodes.has(id))nodes.set(id,{hidden:false,focus(){},append(node){assert.ok(node);},querySelectorAll:()=>[opener]});return nodes.get(id);};
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$,createStationVehiclePanel:()=>({element:{},dispose(){},ids:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:432,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);
  const before=JSON.stringify(state.favorites);ctx.showConnection(target);frames.shift()();assert.equal($('overviewMain').hidden,true);assert.equal($('connectionView').hidden,false);assert.equal(state.overviewScroll,432);
  ctx.showConnection({...target,towards:'Siebenhirten'});frames.shift()();assert.equal(state.overviewScroll,432);
@@ -135,7 +135,7 @@ test('cancelled operator response does not update learned lines, notice caches, 
 });
 test('a delayed open callback cannot scroll a restored overview back to the top',()=>{
  const state={focusedConnection:null,departures:[],connectionOpener:null},frames=[],scrolls=[];
- const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,createStationVehiclePanel:()=>({dispose(){},ids:()=>[]}),$:()=>({hidden:false,focus(){},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,createStationVehiclePanel:()=>({element:{},dispose(){},ids:()=>[]}),$:()=>({hidden:false,focus(){},append(node){assert.ok(node);},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);ctx.showConnection(target);ctx.showConnection(null);while(frames.length)frames.shift()();assert.deepEqual(scrolls.map(s=>s.top),[640]);
 });
 

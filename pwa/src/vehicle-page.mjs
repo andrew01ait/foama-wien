@@ -1,11 +1,11 @@
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.1';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.1';
-import {createThemeController} from './theme.mjs?v=0.11.1';
-import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.1';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.1';
-import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.1';
-import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.1';
-import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.1';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.2';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.2';
+import {createThemeController} from './theme.mjs?v=0.11.2';
+import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.2';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.2';
+import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.2';
+import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.2';
+import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.2';
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>id.replace(/^[^-]+-/,''),rowY=i=>55+i*100;
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
@@ -68,7 +68,7 @@ function setDirection(id){
  controls();syncView();$('pilotTrainsTitle').textContent='Auf Linie '+line.route;$('pilotBackLine').href='./linienkarte.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:focusStop||'',richtung:direction.towards});$('pilotLineTitle').textContent=line.route+' · EXPERIMENTELL';$('pilotIntro').textContent=direction.stops[0].name+' → '+direction.stops.at(-1).name+' · '+direction.stops.length+' Stationen · aus Stationsprognosen geschätzt.';document.title='Fahrzeuge im Anflug · '+line.route+' · foama-wien';document.querySelector('.vehicle-page').style.setProperty('--vehicle-line-color',routeColor(line.route,line.mode));
  const height=rowY(direction.stops.length-1)+55;$('schemaCanvas').style.height=height+'px';$('schemaTrack').setAttribute('viewBox','0 0 100 '+height);$('schemaTrack').innerHTML='<path d="M48 0V'+height+'" class="schema-outside"/><path d="M48 55V'+rowY(direction.stops.length-1)+'" class="schema-line"/>'+direction.stops.map((s,i)=>'<circle cx="48" cy="'+rowY(i)+'" r="7"/>').join('');$('pilotLegendSymbol').innerHTML=vehicleSymbolMarkup(line.mode);
  $('schemaStops').innerHTML=direction.stops.map((s,i)=>`<button type="button" class="schema-stop" style="top:${rowY(i)}px" data-stop="${i}">${escape(s.name)}<small>${i===0?'Linienbeginn':i===direction.stops.length-1?'Endstation · Ankunft geschätzt':s.rbl?'Live-Prognose als Stationsanker':'Keine eindeutige Monitorseite'}</small></button>`).join('');
- if(localRange){localStrip=createHorizontalVehicleStrip({direction,range:localRange});$('pilotLocal').replaceChildren(localStrip.element);if(view==='station')requestAnimationFrame(()=>localStrip.center());}else{localStrip=null;$('pilotLocal').replaceChildren();}
+ if(localRange){localStrip=createHorizontalVehicleStrip({direction,range:localRange});$('pilotLocal').replaceChildren(localStrip.element);}else{localStrip=null;$('pilotLocal').replaceChildren();}
  poller=createVehiclePoller({ids:()=>requestedIds,onData(raw){try{tracker.ingest(normalizePilotSnapshot(raw,direction,Date.now(),requestedIds));}catch(e){tracker.fail(e.message);}render(true);},onError(message){tracker.fail(message);render(true);},onWaiting(ms){if(!tracker.view().at)$('pilotStatus').textContent='Gemeinsame Abfragepause · nächster Versuch in '+Math.ceil(ms/1000)+' s';}});
  if(view==='map')void showMap();render(true);resume();
 }

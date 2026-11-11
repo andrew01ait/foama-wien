@@ -1,3 +1,7 @@
+## PWA 0.11.2 · stabile und bildschirmbreite Stationsansicht · 11.11.2026
+
+386 Web-/Server-Tests einschließlich zweier zusätzlicher Regressionen gegen Remount/Fokuswechsel im tatsächlichen Stations- und A-nach-B-Renderer. Horizontale Bewegung bleibt relativ und nutzt dieselbe Skala wie die Halte. Browser: acht vollständige Halte bei 337 px CSS-Breite per Zoom, Diagramm-clientWidth und scrollWidth beide 281 px, Seite jeweils 337 px; offener Bereich, gewählte Richtung und Fokus bleiben über Routineupdates erhalten. Helle und dunkle Palette kontrolliert. Dies ersetzt keine physische Android-Abnahme.
+
 ## PWA 0.11.1 · Benennung und Stationslebenszyklus · 11.11.2026
 
 384 Web-/Server-Tests, 15 Python-Prüfungen und 79 JavaScript-Syntaxprüfungen. Zwei zusätzliche Lebenszyklusfälle prüfen Schließen während des Katalogabrufs und Hintergrund/erneutes Öffnen während eines Paketabrufs. Name, horizontaler Ausschnitt und direkter Karten-/Stations-Einstieg in der verwalteten Vorschau geprüft; 337 px CSS-Breite per Browser-Zoom ohne Seitenüberlauf. Physische Fahrtenabnahme bleibt separat. Nach dem abschließenden Worker-Neubau blockierte die Browser-URL-Richtlinie weitere Vorschauaufrufe; A-nach-B-Ende-zu-Ende-Abnahme daher offen.
