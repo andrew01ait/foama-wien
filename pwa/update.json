@@ -1,18 +1,18 @@
 {
   "version": "0.9.5",
-  "wearVersionCode": 25,
-  "wearApkUrl": "/apk/foama-wien-wear-0.7.3.apk",
-  "wearApkSha256": "79d7be677bb2a70168da41a6c3d3a40b559e184770fca87522819a645d5141ca",
+  "wearVersionCode": 26,
+  "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
+  "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
   "changelog": "Linienkarte: Stationsnamen beim Darüberfahren stimmen jetzt mit dem angeklickten Halt überein, auch bei überlappenden Trefferflächen. Große Touchflächen und Tastaturbedienung bleiben erhalten.",
-  "wearVersion": "0.7.3",
+  "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 3838570,
+  "wearApkBytes": 3842666,
   "wearMinSdk": 30,
-  "wearChangelog": "Aktive Stadt statt foama-wien als Titel über der Hauptnavigation. Weniger Abstand zwischen Routen/Stationen und den Verkehrsmitteln. Stadttitel folgt manueller Auswahl und automatischer Erkennung. Große getrennte Tippflächen und gespeicherte Favoriten bleiben erhalten.",
+  "wearChangelog": "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach. Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab. Android-Installation wird ohne Blockieren der Oberfläche vorbereitet. Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich.",
   "wearReleaseNotes": [
-    "Aktive Stadt statt foama-wien als Titel über der Hauptnavigation.",
-    "Weniger Abstand zwischen Routen/Stationen und den Verkehrsmitteln.",
-    "Stadttitel folgt manueller Auswahl und automatischer Erkennung.",
-    "Große getrennte Tippflächen und gespeicherte Favoriten bleiben erhalten."
+    "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach.",
+    "Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab.",
+    "Android-Installation wird ohne Blockieren der Oberfläche vorbereitet.",
+    "Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich."
   ]
 }

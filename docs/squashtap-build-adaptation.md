@@ -2,7 +2,7 @@
 
 Erprobter Release-Weg: Linux, Python, Java/JDK 17 und Android-SDK-Kommandozeilentools. Android Studio und Gradle sind für diesen Weg nicht erforderlich. Die Legacy-Gradle-Dateien bleiben als zusätzliche Quellen erhalten, sind aber kein Nachweis eines aktuellen Release-Builds.
 
-Aktueller Stand: Wear 0.7.1 / Code 23; maßgeblich ist `wear/build-config.json`. Paket `at.andrew.foamawien`, Quellnamespace `at.foama.wien`. Plattform/Target 34, Build Tools 34.0.0, minSdk 30. Die ursprüngliche Signaturidentität steht öffentlich in `wear/release-signing.json`; der Keystore und seine Passwörter sind privat.
+Aktueller Stand: Wear 0.7.4 / Code 26; maßgeblich ist `wear/build-config.json`. Paket `at.andrew.foamawien`, Quellnamespace `at.foama.wien`. Plattform/Target 34, Build Tools 34.0.0, minSdk 30. Die ursprüngliche Signaturidentität steht öffentlich in `wear/release-signing.json`; der Keystore und seine Passwörter sind privat.
 
 ## Werkzeuge vorbereiten
 
@@ -36,7 +36,7 @@ Für einen unabhängigen Fork App-Kennung, eigenes Backend, Prüfkonfiguration u
 ## APK und Feed vorbereiten
 
 ```sh
-python3 scripts/publish_wear_update.py .local/native-release/foama-wien-0.7.1.apk 0.7.1 23
+python3 scripts/publish_wear_update.py .local/native-release/foama-wien-0.7.4.apk 0.7.4 26
 ```
 
 Version und Pfad müssen zum tatsächlich neu gebauten Release passen. Das Skript prüft Signatur und Metadaten, bereitet Download/Größe/SHA-256 und bis zu vier Neuerungspunkte im Feed vor und ergänzt die Release-Allowlist. Eine fertige APK wird nicht als GitHub-Quelldatei eingecheckt. Veröffentlichungen und öffentliche Byteprüfung erfolgen nach [DEPLOYMENT.md](../DEPLOYMENT.md).
@@ -45,6 +45,8 @@ Die App prüft Updates zunächst nur über Metadaten. Erst die zusätzliche Best
 
 ## Abnahme
 
-Der freigegebene 0.7.1-Build dokumentiert 147 native Tests. Aktuelle tatsächliche Ergebnisse stehen in [docs/tests.md](tests.md) und dem [Release-Protokoll](wear-os-release-0.7.1.md). GPS, Kamera/QR, System-Dateiauswahl, Installer, Hintergrundverhalten und echter Push-Empfang benötigen zusätzlich physische Geräteprüfung. Historische Build-Protokolle stehen im [Archiv](history/squashtap-build-adaptation-before-github.md).
+Der freigegebene 0.7.4-Build hat 159 native Tests bestanden. Aktuelle tatsächliche Ergebnisse stehen in [docs/tests.md](tests.md) und dem [Release-Protokoll](wear-os-release-0.7.4.md). GPS, Kamera/QR, System-Dateiauswahl, Installer, Hintergrundverhalten und echter Push-Empfang benötigen zusätzlich physische Geräteprüfung. Historische Build-Protokolle stehen im [Archiv](history/squashtap-build-adaptation-before-github.md).
 
 Schmale JDK-Abbilder ohne `ct.sym`: Der gemeinsame Compilerhelfer verwendet Java-8-Source/Target statt `--release 8`. Die obligatorischen Android-Tests, D8 und APK-Metadatenprüfung bleiben erhalten.
+
+Update-Lebenszyklus ab 0.7.4: sichtbare Dialogfenster wach halten, Staging auf dem Worker, kurze sichtbare Pause nur für bestätigte Updates überbrücken. Systeminstallation und physische Geräteabnahme separat; Details im [Release-Protokoll](wear-os-release-0.7.4.md).

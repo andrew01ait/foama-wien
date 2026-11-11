@@ -1,3 +1,7 @@
+## Wear 0.7.4 · sichtbare Updates · 11.11.2026
+
+Updatefenster bleiben bis zur Android-Übergabe wach; Staging läuft auf dem Worker. Kurze sichtbare Pause erhält nur bestätigte Update-Arbeit, echte Stop-/Abbruchpfade bereinigen weiterhin. Installerfehler verständlich abfangen, Resultate exakt zuordnen. 159 Android-Tests und Originalsignatur geprüft; [Abnahme und Grenzen](wear-os-release-0.7.4.md). PWA 0.9.5 bleibt unverändert.
+
 ## Wear 0.7.3 · aktive Stadt und engere Favoritensteuerung · 10.11.2026
 
 Kopftitel auf den Hauptseiten ist die tatsächlich aktive Stadt aus CityProfiles.current(): Wien, Graz, Linz oder Salzburg. Bei jeder sichtbaren Inhaltsaktualisierung mitführen, auch nach automatischer Erkennung oder Ablauf der automatischen Zuordnung; kein eigener Timer und keine zusätzlichen Anfragen. Manuelle Profilwahl und alle bestehenden Stadt-/Standortregeln erhalten.

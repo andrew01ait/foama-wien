@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 10. November 2026. **PWA 0.9.5, Wear 0.7.3 / Code 25.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 11. November 2026. **PWA 0.9.5, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -27,7 +27,7 @@ Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens
 
 ## Verifikation und Grenzen
 
-Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache, Marker-Auswahl und PDF mit echten U1-Daten; Prüfzahlen siehe [Tests](docs/tests.md). Der aktuelle native Release zeigt die aktive Stadt über der Hauptnavigation und rückt Favoritensegmente, Verkehrsmittel und Abschnittsüberschrift enger zusammen; große getrennte Tippflächen bleiben erhalten. Stadtfilter für beide Routenlisten, erreichbare Hauptnavigation und genaue Wiederholungsplanung bleiben erhalten. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.3](docs/wear-os-release-0.7.3.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
+Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache, Marker-Auswahl und PDF mit echten U1-Daten; Prüfzahlen siehe [Tests](docs/tests.md). Der aktuelle native Release hält Update-Dialoge bis zur Android-Übergabe sichtbar wach und bereitet Installationen ohne blockierte Oberfläche vor. Kurze sichtbare Unterbrechungen erhalten nur den bestätigten Update-Vorgang; Display aus und echtes Verlassen bereinigen weiter. Android kann beim eigentlichen APK-Ersetzen den bisherigen Prozess beenden. Er zeigt weiterhin die aktive Stadt über der Hauptnavigation und rückt Favoritensegmente, Verkehrsmittel und Abschnittsüberschrift enger zusammen; große getrennte Tippflächen bleiben erhalten. Stadtfilter für beide Routenlisten, erreichbare Hauptnavigation und genaue Wiederholungsplanung bleiben erhalten. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.4](docs/wear-os-release-0.7.4.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
 
 Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver PWA ungefähr alle fünf Minuten ergänzend. Kein neuer externer Timer, keine Hintergrundortung oder Abfahrtsabfragen. Nutzer bestätigt Empfang einer PWA-Testnachricht; tatsächliche lokale Geräteanzeige und reale Störungszustellung weiter praktisch beobachten.
 

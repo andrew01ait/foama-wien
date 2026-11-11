@@ -1,3 +1,10 @@
+## Wear 0.7.4 · 11.11.2026
+
+- Update-Dialog und App bleiben während Download und Vorbereitung sichtbar wach.
+- Kurze sichtbare Unterbrechungen stoppen Standort/Abfahrten, erhalten aber den bestätigten Download.
+- APK-Vorbereitung blockiert die Oberfläche nicht; Installer-Fehler und verspätete Ergebnisse werden abgefangen.
+- 159 native Tests, Originalpaket/-signatur; echte Systeminstallation und Geräteprüfung bleiben getrennt.
+
 ## Wear 0.7.3 · aktive Stadt und engere Favoritensteuerung · 10.11.2026
 
 Kopftitel auf den Hauptseiten ist die tatsächlich aktive Stadt aus CityProfiles.current(): Wien, Graz, Linz oder Salzburg. Bei jeder sichtbaren Inhaltsaktualisierung mitführen, auch nach automatischer Erkennung oder Ablauf der automatischen Zuordnung; kein eigener Timer und keine zusätzlichen Anfragen. Manuelle Profilwahl und alle bestehenden Stadt-/Standortregeln erhalten.

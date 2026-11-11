@@ -1,14 +1,14 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.7.3",
-  "versionCode": 25,
+  "versionName": "0.7.4",
+  "versionCode": 26,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Aktive Stadt statt foama-wien als Titel über der Hauptnavigation.",
-    "Weniger Abstand zwischen Routen/Stationen und den Verkehrsmitteln.",
-    "Stadttitel folgt manueller Auswahl und automatischer Erkennung.",
-    "Große getrennte Tippflächen und gespeicherte Favoriten bleiben erhalten."
+    "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach.",
+    "Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab.",
+    "Android-Installation wird ohne Blockieren der Oberfläche vorbereitet.",
+    "Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich."
   ]
 }
