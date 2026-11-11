@@ -1,7 +1,20 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.6';
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.6';
-import {createLineMaps,preferredLinePattern} from './line-maps.mjs?v=0.11.6';
-import {decodeVehiclePilot,validateVehiclePilot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.6';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.7';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.7';
+import {createLineMaps,preferredLinePattern} from './line-maps.mjs?v=0.11.7';
+import {decodeVehiclePilot,validateVehiclePilot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.7';
+
+export function stationVehicleTracks(state,range){
+ const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ return state.tracks.map(t=>reduced&&t.position&&!t.position.stale&&!t.position.uncertain?{...t,position:vehiclePosition(t,state.at)||t.position}:t).filter(t=>t.position&&t.position.progress>=range.start&&t.position.progress<=range.end);
+}
+export function vehicleDisplayId(id,route){
+ const sequence=String(id??'').match(/T(\d+)$/)?.[1];
+ return String(route??'')+(sequence?' · '+String(Number(sequence)).padStart(2,'0'):'');
+}
+export function stationVehicleStatus(state,direction,range,chosen){
+ const selected=state.tracks.find(t=>t.id===chosen),tracks=stationVehicleTracks(state,range);
+ return selected?vehicleDisplayId(selected.id,direction.route)+' · '+(selected.position?.basis==='held'?'Letzte geschätzte Lage · '+selected.status:selected.position?'Geschätzt vor '+direction.stops[selected.position.next].name:selected.status):state.problem||(!state.at?'Zuordnung wird aufgebaut · zwei frische Quellenstände nötig.':state.stale?'Älterer Stand · warte auf frische Stationsmeldungen.':tracks.length?tracks.length+' geschätzte Lage'+(tracks.length===1?'':'n')+' im Ausschnitt.':'Noch keine eindeutig ableitbare Lage im Ausschnitt.');
+}
 
 export function vehicleWindows(direction,limit=24){
  limit=Math.max(3,Math.min(24,Math.trunc(limit)||24));
@@ -28,7 +41,7 @@ export function createVehicleData({fetch=globalThis.fetch,get=getCatalogue,put=p
  async function index(){
   if(setup)return setup;
   setup=(async()=>{const manifest=await timetable.metadata();if(!manifest)throw Error('Fahrplanbasis fehlt. Bitte einmal online öffnen.');let index;const key='vehicles:index:v3';
-   try{const response=await fetch('./data/vehicle-pilot/index.json?v=0.11.6&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();index=await response.json();}catch{index=await get(key).catch(()=>null);}
+   try{const response=await fetch('./data/vehicle-pilot/index.json?v=0.11.7&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();index=await response.json();}catch{index=await get(key).catch(()=>null);}
    if(index?.format!==3||index.city!=='wien'||index.version!==manifest.version||index.sourceSha256!==manifest.sourceSha256||!Array.isArray(index.lines)||index.lines.length>400||index.lines.some(l=>!['metro','tram','bus'].includes(l.mode)||typeof l.route!=='string'||l.id!==l.mode+'|'+l.route||!/^[a-f0-9]{16}\.json$/.test(l.file)||!/^[a-f0-9]{64}$/.test(l.sha256)))throw Error('Fahrzeugübersicht fehlt oder gehört zu einem anderen Fahrplan.');
    await put(key,index).catch(()=>{});return {manifest,index};})();
   try{return await setup;}catch(error){setup=null;throw error;}

@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.5, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.7, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Ansichten und Einstiege
 
@@ -8,11 +8,15 @@ PWA 0.11.5, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.
 | --- | --- |
 | Fahrzeuge im Anflug | Linien-, Richtungs- und Variantenwahl; echte OpenStreetMap-Karte und vertikales Schema mit demselben Tracker, Pause und Fahrt folgen |
 | Linienkarte | Link zur Fahrzeugansicht nur für die genau unterstützte Variante; Linie, Modus, Richtung und gewählte Station bleiben im Link |
-| Stations-/Verbindungsdetails | Anfangs geschlossener Bereich „Fahrzeuge im Anflug“, mit eigener klar beschrifteter Richtungs-/Streckenwahl |
+| Stations-/Verbindungsdetails | Anfangs geschlossener Bereich „Fahrzeuge im Anflug“, mit eigener Richtungs-/Streckenwahl und Schema/Karte-Umschalter für denselben Stationsausschnitt |
 | A nach B | An der konkreten Wiener Einstiegsstation: Verbindung öffnen oder „Fahrzeuge im Anflug“ wählen; derselbe Stationsbereich, bezogen auf die gewählte Linie und Richtung |
 | „Dein Halt“ in Fahrzeuge im Anflug | Derselbe horizontale Ausschnitt nach bewusster Stationswahl, höchstens fünf Halte davor und zwei danach |
 
 Der horizontale Ausschnitt läuft in tatsächlicher Fahrtfolge von links nach rechts. Die gewählte Station ist hervorgehoben. Am Linienanfang/-ende werden fehlende Nachbarn nicht durch andere Stationen aufgefüllt. Der gesamte Ausschnitt passt ohne horizontales Scrollen in die Bildschirmbreite. Nummerierte Halte und eine kompakte Namensliste darunter halten alle Namen vollständig lesbar. Fahrzeug- und Haltekoordinaten verwenden dieselbe relative Skala. Fahrzeug-Symbole für Zug, Tram und Bus, temporäre IDs, Tastaturbedienung und reduzierte Bewegung werden unterstützt. Die ganze Strecke bleibt über den Link erreichbar.
+
+Die eingebettete Karte zeigt denselben Ausschnitt entlang der echten Liniengeometrie mit bis zu fünf Halten davor und zwei danach. Die gewählte Station ist mintfarben hervorgehoben; Stationsnamen sind antippbar. Schema ist vorbelegt. Karte und Leaflet werden erst beim Umschalten geladen. Beim Ansichtwechsel bleiben Tracker, vorläufige Identität, Auswahl und RBL-Abfragescope erhalten. Regelmäßige Updates zentrieren oder vergrößern die Karte nicht neu. „Ausschnitt zeigen“ passt sie ausdrücklich wieder ein. Schließen/Hintergrund entfernen die Kartenkachelebene und verwerfen verspätete Modulantworten; Öffnen erhält die gewählte Darstellung. Scheitert das Kartenmodul, bleibt Schema wählbar. Keine zusätzlichen Live-Abfragen.
+
+Sichtbare Kennungen bestehen aus Linie und laufender Nummer, beispielsweise **U6 · 01**, **46 · 02**, **48A · 03**. Interne Richtungs-/Sitzungspräfixe bleiben unverändert für Zuordnung und Auswahl; sie erscheinen nicht als sichtbare Fahrzeugnamen. Das gilt für Karte, Schema, Stationsausschnitt, Listen, Auswahl und Stationsmeldungen. Die Kennungen bleiben vorläufig und sind keine offiziellen Fahrzeugnummern.
 
 Zweites Antippen derselben Fahrt hebt die Auswahl auf und beendet aktives Folgen. Unsichere Lagen werden ohne gestrichelten Rahmen dargestellt. Auf der Stadtkarte liegt ein helles Symbol auf einer deckenden dunkelgrauen Fläche mit dezentem Schatten, damit es sich unabhängig vom App-Farbschema vom Kartenhintergrund abhebt. Auf schmalen Bildschirmen stehen die drei Ansichtsschalter in einer vollen Zeile, darunter Start/Pause; eine einzelne Streckenvariante benötigt keinen redundanten Auswahlschalter. Der Desktop-Inhalt nutzt bis zu 1000 px.
 

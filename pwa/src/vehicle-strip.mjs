@@ -1,37 +1,54 @@
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.6';
-import {routeColor} from './journey-geometry.mjs?v=0.11.6';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.6';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.6';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.7';
+import {routeColor} from './journey-geometry.mjs?v=0.11.7';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.7';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.7';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.7';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 
-export function createHorizontalVehicleStrip({direction,range,color=routeColor(direction.route,direction.mode)}){
+export function createHorizontalVehicleStrip({direction,range,color=routeColor(direction.route,direction.mode),onSelect=()=>{}}){
  const element=document.createElement('div');element.className='vehicle-strip';element.style.setProperty('--vehicle-line-color',color);
  const stops=direction.stops.slice(range.start,range.end+1),x=progress=>(progress-range.start+.5)/stops.length*100;
  element.innerHTML=`<p class="vehicle-strip-orientation">${range.center-range.start} Halte davor · dein Halt · ${range.end-range.center} danach <span aria-hidden="true">→</span></p><div class="vehicle-strip-viewport" role="region" aria-label="Fahrzeuge fahren von links nach rechts; alle Halte passen in die Ansicht"><div class="vehicle-strip-canvas"><svg class="vehicle-strip-track" width="100%" height="118" aria-hidden="true"><line x1="${x(range.start)}%" x2="98%" y1="88" y2="88"/><line class="strip-arrow" x1="96%" x2="98%" y1="83" y2="88"/><line class="strip-arrow" x1="96%" x2="98%" y1="93" y2="88"/>${stops.map((s,k)=>`<circle cx="${x(range.start+k)}%" cy="88" r="${range.start+k===range.center?12:10}" class="${range.start+k===range.center?'strip-current':''}"/><text x="${x(range.start+k)}%" y="88" dy=".35em" text-anchor="middle" class="${range.start+k===range.center?'strip-current':''}">${k+1}</text>`).join('')}</svg><div class="vehicle-strip-vehicles"></div></div><ol class="vehicle-strip-stops" role="list" aria-label="Haltestellen in Fahrtrichtung">${stops.map((s,k)=>`<li class="vehicle-strip-stop ${range.start+k===range.center?'strip-current':''}" ${range.start+k===range.center?'aria-current="location"':''}><span class="vehicle-strip-number" aria-hidden="true">${k+1}</span><span>${escape(s.name)}${range.start+k===range.center?'<small>Deine Haltestelle</small>':''}</span></li>`).join('')}</ol></div><p class="vehicle-strip-status" role="status">Zuordnung wird aufgebaut · zwei frische Quellenstände nötig.</p><p class="fineprint">Geschätzte Lage · grau: letzte Lage oder Fahrplanannahme. Keine GPS-Position.</p>`;
  const holder=element.querySelector('.vehicle-strip-vehicles'),status=element.querySelector('.vehicle-strip-status');let chosen='',lastState;
- holder.addEventListener('click',event=>{const button=event.target.closest('[data-vehicle]');if(button){chosen=chosen===button.dataset.vehicle?'':button.dataset.vehicle;if(lastState)render(lastState);}});
+ holder.addEventListener('click',event=>{const button=event.target.closest('[data-vehicle]');if(button){chosen=chosen===button.dataset.vehicle?'':button.dataset.vehicle;if(lastState)render(lastState);onSelect(chosen);}});
  function render(state){
-  lastState=state;const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;const tracks=state.tracks.map(t=>reduced&&t.position&&!t.position.stale&&!t.position.uncertain?{...t,position:vehiclePosition(t,state.at)||t.position}:t).filter(t=>t.position&&t.position.progress>=range.start&&t.position.progress<=range.end),ids=new Set(tracks.map(t=>t.id));
+  lastState=state;const tracks=stationVehicleTracks(state,range),ids=new Set(tracks.map(t=>t.id));
   for(const node of [...holder.children])if(!ids.has(node.dataset.vehicle))node.remove();
-  for(const t of tracks){let button=[...holder.children].find(n=>n.dataset.vehicle===t.id);if(!button){button=document.createElement('button');button.type='button';button.className='vehicle-strip-vehicle';button.dataset.vehicle=t.id;button.innerHTML='<span class="vehicle-body">'+vehicleSymbolMarkup(direction.mode)+'</span><small>'+escape(t.id.split('-').at(-1))+'</small>';holder.append(button);}button.style.left=x(t.position.progress)+'%';button.classList.toggle('uncertain',Boolean(t.position.uncertain||t.position.stale));button.setAttribute('aria-pressed',String(chosen===t.id));button.setAttribute('aria-label',t.id+' · '+(t.position.basis==='held'?'letzte geschätzte Lage':t.position.station!=null?'bei '+direction.stops[t.position.station].name:'unterwegs nach '+direction.stops[t.position.next].name));}
-  const selected=state.tracks.find(t=>t.id===chosen);status.textContent=selected?selected.id+' · '+(selected.position?.basis==='held'?'Letzte geschätzte Lage · '+selected.status:selected.position?'Geschätzt vor '+direction.stops[selected.position.next].name:selected.status):state.problem||(!state.at?'Zuordnung wird aufgebaut · zwei frische Quellenstände nötig.':state.stale?'Älterer Stand · warte auf frische Stationsmeldungen.':tracks.length?tracks.length+' geschätzte Lage'+(tracks.length===1?'':'n')+' im Ausschnitt · Fahrtrichtung →':'Noch keine eindeutig ableitbare Lage im Ausschnitt.');
+  for(const t of tracks){let button=[...holder.children].find(n=>n.dataset.vehicle===t.id);if(!button){button=document.createElement('button');button.type='button';button.className='vehicle-strip-vehicle';button.dataset.vehicle=t.id;button.innerHTML='<span class="vehicle-body">'+vehicleSymbolMarkup(direction.mode)+'</span><small>'+escape(vehicleDisplayId(t.id,direction.route))+'</small>';holder.append(button);}button.style.left=x(t.position.progress)+'%';button.classList.toggle('uncertain',Boolean(t.position.uncertain||t.position.stale));button.setAttribute('aria-pressed',String(chosen===t.id));button.setAttribute('aria-label',vehicleDisplayId(t.id,direction.route)+' · '+(t.position.basis==='held'?'letzte geschätzte Lage':t.position.station!=null?'bei '+direction.stops[t.position.station].name:'unterwegs nach '+direction.stops[t.position.next].name));}
+  status.textContent=stationVehicleStatus(state,direction,range,chosen);
  }
- return {element,render};
+ return {element,render,setSelected(id){chosen=id;if(lastState)render(lastState);}};
 }
 
-export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource=source}={}){
- const element=document.createElement('details');element.className='station-vehicle-panel';element.innerHTML='<summary>Fahrzeuge im Anflug</summary><div class="station-vehicle-body"><p class="fineprint">Bis zu fünf Halte vor deiner Station und zwei danach · links nach rechts.</p><label>Richtung &amp; Strecke <select aria-label="Richtung und Strecke für Fahrzeugschätzung"></select></label><div class="station-vehicle-strip"></div><p class="station-vehicle-message" role="status"></p><a class="station-vehicle-full" href="'+escape(vehicleUrl({...target,view:'karte'}))+'">Ganze Linie in Karte &amp; Schema ↗</a></div>';
- const select=element.querySelector('select'),message=element.querySelector('.station-vehicle-message'),holder=element.querySelector('.station-vehicle-strip');select.disabled=true;let disposed=false,generation=0,packageData=null,tracker=null,direction=null,range=null,strip=null,animation=0,lastFrame=0;
+let panelSession=0;
+export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource=source,mapFactory=createStationVehicleMap}={}){
+ const element=document.createElement('details'),panelId='station-vehicles-'+(++panelSession);element.className='station-vehicle-panel';
+ element.innerHTML='<summary>Fahrzeuge im Anflug</summary><div class="station-vehicle-body"><p class="fineprint">Bis zu fünf Halte vor deiner Station und zwei danach.</p><label>Richtung &amp; Strecke <select aria-label="Richtung und Strecke für Fahrzeugschätzung"></select></label><div class="station-vehicle-view-switch" role="group" aria-label="Darstellung der Fahrzeuge im Anflug"><button type="button" data-vehicle-view="schema" aria-pressed="true" aria-controls="'+panelId+'-schema" disabled>Schema</button><button type="button" data-vehicle-view="map" aria-pressed="false" aria-controls="'+panelId+'-map" disabled>Karte</button></div><div id="'+panelId+'-schema" class="station-vehicle-strip"></div><div id="'+panelId+'-map" class="station-vehicle-map-holder" hidden></div><p class="station-vehicle-message" role="status"></p><a class="station-vehicle-full" href="'+escape(vehicleUrl({...target,view:'schema'}))+'">Ganze Linie in Karte &amp; Schema ↗</a></div>';
+ const select=element.querySelector('select'),message=element.querySelector('.station-vehicle-message'),holder=element.querySelector('.station-vehicle-strip'),mapHolder=element.querySelector('.station-vehicle-map-holder'),full=element.querySelector('.station-vehicle-full'),schemaButton=element.querySelector('[data-vehicle-view="schema"]'),mapButton=element.querySelector('[data-vehicle-view="map"]');
+ select.disabled=true;let disposed=false,generation=0,packageData=null,tracker=null,direction=null,range=null,strip=null,mapView=null,view='schema',chosen='',animation=0,lastFrame=0;
  const active=own=>!disposed&&own===generation&&element.open&&!document.hidden;
  function ids(){return !disposed&&element.open&&!document.hidden?range?.ids||[]:[];}
- function draw(){if(tracker&&strip)strip.render(tracker.view());}
+ function draw(){if(!tracker)return;const state=tracker.view();if(view==='map')mapView?.render(state);else strip?.render(state);}
+ function selectVehicle(id){chosen=id;strip?.setSelected(id);mapView?.setSelected(id);}
+ function syncView(){
+  holder.hidden=view!=='schema';mapHolder.hidden=view!=='map';schemaButton.setAttribute('aria-pressed',String(view==='schema'));mapButton.setAttribute('aria-pressed',String(view==='map'));
+  full.href=vehicleUrl({...target,towards:direction?.towards||target.towards,patternId:direction?.patternId,view:view==='map'?'karte':'schema'});
+  if(view==='map'&&direction&&element.open&&!document.hidden){
+   if(!mapView){mapView=mapFactory({direction,range,line:packageData.line,isCurrent:()=>!disposed&&element.open&&!document.hidden&&view==='map',onSelect:id=>selectVehicle(chosen===id?'':id)});mapHolder.replaceChildren(mapView.element);mapView.setSelected(chosen);}
+   void mapView.show();
+  }else mapView?.hide();
+  draw();
+ }
+ function setView(next){if(disposed||!direction||next===view)return;view=next;syncView();}
  function animate(at){if(disposed||!element.open||document.hidden)return;if(at-lastFrame>=250){lastFrame=at;draw();}animation=requestAnimationFrame(animate);}
  function resume(){cancelAnimationFrame(animation);if(!disposed&&element.open&&!document.hidden)animation=requestAnimationFrame(animate);}
  function choose(id){
   const original=packageData.data.directions.find(d=>d.id===id);if(!original)return;
   const trips=target.towards?original.trips.filter(t=>vehicleTargetMatches(original,t.towards,target.towards)):original.trips;
-  direction={...original,trips};range=stationVehicleRange(direction,target.stopId);tracker=createVehicleTracker(direction,packageData.manifest,{prefix:direction.route+'-'+direction.monitorDirection+(++session)});strip=createHorizontalVehicleStrip({direction,range});holder.replaceChildren(strip.element);select.value=id;element.querySelector('.station-vehicle-full').href=vehicleUrl({...target,towards:direction.towards,patternId:direction.patternId,view:'karte'});message.textContent='Frische Stationsmeldungen werden beim nächsten gemeinsamen Abruf geladen.';onIdsChanged();draw();resume();
+  mapView?.dispose();mapView=null;chosen='';direction={...original,trips};range=stationVehicleRange(direction,target.stopId);tracker=createVehicleTracker(direction,packageData.manifest,{prefix:direction.route+'-'+direction.monitorDirection+(++session)});
+  strip=createHorizontalVehicleStrip({direction,range,onSelect:selectVehicle});holder.replaceChildren(strip.element);mapHolder.replaceChildren();select.value=id;schemaButton.disabled=false;mapButton.disabled=false;
+  message.textContent='Frische Stationsmeldungen werden beim nächsten gemeinsamen Abruf geladen.';syncView();onIdsChanged();resume();
  }
  async function load(){
   const own=++generation;message.textContent='Linienverlauf wird geladen …';
@@ -40,8 +57,8 @@ export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource
    const sided=candidates.filter(d=>target.rbls?.includes(d.stops.find(s=>s.id===target.stopId)?.rbl));if(sided.length)candidates=sided;select.disabled=false;const filtered={...loaded.data,directions:candidates},preferred=preferredVehicleDirection(filtered,loaded.line,loaded.manifest,{stopId:target.stopId,towards:target.towards});select.innerHTML=candidates.map(d=>`<option value="${escape(d.id)}">→ ${escape(d.towards)} · ab ${escape(d.stops[0].name)} · ${d.stops.length} Halte</option>`).join('');choose(preferred.id);
   }catch(error){if(active(own)){range=null;message.textContent=error.message;onIdsChanged();}}
  }
- element.addEventListener('toggle',()=>{if(disposed)return;if(element.open){if(packageData&&direction){onIdsChanged();resume();draw();}else void load();}else{generation++;cancelAnimationFrame(animation);onIdsChanged();}});
- select.addEventListener('change',()=>choose(select.value));
- const visibility=()=>{if(document.hidden){generation++;cancelAnimationFrame(animation);}else if(element.open){if(packageData&&direction){resume();draw();}else void load();}};document.addEventListener('visibilitychange',visibility);
- return {element,ids,ingest(raw){if(!ids().length||!tracker)return;try{tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),ids()));message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);document.removeEventListener('visibilitychange',visibility);element.remove();}};
+ element.addEventListener('toggle',()=>{if(disposed)return;if(element.open){if(packageData&&direction){onIdsChanged();syncView();resume();}else void load();}else{generation++;cancelAnimationFrame(animation);mapView?.hide();onIdsChanged();}});
+ select.addEventListener('change',()=>choose(select.value));schemaButton.addEventListener('click',()=>setView('schema'));mapButton.addEventListener('click',()=>setView('map'));
+ const visibility=()=>{if(document.hidden){generation++;cancelAnimationFrame(animation);mapView?.hide();}else if(element.open){if(packageData&&direction){syncView();resume();}else void load();}};document.addEventListener('visibilitychange',visibility);
+ return {element,ids,ingest(raw){if(!ids().length||!tracker)return;try{tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),ids()));message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
 }

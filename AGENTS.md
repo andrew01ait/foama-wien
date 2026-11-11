@@ -1,3 +1,9 @@
+## PWA 0.11.7 · Schema/Karte in Stationsansichten und verständliche Fahrtkennungen · 11.11.2026
+
+Eingebettete Fahrzeuge im Anflug in Stations-/Verbindungsdetails und A-nach-B-Einstiegen/Favoriten bieten Schema und Karte für denselben Ausschnitt (bis zu fünf Halte davor, zwei danach). Schema vorbelegt, Kartenmodul/Kacheln erst auf bewusste Auswahl. Beide Darstellungen teilen Tracker, Richtung, temporäre Identität und Auswahl; Wechsel erzeugt keinen zusätzlichen Monitorabruf. Die Karte behält den vom Nutzer gewählten Ausschnitt bei Updates und Ansichtwechseln. Geometrie aus exakt derselben Streckenvariante, Zielhalt hervorgehoben, eigene Aktion Ausschnitt zeigen. Schließen/Hintergrund beenden die Kachelebene und verwerfen späte Modulantworten; Schema bleibt bei Kartenfehlern wählbar. Offener Panelknoten und Fokus bleiben bei Routineupdates erhalten.
+
+Sichtbare Fahrzeugkennungen jetzt etwa U6 · 01, 46 · 02 oder 48A · 03 in Karte, Schema, Liste, Auswahl und Stationsmeldungen. Interne IDs unverändert; keine offiziellen Fahrzeugnummern suggerieren. Neuer PWA-Cache samt barem/versioniertem Kartenmodul, bestehendes Logo und Wear 0.7.4/26 erhalten.
+
 ## PWA 0.11.6 · lächelnde Bahn als neues Foama-Logo · 11.11.2026
 
 Nutzer hat die Konturvariante „Bahn + Schiene“ mit den beiden weißen Punkten als Augen und einem kleinen Lächeln ausgewählt. Neuer skalierbarer SVG-Master für Monitor, A nach B, Fahrzeug-/Linienseiten, Willkommen, Städtevergleich und Uhr-Webseite. Kurzes Gleis mit zwei Schwellen; Mint/Navy und helle Augen. Versionierte 192-/512-Pixel-Icons für Installation, Apple-Touch-Icon, Benachrichtigungen und Offline-Shell; alte Icondateien bleiben für bisherige Worker erhalten. Manifest-ID, Startadresse und Favoriten unverändert. Android bestimmt den Aktualisierungszeitpunkt eines installierten Launcher-Symbols. Dieser Release betrifft PWA und Website; native Wear-APK bleibt 0.7.4/26.
