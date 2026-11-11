@@ -1,3 +1,7 @@
+## Aktueller Pilot · PWA 0.10.1 · 11.11.2026
+
+B umfasst nun die ganze U6 mit 24 Stationen in beiden Richtungen, echter Karte und scrollbarer Schemaansicht. Zugsymbole tragen temporäre IDs; kurze Datenlücken halten die letzte Lage. [Datenmodell, echte Proben und Grenzen](vehicle-pilot.md). Der Drei-Stationen-Stand darunter ist historische Konzeption und kein aktueller Streckenumfang.
+
 ## Neuer Stand · 11.11.2026 · PWA 0.10.0
 
 A ist weiterhin die vollständige geografische Linienkarte. B ist jetzt als ausdrücklich beauftragter, begrenzter U6-Pilot in **Karte und Schema** umgesetzt. [Aktueller Vertrag, Datenversuch und Grenzen](vehicle-pilot.md), [Live-Labor](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html). Der folgende Stand vom 10.11. ist die vorausgehende Konzeption; frühere Aussagen zu noch nicht implementiertem B gelten nicht mehr für den isolierten U6-Testabschnitt. Andere Linien und allgemeine Fahrzeugverfolgung bleiben offen.

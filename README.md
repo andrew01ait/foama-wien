@@ -14,12 +14,12 @@
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
 - Tagesfahrpläne für 173 Wiener Linien mit Heute-Auswahl, farbiger aktueller Stunde und bewusster Offline-Sicherung ganzer Linien sowie PDF-Download für Tagesfahrplan oder ganze Linie.
 - Geografische OpenStreetMap-Linienkarte für 173 Wiener Linien, mit Richtungen, 965 echten Varianten und antippbaren Haltestellen in Fahrtfolge.
-- Experimentelle U6-Fahrzeugschätzung im Drei-Stationen-Abschnitt: echte Karte und Schema, vorläufige Fahrt-IDs und Stationsübergaben aus Live-Prognosen.
+- Experimentelle U6-Fahrzeugschätzung auf der ganzen U6 mit 24 Stationen: echte Karte und Schema, vorläufige Fahrt-IDs und Stationsübergaben aus Live-Prognosen.
 - Teilbarer Städtevergleich mit grünen Haken, roten Kreuzen und aufklappbaren FAQ.
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.10.0 und Wear 0.7.4**, nativer Versionscode **26**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.10.1 und Wear 0.7.4**, nativer Versionscode **26**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

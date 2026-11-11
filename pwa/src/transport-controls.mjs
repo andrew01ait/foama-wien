@@ -7,6 +7,10 @@ const paths={
  regional:'<rect x="5" y="3" width="14" height="15" rx="4"/><path d="M5 9h14M12 3v6M8 14h1m6 0h1M8 18l-3 4m11-4 3 4M7 21h10"/>',
  long:'<path d="M3 17h18l-5-8H3V5h11c3 0 5 2 7 5l1 5v4H3zM8 9v4m5-4v4M3 13h16M6 22h12"/>'
 };
+export function vehicleSymbolMarkup(mode){
+ const kind=mode==='bus'?'bus':mode==='tram'?'tram':mode==='long'?'long':'regional';
+ return `<svg class="vehicle-symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${paths[kind]}</svg>`;
+}
 export function modeButtonMarkup(mode,enabled,{compact=false}={}){
  const choice=MODE_CHOICES.find(([key])=>key===mode);if(!choice)return '';
  const label=choice[1],icon=`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${paths[mode]}</svg>`;

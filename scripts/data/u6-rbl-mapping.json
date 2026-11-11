@@ -1,0 +1,333 @@
+{
+  "H": {
+    "wl:60200285": [
+      {
+        "rbl": "4637",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201468": [
+      {
+        "rbl": "4619",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200436": [
+      {
+        "rbl": "4618",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200048": [
+      {
+        "rbl": "4639",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200820": [
+      {
+        "rbl": "4617",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201007": [
+      {
+        "rbl": "4636",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201015": [
+      {
+        "rbl": "4615",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201394": [
+      {
+        "rbl": "4640",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201499": [
+      {
+        "rbl": "4638",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201235": [
+      {
+        "rbl": "4635",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200937": [
+      {
+        "rbl": "4616",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200950": [
+      {
+        "rbl": "4626",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201062": [
+      {
+        "rbl": "4627",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200027": [
+      {
+        "rbl": "4623",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201510": [
+      {
+        "rbl": "4625",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201667": [
+      {
+        "rbl": "4641",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200874": [
+      {
+        "rbl": "4624",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200188": [
+      {
+        "rbl": "4620",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200500": [
+      {
+        "rbl": "4642",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201372": [
+      {
+        "rbl": "4621",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60200615": [
+      {
+        "rbl": "4622",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201668": [
+      {
+        "rbl": "4644",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ],
+    "wl:60201705": [
+      {
+        "rbl": "4643",
+        "directionId": "1",
+        "towards": "Floridsdorf"
+      }
+    ]
+  },
+  "R": {
+    "wl:60201007": [
+      {
+        "rbl": "4633",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200820": [
+      {
+        "rbl": "4612",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201394": [
+      {
+        "rbl": "4629",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201015": [
+      {
+        "rbl": "4614",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200048": [
+      {
+        "rbl": "4630",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200937": [
+      {
+        "rbl": "4613",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201468": [
+      {
+        "rbl": "4610",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201499": [
+      {
+        "rbl": "4631",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200436": [
+      {
+        "rbl": "4611",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200285": [
+      {
+        "rbl": "4632",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200500": [
+      {
+        "rbl": "4649",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200188": [
+      {
+        "rbl": "4609",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201510": [
+      {
+        "rbl": "4604",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200027": [
+      {
+        "rbl": "4606",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201667": [
+      {
+        "rbl": "4650",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200615": [
+      {
+        "rbl": "4607",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200874": [
+      {
+        "rbl": "4605",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201372": [
+      {
+        "rbl": "4608",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201062": [
+      {
+        "rbl": "4651",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200950": [
+      {
+        "rbl": "4603",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201668": [
+      {
+        "rbl": "4647",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60200334": [
+      {
+        "rbl": "4646",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ],
+    "wl:60201705": [
+      {
+        "rbl": "4648",
+        "directionId": "2",
+        "towards": "Siebenhirten"
+      }
+    ]
+  },
+  "_source": {
+    "name": "Wiener Linien monitor",
+    "verifiedAt": "2026-11-11T09:26:09+01:00",
+    "note": "U6, exact RBL and direction side confirmed from three finite monitor batches; arrival-only termini have no departure anchor."
+  }
+}
