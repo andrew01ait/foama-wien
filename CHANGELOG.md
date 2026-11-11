@@ -1,3 +1,7 @@
+## PWA 0.10.0 · U6-Live-Labor · 11.11.2026
+
+354 Web-/Server-Tests (16 Pilotregressionen), zwölf Python-Prüfungen und 77 JavaScript-Syntaxprüfungen. Echte fünf U6-Snapshots: temporäre ID über zwei südliche Stationsübergaben, interpolierte Lage und nördliche Korrekturpause geprüft. Quelle/Kalender, falsche Seite, Doppelzuordnung, stale/fehlende Daten, Abruflimits, Pause und späte Antworten geprüft. Beide Darstellungen teilen denselben Modellfortschritt. Browser-Vorschau nach Infrastruktur-Reparatur durch URL-Richtlinie blockiert; keine visuelle oder physische Abnahme behaupten. [Pilotvertrag](docs/vehicle-pilot.md). Wear 0.7.4/26 unverändert.
+
 ## Wear 0.7.4 · 11.11.2026
 
 - Update-Dialog und App bleiben während Download und Vorbereitung sichtbar wach.

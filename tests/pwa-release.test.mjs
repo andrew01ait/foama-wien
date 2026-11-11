@@ -58,7 +58,7 @@ test('diagnostics controls export valid JSON after hosting success and network f
     const text=await (await fetch(downloads[0].url)).text();
     const report=JSON.parse(text);
     assert.equal(report.format,'foama-wien-api-diagnose-v1');
-    assert.equal(report.version,'0.9.5');
+    assert.equal(report.version,'0.10.0');
     assert.equal(report.events[0].category,'hosting-ok');
     assert.equal(report.events[0].httpStatus,200);
     assert.equal(report.events[1].category,'browser-network');
@@ -106,7 +106,7 @@ test('service worker installs the complete shell and serves app and diagnostics 
   let activation;handlers.message({data:{type:'FOAMA_ACTIVATE_UPDATE'},waitUntil:promise=>activation=promise});await activation;
   assert.equal(skipped,true,'the update action explicitly activates the waiting worker');
   assert.equal(stores.has('foama-old-shell'),false);
-  for(const path of ['/','/diagnose.html','/staedte.html','/willkommen.html','/fahrplan.html','/linienkarte.html','/src/line-map-page.mjs?v=0.9.5','/src/timetable-pdf.mjs?v=0.9.5','/src/install.mjs','/manifest.webmanifest']){
+  for(const path of ['/','/diagnose.html','/staedte.html','/willkommen.html','/fahrplan.html','/linienkarte.html','/src/line-map-page.mjs?v=0.10.0','/src/timetable-pdf.mjs?v=0.10.0','/src/install.mjs','/manifest.webmanifest']){
     let pending;handlers.fetch({request:new Request(origin+path),respondWith:promise=>pending=promise});
     const response=await pending;assert.equal(response.status,200);assert.ok((await response.text()).length>0);
   }

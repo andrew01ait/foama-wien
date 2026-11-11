@@ -1,3 +1,7 @@
+## PWA 0.10.0 · U6-Schätzung in Karte und Schema · 11.11.2026
+
+354 Web-/Server-Tests (16 Pilotregressionen), zwölf Python-Prüfungen und 77 JavaScript-Syntaxprüfungen. Echte fünf U6-Snapshots: temporäre ID über zwei südliche Stationsübergaben, interpolierte Lage und nördliche Korrekturpause geprüft. Quelle/Kalender, falsche Seite, Doppelzuordnung, stale/fehlende Daten, Abruflimits, Pause und späte Antworten geprüft. Beide Darstellungen teilen denselben Modellfortschritt. Browser-Vorschau nach Infrastruktur-Reparatur durch URL-Richtlinie blockiert; keine visuelle oder physische Abnahme behaupten. [Pilotvertrag](vehicle-pilot.md). Wear 0.7.4/26 unverändert.
+
 ## Wear 0.7.4 · sichtbare Updates · 11.11.2026
 
 Updatefenster bleiben bis zur Android-Übergabe wach; Staging läuft auf dem Worker. Kurze sichtbare Pause erhält nur bestätigte Update-Arbeit, echte Stop-/Abbruchpfade bereinigen weiterhin. Installerfehler verständlich abfangen, Resultate exakt zuordnen. 159 Android-Tests und Originalsignatur geprüft; [Abnahme und Grenzen](wear-os-release-0.7.4.md). PWA 0.9.5 bleibt unverändert.

@@ -1,3 +1,7 @@
+## Neuer Stand · 11.11.2026 · PWA 0.10.0
+
+A ist weiterhin die vollständige geografische Linienkarte. B ist jetzt als ausdrücklich beauftragter, begrenzter U6-Pilot in **Karte und Schema** umgesetzt. [Aktueller Vertrag, Datenversuch und Grenzen](vehicle-pilot.md), [Live-Labor](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html). Der folgende Stand vom 10.11. ist die vorausgehende Konzeption; frühere Aussagen zu noch nicht implementiertem B gelten nicht mehr für den isolierten U6-Testabschnitt. Andere Linien und allgemeine Fahrzeugverfolgung bleiben offen.
+
 # Linienkarten und geschätzte Fahrzeugpositionen
 
 Stand PWA 0.9.0, 10.11.2026: **A ist auf einer echten geografischen Karte umgesetzt. B bleibt ein Konzept, noch keine Fahrzeugpositionen im Produkt.** Die frühere interaktive Konzeptvorschau mit Beispieldaten ist kein Fahrzeugdienst.
