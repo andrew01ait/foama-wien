@@ -1,8 +1,8 @@
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.9.5';
-import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.9.5';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.9.5';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.9.5';
-import {createThemeController} from './theme.mjs?v=0.9.5';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.10.0';
+import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.10.0';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.10.0';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.10.0';
+import {createThemeController} from './theme.mjs?v=0.10.0';
 
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams;
 const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -58,6 +58,7 @@ async function draw(){
  $('mapStopsTitle').textContent=selected.stops.length+' Haltestellen in Fahrtfolge';
  $('mapStops').innerHTML=selected.stops.map((stop,i)=>`<li><button type="button" data-stop-index="${i}" aria-pressed="false">${escape(stop.name)}</button></li>`).join('');
  $('mapVariantInfo').textContent=selected.stops[0].name+' → '+selected.stops.at(-1).name+' · '+selected.stops.length+' Haltestellen'+(selected.geometry?'':' · Verlauf fehlt, nur Haltepunkte');
+ $('mapVehiclePilot').hidden=line.route!=='U6'||line.mode!=='metro';$('mapVehiclePilot').href='./fahrzeuge.html?'+new URLSearchParams({richtung:selected.towards});
  $('mapTimetable').href='./fahrplan.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,richtung:selected.towards});
  status('Linie '+line.route+' · Richtung '+(selected.towards||selected.stops.at(-1).name));
  try{
@@ -106,7 +107,7 @@ async function start(){
   const matches=index.lines.filter(row=>row.route===params.get('linie')),entry=matches.find(row=>row.mode===params.get('verkehrsmittel'))||(matches.length===1?matches[0]:null);
   status(index.lines.length+' Wiener Linien · Fahrwege gültig '+shortDate(manifest.validFrom)+' bis '+shortDate(manifest.validThrough));
   if(!entry){renderLines();return;}
-  const catalogue=fetch('./data/stops.json?v=0.9.5',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
+  const catalogue=fetch('./data/stops.json?v=0.10.0',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
   const result=await source.line(entry,manifest,{signal:request.signal}),monitors=await catalogue;if(own!==revision||request.signal.aborted||document.hidden)return;
   monitorStops=monitors;
   line=result.data;$('mapLinePicker').hidden=true;$('mapLineView').hidden=false;

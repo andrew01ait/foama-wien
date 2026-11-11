@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 11. November 2026. **PWA 0.9.5, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 11. November 2026. **PWA 0.10.0, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -14,6 +14,7 @@ Stand: 11. November 2026. **PWA 0.9.5, Wear 0.7.4 / Code 26.** Verbindlich sind 
 | A nach B | Gemeinsamer Seitenaufbau mit Titel vor Hauptnavigation, Vollplanung, Karten, Alternativen und Orte in der PWA; Uhr zeigt importierte Routen mit aktuellen passenden Linienzeiten |
 | Tagesfahrpläne | 173 Wiener Linien, Heute zuerst, Datum/Haltestelle/Richtung, aktuelle Stunde farbig, ausdrückliche Offline-Sicherung und PDF für Haltestelle/Richtung oder ganze Linie mit datumsgültigen Variantenkarten und Haltestellen in Fahrtfolge |
 | Linienkarte | 173 Wiener Linien, 965 reale Varianten, OpenStreetMap-Hintergrund, Richtungen/Kurzführungen, Haltepunkte mit zoomabhängigen Nummern und aufklappbare Hinweise und geordnete Stationsliste; geladene Geometrie offline, Kartenkacheln online |
+| Fahrzeugpilot | [U6-Live-Labor](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): drei Stationen, beide Richtungen, Karte und Schema, vorläufige IDs/Stationsübergaben; aus Prognosen geschätzt, keine GPS-Positionen |
 | Städtebild | Proportionale Collage Wien/Graz/Linz/Salzburg mit Bahn, Tram und Obus; Salzburg-Einschränkung im FAQ statt separatem Banner |
 | Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), mit Verfügbarkeitssymbolen und aufklappbaren FAQ; verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
 | Störungen | Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
@@ -35,7 +36,7 @@ Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver 
 
 - Physisches Uhr-Update über bestehende Installation; GPS-Stadtwechsel, regionale Favoriten und QR auf OnePlus abnehmen.
 - Wiener Fahrplan vor dem 13.12. erneuern; später automatischen Import-/Veröffentlichungsbetrieb ergänzen.
-- [Fahrzeugschätzungen](docs/line-maps.md): A ist umgesetzt; für B als Nächstes die vorgeschlagene Stationsübergabe anhand richtungstreuer Prognosen und plausibler Fahrzeiten untersuchen. Noch keine veröffentlichten Fahrzeugpositionen.
+- [U6-Pilot](docs/vehicle-pilot.md) auf dem Telefon und anhand tatsächlicher Stationsbeobachtung vergleichen; Karte/Schema, enge Takte und Korrekturen abnehmen. Erst danach mehr Stationen oder Bus/Tram ergänzen.
 - Regionale Störungsfeeds und unabhängige regionale Offlinepakete gesondert anbinden; nötige MVO-Registrierung/Lizenzannahme erfolgt nicht automatisch.
 
 Neue Arbeiten starten über die [Dokumentationsübersicht](docs/README.md).

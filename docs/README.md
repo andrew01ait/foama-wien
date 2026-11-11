@@ -1,11 +1,12 @@
 # Dokumentation
 
-Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 11. November 2026, PWA 0.9.5 / Wear 0.7.4.
+Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 11. November 2026, PWA 0.10.0 / Wear 0.7.4.
 
 | Frage | Maßgebliche Anleitung |
 | --- | --- |
 | Wo finden neue Nutzer einen Einstieg? | [Willkommen](https://foama-wien.endruuu.chatgpt.site/willkommen.html), [Seitenaufbau und Installation](landing-page.md) |
 | Wie sehe ich Tagesfahrpläne und den Datenstand? | [Linienfahrpläne](https://foama-wien.endruuu.chatgpt.site/fahrplan.html), [Import und Aktualitätsprüfung](timetable-fallback.md), [PDF-Download](timetable-pdf.md) |
+| Wie teste ich geschätzte Fahrzeuge in Karte und Schema? | [U6-Live-Labor](vehicle-pilot.md) |
 | Wie zeigt die Karte Linien und was folgt für Fahrzeugschätzungen? | [Geografische Linienkarte und B-Konzept](line-maps.md) |
 | Was kann die App, was fehlt noch? | [Projektübersicht](../README.md), [Status](../STATUS.md) |
 | Wie starte und prüfe ich den Code? | [Entwicklung](development.md) |
