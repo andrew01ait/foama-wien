@@ -1,8 +1,8 @@
-import {availableDeparts,countdownMinutes} from './core.mjs?v=0.11.5';
-import {departureAtStation} from './connection-detail.mjs?v=0.11.5';
-import {departureIsFresh} from './departure-cache.mjs?v=0.11.5';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.5';
-import {journeyDirectionMatches} from './journey-planning.mjs?v=0.11.5';
+import {availableDeparts,countdownMinutes} from './core.mjs?v=0.11.6';
+import {departureAtStation} from './connection-detail.mjs?v=0.11.6';
+import {departureIsFresh} from './departure-cache.mjs?v=0.11.6';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.6';
+import {journeyDirectionMatches} from './journey-planning.mjs?v=0.11.6';
 export function journeyStationMarkup(stop,departures,{escape,badge,now=Date.now(),error='',connection=null}={}){
  const groups=availableDeparts(departures.filter(d=>departureAtStation(stop,d)&&(!connection||d.route===connection.route&&d.mode===connection.mode&&journeyDirectionMatches(connection.towards,d.towards))),{modes:{}},now);
  const clock=value=>new Date(value).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit'});

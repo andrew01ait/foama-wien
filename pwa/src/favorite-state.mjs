@@ -1,4 +1,4 @@
-import {haversineMeters,favoriteKey} from './core.mjs?v=0.11.5';
+import {haversineMeters,favoriteKey} from './core.mjs?v=0.11.6';
 
 const validPoint=p=>Number.isFinite(p?.lat)&&Math.abs(p.lat)<=90&&Number.isFinite(p?.lon)&&Math.abs(p.lon)<=180;
 // Display sorting never mutates the saved order; actions retain the original index.

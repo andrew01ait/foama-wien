@@ -1,6 +1,6 @@
-# foama-wien – Branding v0.1.3
+# foama – Branding v0.11.6
 
-Master: `pwa/icons/foama-mark.svg`, originales Tram-Symbol in Mint/Navy. Header und Favicon verwenden dieselbe SVG; `python3 scripts/render_icons.py` rasterisiert sie mit PyMuPDF in 192-/512-Pixel-PNGs für das PWA-Manifest. Kritische Konturen liegen im zentralen Maskable-Sicherheitsbereich. Alte typografische f-/Punkt-Konstruktion entfernt.
+Master: `pwa/icons/foama-mark.svg`, die vom Nutzer gewählte Variante **Bahn + Schiene mit Lächeln**. Mintfarbene Kontur auf Navy, zwei helle Punkte als Augen und ein kleines Lächeln; kurzes Gleis mit zwei Schwellen. Als skalierbare native SVG umgesetzt, ohne Beschriftung oder Präsentationsrand. Header und Favicons verwenden denselben Master. `python3 scripts/render_icons.py` erzeugt die unversionierten 192-/512-Pixel-PNGs und passende versionierte Kopien gemäß `pwa/config.json`. Manifest, Apple-Touch-Icon, Offline-Shell und Benachrichtigungen verwenden die neuen Dateinamen, damit alte Caches das vorherige Logo nicht festhalten. Manifest-ID und Startadresse bleiben erhalten. Android bestimmt selbst, wann sich ein bereits installiertes Launcher-Symbol aktualisiert. Die Wear-APK 0.7.4 enthält weiterhin ihr bisheriges natives Symbol; dieser Release aktualisiert die PWA und Website.
 
 ## U-Bahn-Linienfarben
 
@@ -22,4 +22,4 @@ Auf Nutzerwunsch: Nachtlinien mit N-Präfix (auch N30R usw.) erhalten dunkelblau
 
 ## Städtecollage ab PWA 0.8.2
 
-Die Seite Städte & Funktionen verwendet `pwa/images/foama-vier-staedte-v1.webp` als vollständiges proportionales Titelbild. Stadtwahrzeichen und Fahrzeuge sind eine dekorative Collage; sie stellen keinen tatsächlichen Linienverlauf dar. Das originale Foama-Logo bleibt separat unverändert. [Bildherkunft und Gestaltungsbrief](assets/foama-vier-staedte.md).
+Die Seite Städte & Funktionen verwendet `pwa/images/foama-vier-staedte-v1.webp` als vollständiges proportionales Titelbild. Stadtwahrzeichen und Fahrzeuge sind eine dekorative Collage; sie stellen keinen tatsächlichen Linienverlauf dar. Die separate App-Marke wird durch die Collage nicht ersetzt. [Bildherkunft und Gestaltungsbrief](assets/foama-vier-staedte.md).

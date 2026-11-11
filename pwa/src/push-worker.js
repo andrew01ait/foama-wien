@@ -12,7 +12,7 @@ function installPushHandlers(scope){
    const tag='foama-wien-local-test',listing=typeof scope.registration.getNotifications==='function';
    // Replace only our own local test. Do not touch disruption notifications.
    if(listing)try{for(const notice of await scope.registration.getNotifications({tag}))notice.close();}catch{}
-   await scope.registration.showNotification('foama-wien: Anzeigetest',{body:'Lokale Testanzeige · '+new Date(clock()).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'})+' · ohne Push-Transport. Öffne bei Bedarf die Benachrichtigungsleiste.',tag,silent:true,renotify:false,icon:'/icons/icon-192-v0.1.4.png',badge:'/icons/icon-192-v0.1.4.png',data:{kind:'local-test'}});
+   await scope.registration.showNotification('foama-wien: Anzeigetest',{body:'Lokale Testanzeige · '+new Date(clock()).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'})+' · ohne Push-Transport. Öffne bei Bedarf die Benachrichtigungsleiste.',tag,silent:true,renotify:false,icon:'/icons/icon-192-v0.11.6.png',badge:'/icons/icon-192-v0.11.6.png',data:{kind:'local-test'}});
    let listed=null;if(listing)try{listed=(await scope.registration.getNotifications({tag})).length>0;}catch{}
    reply(listed===false?{ok:false,code:'not-listed'}:{ok:true,listed});
   })().catch(()=>reply({ok:false,code:'display-failed'})));
@@ -44,7 +44,7 @@ function installPushHandlers(scope){
    let claimed;try{claimed=await store.claim(value.eventId,clock(),notice.expiresAt,test);}catch{return;}
    if(!claimed){await diagnostic('duplicate-or-cooldown');return;}
    let shown=false;try{
-    await scope.registration.showNotification(String(notice.title||'foama-wien').slice(0,100),{body:String(notice.body||'').slice(0,350),icon:'/icons/icon-192-v0.1.4.png',badge:'/icons/icon-192-v0.1.4.png',tag:notice.tag,renotify:false,silent:true,data:{url:'/alerts.html',eventId:value.eventId,deviceId:device.id},actions:[{action:'view',title:'Ansehen'}]});shown=true;await diagnostic('shown');
+    await scope.registration.showNotification(String(notice.title||'foama-wien').slice(0,100),{body:String(notice.body||'').slice(0,350),icon:'/icons/icon-192-v0.11.6.png',badge:'/icons/icon-192-v0.11.6.png',tag:notice.tag,renotify:false,silent:true,data:{url:'/alerts.html',eventId:value.eventId,deviceId:device.id},actions:[{action:'view',title:'Ansehen'}]});shown=true;await diagnostic('shown');
    }finally{if(!shown)await diagnostic('display-error');await store.finish(value.eventId,shown,clock()).catch(()=>{});await receipt(device,value.eventId,shown?'shown':'suppressed');}
   })().catch(()=>{}));
  });

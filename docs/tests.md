@@ -1,3 +1,7 @@
+## PWA 0.11.6 · neues Konturlogo mit Lächeln · 11.11.2026
+
+397 Web-/Server-Tests, 18 Python-Prüfungen und 81 JavaScript-Syntaxprüfungen bestanden. Bestehende Release-Testreferenzen und gemeinsame versionierte Modulimporte auf 0.11.6 angeglichen; keine neuen Tests für die reine Logoänderung. SVG/XML gültig; 192-/512-Pixel-Icons deckend, Alias- und Versionskopien bytegleich. Alle sichtbaren Logo-Pixel liegen im zentralen kreisförmigen Maskable-Sicherheitsbereich mit Radius 40 Prozent. Alle 172 Offline-Shell-Pfade vorhanden, neue Manifest-Icons ausdrücklich enthalten. Manifest-ID und Startadresse erhalten; unveränderte Wear-APK 0.7.4/26 gegen den bisherigen SHA-256 geprüft. Gerenderte SVG/PNG-Fassung betrachtet. Die verwaltete lokale Vorschau ist durch ein anderes Projekt belegt; öffentliche Browserabnahme nach Veröffentlichung. Kein sofortiges Android-Launcher-Update behaupten.
+
 ## PWA 0.11.5 · Adressfelder, Markengröße und öffentliche Erklärung · 11.11.2026
 
 397 bestehende Web-/Server-Tests und 18 Python-Prüfungen bestanden. Visuelle Browserprüfung der tatsächlichen A-nach-B-Seite am Desktop und bei 337 px CSS-Breite: Start, Ziel und beide Suchbuttons jeweils exakt 48 px hoch; mobil je Eingabe 227 px plus 48 px Suchbutton, kein Seitenüberlauf. Desktop-Suchtext bleibt einzeilig. Monitor bei 337 px: bestehendes Logo 48 px, Schriftzug rund 25,2 px; 8 px freier Abstand zu den Aktionsbuttons, kein Überlauf.
