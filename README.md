@@ -7,7 +7,7 @@
 ## Funktionen
 
 - Aktueller Standort als blauer Punkt mit Genauigkeitskreis auf allen interaktiven Karten, soweit freigegeben und frisch verfügbar; eigener Knopf zum Zentrieren.
-- Grafische Datenbereitschaft für Fahrzeuge im Anflug: Strecke, Stationsdaten, Fahrtenabgleich und Zwei-Quellen-Bestätigung mit tatsächlichem Abruf-Countdown.
+- Grafische Datenbereitschaft für Fahrzeuge im Anflug: Strecke, Stationsdaten, Fahrtenabgleich und Zwei-Quellen-Bestätigung mit tatsächlichem Abruf-Countdown; als Platzhalter, der bei sichtbaren Fahrzeugen Karte und Schema freigibt.
 - Live-Abfahrten in der Nähe mit Gehzeit, Erreichbarkeit und zwei nächsten Abfahrten.
 - Lokale Favoriten für ganze Haltestellen, einzelne Linien/Richtungen und A-nach-B-Wege.
 - Routenplanung mit Adressen, eigenen Orten, Karten, Alternativen und Vergleich von Fahrzeit und Umstiegen.
@@ -21,7 +21,7 @@
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.11.11 und Wear 0.7.4**, nativer Versionscode **26**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.11.12 und Wear 0.7.4**, nativer Versionscode **26**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

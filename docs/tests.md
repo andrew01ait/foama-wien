@@ -1,3 +1,7 @@
+## PWA 0.11.12 · exklusiver Fortschrittsplatzhalter · 11.11.2026
+
+425 Web-/Server-Tests, 18 Python-Prüfungen und 84 JavaScript-Syntaxprüfungen bestanden. Drei neue Regressionen zusätzlich zur vorhandenen Suite: echter aufgezeichneter 48A-Lauf mit Start/erster Quelle, bestätigten Positionen, gehaltenen Lagen und Ablauf; ganze Fahrzeugseite mit gegenseitig exklusivem Fortschritt/Visualisierung/Stationsdetails und erhaltener Auswahl; Stationsausschnitt gegen außerhalb liegende Fahrzeuge und Karteninitialisierung nur beim sichtbaren Übergang. Bestehende Karten-/Schemawechsel mit realen IDs einschließlich Schließen/Wiederöffnen erhalten. Keine zusätzlichen Live-Abfragen oder geänderten Trackerregeln.
+
 ## PWA 0.11.11 · Kartenposition und grafischer Datenstand · 11.11.2026
 
 422 Web-/Server-Tests, 18 Python-Prüfungen und 83 JavaScript-Syntaxprüfungen bestanden. 14 neue Tests prüfen gültige/frische/grobe Kartenfixes, einen geteilten freigegebenen Watch, keinen Aufruf bei prompt/denied/fehlender Permissions-API, Nutzung des Monitor-Controllers und Wechsel zu einem eigenständigen Kartenfix bei inaktivem Controller, Alter/Fehler/Widerruf, Hintergrund/Schließen/Dispose und verspätete Antworten. Reale Leaflet-Adapterverträge mit Positionswechsel, Genauigkeitskreis, eigenem Zentrierknopf und unverändertem Ausschnitt geprüft. Keine tatsächlichen Gerätekoordinaten in Fixtures.

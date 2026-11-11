@@ -70,13 +70,13 @@ test('the station map crops the real route geometry at the same eight-stop ancho
  assert.throws(()=>stationVehicleGeometry(direction,range,{patterns:[],shapes:{}}),/Linienverlauf fehlt/);
 });
 
-test('opening the panel stays schematic; map toggles reuse the same data and query scope and survive closing',async()=>{
+test('startup view toggles keep only the readiness placeholder and defer the map without new requests',async()=>{
  const d=dom();let calls=0,changes=0,created=0,shows=0,hides=0,disposed=0,lastState;const panel=createStationVehiclePanel({target,dataSource:{index:async()=>{calls++;return {index};},line:async()=>{calls++;return {data,line,manifest};}},onIdsChanged:()=>changes++,mapFactory:()=>{created++;return {element:new Element('map'),show(){shows++;},hide(){hides++;},dispose(){disposed++;},render(state){lastState=state;},setSelected(){}};}});
  try{
   assert.equal(created,0);panel.element.open=true;panel.element.emit('toggle');await flush();assert.equal(created,0);const ids=panel.ids(),root=panel.element,map=root.querySelector('[data-vehicle-view="map"]'),schema=root.querySelector('[data-vehicle-view="schema"]');
-  map.emit('click');assert.equal(created,1);assert.equal(shows,1);assert.equal(map.attributes['aria-pressed'],'true');assert.deepEqual(panel.ids(),ids);panel.fail('Temporary source outage');assert.equal(lastState.problem,'Temporary source outage');
-  schema.emit('click');map.emit('click');assert.equal(created,1);assert.equal(lastState.problem,'Temporary source outage');assert.equal(calls,2);assert.equal(changes,1,'view changes must not trigger another live request');
-  panel.element.open=false;panel.element.emit('toggle');assert.ok(hides);assert.deepEqual(panel.ids(),[]);panel.element.open=true;panel.element.emit('toggle');assert.equal(created,1);assert.equal(map.attributes['aria-pressed'],'true');assert.deepEqual(panel.ids(),ids);assert.equal(disposed,0);panel.dispose();assert.equal(disposed,1);
+  map.emit('click');assert.equal(created,0);assert.equal(shows,0);assert.equal(map.attributes['aria-pressed'],'true');assert.deepEqual(panel.ids(),ids);panel.fail('Temporary source outage');assert.equal(root.querySelector('.station-vehicle-readiness').hidden,false);assert.equal(root.querySelector('.station-vehicle-map-holder').hidden,true);
+  schema.emit('click');map.emit('click');assert.equal(created,0);assert.equal(root.querySelector('.station-vehicle-strip').hidden,true);assert.equal(calls,2);assert.equal(changes,1,'view changes must not trigger another live request');
+  panel.element.open=false;panel.element.emit('toggle');assert.equal(hides,0);assert.deepEqual(panel.ids(),[]);panel.element.open=true;panel.element.emit('toggle');assert.equal(created,0);assert.equal(map.attributes['aria-pressed'],'true');assert.deepEqual(panel.ids(),ids);assert.equal(disposed,0);panel.dispose();assert.equal(disposed,0);
  }finally{d.restore();}
 });
 
@@ -87,7 +87,23 @@ test('real bus IDs and selected vehicle survive schematic/map switching; second 
   panel.element.open=true;panel.element.emit('toggle');await flush();for(const raw of recording.snapshots){now=Math.max(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime));panel.ingest(raw);}
   const strip=panel.element.querySelector('.station-vehicle-strip').children[0],vehicles=strip.querySelector('.vehicle-strip-vehicles'),marker=vehicles.children[0];assert.ok(marker,'captured bus boards produce a real tracker position');const id=marker.dataset.vehicle;vehicles.emit('click',{target:{closest:()=>marker}});
   panel.element.querySelector('[data-vehicle-view="map"]').emit('click');assert.equal(selected,id);assert.ok(state.tracks.some(t=>t.id===id&&t.position));mapOptions.onSelect(id);assert.equal(selected,'');mapOptions.onSelect(id);assert.equal(selected,id);
+  panel.element.open=false;panel.element.emit('toggle');panel.element.open=true;panel.element.emit('toggle');assert.equal(selected,id);assert.equal(panel.element.querySelector('.station-vehicle-readiness').hidden,true);
   panel.element.querySelector('[data-vehicle-view="schema"]').emit('click');assert.equal(vehicles.children.find(n=>n.dataset.vehicle===id).attributes['aria-pressed'],'true');assert.equal(loads,1);panel.dispose();
+ }finally{Date.now=originalNow;d.restore();}
+});
+
+test('recorded station positions replace startup information, stay visible while held and restore it on expiry',async()=>{
+ const d=dom(),originalNow=Date.now,recording=await json('./fixtures/vehicle-station-live.json'),context=recording.contexts.find(c=>c.route==='48A'),bus=await decodeVehiclePilot(await json('../pwa/data/vehicle-pilot/'+context.file)),route=bus.directions.find(d=>d.id===context.direction);let now=Date.parse(recording.snapshots[0].foamaMonitorAt);
+ Date.now=()=>now;const panel=createStationVehiclePanel({target:{...context,towards:route.towards,rbls:context.ids},dataSource:{index:async()=>({index}),line:async()=>({data:{...bus,directions:[route]},line,manifest})}});
+ try{
+  panel.element.open=true;panel.element.emit('toggle');await flush();const progress=panel.element.querySelector('.station-vehicle-readiness'),holder=panel.element.querySelector('.station-vehicle-strip'),message=panel.element.querySelector('.station-vehicle-message'),strip=holder.children[0];
+  assert.equal(progress.hidden,false);assert.equal(holder.hidden,true);assert.equal(message.hidden,true);
+  panel.ingest(recording.snapshots[0]);assert.equal(progress.hidden,false);assert.equal(holder.hidden,true,'a single source must not reveal an empty diagram');
+  for(const raw of recording.snapshots.slice(1)){now=Math.max(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime));panel.ingest(raw);}
+  assert.equal(progress.hidden,true);assert.equal(holder.hidden,false);assert.equal(message.hidden,false);assert.equal(holder.children[0],strip,'the existing widget stays mounted');
+  panel.fail('Test source gap');assert.equal(holder.hidden,false,'a drawable last-known position keeps the diagram visible');assert.equal(progress.hidden,true);
+  now+=91_000;panel.waiting(1000);assert.equal(progress.hidden,false);assert.equal(holder.hidden,true);assert.equal(message.hidden,true);assert.equal(holder.children[0],strip);
+  panel.dispose();
  }finally{Date.now=originalNow;d.restore();}
 });
 

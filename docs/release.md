@@ -1,3 +1,7 @@
+## PWA 0.11.12 · Fahrzeugstart ohne doppelte Flächennutzung · 11.11.2026
+
+Grafischer Datenstand ist der Platzhalter für die Fahrzeugdarstellung, keine zusätzliche große Karte darüber. Solange im gewählten Ausschnitt keine darstellbare Position vorliegt, bleiben Schema/Karte, Haltefolge und die zusätzlichen Stations-/Fahrzeugdetails verborgen. Sobald eine Lage vorhanden ist, verschwindet der Fortschrittsbereich vollständig. Kurz grau gehaltene Lagen bleiben sichtbar; erst nach Ablauf aller Lagen kehrt der Platzhalter zurück. Gilt für Stations-/A-nach-B-Bereiche und die ganze Fahrzeugseite, mit derselben Auswahl, Tracker-ID und Abrufbegrenzung. Kartenmodul erst bei sichtbarer Fahrzeugkarte initialisieren, bestehende Karte und Nutzerausschnitt bei Wechseln erhalten. Neuer PWA-Cache; Wear 0.7.4/26 unverändert.
+
 ## PWA 0.11.9 · einheitlicher Slogan auf allen Seiten · 11.11.2026
 
 Verbindliche Formulierung „Öffis, die du noch erreichst.“ in den Markenköpfen aller 13 PWA-HTML-Seiten. In fokussierten Stations-/Verbindungsdetails steht sie im eigenen Verbindungskopf; A-nach-B-Unteransichten behalten den gemeinsamen Markenkopf. Einheitliche brand-copy/brand-tagline-Stile mit normalem Umbruch, bestehende Wortmarke und Logogröße erhalten. Themenüberschriften, Zurückaktionen, Datenquellen und bisherige dezente Fußzeilen bleiben erhalten. Manifest-Beschreibung und Teilen-Text führen denselben Wortlaut. Debugging bleibt Umzugsseite, Wear-Prototyp bleibt ausdrücklich als Entwurf gekennzeichnet. Neuer PWA-Cache, native Wear-APK 0.7.4/26 erhalten.

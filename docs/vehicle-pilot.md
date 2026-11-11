@@ -1,8 +1,10 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.11, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.12, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
-## Grafischer Datenstand ab 0.11.11
+## Grafischer Datenstand
+
+Ab 0.11.12 ersetzt dieser Bereich die noch leere Fahrzeugansicht samt Haltefolge und Stationsdetails. Sobald im ausgewählten Ausschnitt eine Position darstellbar ist, verschwindet die große Fortschrittsanzeige vollständig und Karte bzw. Schema erscheinen an ihrer Stelle. Auch vorübergehend grau gehaltene Lagen zählen als darstellbar; erst wenn alle Positionen fehlen oder abgelaufen sind, kommt der Platzhalter zurück. Fahrzeuge außerhalb eines Stationsausschnitts lösen den Wechsel nicht aus. Vorhandene Widgets, Auswahl und Kartenausschnitt bleiben erhalten.
 
 Die ganze Fahrzeugseite sowie eingebettete Stations-/A-nach-B-Bereiche zeigen vier Schritte: **Strecke**, **Stationsdaten**, **Fahrtenabgleich**, **Bestätigung**. Grüne Haken zeigen Vorhandenes, ein bernsteinfarbener Schritt das aktuell Fehlende, neutrale Zahlen spätere Schritte. Dazu kommen Abdeckung (z. B. 8/8 Halte), Anzahl nutzbarer Live-Prognosen, Fahrtkandidaten und 1/2 bzw. 2/2 passende Quellenstände. Teilabdeckung bleibt erkennbar.
 

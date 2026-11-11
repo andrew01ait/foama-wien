@@ -1,3 +1,7 @@
+## PWA 0.11.12 · Fahrzeugstart ohne doppelte Flächennutzung · 11.11.2026
+
+Grafischer Datenstand ist der Platzhalter für die Fahrzeugdarstellung, keine zusätzliche große Karte darüber. Solange im gewählten Ausschnitt keine darstellbare Position vorliegt, bleiben Schema/Karte, Haltefolge und die zusätzlichen Stations-/Fahrzeugdetails verborgen. Sobald eine Lage vorhanden ist, verschwindet der Fortschrittsbereich vollständig. Kurz grau gehaltene Lagen bleiben sichtbar; erst nach Ablauf aller Lagen kehrt der Platzhalter zurück. Gilt für Stations-/A-nach-B-Bereiche und die ganze Fahrzeugseite, mit derselben Auswahl, Tracker-ID und Abrufbegrenzung. Kartenmodul erst bei sichtbarer Fahrzeugkarte initialisieren, bestehende Karte und Nutzerausschnitt bei Wechseln erhalten. Neuer PWA-Cache; Wear 0.7.4/26 unverändert.
+
 ## PWA 0.11.11 · Standort auf Karten und grafische Fahrzeugbereitschaft · 11.11.2026
 
 Alle interaktiven Leaflet-Karten erhalten einen gemeinsamen blauen aktuellen Standortpunkt, Genauigkeitskreis und 44-px-Zentrierknopf. Nur frische echte GPS-Fixes verwenden; manuelle Stations-/Routenstartpunkte bleiben getrennt. Kein automatisches Verschieben/Zoomen, kein Speichern/Export/Relay der Position. Im Monitor die vorhandene Ortung wiederverwenden; andere Kartenseiten nur bei bereits erteilter Freigabe und sichtbarer Karte, höchstens ein geteilter Watch. Hintergrund/Schließen/Ablauf/Fehler bereinigen. Stationskarte auch bei fehlendem Routenstart oder Routingausfall über denselben Kartenrenderer.
