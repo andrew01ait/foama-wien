@@ -41,10 +41,17 @@ public final class MainActivity extends Activity {
     private Future<?> fileRequest;private volatile java.io.InputStream fileStream;
     private android.net.Uri pendingFile;private TransferManager.Preview filePreview;private String fileMessage="",fileParent="routes",transferParentSection="transfer";
     static final int IMPORT_FILE=42;
-    private boolean resumed,updating;
+    private boolean resumed,updating,updateDownloading,updateHandedToInstaller;
+    static final long UPDATE_TIMEOUT_MS=5*60*1000L;
     WatchPowerSaver powerSaver;private boolean batteryRegistered;private long lastLocationAttempt=-1,lastDepartureAttempt=-1;private String batteryMessage="";
     private final BroadcastReceiver batteryReceiver=new BroadcastReceiver(){public void onReceive(Context context,Intent intent){if(active)readBattery(intent);}};
+    private final Updater.InstallStatus installStatus=result->{
+        if(!updateDownloading)return;
+        if(result==android.content.pm.PackageInstaller.STATUS_PENDING_USER_ACTION){updateHandedToInstaller=true;cancelUpdate("Update an Android übergeben. Bitte Installation bestätigen.");}
+        else cancelUpdate(result==android.content.pm.PackageInstaller.STATUS_SUCCESS?"Update erfolgreich installiert.":"Update nicht installiert. Bitte erneut versuchen.");
+    };
     private AlertDialog updateDialog;
+    private final Runnable updateTimeout=()->{if(updateDialog!=null)cancelUpdate(updateDownloading?"Update dauert zu lange. Bitte erneut versuchen.":"Update später installieren.");};
     private Object backRegistration;
     private WatchLocation watchLocation;
     private ScrollView scroll;
@@ -82,6 +89,7 @@ public final class MainActivity extends Activity {
         Updater.clearDownloadCache(this);
         IntentFilter screenFilter=new IntentFilter();screenFilter.addAction(Intent.ACTION_SCREEN_OFF);screenFilter.addAction(Intent.ACTION_SCREEN_ON);
         if(Build.VERSION.SDK_INT>=33)registerReceiver(screenState,screenFilter,Context.RECEIVER_NOT_EXPORTED);else registerReceiver(screenState,screenFilter);
+        Updater.observeInstallStatus(installStatus);
         if(Build.VERSION.SDK_INT>=33)backRegistration=Api33Back.register(this);
         watchLocation=new WatchLocation((LocationManager)getSystemService(LOCATION_SERVICE),handler,getMainExecutor(),new WatchLocation.Callback(){
             public boolean onFix(Location fix){
@@ -101,17 +109,19 @@ public final class MainActivity extends Activity {
         PowerManager power=(PowerManager)getSystemService(POWER_SERVICE);if(!resumed||active||(power!=null&&!power.isInteractive()))return;
         active=true;String previousCity=repo.cities.current();repo.ensureCityPosition();if(!previousCity.equals(repo.cities.current())&&screen.equals("detail")&&!detailFromJourney){screen="home";detailStop=null;renderLayout();}requests=new RequestScope();push.resume();batteryRegistered=true;Intent battery=registerReceiver(batteryReceiver,new IntentFilter(Intent.ACTION_BATTERY_CHANGED));readBattery(battery);if(locationScreen())startLocation(false);if(screen.equals("more"))refreshMore();handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.post(departureTicker);handler.post(renderTicker);consumePendingFile();
     }
-    private void stopForegroundWork(){
+    private void stopForegroundWork(){stopForegroundWork(true);}
+    private void stopForegroundWork(boolean stopUpdate){
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if(batteryRegistered){unregisterReceiver(batteryReceiver);batteryRegistered=false;}
-        boolean wasActive=active;if(updating||updateDialog!=null)operationMessage="Update angehalten. Bei Bedarf erneut prüfen.";active=false;handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.removeCallbacks(viewportRefresh);handler.removeCallbacks(gatedRefresh);stopLocation();requests.cancel();if(push!=null)push.pause();
-        if(departureRequest!=null)departureRequest.cancel(true);if(updateRequest!=null)updateRequest.cancel(true);fetching=false;updating=false;
-        if(updateScope!=null)updateScope.cancel();cancelFileRead();filePreview=null;
-        if(updateDialog!=null){updateDialog.dismiss();updateDialog=null;}Updater.clearDownloadCache(this);if(wasActive)repo.pause();if(transfer!=null){closeTransfer();screen=transferFromRoutes?"routes":"more";settingsSection=transferParentSection;}
+        boolean wasActive=active;active=false;handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.removeCallbacks(viewportRefresh);handler.removeCallbacks(gatedRefresh);stopLocation();requests.cancel();if(push!=null)push.pause();
+        if(departureRequest!=null)departureRequest.cancel(true);fetching=false;
+        if(stopUpdate)cancelUpdate(updateHandedToInstaller?"Update an Android übergeben.":"Update angehalten. Bei Bedarf erneut prüfen.");cancelFileRead();filePreview=null;
+        if(wasActive)repo.pause();if(transfer!=null){closeTransfer();screen=transferFromRoutes?"routes":"more";settingsSection=transferParentSection;}
+        if(!stopUpdate)setUpdateAwake(true);
     }
-    @Override protected void onPause(){resumed=false;stopForegroundWork();super.onPause();}
+    @Override protected void onPause(){resumed=false;PowerManager power=(PowerManager)getSystemService(POWER_SERVICE);boolean visibleUpdate=updateDownloading&&!isFinishing()&&!isChangingConfigurations()&&(power==null||power.isInteractive());stopForegroundWork(!visibleUpdate);super.onPause();}
     @Override protected void onStop(){stopForegroundWork();super.onStop();}
-    @Override protected void onDestroy(){resumed=false;stopForegroundWork();handler.removeCallbacksAndMessages(null);unregisterReceiver(screenState);if(Build.VERSION.SDK_INT>=33&&backRegistration!=null)Api33Back.unregister(this,backRegistration);network.shutdownNow();super.onDestroy();}
+    @Override protected void onDestroy(){resumed=false;stopForegroundWork();handler.removeCallbacksAndMessages(null);unregisterReceiver(screenState);Updater.removeInstallObserver(installStatus);if(Build.VERSION.SDK_INT>=33&&backRegistration!=null)Api33Back.unregister(this,backRegistration);network.shutdownNow();super.onDestroy();}
     private static final class Api33Back {
         static Object register(MainActivity app){android.window.OnBackInvokedCallback callback=app::navigateBack;app.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,callback);return callback;}
         static void unregister(MainActivity app,Object callback){app.getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback((android.window.OnBackInvokedCallback)callback);}
@@ -716,7 +726,11 @@ public final class MainActivity extends Activity {
         }
         fullButton(content,"Andere Datei wählen",this::chooseFavoriteFile);fullButton(content,"Aus PWA per QR",()->{cancelFileRead();filePreview=null;returnFromFileImport();openTransfer("to-watch");});fullButton(content,"Zurück","quiet",this::navigateBack);
     }
-    private boolean updateValid(RequestScope scope){return active&&screen.equals("more")&&settingsSection.equals("about")&&updateScope==scope&&!scope.isCancelled();}
+    private boolean updateValid(RequestScope scope){return (active||updateDownloading)&&screen.equals("more")&&settingsSection.equals("about")&&updateScope==scope&&!scope.isCancelled();}
+    private void setUpdateAwake(boolean awake){
+        for(Window window:new Window[]{getWindow(),updateDialog==null?null:updateDialog.getWindow()})if(window!=null){if(awake)window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}
+    }
+    private void showUpdateDialog(AlertDialog dialog){updateDialog=dialog;dialog.setCanceledOnTouchOutside(false);dialog.show();setUpdateAwake(true);handler.removeCallbacks(updateTimeout);handler.postDelayed(updateTimeout,UPDATE_TIMEOUT_MS);}
     void checkUpdate(){
         if(!active||updating||updateDialog!=null)return;
         if(updateScope!=null)updateScope.cancel();RequestScope scope=updateConnectionFactory==null?new RequestScope():new RequestScope(updateConnectionFactory);updateScope=scope;updating=true;operationMessage="Prüfe Updates …";refreshMore();
@@ -727,25 +741,33 @@ public final class MainActivity extends Activity {
                 operationMessage="Update "+update.version+" verfügbar · noch nicht heruntergeladen";refreshMore();
                 StringBuilder info=new StringBuilder(String.format(java.util.Locale.GERMANY,"%.1f MB · Das ist neu:\n",update.bytes/1000000.0));for(String note:update.notes)info.append("\n• ").append(note);if(update.notes.isEmpty())info.append("\nDetails auf der öffentlichen App-Seite.");info.append("\n\nErst nach Bestätigung herunterladen und installieren.");
                 AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Update "+update.version).setMessage(info.toString())
-                    .setNegativeButton("Später",(d,w)->scope.cancel()).setPositiveButton("Installieren",(d,w)->{if(updateValid(scope))startUpdateDownload(update,scope);}).create();
-                updateDialog=dialog;dialog.setOnDismissListener(d->{if(updateDialog==dialog){updateDialog=null;scope.cancel();}});dialog.show();
+                    .setNegativeButton("Später",(d,w)->cancelUpdate("Update später installieren.")).setPositiveButton("Installieren",(d,w)->{if(updateValid(scope))startUpdateDownload(update,scope);}).create();
+                dialog.setOnDismissListener(d->{if(updateDialog==dialog)cancelUpdate("Update später installieren.");});showUpdateDialog(dialog);
             });
         }catch(Exception e){runOnUiThread(()->{if(!updateValid(scope))return;updating=false;operationMessage="Updateprüfung nicht erreichbar. Bitte erneut versuchen.";refreshMore();});}});
     }
-    private void cancelUpdate(){
-        if(updateScope!=null)updateScope.cancel();if(updateRequest!=null)updateRequest.cancel(true);updating=false;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);Updater.clearDownloadCache(this);operationMessage="Update angehalten. Bei Bedarf erneut prüfen.";if(active&&screen.equals("more"))refreshMore();
+    private void cancelUpdate(){cancelUpdate("Update abgebrochen. Bei Bedarf erneut prüfen.");}
+    private void cancelUpdate(String message){
+        boolean hadUpdate=updating||updateDialog!=null;if(updateScope!=null)updateScope.cancel();if(updateRequest!=null)updateRequest.cancel(true);Updater.stopObservingInstallSession();updating=false;updateDownloading=false;handler.removeCallbacks(updateTimeout);setUpdateAwake(false);AlertDialog dialog=updateDialog;updateDialog=null;if(dialog!=null)dialog.dismiss();Updater.clearDownloadCache(this);if(hadUpdate)operationMessage=message;if(active&&screen.equals("more"))refreshMore();
     }
     private void startUpdateDownload(Updater.UpdateInfo update,RequestScope scope){
-        if(!updateValid(scope))return;updating=true;LinearLayout box=vertical();box.setPadding(dp(14),dp(8),dp(14),dp(8));
+        if(!updateValid(scope))return;updating=true;updateDownloading=true;updateHandedToInstaller=false;LinearLayout box=vertical();box.setPadding(dp(14),dp(8),dp(14),dp(8));
         TextView label=text("Download startet …",12,WHITE,false);box.addView(label);ProgressBar progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setMax(100);box.addView(progress,new LinearLayout.LayoutParams(-1,dp(20)));
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle("Update laden").setView(box).setNegativeButton("Abbrechen",(d,w)->cancelUpdate()).create();
-        updateDialog=dialog;dialog.setOnDismissListener(d->{if(updateDialog==dialog){updateDialog=null;if(updating)cancelUpdate();}});dialog.show();getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        dialog.setOnDismissListener(d->{if(updateDialog==dialog)cancelUpdate();});showUpdateDialog(dialog);
         updateRequest=network.submit(()->{try{Updater.download(this,update,new Updater.Callback(){
             public void onStatus(String message){runOnUiThread(()->{if(updateValid(scope))label.setText(message);});}
             public void onProgress(long bytes,long total){runOnUiThread(()->{if(!updateValid(scope))return;int percent=(int)(bytes*100/total);progress.setProgress(percent);label.setText(String.format(java.util.Locale.GERMANY,"%d %% · %.1f / %.1f MB",percent,bytes/1000000.0,total/1000000.0));});}
-            public void onApk(java.io.File file){runOnUiThread(()->{if(!updateValid(scope)){Updater.clearDownloadCache(MainActivity.this);return;}updating=false;updateDialog=null;dialog.dismiss();getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                try{operationMessage=Updater.requestInstall(MainActivity.this,file)?"Update an Android übergeben.":"Installation erlauben, dann erneut nach Updates suchen.";}catch(Exception e){operationMessage="Installation derzeit nicht möglich. Erneut nach Updates suchen.";}finally{Updater.clearDownloadCache(MainActivity.this);}if(active&&screen.equals("more"))refreshMore();
+            public void onApk(java.io.File file){runOnUiThread(()->{
+                if(!updateValid(scope)){Updater.clearDownloadCache(MainActivity.this);return;}
+                if(!getPackageManager().canRequestPackageInstalls()){
+                    cancelUpdate("Installation erlauben, dann erneut nach Updates suchen.");
+                    try{Updater.requestInstallPermission(MainActivity.this);}catch(Exception e){operationMessage="Installation in den Android-Einstellungen erlauben.";if(active)refreshMore();}return;
+                }
+                label.setText("Installation wird vorbereitet …");progress.setIndeterminate(true);
+                updateRequest=network.submit(()->{try{Updater.requestInstall(MainActivity.this,file,scope);runOnUiThread(()->{if(!updateValid(scope))return;updateHandedToInstaller=true;label.setText("An Android übergeben · bitte Installation bestätigen.");dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);});}
+                    catch(Exception e){runOnUiThread(()->{if(updateValid(scope))cancelUpdate("Installation derzeit nicht möglich. Erneut nach Updates suchen.");});}});
             });}
-        },scope);}catch(Exception e){runOnUiThread(()->{if(!updateValid(scope))return;updating=false;updateDialog=null;dialog.dismiss();getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);operationMessage="Download oder Prüfung fehlgeschlagen. Bitte erneut versuchen.";refreshMore();});}});
+        },scope);}catch(Exception e){runOnUiThread(()->{if(updateValid(scope))cancelUpdate("Download oder Prüfung fehlgeschlagen. Bitte erneut versuchen.");});}});
     }
 }

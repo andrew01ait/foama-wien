@@ -19,6 +19,13 @@ import java.security.MessageDigest;
 /** User-triggered, signature-checked, HTTPS-only watch update, no Play Store or ADB needed. */
 final class Updater {
     static final long MAX_APK_BYTES=8*1024*1024L;
+    interface InstallStatus { void onResult(int status); }
+    private static java.lang.ref.WeakReference<InstallStatus> installObserver=new java.lang.ref.WeakReference<>(null);
+    private static volatile int observedInstallSession=-1;
+    static void observeInstallStatus(InstallStatus listener){installObserver=new java.lang.ref.WeakReference<>(listener);observedInstallSession=-1;}
+    static void removeInstallObserver(InstallStatus listener){if(installObserver.get()==listener){installObserver.clear();observedInstallSession=-1;}}
+    static void stopObservingInstallSession(){observedInstallSession=-1;}
+    static void reportInstallStatus(int id,int status){InstallStatus listener=installObserver.get();if(id>=0&&id==observedInstallSession&&listener!=null)listener.onResult(status);}
     interface Callback { void onStatus(String message); void onApk(File file); default void onProgress(long bytes,long total){} }
     static final class UpdateInfo {
         final String version,sha;final URL url;final int code;final long bytes;final java.util.List<String> notes;
@@ -88,25 +95,25 @@ final class Updater {
             if(!match)throw new SecurityException("APK ist nicht mit dem vorhandenen Signaturschlüssel signiert");
         }
     }
-    static boolean requestInstall(Context ctx,File file)throws Exception{
-        if(Build.VERSION.SDK_INT>=26&&!ctx.getPackageManager().canRequestPackageInstalls()){
-            Intent permission=new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                Uri.parse("package:"+ctx.getPackageName())).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            ctx.startActivity(permission);return false;
-        }
+    static void requestInstallPermission(Context ctx){
+        ctx.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+            Uri.parse("package:"+ctx.getPackageName())).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    }
+    /** Stage the APK on the worker thread; only a still-valid operation may commit. */
+    static void requestInstall(Context ctx,File file,RequestScope scope)throws Exception{
+        scope.check();
         PackageInstaller installer=ctx.getPackageManager().getPackageInstaller();
         PackageInstaller.SessionParams params=new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
         params.setAppPackageName(ctx.getPackageName());params.setSize(file.length());
         int id=installer.createSession(params);
         try(PackageInstaller.Session session=installer.openSession(id)){
             try(InputStream in=new FileInputStream(file);OutputStream out=session.openWrite("base.apk",0,file.length())){
-                byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1)out.write(b,0,n);session.fsync(out);
+                byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1){scope.check();out.write(b,0,n);}scope.check();session.fsync(out);
             }
-            Intent callback=new Intent(ctx,UpdateReceiver.class).setAction("at.foama.wien.UPDATE_RESULT");
+            Intent callback=new Intent(ctx,UpdateReceiver.class).setAction("at.foama.wien.UPDATE_RESULT").putExtra(PackageInstaller.EXTRA_SESSION_ID,id);
             PendingIntent pending=PendingIntent.getBroadcast(ctx,id,callback,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_MUTABLE);
-            session.commit(pending.getIntentSender());
-        }catch(Exception e){try{installer.abandonSession(id);}catch(Exception ignored){}throw e;}
+            scope.commit(()->{observedInstallSession=id;session.commit(pending.getIntentSender());});
+        }catch(Exception e){if(observedInstallSession==id)observedInstallSession=-1;try{installer.abandonSession(id);}catch(Exception ignored){}throw e;}
         finally{clearDownloadCache(ctx);}
-        return true;
     }
 }

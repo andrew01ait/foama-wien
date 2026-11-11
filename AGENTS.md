@@ -1,3 +1,7 @@
+## Wear 0.7.4 · Updates sichtbar halten · 11.11.2026
+
+Updatehinweis und Fortschrittsdialog halten ihre eigenen Fenster sowie das App-Fenster wach; bis zur Android-Bestätigung keine frühe Dialog-/Wachhaltefreigabe. APK-Staging und fsync auf dem bestehenden Worker, Commit nur im gültigen RequestScope. Kurze sichtbare Pause erhält ausschließlich den bestätigten Update-Vorgang; Standort/Abfahrten bleiben pausiert. onStop/Display aus/Home/Abbruch/Fehler/Timeout bereinigen weiter; keine neuen Dienste, Wake-Locks oder automatische Wiederöffnung. Vorschau/Vorgang jeweils maximal fünf Minuten. Nicht aufrufbaren Installer abfangen; prozessinterne schwache Ergebnisreferenz und exakte Sitzungs-ID verwenden. Android darf beim Ersetzen der ganzen APK den Prozess beenden. Originalpaket/-key erhalten, eigene APK 0.7.4/26; PWA unverändert 0.9.5. Details und physische Prüfgrenzen: docs/wear-os-release-0.7.4.md.
+
 ## Wear 0.7.3 · aktive Stadt und engere Favoritensteuerung · 10.11.2026
 
 Kopftitel auf den Hauptseiten ist die tatsächlich aktive Stadt aus CityProfiles.current(): Wien, Graz, Linz oder Salzburg. Bei jeder sichtbaren Inhaltsaktualisierung mitführen, auch nach automatischer Erkennung oder Ablauf der automatischen Zuordnung; kein eigener Timer und keine zusätzlichen Anfragen. Manuelle Profilwahl und alle bestehenden Stadt-/Standortregeln erhalten.

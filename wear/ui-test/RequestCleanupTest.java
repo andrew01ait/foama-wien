@@ -51,4 +51,15 @@ public class RequestCleanupTest {
         assertEquals(Long.valueOf(0),progress.get(0));assertEquals(Long.valueOf(20000),progress.get(progress.size()-1));assertTrue(progress.size()>2);assertNoDownloads();
     }
     @Test public void availableReleaseShowsAtMostFourBoundedNotesBeforeDownload()throws Exception {JSONObject metadata=new JSONObject(feed(4));metadata.put("wearReleaseNotes",new JSONArray().put("A nach B").put("JSON importieren").put("Fortschritt\nund Bestätigung").put("Akku sparen").put("Fifth ignored"));AtomicInteger opened=new AtomicInteger();RequestScope scope=new RequestScope(url->{opened.incrementAndGet();return new Fake(url,metadata.toString());});Updater.UpdateInfo info=Updater.check(ctx,scope);assertEquals(4,info.notes.size());assertEquals("A nach B",info.notes.get(0));assertEquals("Fortschritt und Bestätigung",info.notes.get(2));assertEquals(1,opened.get());assertNoDownloads();}
+    @Test public void cancelledInstallNeverCreatesASessionAndFailedStagingAbandonsIt()throws Exception {
+        android.content.pm.PackageInstaller installer=ctx.getPackageManager().getPackageInstaller();RequestScope scope=new RequestScope();scope.cancel();File missing=new File(ctx.getCacheDir(),"missing.apk");
+        try{Updater.requestInstall(ctx,missing,scope);fail();}catch(InterruptedIOException expected){}assertTrue(installer.getMySessions().isEmpty());
+        try{Updater.requestInstall(ctx,missing,new RequestScope());fail();}catch(FileNotFoundException expected){}assertTrue(installer.getMySessions().isEmpty());
+    }
+    @Test public void stagedInstallUsesAndroidSessionAndDeliversTheResultWithoutRelaunching()throws Exception {
+        File apk=new File(ctx.getCacheDir(),"staging-test.apk");try(FileOutputStream out=new FileOutputStream(apk)){out.write(new byte[]{1,2,3,4});}
+        AtomicInteger status=new AtomicInteger(-100);Updater.InstallStatus observer=status::set;Updater.observeInstallStatus(observer);
+        try{Updater.requestInstall(ctx,apk,new RequestScope());android.content.pm.PackageInstaller installer=ctx.getPackageManager().getPackageInstaller();assertEquals(1,installer.getMySessions().size());int id=installer.getMySessions().get(0).getSessionId();Updater.reportInstallStatus(id+1,android.content.pm.PackageInstaller.STATUS_FAILURE);assertEquals(-100,status.get());org.robolectric.Shadows.shadowOf(installer).setSessionFails(id);org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle();assertEquals(android.content.pm.PackageInstaller.STATUS_FAILURE,status.get());assertNull(org.robolectric.Shadows.shadowOf((android.app.Application)ctx).getNextStartedActivity());}
+        finally{Updater.removeInstallObserver(observer);apk.delete();}
+    }
 }
