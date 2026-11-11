@@ -1,4 +1,4 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.4';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.5';
 
 export const VEHICLE_FRESH_MS=60_000,VEHICLE_EXPIRE_MS=90_000;
 export const PILOT_SCHEDULE_MATCH_MS=60_000;
@@ -23,7 +23,7 @@ export function validateVehiclePilot(data,manifest,line){
   for(let i=0;i<count;i++){const s=d.stops[i],p=pattern.stops[i];if(p.platformId!==s.platformId||p.id!==s.id||(i===count-1?s.rbl!==null:s.rbl!==null&&!/^\d{1,7}$/.test(s.rbl)))throw Error('Ungültige Haltefolge.');}
   if(d.targetAliases&&(typeof d.targetAliases!=='object'||Object.entries(d.targetAliases).some(([name,aliases])=>!name||!Array.isArray(aliases)||aliases.length>100||aliases.some(a=>typeof a!=='string'||a.length>200))))throw Error('Ungültige Zielzuordnung.');
   for(const t of d.trips){
-   if(!/^[a-f0-9]{16}$/.test(t.ref)||!manifest.services[t.service]||typeof t.towards!=='string'||!t.towards||!Array.isArray(t.times)||t.times.length!==count)throw Error('Ungültige Pilot-Fahrtzeiten.');
+   if(!/^[a-f0-9]{16}$/.test(t.ref)||!manifest.services[t.service]||typeof t.towards!=='string'||!t.towards||!Array.isArray(t.times)||t.times.length!==count)throw Error('Ungültige Fahrtzeiten.');
    const r=range(t.times);if(r.start==null||r.end<=r.start)throw Error('Fahrtabschnitt fehlt.');
    let previous=null;for(const p of t.times){if(p===null)continue;if(!Array.isArray(p)||p.length!==2||p.some(x=>!Number.isInteger(x)||x<0||x>=172800)||p[0]>p[1]||previous&&(data.format===2?p[0]<=previous[1]:p[0]<previous[1]))throw Error('Ungültige Fahrtzeitfolge.');previous=p;}
   }

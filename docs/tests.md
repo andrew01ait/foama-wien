@@ -1,3 +1,9 @@
+## PWA 0.11.5 · Adressfelder, Markengröße und öffentliche Erklärung · 11.11.2026
+
+397 bestehende Web-/Server-Tests und 18 Python-Prüfungen bestanden. Visuelle Browserprüfung der tatsächlichen A-nach-B-Seite am Desktop und bei 337 px CSS-Breite: Start, Ziel und beide Suchbuttons jeweils exakt 48 px hoch; mobil je Eingabe 227 px plus 48 px Suchbutton, kein Seitenüberlauf. Desktop-Suchtext bleibt einzeilig. Monitor bei 337 px: bestehendes Logo 48 px, Schriftzug rund 25,2 px; 8 px freier Abstand zu den Aktionsbuttons, kein Überlauf.
+
+Willkommen-Bereich mit klar als Beispiel gekennzeichnetem Stationsausschnitt, direktem Fahrzeuglink und FAQ-Link in Desktop-/Telefonansicht geprüft. Der FAQ-Link öffnet die entsprechende Erklärung im Städtevergleich. Wien-Einzelvergleich auf 337 px: Tabelle 303 px, Seite ohne Überlauf; Panorama vollständig geladen. Keine experimentelle Kennzeichnung mehr, geschätzte Genauigkeit/Wien-Abdeckung weiterhin erklärt. Drei neue Logoentwürfe nur zur separaten Bewertung; bestehende App-Marke bleibt erhalten. Keine zusätzlichen Tests für die Layout-/Textkorrekturen.
+
 ## PWA 0.11.4 · Kontrast grauer Stadtmarker · 11.11.2026
 
 Bestehende 397 Web-/Server-Tests bestanden. Visuelle Browserprüfung einer lokalen Darstellungsprobe über echten OpenStreetMap-Kacheln: Zug, Tram und Bus, Zuordnungslücke und veralteter Stand, ungewählt und ausgewählt, jeweils in hellem und dunklem App-Farbschema. Tatsächliche Markergröße 36 × 36 px, volle Deckkraft, transparenter Außenrahmen, deckende graue Fläche rgb(75,85,99), Symbol rgb(249,250,251); berechneter Symbol-/Flächenkontrast 7,23:1. Die beiden App-Farbschemata ändern diesen Kartenkontrast nicht. Keine neuen Tests für die reine CSS-Korrektur; Modell-/Abrufverhalten unverändert. Die lokale QA-Seite wird weder veröffentlicht noch dem Quellpaket beigefügt.

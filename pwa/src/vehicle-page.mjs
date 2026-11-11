@@ -1,11 +1,11 @@
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.4';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.4';
-import {createThemeController} from './theme.mjs?v=0.11.4';
-import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.4';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.4';
-import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.4';
-import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.4';
-import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.4';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.5';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.5';
+import {createThemeController} from './theme.mjs?v=0.11.5';
+import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.5';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.5';
+import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.5';
+import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.5';
+import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.5';
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>id.replace(/^[^-]+-/,''),rowY=i=>55+i*100;
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
@@ -65,7 +65,7 @@ function setDirection(id){
  stop();direction=data.directions.find(d=>d.id===id)||data.directions[0];selected='';follow=false;tracker=createVehicleTracker(direction,manifest,{prefix:line.route+'-'+direction.monitorDirection+(++runNumber)});const pattern=line.patterns.find(p=>p.id===direction.patternId);geometry=pilotGeometry(decodeJourneyPolyline(line.shapes[pattern.geometry]),direction.stops);
  windows=vehicleWindows(direction);windowIndex=Math.min(windowIndex,windows.length-1);localRange=focusStop?stationVehicleRange(direction,focusStop):null;if(view==='station'&&!localRange)view='schema';requestedIds=view==='station'?localRange.ids:windows[windowIndex].ids;
  const url=new URL(vehicleUrl({route:line.route,mode:line.mode,stopId:focusStop,towards:direction.towards,view:view==='map'?'karte':view,patternId:direction.patternId}),location.href);history.replaceState(history.state,'',url);
- controls();syncView();$('pilotTrainsTitle').textContent='Auf Linie '+line.route;$('pilotBackLine').href='./linienkarte.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:focusStop||'',richtung:direction.towards});$('pilotLineTitle').textContent=line.route+' · EXPERIMENTELL';$('pilotIntro').textContent=direction.stops[0].name+' → '+direction.stops.at(-1).name+' · '+direction.stops.length+' Stationen · aus Stationsprognosen geschätzt.';document.title='Fahrzeuge im Anflug · '+line.route+' · foama-wien';document.querySelector('.vehicle-page').style.setProperty('--vehicle-line-color',routeColor(line.route,line.mode));
+ controls();syncView();$('pilotTrainsTitle').textContent='Auf Linie '+line.route;$('pilotBackLine').href='./linienkarte.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:focusStop||'',richtung:direction.towards});$('pilotLineTitle').textContent=line.route+' · LIVE-ÜBERSICHT';$('pilotIntro').textContent=direction.stops[0].name+' → '+direction.stops.at(-1).name+' · '+direction.stops.length+' Stationen · aus Stationsprognosen geschätzt.';document.title='Fahrzeuge im Anflug · '+line.route+' · foama-wien';document.querySelector('.vehicle-page').style.setProperty('--vehicle-line-color',routeColor(line.route,line.mode));
  const height=rowY(direction.stops.length-1)+55;$('schemaCanvas').style.height=height+'px';$('schemaTrack').setAttribute('viewBox','0 0 100 '+height);$('schemaTrack').innerHTML='<path d="M48 0V'+height+'" class="schema-outside"/><path d="M48 55V'+rowY(direction.stops.length-1)+'" class="schema-line"/>'+direction.stops.map((s,i)=>'<circle cx="48" cy="'+rowY(i)+'" r="7"/>').join('');$('pilotLegendSymbol').innerHTML=vehicleSymbolMarkup(line.mode);
  $('schemaStops').innerHTML=direction.stops.map((s,i)=>`<button type="button" class="schema-stop" style="top:${rowY(i)}px" data-stop="${i}">${escape(s.name)}<small>${i===0?'Linienbeginn':i===direction.stops.length-1?'Endstation · Ankunft geschätzt':s.rbl?'Live-Prognose als Stationsanker':'Keine eindeutige Monitorseite'}</small></button>`).join('');
  if(localRange){localStrip=createHorizontalVehicleStrip({direction,range:localRange});$('pilotLocal').replaceChildren(localStrip.element);}else{localStrip=null;$('pilotLocal').replaceChildren();}

@@ -1,3 +1,9 @@
+## PWA 0.11.5 · klare Eingaben, sichtbare Marke und Fahrzeuge im Anflug · 11.11.2026
+
+Der auf zwei Zeilen umbrechende Suchbutton zog Start- und Zielinput auf rund 58–60 px Höhe. Eingaben verwenden jetzt eine flexible Restbreite und feste 48 px Höhe bei 16 px Schrift. Der Suchbutton bleibt auf einer Zeile; auf schmalen Bildschirmen bis 480 px zeigt er eine 48-px-Lupe mit unverändertem zugänglichem Namen und Titel. Die kompaktere Platzhalterbeschriftung passt besser auf kleine Telefone. Such-, Auswahl- und GPS-Verhalten unverändert. Kartensymbol-Kontrast aus 0.11.4 erhalten, neuer PWA-Cache, Wear 0.7.4/26 erhalten.
+
+Willkommen-Seite mit eigenem Fahrzeuge-im-Anflug-Bereich, einer als Beispiel gekennzeichneten Stationsdarstellung und direkten Links. Städtevergleich um Einführung und eigene Erklärung mit direktem FAQ-Einstieg ergänzt. Die Funktion ist auf Nutzerwunsch regulär verfügbar und trägt keine experimentelle Kennzeichnung mehr; Quellen-/Genauigkeitserklärung und Wien-Abdeckung bleiben klar. Der Monitor zeigt das bestehende Logo auf kleinen Telefonen wieder mit 48 px und den Schriftzug mit mindestens 24 px. Neue Logoentwürfe werden getrennt zur Bewertung gezeigt und ersetzen das aktuelle Logo erst nach Auswahl.
+
 ## PWA 0.11.4 · graue Fahrzeuge auf Stadtkarte lesbar · 11.11.2026
 
 Die transparente Darstellung unsicherer Fahrzeuge ließ das graue Symbol mit Straßen, Linien und Stationspunkten verschmelzen. Ausschließlich die Stadtkarte verwendet für unsichere oder veraltete Marker jetzt eine deckende neutrale dunkelgraue Fläche (#4b5563), ein helles Symbol (#f9fafb) und einen dezenten Schatten. Volle Deckkraft und derselbe Kontrast in beiden App-Farbschemata; kein gestrichelter oder grauer Außenrahmen. Markerauswahl, Fahrt-ID und Tracker unverändert. Neuer PWA-Cache; Wear 0.7.4/26 erhalten.

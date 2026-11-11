@@ -3,3 +3,11 @@
 .availability-icon{display:inline-flex;vertical-align:-2px;margin-right:6px}.availability-icon svg{display:block}.availability-yes{color:var(--mint)}.availability-no{color:var(--red)}.capabilities-footnote{margin:12px 2px 0;line-height:1.5}
 
 .cities-hero{margin:8px 0 24px;border:1px solid var(--stroke);border-radius:20px;overflow:hidden;background:#071724}.cities-hero img{display:block;width:100%;height:auto}
+.capabilities-vehicles{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 24px;border:1px solid var(--stroke);border-radius:18px;padding:22px;background:var(--surface);margin:26px 0 30px}
+.capabilities-vehicles>div{grid-row:1/3;min-width:0}.capabilities-vehicles .eyebrow{margin:0 0 9px}.capabilities-vehicles h3{font-size:22px;line-height:1.25;margin:0 0 9px;letter-spacing:-.3px}
+.capabilities-vehicles p:not(.eyebrow){color:var(--muted);font-size:14px;line-height:1.6;margin:0;max-width:600px}
+.capabilities-vehicles>a{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:13px;line-height:1.4}.capabilities-vehicles>a:not(.outline-btn){text-underline-offset:3px}
+#fahrzeuge-im-anflug{scroll-margin-top:20px}
+@media(max-width:680px){.capabilities-vehicles{grid-template-columns:1fr;padding:20px;gap:12px}.capabilities-vehicles>div{grid-row:auto}.capabilities-vehicles h3{font-size:21px}.capabilities-vehicles>a{width:100%}}
+
+.capabilities-vehicles>a,.capabilities-page .back-link{gap:8px}.capabilities-vehicles>a svg,.capabilities-page .back-link svg{display:block;flex-shrink:0}
