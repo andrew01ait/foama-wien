@@ -1,7 +1,7 @@
-import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.11.7';
-import {connectionRequestIds} from './connection-detail.mjs?v=0.11.7';
-import {journeyBoardingTargets} from './journey-planning.mjs?v=0.11.7';
-import {mergeJourneyResults} from './journey-options.mjs?v=0.11.7';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.11.8';
+import {connectionRequestIds} from './connection-detail.mjs?v=0.11.8';
+import {journeyBoardingTargets} from './journey-planning.mjs?v=0.11.8';
+import {mergeJourneyResults} from './journey-options.mjs?v=0.11.8';
 
 export const viennaInput=(date=new Date())=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Vienna',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date).replace(' ','T');
 export function viennaTime(value){

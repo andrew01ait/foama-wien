@@ -1,9 +1,9 @@
 {
-  "version": "0.11.7",
+  "version": "0.11.8",
   "wearVersionCode": 26,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
   "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Fahrzeuge im Anflug direkt in Stationsdetails und A-nach-B-Favoriten zwischen Schema und Karte umschalten. Auswahl, Fahrtrichtung und Zuordnung bleiben beim Wechsel erhalten. Verständliche Fahrzeugkennungen mit Linie, zum Beispiel U6 · 01 oder 48A · 02.",
+  "changelog": "Fahrzeuge im Anflug direkt in Stationsdetails und A-nach-B-Favoriten zwischen Schema und Karte umschalten. Auswahl, Fahrtrichtung und Zuordnung bleiben beim Wechsel erhalten. Verständliche Fahrzeugkennungen mit Linie, zum Beispiel U6 · 01 oder 48A · 02. Die Karte behält ihre geografische Mitte auch nach einem Breitenwechsel.",
   "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3842666,

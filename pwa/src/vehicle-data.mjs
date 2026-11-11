@@ -1,7 +1,7 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.7';
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.7';
-import {createLineMaps,preferredLinePattern} from './line-maps.mjs?v=0.11.7';
-import {decodeVehiclePilot,validateVehiclePilot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.7';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.8';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.8';
+import {createLineMaps,preferredLinePattern} from './line-maps.mjs?v=0.11.8';
+import {decodeVehiclePilot,validateVehiclePilot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.8';
 
 export function stationVehicleTracks(state,range){
  const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -41,7 +41,7 @@ export function createVehicleData({fetch=globalThis.fetch,get=getCatalogue,put=p
  async function index(){
   if(setup)return setup;
   setup=(async()=>{const manifest=await timetable.metadata();if(!manifest)throw Error('Fahrplanbasis fehlt. Bitte einmal online öffnen.');let index;const key='vehicles:index:v3';
-   try{const response=await fetch('./data/vehicle-pilot/index.json?v=0.11.7&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();index=await response.json();}catch{index=await get(key).catch(()=>null);}
+   try{const response=await fetch('./data/vehicle-pilot/index.json?v=0.11.8&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();index=await response.json();}catch{index=await get(key).catch(()=>null);}
    if(index?.format!==3||index.city!=='wien'||index.version!==manifest.version||index.sourceSha256!==manifest.sourceSha256||!Array.isArray(index.lines)||index.lines.length>400||index.lines.some(l=>!['metro','tram','bus'].includes(l.mode)||typeof l.route!=='string'||l.id!==l.mode+'|'+l.route||!/^[a-f0-9]{16}\.json$/.test(l.file)||!/^[a-f0-9]{64}$/.test(l.sha256)))throw Error('Fahrzeugübersicht fehlt oder gehört zu einem anderen Fahrplan.');
    await put(key,index).catch(()=>{});return {manifest,index};})();
   try{return await setup;}catch(error){setup=null;throw error;}

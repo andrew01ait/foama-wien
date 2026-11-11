@@ -1,3 +1,7 @@
+## PWA 0.11.8 · Kartenzentrum bei Breitenwechsel erhalten · 11.11.2026
+
+Öffentliche Browserabnahme von 0.11.7: Karte/Schema bei 337 px Inhaltsbreite ohne Überlauf (Schema clientWidth/scrollWidth 281 px), echte 48A-Kennung und Auswahl beim Wechsel erhalten. Beim erneuten Öffnen einer in der Breite veränderten Karte ließ pan:false die geografische Mitte auswandern. Größenabgleich verwendet nun pan:true ohne Animation; laufende Datenupdates passen weiterhin weder Zoom noch Ausschnitt neu ein. Die bewusste Aktion Ausschnitt zeigen bleibt verfügbar. Bestehende Regression prüft das Zentrierungsverhalten beim Wiederanzeigen. Keine neue native APK.
+
 ## PWA 0.11.7 · Schema/Karte in Stationsansichten und verständliche Fahrtkennungen · 11.11.2026
 
 Eingebettete Fahrzeuge im Anflug in Stations-/Verbindungsdetails und A-nach-B-Einstiegen/Favoriten bieten Schema und Karte für denselben Ausschnitt (bis zu fünf Halte davor, zwei danach). Schema vorbelegt, Kartenmodul/Kacheln erst auf bewusste Auswahl. Beide Darstellungen teilen Tracker, Richtung, temporäre Identität und Auswahl; Wechsel erzeugt keinen zusätzlichen Monitorabruf. Die Karte behält den vom Nutzer gewählten Ausschnitt bei Updates und Ansichtwechseln. Geometrie aus exakt derselben Streckenvariante, Zielhalt hervorgehoben, eigene Aktion Ausschnitt zeigen. Schließen/Hintergrund beenden die Kachelebene und verwerfen späte Modulantworten; Schema bleibt bei Kartenfehlern wählbar. Offener Panelknoten und Fokus bleiben bei Routineupdates erhalten.

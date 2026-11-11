@@ -1,6 +1,6 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.7';
-import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.11.7';
-import {connectionMonitorUrl} from './connection-detail.mjs?v=0.11.7';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.8';
+import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.11.8';
+import {connectionMonitorUrl} from './connection-detail.mjs?v=0.11.8';
 
 const abort=signal=>{if(signal?.aborted)throw new DOMException('Beendet','AbortError');};
 export function nearestLineStop(points,pointer,fallback){

@@ -45,8 +45,8 @@ test('tapping a vehicle again deselects it, and selecting another clears the fir
 });
 
 function leaflet(){
- const stats={maps:0,fits:0,removed:0,added:0,tileRemoved:0,stops:[],markers:[],paths:[]};
- const map={invalidateSize(){},fitBounds(){stats.fits++;},stop(){},remove(){stats.removed++;}};
+ const stats={maps:0,fits:0,removed:0,added:0,tileRemoved:0,stops:[],markers:[],paths:[],resizes:[]};
+ const map={invalidateSize(options){stats.resizes.push(options);},fitBounds(){stats.fits++;},stop(){},remove(){stats.removed++;}};
  const layer=()=>({addTo(){return this;},removeLayer(marker){marker.removed=true;}});
  const L={map(){stats.maps++;return map;},latLngBounds:points=>({points,pad(){return this;}}),layerGroup:layer,divIcon:options=>options,
   tileLayer(){return {on(){return this;},off(){},addTo(){stats.added++;return this;},remove(){stats.tileRemoved++;}};},
@@ -98,6 +98,7 @@ test('map updates preserve user framing, use readable line labels and remove exp
   const track={id:'48A-R5-T001',position:{progress:range.center-1,next:range.center,basis:'interpolated'},status:'Plausibel'},outside={...track,id:'48A-R5-T002',position:{...track.position,progress:range.end+1}};view.render({at:1,tracks:[track,outside]});assert.equal(h.stats.markers.length,1);const marker=h.stats.markers[0],before=marker.point;
   assert.match(marker.options.icon.html,/48A · 01/);assert.doesNotMatch(marker.options.icon.html,/R5|T001/);marker.click();assert.equal(selected,track.id);view.setSelected(selected);assert.equal(marker.node.attributes['aria-pressed'],'true');
   track.position.progress+=.5;view.render({at:1,tracks:[track]});assert.notDeepEqual(marker.point,before);assert.equal(h.stats.fits,1,'routine movement must not fit or recenter the map');view.hide();await view.show();assert.equal(h.stats.maps,1);assert.equal(h.stats.fits,1,'switching back retains the user map bounds');
+  assert.ok(h.stats.resizes.every(options=>options.pan!==false&&!options.animate),'revealing a resized map preserves its geographic center without animation');
   view.render({at:1,tracks:[]});assert.equal(marker.removed,true);view.dispose();assert.equal(h.stats.removed,1);
  }finally{d.restore();}
 });

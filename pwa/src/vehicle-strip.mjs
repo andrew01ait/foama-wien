@@ -1,8 +1,8 @@
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.7';
-import {routeColor} from './journey-geometry.mjs?v=0.11.7';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.7';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.7';
-import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.7';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.8';
+import {routeColor} from './journey-geometry.mjs?v=0.11.8';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.8';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.8';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.8';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 

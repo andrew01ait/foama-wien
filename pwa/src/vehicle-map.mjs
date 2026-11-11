@@ -1,8 +1,8 @@
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.7';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.7';
-import {pilotGeometry} from './vehicle-tracker.mjs?v=0.11.7';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.7';
-import {stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.7';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.8';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.8';
+import {pilotGeometry} from './vehicle-tracker.mjs?v=0.11.8';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.8';
+import {stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.8';
 
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -21,7 +21,7 @@ export function createStationVehicleMap({direction,range,line,loadMap=ensureJour
  const canvas=element.querySelector('.station-vehicle-map-canvas'),note=element.querySelector('.station-vehicle-map-note'),status=element.querySelector('.vehicle-strip-status'),fit=element.querySelector('button');
  const markers=new Map();let map,tiles,vehicles,L,geometry,lastState,chosen='',shown=false,disposed=false,revision=0,tilesAdded=false;
  const active=own=>!disposed&&shown&&isCurrent()&&(own==null||own===revision);
- function fitRange(){if(!active()||!map)return;map.invalidateSize({pan:false});map.fitBounds(L.latLngBounds(geometry.path).pad(.12),{padding:[26,32],maxZoom:16,animate:false});}
+ function fitRange(){if(!active()||!map)return;map.invalidateSize({pan:true,animate:false});map.fitBounds(L.latLngBounds(geometry.path).pad(.12),{padding:[26,32],maxZoom:16,animate:false});}
  fit.addEventListener('click',fitRange);
  function render(state){
   if(disposed)return;lastState=state;status.textContent=stationVehicleStatus(state,direction,range,chosen);
@@ -45,7 +45,7 @@ export function createStationVehicleMap({direction,range,line,loadMap=ensureJour
     direction.stops.slice(range.start,range.end+1).forEach((stop,k)=>{const current=range.start+k===range.center;L.circleMarker([stop.lat,stop.lon],{radius:current?8:5,weight:current?3:2,color:current?'#074b3b':routeColor(direction.route,direction.mode),fillColor:current?'#73e0b7':'#fff',fillOpacity:1}).addTo(map).bindPopup(document.createTextNode((current?'Deine Haltestelle: ':'')+stop.name));});
     vehicles=L.layerGroup().addTo(map);fit.disabled=false;fitRange();note.textContent='Deine Haltestelle ist mintfarben hervorgehoben.';
    }
-   if(!active(own))return;if(!tilesAdded){tiles.addTo(map);tilesAdded=true;}map.invalidateSize({pan:false});if(lastState)render(lastState);
+   if(!active(own))return;if(!tilesAdded){tiles.addTo(map);tilesAdded=true;}map.invalidateSize({pan:true,animate:false});if(lastState)render(lastState);
   }catch{if(active(own))note.textContent='Karte gerade nicht verfügbar. Du kannst jederzeit zum Schema wechseln.';}
  }
  function hide(){shown=false;revision++;map?.stop();if(tilesAdded){tiles.remove();tilesAdded=false;}}
