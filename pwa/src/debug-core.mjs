@@ -9,7 +9,7 @@ export function sanitizeDebugEvent(event={}){
   stopCount:number(event.stopCount),departureCount:number(event.departureCount),noticeCount:number(event.noticeCount)};
 }
 export function appendDebugEvent(previous,next){return [...(Array.isArray(previous)?previous:[]).map(sanitizeDebugEvent),sanitizeDebugEvent(next)].slice(-60);}
-export function debugReport(events,environment={},version='0.11.3'){
+export function debugReport(events,environment={},version='0.11.4'){
  return {format:'foama-wien-debug-v1',generatedAt:new Date().toISOString(),app:'foama-wien',version,
   privacy:'Keine GPS-Koordinaten, Haltestellennamen/StopIDs, Favoriten, QR-Schlüssel, Standortfreigabe, URLs oder API-Rohantworten protokolliert.',
   environment:{secureContext:!!environment.secureContext,online:!!environment.online,serviceWorkerControlled:!!environment.serviceWorkerControlled,pageProtocol:environment.pageProtocol==='https:'?'https:':'http:'},

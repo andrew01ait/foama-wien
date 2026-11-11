@@ -1,7 +1,7 @@
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.3';
-import {routeColor} from './journey-geometry.mjs?v=0.11.3';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.3';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.3';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.4';
+import {routeColor} from './journey-geometry.mjs?v=0.11.4';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.4';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.4';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 

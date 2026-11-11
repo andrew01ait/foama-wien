@@ -1,3 +1,7 @@
+## PWA 0.11.4 · Kontrast grauer Stadtmarker · 11.11.2026
+
+Bestehende 397 Web-/Server-Tests bestanden. Visuelle Browserprüfung einer lokalen Darstellungsprobe über echten OpenStreetMap-Kacheln: Zug, Tram und Bus, Zuordnungslücke und veralteter Stand, ungewählt und ausgewählt, jeweils in hellem und dunklem App-Farbschema. Tatsächliche Markergröße 36 × 36 px, volle Deckkraft, transparenter Außenrahmen, deckende graue Fläche rgb(75,85,99), Symbol rgb(249,250,251); berechneter Symbol-/Flächenkontrast 7,23:1. Die beiden App-Farbschemata ändern diesen Kartenkontrast nicht. Keine neuen Tests für die reine CSS-Korrektur; Modell-/Abrufverhalten unverändert. Die lokale QA-Seite wird weder veröffentlicht noch dem Quellpaket beigefügt.
+
 ## PWA 0.11.3 · Toggle, verlorene Marker und beide Tram-46-Richtungen · 11.11.2026
 
 397 Web-/Server-Tests, 18 Python-Prüfungen, 82 JavaScript-Syntaxprüfungen. Neue Regressionen prüfen echtes Abwählen, Folgenende, Entfernen überholter gehaltener Lagen, ausbleibendes Entfernen bei Überlappung/Quellenausfall/einem einzelnen Anker und erneute Zwei-Quellen-Bestätigung. Alle 165 Pakete/617 Varianten bleiben quell-, kalender-, geometrie- und plattformgebunden. Importprüfung: vollständige reguläre Stationsfolge schlägt historische Umleitungsteilfolge, vollständiger Richtungskonflikt bleibt offen.

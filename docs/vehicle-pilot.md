@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.3, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.4, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Ansichten und Einstiege
 
@@ -14,7 +14,7 @@ PWA 0.11.3, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.
 
 Der horizontale Ausschnitt läuft in tatsächlicher Fahrtfolge von links nach rechts. Die gewählte Station ist hervorgehoben. Am Linienanfang/-ende werden fehlende Nachbarn nicht durch andere Stationen aufgefüllt. Der gesamte Ausschnitt passt ohne horizontales Scrollen in die Bildschirmbreite. Nummerierte Halte und eine kompakte Namensliste darunter halten alle Namen vollständig lesbar. Fahrzeug- und Haltekoordinaten verwenden dieselbe relative Skala. Fahrzeug-Symbole für Zug, Tram und Bus, temporäre IDs, Tastaturbedienung und reduzierte Bewegung werden unterstützt. Die ganze Strecke bleibt über den Link erreichbar.
 
-Zweites Antippen derselben Fahrt hebt die Auswahl auf und beendet aktives Folgen. Unsichere Lagen werden als graues Symbol ohne gestrichelten Rahmen dargestellt. Auf schmalen Bildschirmen stehen die drei Ansichtsschalter in einer vollen Zeile, darunter Start/Pause; eine einzelne Streckenvariante benötigt keinen redundanten Auswahlschalter. Der Desktop-Inhalt nutzt bis zu 1000 px.
+Zweites Antippen derselben Fahrt hebt die Auswahl auf und beendet aktives Folgen. Unsichere Lagen werden ohne gestrichelten Rahmen dargestellt. Auf der Stadtkarte liegt ein helles Symbol auf einer deckenden dunkelgrauen Fläche mit dezentem Schatten, damit es sich unabhängig vom App-Farbschema vom Kartenhintergrund abhebt. Auf schmalen Bildschirmen stehen die drei Ansichtsschalter in einer vollen Zeile, darunter Start/Pause; eine einzelne Streckenvariante benötigt keinen redundanten Auswahlschalter. Der Desktop-Inhalt nutzt bis zu 1000 px.
 
 ## Reproduzierbare öffentliche Datenbasis
 

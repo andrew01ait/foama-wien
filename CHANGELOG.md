@@ -1,3 +1,7 @@
+## PWA 0.11.4 · graue Fahrzeuge auf Stadtkarte lesbar · 11.11.2026
+
+Die transparente Darstellung unsicherer Fahrzeuge ließ das graue Symbol mit Straßen, Linien und Stationspunkten verschmelzen. Ausschließlich die Stadtkarte verwendet für unsichere oder veraltete Marker jetzt eine deckende neutrale dunkelgraue Fläche (#4b5563), ein helles Symbol (#f9fafb) und einen dezenten Schatten. Volle Deckkraft und derselbe Kontrast in beiden App-Farbschemata; kein gestrichelter oder grauer Außenrahmen. Markerauswahl, Fahrt-ID und Tracker unverändert. Neuer PWA-Cache; Wear 0.7.4/26 erhalten.
+
 ## PWA 0.11.3 · Tram 46 in beide Richtungen und klarere Fahrzeugansicht · 11.11.2026
 
 Zweites Antippen wählt eine Fahrt in Karte, Schema, Liste und Stationsausschnitt wieder ab und beendet aktives Folgen. Unsichere/fehlende Lagen erscheinen als graues Symbol ohne gestrichelten Rahmen. Eine alte gehaltene Lage wird ausgeblendet, wenn eine frisch bestätigte spätere Fahrt sie passiert hat: gleicher Zielbezug, mindestens zwei gemeinsame frische Stationsanker mit späteren Sollzeiten und zwei Quellenstände. Überlappende frische Fahrten oder ein Quellenausfall löschen keinen Marker. Erneute Darstellung einer entfernten ID benötigt wieder zwei Quellenstände; 60/90-s-Fristen bleiben erhalten.
