@@ -1,3 +1,9 @@
+## PWA 0.10.2 · kompakter Footer · 11.11.2026
+
+Monitor-Footer trennt Metadaten und gemeinsame Linknavigation. Lizenzen stehen bei den übrigen Links; alleinstehender Trennpunkt und zusätzliche Abstände zwischen umgebrochenen Linkzeilen entfallen. 44-px-Tippflächen bleiben erhalten. Installierte Monitor-PWA nutzt unten nur 20 px plus Safe Area; Browser-Editor-Abstand und andere Seiten behalten ihre bisherigen Regeln. Wear 0.7.4/26 unverändert.
+
+Bestehende 361 Web-/Server-Tests, zwölf Python-Prüfungen und 77 JavaScript-Syntaxprüfungen; keine zusätzlichen Tests für die reine Layoutkorrektur. Browser-Abnahme wegen der bestehenden URL-Richtliniensperre weiterhin offen.
+
 ## PWA 0.10.1 · ganze U6, Kontinuität und Symbole · 11.11.2026
 
 Ganzlinienpilot Floridsdorf–Siebenhirten, 24 Stationen je Richtung und 23 verifizierte Abfahrts-RBLs pro gemeinsam begrenztem Request. Scrollbares Schema mit 100 px Stationsabstand und Fahrt folgen in beiden Ansichten. Zug-SVG und temporäre ID in Karte, Schema und Liste; Bus-/Tram-Symbole für spätere Modusanbindung. Kurze Lücken und Korrekturen halten die letzte Lage grau unter gleicher ID; eindeutige andere Zuordnungen laufen weiter. Nach 90 Sekunden ohne aktuelle Ableitung weiterhin ausdrücklich ausblenden. Tatsächlich ausgelassene Halte/Kurzführungen erhalten, letzte Endstationsanfahrt unsicher aus Sollzeit schätzen. Komprimiertes Format-2-Paket mit Quellen-/Kalenderbindung.

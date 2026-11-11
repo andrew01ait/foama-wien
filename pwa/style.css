@@ -341,3 +341,12 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 .connection-walk{margin:14px 0 9px}
 
 .connection-refresh-status{min-height:0;margin:0 2px 18px}
+
+/* Compact monitor footer; keep the existing browser editor clearance. */
+#appFooter{display:block;margin-top:20px;padding:16px 0 8px;font-size:11px;line-height:1.5}
+#appFooter[hidden]{display:none}
+#appFooter .footer-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 12px}
+#appFooter .footer-source{flex-basis:100%}
+#appFooter .related-apps{margin-top:8px;gap:0 16px;justify-content:flex-start;align-items:stretch}
+#appFooter .related-apps a{min-height:44px;max-width:100%;padding:8px 0;line-height:1.4;overflow-wrap:anywhere}
+@media(display-mode:standalone){body:not(.connection-open) .app.monitor-app{padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}}
