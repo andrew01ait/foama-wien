@@ -1,6 +1,14 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.10, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.11, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+
+## Grafischer Datenstand ab 0.11.11
+
+Die ganze Fahrzeugseite sowie eingebettete Stations-/A-nach-B-Bereiche zeigen vier Schritte: **Strecke**, **Stationsdaten**, **Fahrtenabgleich**, **Bestätigung**. Grüne Haken zeigen Vorhandenes, ein bernsteinfarbener Schritt das aktuell Fehlende, neutrale Zahlen spätere Schritte. Dazu kommen Abdeckung (z. B. 8/8 Halte), Anzahl nutzbarer Live-Prognosen, Fahrtkandidaten und 1/2 bzw. 2/2 passende Quellenstände. Teilabdeckung bleibt erkennbar.
+
+Der Countdown bezieht sich auf den nächsten tatsächlichen gemeinsamen Abruf einschließlich Backoff. Ein Fahrzeug erscheint erst nach passender Bestätigung und ableitbarer Lage. Eine Zeitangabe ist deshalb ausdrücklich ein frühester Zeitpunkt zuzüglich Antwortzeit; bei fehlenden/mehrdeutigen Stationsfolgen ist noch keine belastbare Dauer möglich. Identische wiederholte Quellenstände zählen nicht doppelt, gehaltene alte Fahrten nicht als frisch bestätigt. Fahrzeuge außerhalb des gewählten Ausschnitts, pausierte Anzeige, Datenalter und Quellenfehler erhalten eigene Erklärungen. Countdown-Updates ersetzen nicht die zugängliche Statusüberschrift. Die Darstellung startet keine zusätzlichen Abfahrtsanfragen.
+
+Dein eigener GPS-Standort erscheint bei vorhandener Freigabe als blauer Punkt auf den geografischen Karten; er ist vollständig unabhängig von den geschätzten Fahrzeugpositionen. [Standortdarstellung](map-position.md).
 
 ## Ansichten und Einstiege
 

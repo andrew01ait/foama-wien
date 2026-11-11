@@ -1,3 +1,11 @@
+## PWA 0.11.11 · Kartenposition und grafischer Datenstand · 11.11.2026
+
+422 Web-/Server-Tests, 18 Python-Prüfungen und 83 JavaScript-Syntaxprüfungen bestanden. 14 neue Tests prüfen gültige/frische/grobe Kartenfixes, einen geteilten freigegebenen Watch, keinen Aufruf bei prompt/denied/fehlender Permissions-API, Nutzung des Monitor-Controllers und Wechsel zu einem eigenständigen Kartenfix bei inaktivem Controller, Alter/Fehler/Widerruf, Hintergrund/Schließen/Dispose und verspätete Antworten. Reale Leaflet-Adapterverträge mit Positionswechsel, Genauigkeitskreis, eigenem Zentrierknopf und unverändertem Ausschnitt geprüft. Keine tatsächlichen Gerätekoordinaten in Fixtures.
+
+Readiness-Tests prüfen Basis-/Live-/Kandidaten-/Bestätigungsstufen, tatsächlichen Abruf-Countdown, Teilabdeckung, leere Prognosen, wiederholte oder alte Quellenstände, mehrdeutige/alte gehaltene Fahrten, Fahrzeuge außerhalb des Ausschnitts, Pause und Backoff. Bestehende Monitor-/Tracker-/Schema-/Kartenprüfungen bleiben grün. Alle 179 Offline-Shell-Pfade vorhanden. Original-Wear-APK 0.7.4/26 aus Feedgröße und SHA-256 verifiziert.
+
+Browserprobe: echte Fahrzeugseite mit geografischer Karte, vier grafischen Stufen, Freigabe-fremdem deaktivierten Standortknopf und gestarteter Live-Abfrage geprüft. Der gemeinsame Preview-Port wechselte anschließend auf ein anderes Projekt; keine weitere fremde Vorschau beendet. Eine vorbereitete lokale Seite mit simuliertem Standort wird nicht veröffentlicht. Visuelle Telefon-/öffentliche Abnahme anschließend, physische GPS-/Fahrtenabnahme separat.
+
 ## PWA 0.11.10 · doppelte Linie 46 und Fahrzeugstart · 11.11.2026
 
 408 Web-/Server-Tests und 18 Python-Prüfungen bestanden. Vier zusätzliche Regressionen prüfen den belegten Tram-46-Endstationsalias einschließlich Fallback, Favorit/Detail/Monitorseite und abweichenden Zielen/Modi/Stationen; parallele Katalog-/Paketdownloads und Vereinigung derselben Linienanfrage; 30-s-Startabstand trotz achtsekündiger Antwort; fremde gemeinsame Abfragesperre. Bestehende Tests erhalten Zwei-Quellen-Bestätigung, Hash-/Kalenderbindung, Backoff und Hintergrundabbruch.

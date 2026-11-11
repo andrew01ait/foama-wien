@@ -1,8 +1,9 @@
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.10';
-import {routeColor} from './journey-geometry.mjs?v=0.11.10';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.10';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.10';
-import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.10';
+import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.11';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.11';
+import {routeColor} from './journey-geometry.mjs?v=0.11.11';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.11';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.11';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.11';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 
@@ -24,12 +25,13 @@ export function createHorizontalVehicleStrip({direction,range,color=routeColor(d
 let panelSession=0;
 export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource=source,mapFactory=createStationVehicleMap}={}){
  const element=document.createElement('details'),panelId='station-vehicles-'+(++panelSession);element.className='station-vehicle-panel';
- element.innerHTML='<summary>Fahrzeuge im Anflug</summary><div class="station-vehicle-body"><div class="station-vehicle-heading"><h3>Stationsausschnitt</h3><a class="station-vehicle-full" href="'+escape(vehicleUrl({...target,view:'schema'}))+'" aria-label="Ganze Linie in Karte und Schema öffnen">Ganze Linie <span aria-hidden="true">↗</span></a></div><p class="fineprint">Bis zu fünf Halte vor deiner Station und zwei danach.</p><label>Richtung &amp; Strecke <select aria-label="Richtung und Strecke für Fahrzeugschätzung"></select></label><div class="station-vehicle-view-switch" role="group" aria-label="Darstellung der Fahrzeuge im Anflug"><button type="button" data-vehicle-view="schema" aria-pressed="true" aria-controls="'+panelId+'-schema" disabled>Schema</button><button type="button" data-vehicle-view="map" aria-pressed="false" aria-controls="'+panelId+'-map" disabled>Karte</button></div><div id="'+panelId+'-schema" class="station-vehicle-strip"></div><div id="'+panelId+'-map" class="station-vehicle-map-holder" hidden></div><p class="station-vehicle-message" role="status"></p></div>';
+ element.innerHTML='<summary>Fahrzeuge im Anflug</summary><div class="station-vehicle-body"><div class="station-vehicle-heading"><h3>Stationsausschnitt</h3><a class="station-vehicle-full" href="'+escape(vehicleUrl({...target,view:'schema'}))+'" aria-label="Ganze Linie in Karte und Schema öffnen">Ganze Linie <span aria-hidden="true">↗</span></a></div><p class="fineprint">Bis zu fünf Halte vor deiner Station und zwei danach.</p><label>Richtung &amp; Strecke <select aria-label="Richtung und Strecke für Fahrzeugschätzung"></select></label><div class="station-vehicle-view-switch" role="group" aria-label="Darstellung der Fahrzeuge im Anflug"><button type="button" data-vehicle-view="schema" aria-pressed="true" aria-controls="'+panelId+'-schema" disabled>Schema</button><button type="button" data-vehicle-view="map" aria-pressed="false" aria-controls="'+panelId+'-map" disabled>Karte</button></div><div class="station-vehicle-readiness"></div><div id="'+panelId+'-schema" class="station-vehicle-strip"></div><div id="'+panelId+'-map" class="station-vehicle-map-holder" hidden></div><p class="station-vehicle-message" role="status"></p></div>';
  const select=element.querySelector('select'),message=element.querySelector('.station-vehicle-message'),holder=element.querySelector('.station-vehicle-strip'),mapHolder=element.querySelector('.station-vehicle-map-holder'),full=element.querySelector('.station-vehicle-full'),schemaButton=element.querySelector('[data-vehicle-view="schema"]'),mapButton=element.querySelector('[data-vehicle-view="map"]');
- select.disabled=true;let disposed=false,generation=0,packageData=null,tracker=null,direction=null,range=null,strip=null,mapView=null,view='schema',chosen='',animation=0,lastFrame=0;
+ const readiness=createVehicleReadiness();element.querySelector('.station-vehicle-readiness').append(readiness.element);
+ select.disabled=true;let disposed=false,generation=0,packageData=null,tracker=null,direction=null,range=null,strip=null,mapView=null,view='schema',chosen='',animation=0,lastFrame=0,waitingUntil=0,lastAttempt=0,requesting=false,repeated=false;
  const active=own=>!disposed&&own===generation&&element.open&&!document.hidden;
  function ids(){return !disposed&&element.open&&!document.hidden?range?.ids||[]:[];}
- function draw(){if(!tracker)return;const state=tracker.view();if(view==='map')mapView?.render(state);else strip?.render(state);}
+ function draw(){if(!tracker)return;const state=tracker.view();readiness.render({stage:'ready',state,range,requesting,waitingUntil,repeated});if(view==='map')mapView?.render(state);else strip?.render(state);}
  function selectVehicle(id){chosen=id;strip?.setSelected(id);mapView?.setSelected(id);}
  function syncView(){
   holder.hidden=view!=='schema';mapHolder.hidden=view!=='map';schemaButton.setAttribute('aria-pressed',String(view==='schema'));mapButton.setAttribute('aria-pressed',String(view==='map'));
@@ -46,19 +48,19 @@ export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource
  function choose(id){
   const original=packageData.data.directions.find(d=>d.id===id);if(!original)return;
   const trips=target.towards?original.trips.filter(t=>vehicleTargetMatches(original,t.towards,target.towards)):original.trips;
-  mapView?.dispose();mapView=null;chosen='';direction={...original,trips};range=stationVehicleRange(direction,target.stopId);tracker=createVehicleTracker(direction,packageData.manifest,{prefix:direction.route+'-'+direction.monitorDirection+(++session)});
+  mapView?.dispose();mapView=null;chosen='';waitingUntil=0;requesting=false;repeated=false;direction={...original,trips};range=stationVehicleRange(direction,target.stopId);tracker=createVehicleTracker(direction,packageData.manifest,{prefix:direction.route+'-'+direction.monitorDirection+(++session)});
   strip=createHorizontalVehicleStrip({direction,range,onSelect:selectVehicle});holder.replaceChildren(strip.element);mapHolder.replaceChildren();select.value=id;schemaButton.disabled=false;mapButton.disabled=false;
   message.textContent='Frische Stationsmeldungen werden beim nächsten gemeinsamen Abruf geladen.';syncView();onIdsChanged();resume();
  }
  async function load(){
-  const own=++generation;message.textContent='Linienverlauf wird geladen …';
+  const own=++generation;readiness.render({stage:'line'});message.textContent='Linienverlauf wird geladen …';
   try{const {index}=await dataSource.index();if(!active(own))return;const entry=index.lines.find(l=>l.route===target.route&&l.mode===target.mode);if(!entry)throw Error('Für diese Linie ist noch keine eindeutige Fahrzeugschätzung verfügbar.');const loaded=await dataSource.line(entry);if(!active(own))return;
    packageData=loaded;let candidates=loaded.data.directions.filter(d=>d.stops.some(s=>s.id===target.stopId)&&(!target.towards||d.trips.some(t=>vehicleTargetMatches(d,t.towards,target.towards))));if(!candidates.length)throw Error('Diese Station und Fahrtrichtung ist noch nicht eindeutig zugeordnet.');
    const sided=candidates.filter(d=>target.rbls?.includes(d.stops.find(s=>s.id===target.stopId)?.rbl));if(sided.length)candidates=sided;select.disabled=false;const filtered={...loaded.data,directions:candidates},preferred=preferredVehicleDirection(filtered,loaded.line,loaded.manifest,{stopId:target.stopId,towards:target.towards});select.innerHTML=candidates.map(d=>`<option value="${escape(d.id)}">→ ${escape(d.towards)} · ab ${escape(d.stops[0].name)} · ${d.stops.length} Halte</option>`).join('');choose(preferred.id);
-  }catch(error){if(active(own)){range=null;message.textContent=error.message;onIdsChanged();}}
+  }catch(error){if(active(own)){range=null;readiness.render({stage:'line',error:error.message});message.textContent=error.message;onIdsChanged();}}
  }
  element.addEventListener('toggle',()=>{if(disposed)return;if(element.open){if(packageData&&direction){onIdsChanged();syncView();resume();}else void load();}else{generation++;cancelAnimationFrame(animation);mapView?.hide();onIdsChanged();}});
  select.addEventListener('change',()=>choose(select.value));schemaButton.addEventListener('click',()=>setView('schema'));mapButton.addEventListener('click',()=>setView('map'));
  const visibility=()=>{if(document.hidden){generation++;cancelAnimationFrame(animation);mapView?.hide();}else if(element.open){if(packageData&&direction){syncView();resume();}else void load();}};document.addEventListener('visibilitychange',visibility);
- return {element,ids,ingest(raw){if(!ids().length||!tracker)return;try{tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),ids()));message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
+ return {element,ids,waiting(ms){requesting=false;waitingUntil=Date.now()+ms;draw();},requesting(at=Date.now()){lastAttempt=at;requesting=true;draw();},ingest(raw){if(!ids().length||!tracker)return;try{requesting=false;waitingUntil=lastAttempt?lastAttempt+30000:0;repeated=tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),ids()))?.ignored===true;message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){requesting=false;tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
 }

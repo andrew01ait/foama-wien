@@ -1,12 +1,13 @@
-import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.11.10';
+import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.11.11';
+import {installMapPositions} from './map-position.mjs?v=0.11.11';
 let pending;
 export function ensureJourneyMap(){
- if(window.L)return Promise.resolve(window.L);
+ if(window.L)return Promise.resolve(installMapPositions(window.L));
  if(pending)return pending;
  pending=new Promise((resolve,reject)=>{
   if(!document.querySelector('[data-leaflet-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='./vendor/leaflet/leaflet.css';css.dataset.leafletCss='true';document.head.append(css);}
   const script=document.createElement('script'),timer=setTimeout(()=>{script.remove();pending=null;reject(Error('Karte konnte nicht geladen werden.'));},12000);
-  script.src='./vendor/leaflet/leaflet.js';script.onload=()=>{clearTimeout(timer);if(window.L)resolve(window.L);else{pending=null;reject(Error('Karte nicht verfügbar.'));}};script.onerror=()=>{clearTimeout(timer);pending=null;reject(Error('Karte nicht verfügbar.'));};document.head.append(script);
+  script.src='./vendor/leaflet/leaflet.js';script.onload=()=>{clearTimeout(timer);if(window.L)resolve(installMapPositions(window.L));else{pending=null;reject(Error('Karte nicht verfügbar.'));}};script.onerror=()=>{clearTimeout(timer);pending=null;reject(Error('Karte nicht verfügbar.'));};document.head.append(script);
  });return pending;
 }
 const nameNode=(name)=>{const title=document.createElement('strong');title.textContent=name;return title;};

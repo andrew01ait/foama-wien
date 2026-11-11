@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.10 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.11 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -64,3 +64,5 @@ Frühere Architekturentscheidungen stehen im [Archiv](history/architecture-befor
 Fahrzeugkontinuität: Auswahl ist umschaltbar; entfernte gehaltene Marker benötigen bei Rückkehr erneut zwei Quellenstände. Bestätigte Folgefahrten können überholte alte Lagen anhand zweier gemeinsamer frischer Sollzeitanker ausblenden. Bus-/Tram-Profile dürfen bei fehlenden nahen Slots vom aktuellen gültigen Betriebstag derselben Variante stammen. Die strengere Live-Stationskette bleibt erforderlich. Vollständig identische öffentliche Fahrwegfolgen haben im Import Vorrang vor historischen Umleitungsteilfolgen; keine unscharfe Plattformzuordnung.
 
 Fahrzeugstart ab 0.11.10: unabhängige Katalog-/Paketdownloads parallel, maximal vier geprüfte Linienpakete im Seitenspeicher und gemeinsame laufende Downloads je Linie. Monitorzyklus ab Requestbeginn, weiterhin gemeinsame 30-s-Sperre und zwei verschiedene Quellenstände. Endstationsalias für den belegten Parlament/Volkstheater-Endpunkt wird in Monitor, Fallback, Favoriten und Detailauswahl konsistent verwendet.
+
+Die gemeinsame Kartenschicht in `map-position.mjs` wird über die beiden Leaflet-Lader einmalig in alle Karten eingebunden. Der Monitor veröffentlicht ausschließlich echte GPS-Fixes aus seinem vorhandenen Controller; manuelle Auswahl ist kein Gerätefix. Andere Kartenseiten teilen einen nur bei erteilter Freigabe aktiven Vordergrund-Watch. `vehicle-readiness.mjs` berechnet rein lokal aus Trackerzustand und tatsächlichem Abrufplan die vier grafischen Stufen; es hat keinen eigenen Netzwerklauf. [Kartenposition](map-position.md).

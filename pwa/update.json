@@ -1,9 +1,9 @@
 {
-  "version": "0.11.10",
+  "version": "0.11.11",
   "wearVersionCode": 26,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
   "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Doppelte Linie 46 zum Volkstheater behoben. Fahrzeugansicht lädt unabhängige Daten parallel und bestätigt ohne zusätzliche Wartezeit nach der Antwort. Ganze Linie als Button neben Stationsausschnitt.",
+  "changelog": "Dein aktueller Standort als blauer Punkt mit Genauigkeitskreis auf allen interaktiven Karten, sofern verfügbar. Fahrzeuge im Anflug zeigt grafisch Strecke, Stationsdaten, Fahrtenabgleich und Bestätigung samt ehrlicher Warteanzeige.",
   "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3842666,

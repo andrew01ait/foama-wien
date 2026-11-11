@@ -1,0 +1,33 @@
+export function vehicleReadiness({stage='ready',state=null,range=null,running=true,paused=false,requesting=false,waitingUntil=0,repeated=false,error='',now=Date.now()}={}){
+ const dataReady=stage==='ready',fresh=state?.at&&!state.stale,tracks=fresh?state.tracks||[]:[],candidates=tracks.filter(t=>t.hits>0&&!t.blocked&&!t.retired&&!t.awaiting&&(!Number.isFinite(t.lastSeen)||t.lastSeen===state.at)),confirmed=candidates.filter(t=>t.hits>=2),visible=confirmed.filter(t=>t.position&&t.position.basis!=='held'&&(!range||t.position.progress>=range.start&&t.position.progress<=range.end)),best=Math.min(2,Math.max(0,...candidates.map(t=>t.hits))),anchors=Math.max(0,...candidates.map(t=>t.anchors?.size||0)),wait=Math.max(0,Math.ceil((waitingUntil-now)/1000)),problem=error||state?.problem||'';
+ const steps=[
+  {label:'Strecke',status:dataReady?'done':'active',detail:dataReady?'Fahrplan, Halte und Linienverlauf bereit':stage==='catalogue'?'Linienübersicht wird geladen':'Fahrplan und Linienverlauf werden geladen'},
+  {label:'Stationsdaten',status:fresh&&!state.partial?'done':dataReady?'active':'pending',detail:fresh?(state.coverage?.length||0)+' / '+state.expected+' Halte · '+state.rows.length+' Live-Prognosen'+(state.partial?' · weitere Halte fehlen':''):requesting?'Live-Abfrage läuft':state?.at?'Frischer Quellenstand fehlt':'Noch keine Live-Antwort'},
+  {label:'Fahrtenabgleich',status:candidates.length?'done':fresh?'active':'pending',detail:candidates.length?candidates.length+' Fahrtkandidat'+(candidates.length===1?'':'en')+' · '+anchors+' passende Halte':fresh?'Warte auf eindeutige Stationsfolgen':'Stationsprognosen werden verglichen'},
+  {label:'Bestätigung',status:confirmed.length?'done':candidates.length?'active':'pending',detail:confirmed.length?'2 / 2 Quellenstände bestätigt':best?'1 / 2 Quellenstände · ein neuer Stand fehlt':'Zwei passende Quellenstände nötig'}
+ ];
+ if(dataReady&&!running)for(const step of steps)if(step.status==='active')step.status='pending';
+ let title,detail,estimate='';
+ if(paused){title='Anzeige pausiert';detail='Beim Fortsetzen prüfen wir den aktuellen Quellenstand.';}
+ else if(problem){title='Live-Daten gerade nicht verfügbar';detail=problem;estimate=wait?'Nächster Versuch in '+wait+' s':'Warte auf den nächsten Live-Abruf.';}
+ else if(!dataReady){title='Linienbasis wird vorbereitet';detail='Die Daten sind je nach Verbindung unterschiedlich schnell verfügbar.';}
+ else if(!running){title='Bereit für Fahrzeuge im Anflug';detail='Starte die Anzeige, um Live-Prognosen abzugleichen.';estimate='Erste Fahrzeuge frühestens nach zwei passenden Quellenständen, meist ab etwa 30 s.';}
+ else if(visible.length){title=visible.length+' geschätzte'+(visible.length===1?'s Fahrzeug':' Fahrzeuge')+' sichtbar';detail='Stationsfolge und zwei unterschiedliche frische Quellenstände passen zusammen.';}
+ else if(confirmed.length){title=range?'Noch kein Fahrzeug im Ausschnitt':'Noch keine darstellbare Fahrzeuglage';detail=range?confirmed.length+' bestätigte Fahrt'+(confirmed.length===1?' liegt':'en liegen')+' derzeit außerhalb deines Ausschnitts.':'Fahrten sind bestätigt; eine passende aktuelle Lage fehlt noch.';}
+ else if(candidates.length){title='Erste Fahrten erkannt';detail=repeated?'Die Quelle hat noch keinen neueren Stand geliefert.':'Eine zweite passende Live-Meldung muss die Zuordnung bestätigen.';estimate=requesting?'Bestätigung wird gerade abgefragt.':wait?'Bestätigung frühestens in ca. '+wait+' s, zuzüglich Antwortzeit.':'Warte auf den nächsten unterschiedlichen Quellenstand.';}
+ else if(fresh){title='Live-Daten da · Fahrten noch nicht eindeutig';detail=state.rows.length?'Es fehlen ausreichend passende Stationsfolgen für eine verlässliche Lage.':'Für die gewählte Richtung liegen noch keine nutzbaren Live-Prognosen vor.';estimate='Erste Fahrzeuge lassen sich noch nicht zeitlich abschätzen.';}
+ else{title='Warte auf die erste Live-Meldung';detail=requesting?'Die Stationsdaten werden gerade abgefragt.':'Die gemeinsame Abfragepause wird eingehalten.';estimate=requesting?'Danach ist mindestens ein weiterer Quellenstand nötig.':'Erste Fahrzeuge frühestens in ca. '+(wait+30)+' s, zuzüglich Antwortzeit.';}
+ const next=paused||!running?'':requesting?'Live-Abfrage läuft':wait?'Nächste Live-Abfrage in '+wait+' s':dataReady?'Warte auf Live-Antwort':'';
+ return {steps,title,detail,estimate,next,complete:steps.filter(s=>s.status==='done').length,paused,problem:!!problem};
+}
+const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function createVehicleReadiness({doc=globalThis.document}={}){
+ const element=doc.createElement('section');element.className='vehicle-readiness';element.setAttribute('aria-label','Datenstand der Fahrzeuganzeige');let previous='';
+ element.innerHTML='<div class="vehicle-readiness-heading"><strong class="vehicle-readiness-title" role="status"></strong><span class="vehicle-readiness-count"></span></div><p class="vehicle-readiness-detail"></p><ol class="vehicle-readiness-steps"></ol><p class="vehicle-readiness-estimate"></p><p class="vehicle-readiness-next" aria-live="off"></p>';
+ const nodes=Object.fromEntries(['title','count','detail','steps','estimate','next'].map(key=>[key,element.querySelector('.vehicle-readiness-'+key)]));
+ const set=(key,value)=>{if(nodes[key].textContent!==value)nodes[key].textContent=value;};
+ function render(options){const model=vehicleReadiness(options),markup=model.steps.map((step,i)=>'<li data-state="'+step.status+'"><span class="vehicle-readiness-icon" aria-hidden="true">'+(step.status==='done'?'✓':i+1)+'</span><span><strong>'+escape(step.label)+'</strong><small>'+escape(step.detail)+'</small></span></li>').join('');
+  element.dataset.state=model.paused?'paused':model.problem?'error':model.complete===4?'ready':'loading';set('title',model.title);set('count',model.complete+' / 4');nodes.count.setAttribute('aria-label',model.complete+' von vier Schritten abgeschlossen');set('detail',model.detail);set('estimate',model.estimate);set('next',model.next);if(markup!==previous){nodes.steps.innerHTML=markup;previous=markup;}
+ }
+ render({stage:'catalogue'});return {element,render};
+}

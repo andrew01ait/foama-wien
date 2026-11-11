@@ -1,3 +1,9 @@
+## PWA 0.11.11 · Standort auf Karten und grafische Fahrzeugbereitschaft · 11.11.2026
+
+Alle interaktiven Leaflet-Karten erhalten einen gemeinsamen blauen aktuellen Standortpunkt, Genauigkeitskreis und 44-px-Zentrierknopf. Nur frische echte GPS-Fixes verwenden; manuelle Stations-/Routenstartpunkte bleiben getrennt. Kein automatisches Verschieben/Zoomen, kein Speichern/Export/Relay der Position. Im Monitor die vorhandene Ortung wiederverwenden; andere Kartenseiten nur bei bereits erteilter Freigabe und sichtbarer Karte, höchstens ein geteilter Watch. Hintergrund/Schließen/Ablauf/Fehler bereinigen. Stationskarte auch bei fehlendem Routenstart oder Routingausfall über denselben Kartenrenderer.
+
+Fahrzeuge im Anflug mit vier grafischen Datenstufen auf ganzer Seite und in eingebetteten Ausschnitten: Strecke, Stationsdaten, Fahrtenabgleich, Bestätigung. Abdeckung, Prognosen, Kandidaten und 1/2-/2/2-Quellenstände explizit. Tatsächlicher Abruf-Countdown einschließlich Backoff, frühestmögliche Bestätigung statt garantierter Fahrzeugzeit, eigene Zustände für wiederholte/fehlende/alte Quellen, keine eindeutige Lage, außerhalb des Ausschnitts, Fehler und Pause. Gemeinsame Abrufregeln erhalten, auch A-nach-B ab Requestbeginn planen. PWA-Cache erneuern; Wear 0.7.4/26 unverändert.
+
 ## PWA 0.11.10 · Linie 46 und schnellerer Fahrzeugstart · 11.11.2026
 
 Doppelanzeige durch unterschiedliche offizielle Namen derselben Endstation behoben: Parlament/Volkstheater und Parlament, U Volkstheater. Frische Live-Daten haben für genau diese Verbindung Vorrang, alte Favoriten und Detailverweise bleiben passend. Kein unscharfer Zielvergleich.

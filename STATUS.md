@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 11. November 2026. **PWA 0.11.10, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 11. November 2026. **PWA 0.11.11, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -33,6 +33,8 @@ Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache
 Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver PWA ungefähr alle fünf Minuten ergänzend. Kein neuer externer Timer, keine Hintergrundortung oder Abfahrtsabfragen. Nutzer bestätigt Empfang einer PWA-Testnachricht; tatsächliche lokale Geräteanzeige und reale Störungszustellung weiter praktisch beobachten.
 
 Ab 0.11.10 wird der doppelte 46er-Eintrag durch den belegten Endstationsalias vermieden. Fahrzeugstart lädt unabhängige Daten parallel und rechnet den 30-s-Abstand ab Requestbeginn. Mindestens zwei frische Quellenstände bleiben nötig. Ganze Linie steht als Button neben Stationsausschnitt.
+
+Ab 0.11.11 teilen alle interaktiven Karten dieselbe blaue Standortanzeige samt Genauigkeitskreis und ausdrücklichem Zentrieren. Fehlende/alte Positionen werden nicht als aktuell dargestellt. Die Fahrzeuganzeige erläutert ihren Datenstand in vier grafischen Schritten; Zeitangaben nennen frühestmögliche Bestätigung bzw. den tatsächlichen nächsten Versuch, keine garantierte erste Fahrzeuglage.
 
 ## Nächste Arbeiten
 

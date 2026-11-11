@@ -1,4 +1,4 @@
-import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice} from './traffic-info.mjs?v=0.11.10';
+import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice} from './traffic-info.mjs?v=0.11.11';
 
 // Use the same stop/route relevance and expiry rules as the station cards.
 export function warningsForTargets(cache,targets,{now=Date.now()}={}){
