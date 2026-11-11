@@ -1,3 +1,7 @@
+## PWA 0.11.13 · sichtbare Störungen im Verbindungsdetail · 11.11.2026
+
+425 Web-/Server-Tests, 18 Python-Prüfungen und 84 JavaScript-Syntaxprüfungen bestanden. Bestehende Layout-Regression an den eigenen Kopfcontainer angepasst: Countdown-/Monitorupdates erhalten weiterhin den geöffneten Fahrzeugbereich, Variante und Fokus. Warnungsfilter, Deduplizierung, Ablauf und aufklappbare Details über vorhandene Tests geprüft. Keine zusätzlichen Datenabfragen oder nativen Änderungen. Gray-/Stale-Stile beider Schemata verwenden deckendes Grau mit hellem Symbol und dunklen Labels mit heller Schrift.
+
 ## PWA 0.11.12 · exklusiver Fortschrittsplatzhalter · 11.11.2026
 
 425 Web-/Server-Tests, 18 Python-Prüfungen und 84 JavaScript-Syntaxprüfungen bestanden. Drei neue Regressionen zusätzlich zur vorhandenen Suite: echter aufgezeichneter 48A-Lauf mit Start/erster Quelle, bestätigten Positionen, gehaltenen Lagen und Ablauf; ganze Fahrzeugseite mit gegenseitig exklusivem Fortschritt/Visualisierung/Stationsdetails und erhaltener Auswahl; Stationsausschnitt gegen außerhalb liegende Fahrzeuge und Karteninitialisierung nur beim sichtbaren Übergang. Bestehende Karten-/Schemawechsel mit realen IDs einschließlich Schließen/Wiederöffnen erhalten. Keine zusätzlichen Live-Abfragen oder geänderten Trackerregeln.

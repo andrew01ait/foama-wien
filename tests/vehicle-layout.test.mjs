@@ -12,7 +12,8 @@ function hosts(primaryId,liveId,vehicleId){
   [primaryId,{contains:()=>true,set innerHTML(value){stats.disconnects++;panel.open=false;}}],
   [liveId,{set innerHTML(value){stats.refreshes++;}}],
   [vehicleId,{append(){stats.mounts++;}}],
-  ['connectionNotices',{set innerHTML(value){}}]
+  ['connectionNotices',{set innerHTML(value){}}],
+  ['connectionHeading',{set innerHTML(value){}}]
  ]);
  return {stats,panel,focused,$:id=>{assert.ok(ui.has(id),id);return ui.get(id);}};
 }

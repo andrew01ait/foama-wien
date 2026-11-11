@@ -1,3 +1,9 @@
+## PWA 0.11.13 · Störungen zuerst und graue Schemafahrzeuge lesbar · 11.11.2026
+
+Relevante Störungsmeldungen stehen direkt unter Haltestelle, Linie und Richtung, vor der nächsten Abfahrt. Der Hinweisbereich liegt nicht mehr unter Folgeabfahrten und Fahrzeuge im Anflug. Eigener Kopfcontainer erhält delegierte Favoriten-/Richtungsaktionen und den bestehenden Fahrzeugknoten. Bestehende Relevanzfilter, aufklappbare Warnungsdetails, Datenalter und Abrufregeln bleiben erhalten. Neuer PWA-Cache, Wear 0.7.4/26 unverändert.
+
+Graue Fahrzeuge im horizontalen und vertikalen Schema erhalten denselben deckenden grauen Körper mit hellem Symbol wie auf der Stadtkarte, einen dezenten Schatten und ein klar lesbares dunkles Linienlabel mit heller Schrift. Unsicherheit bleibt über Grau erkennbar; keine schwachen transparenten Symbole oder gestrichelten Außenrahmen.
+
 ## PWA 0.11.12 · Fahrzeugstart ohne doppelte Flächennutzung · 11.11.2026
 
 Grafischer Datenstand ist der Platzhalter für die Fahrzeugdarstellung, keine zusätzliche große Karte darüber. Solange im gewählten Ausschnitt keine darstellbare Position vorliegt, bleiben Schema/Karte, Haltefolge und die zusätzlichen Stations-/Fahrzeugdetails verborgen. Sobald eine Lage vorhanden ist, verschwindet der Fortschrittsbereich vollständig. Kurz grau gehaltene Lagen bleiben sichtbar; erst nach Ablauf aller Lagen kehrt der Platzhalter zurück. Gilt für Stations-/A-nach-B-Bereiche und die ganze Fahrzeugseite, mit derselben Auswahl, Tracker-ID und Abrufbegrenzung. Kartenmodul erst bei sichtbarer Fahrzeugkarte initialisieren, bestehende Karte und Nutzerausschnitt bei Wechseln erhalten. Neuer PWA-Cache; Wear 0.7.4/26 unverändert.

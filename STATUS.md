@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 11. November 2026. **PWA 0.11.12, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 11. November 2026. **PWA 0.11.13, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -17,7 +17,7 @@ Stand: 11. November 2026. **PWA 0.11.12, Wear 0.7.4 / Code 26.** Verbindlich sin
 | Fahrzeugschätzung | Kompakter Start: Fortschrittsplatzhalter wechselt automatisch zu darstellbaren Positionen und Haltefolge;  [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Linien, 617 eindeutig zugeordnete Varianten, Karte/Schema sowie horizontale Ausschnitte in Stations- und A-nach-B-Einstiegsdetails; Prognoseschätzung, keine GPS-Positionen |
 | Städtebild | Proportionale Collage Wien/Graz/Linz/Salzburg mit Bahn, Tram und Obus; Salzburg-Einschränkung im FAQ statt separatem Banner |
 | Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), mit Verfügbarkeitssymbolen und aufklappbaren FAQ; verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
-| Störungen | Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
+| Störungen | Verbindungsdetails zeigen relevante Hinweise direkt vor der nächsten Abfahrt; Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
 | Veröffentlichung | Öffentliches GitHub, Source-ZIP und Site getrennt abgleichen; Originalsignatur, Paket und lokale Daten erhalten |
 
 ## Fahrplanstand und Aktualität

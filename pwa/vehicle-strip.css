@@ -51,8 +51,9 @@
 .vehicle-strip .vehicle-body{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:2px solid #073e34;border-radius:8px;background:#74e2bb;color:#062b23}
 .vehicle-strip .vehicle-symbol{display:block;width:20px;height:20px}
 .vehicle-strip-vehicle small{background:var(--surface);border-radius:4px;padding:2px 3px;color:var(--text);font-size:10px;white-space:nowrap}
-.vehicle-strip-vehicle.uncertain .vehicle-body{background:transparent;color:var(--muted);border-color:transparent;box-shadow:none}
+.vehicle-strip-vehicle.uncertain .vehicle-body{background:#4b5563;color:#f9fafb;border-color:transparent;box-shadow:0 2px 6px #0005}
 .vehicle-strip-vehicle.uncertain::after{border-color:var(--muted)}
+.vehicle-strip-vehicle.uncertain small{background:#102c3d;color:#f9fafb}
 .vehicle-strip-vehicle[aria-pressed=true] .vehicle-body{outline:3px solid var(--mint);outline-offset:2px}
 .vehicle-strip-status{font-size:12px;line-height:1.5;color:var(--muted)}
 .vehicle-strip button:focus-visible,.station-vehicle-panel a:focus-visible,.station-vehicle-panel select:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
