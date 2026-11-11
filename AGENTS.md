@@ -1,3 +1,7 @@
+## PWA 0.10.2 · kompakter Monitor-Footer · 11.11.2026
+
+Nutzerfeedback zur installierten PWA: übergroße Abstände zwischen Footer-Linkzeilen und unten. appFooter als Metadatenblock plus gemeinsame umbrechende Linknavigation, Lizenzen darin statt einzelner Restzeile/Punkt. Zwischen Linkzeilen kein Zusatzabstand, horizontal 16 px, mindestens 44 px Tippfläche erhalten. Nur installierte Monitor-PWA reduziert unteren App-Freiraum auf 20 px plus Safe Area; vorhandenen Abstand für Browser-Editor und andere Seiten erhalten. Stadt-/Quelltexte, Version und Ausblenden in Verbindungsansicht weiter nutzen. PWA 0.10.2, Wear 0.7.4/26 unverändert. Keine neuen Verhaltensregeln oder Abrufe.
+
 ## PWA 0.10.1 · ganze U6 und sichtbare Zuordnungslücken · 11.11.2026
 
 Der aktuelle Nutzerauftrag erweitert den bisherigen Drei-Stationen-Piloten: längere Strecke, verschwindende Marker beheben und Fahrzeug-Symbole verwenden. fahrzeuge.html umfasst die ganze U6 Floridsdorf–Siebenhirten, 24 reale Halte je Richtung, mit 23 verifizierten Abfahrts-RBLs in einer gemeinsamen sichtbaren Anfrage pro frühestens 30 Sekunden. Ankunfts-Endstation ohne Abfahrts-RBL aus Fahrplan zusätzlich und ausdrücklich unsicher schätzen. Tatsächlich ausgelassene GTFS-Halte und Kurzführungen über nullable Zeiten erhalten; nie Fahrten künstlich verlängern. Minutengenauer Abgleich, Mehrstations- und Zweiquellenbestätigung sowie Quelldigest/Kalenderbindung bleiben erforderlich.

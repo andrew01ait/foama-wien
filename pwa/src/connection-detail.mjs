@@ -1,5 +1,5 @@
-import {directionEquivalent} from './core.mjs?v=0.10.1';
-import {departureIsFresh} from './departure-cache.mjs?v=0.10.1';
+import {directionEquivalent} from './core.mjs?v=0.10.2';
+import {departureIsFresh} from './departure-cache.mjs?v=0.10.2';
 
 export function departureAtStation(stop,departure){
  return !!stop&&(departure.source==='gtfs'?departure.stopId===stop.id:departure.provider==='wl'?stop.provider==='wl'&&(stop.rbl||[]).map(String).includes(String(departure.rbl)):departure.provider==='transitous'?stop.provider==='transitous'&&departure.stopId===stop.id:departure.provider==='rail'&&stop.provider==='rail'&&(stop.platformIds||[stop.id.slice(5)]).includes(departure.stopId));

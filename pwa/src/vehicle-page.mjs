@@ -1,12 +1,12 @@
-import {createTimetable} from './timetable.mjs?v=0.10.1';
-import {createLineMaps} from './line-maps.mjs?v=0.10.1';
-import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.10.1';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.10.1';
-import {createThemeController} from './theme.mjs?v=0.10.1';
-import {decodeVehiclePilot,validateVehiclePilot,normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.10.1';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.10.1';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.10.1';
-import {createVehiclePoller} from './vehicle-poller.mjs?v=0.10.1';
+import {createTimetable} from './timetable.mjs?v=0.10.2';
+import {createLineMaps} from './line-maps.mjs?v=0.10.2';
+import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.10.2';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.10.2';
+import {createThemeController} from './theme.mjs?v=0.10.2';
+import {decodeVehiclePilot,validateVehiclePilot,normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.10.2';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.10.2';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.10.2';
+import {createVehiclePoller} from './vehicle-poller.mjs?v=0.10.2';
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>id.replace(/^U6-/,''),rowY=i=>55+i*100;
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
@@ -64,7 +64,7 @@ function setDirection(id){
 }
 async function start(){
  try{const timetables=createTimetable();manifest=await timetables.metadata();if(!manifest)throw Error('Pilotdaten fehlen. Bitte einmal mit Internetverbindung öffnen.');const maps=createLineMaps(),index=await maps.index(manifest),entry=index.lines.find(l=>l.route==='U6'&&l.mode==='metro');line=(await maps.line(entry,manifest)).data;
-  try{const response=await fetch('./data/vehicle-pilot/u6.json?v=0.10.1&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();const raw=await response.text();if(raw.length>2_000_000)throw Error();data=validateVehiclePilot(await decodeVehiclePilot(JSON.parse(raw)),manifest,line);await putCatalogue('vehicle-pilot:u6:full-v2',data).catch(()=>{});}catch{data=validateVehiclePilot(await getCatalogue('vehicle-pilot:u6:full-v2').catch(()=>null),manifest,line);}
+  try{const response=await fetch('./data/vehicle-pilot/u6.json?v=0.10.2&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();const raw=await response.text();if(raw.length>2_000_000)throw Error();data=validateVehiclePilot(await decodeVehiclePilot(JSON.parse(raw)),manifest,line);await putCatalogue('vehicle-pilot:u6:full-v2',data).catch(()=>{});}catch{data=validateVehiclePilot(await getCatalogue('vehicle-pilot:u6:full-v2').catch(()=>null),manifest,line);}
   $('pilotDirections').innerHTML=data.directions.map(d=>`<button type="button" data-direction="${escape(d.id)}" aria-pressed="false">→ ${escape(d.towards)}</button>`).join('');$('pilotPause').disabled=false;
   $('pilotSource').textContent='Wiener Linien · Sollfahrplan '+manifest.validFrom+' bis '+manifest.validThrough+' · Live-Monitor · '+manifest.attribution;
   if(Date.now()>Date.parse(manifest.validThrough+'T23:00Z'))throw Error('Die Pilot-Fahrplanbasis ist abgelaufen. Bitte zuerst erneuern.');setDirection(data.directions.find(d=>d.towards===params.get('richtung'))?.id||'1');

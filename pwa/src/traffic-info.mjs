@@ -1,4 +1,4 @@
-import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.10.1';
+import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.10.2';
 
 export const TRAFFIC_CACHE_MS=15*60_000;
 const list=value=>[...new Set((Array.isArray(value)?value:String(value??'').split(',')).map(x=>String(x).trim()).filter(Boolean))];

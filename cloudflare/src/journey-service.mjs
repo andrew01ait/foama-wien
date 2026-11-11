@@ -2,7 +2,7 @@ import {CITY_PROFILES} from '../../pwa/src/city-profiles.mjs';
 import {motisPlanUrl,normalizeJourneys} from '../../pwa/src/journey-planning.mjs';
 
 const BASE='https://api.transitous.org/';
-const UA='foama-wien/0.10.1 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
+const UA='foama-wien/0.10.2 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
 const headers={'content-type':'application/json;charset=utf-8','cache-control':'no-store','referrer-policy':'no-referrer','x-content-type-options':'nosniff'};
 const answer=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const clean=(value,n=160)=>String(value??'').trim().slice(0,n);
