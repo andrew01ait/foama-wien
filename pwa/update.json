@@ -1,9 +1,9 @@
 {
-  "version": "0.10.0",
+  "version": "0.10.1",
   "wearVersionCode": 26,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
   "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "U6-Live-Labor: vorläufige Fahrtzuordnung mit Stationsübergaben im Testabschnitt. Geschätzte Positionen auf echter Karte und im interaktiven Linienschema, mit Pause und Datenalter.",
+  "changelog": "U6-Live-Labor auf der ganzen Linie mit 24 Stationen. Bei kurzen Meldelücken bleibt die letzte Lage mit derselben Fahrt-ID grau sichtbar. Längeres scrollbares Schema, Fahrt folgen und Zugsymbole in beiden Ansichten.",
   "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3842666,

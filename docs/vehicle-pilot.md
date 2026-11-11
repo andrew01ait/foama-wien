@@ -1,44 +1,78 @@
-# U6-Fahrzeugschätzung · Pilot in Karte und Schema
+# U6-Fahrzeugschätzung · ganze Linie in Karte und Schema
 
-PWA 0.10.0, 11. November 2026. `fahrzeuge.html` zeigt denselben Schätzer auf echter OpenStreetMap-Karte und im vertikalen Linienschema. Testabschnitt: Josefstädter Straße U – Thaliastraße U – Burggasse, Stadthalle U, beide Richtungen getrennt. Keine allgemeine Fahrzeugverfolgung für sämtliche U-Bahn-, Tram- oder Buslinien.
+PWA 0.10.1, 11. November 2026. `fahrzeuge.html` umfasst Floridsdorf–Siebenhirten mit 24 realen Stationen je Richtung. Beide Darstellungen verwenden dasselbe Modell. Die Erweiterung und Fahrzeug-Symbole sind ausdrücklich beauftragt; andere Linien und Bus/Tram sind noch nicht angeschlossen.
 
-## Reproduzierbare Grundlage
+## Daten und Reproduktion
 
-`python3 scripts/prepare_vehicle_pilot.py FAHRPLAN.zip` benötigt genau die zum ausgelieferten Fahrplan gehörende offizielle GTFS-Datei. SHA-256, Kalenderschlüssel und Linienversion müssen übereinstimmen. Keine automatische Erneuerung. Der Pilot enthält 2.311 südliche und 2.301 nördliche kalendergebundene GTFS-Fahrten mit tatsächlicher Ankunft/Abfahrt an drei konkreten Steigen, insgesamt 427.945 Bytes. Keine Roh-GTFS-Datei im Deployment.
+```sh
+python3 scripts/prepare_vehicle_pilot.py FAHRPLAN.zip
+```
 
-Die RBL-Seiten wurden anhand echter Antworten geprüft, ausdrücklich nicht aus GTFS-direction_id geraten:
+Die offizielle GTFS-Datei muss bytegleich zur ausgelieferten Fahrplanbasis sein (SHA-256 `c3e98ec9381a0f610a3164d0336ea93c097b0382aa81fbabb6c739becc25412f`). Kalender und Linienversion werden ebenfalls geprüft. Die Referenz `scripts/data/u6-rbl-mapping.json` enthält ausschließlich anhand echter Monitorantworten bestätigte öffentliche RBL-Seiten; optional mit `--rbl-mapping DATEI` ersetzen. Keine automatische Erneuerung.
 
-| Folge | Richtung Siebenhirten · R / 2 | Richtung Floridsdorf · H / 1 |
-| --- | --- | --- |
-| 1 | Josefstädter Straße · 4607 | Burggasse, Stadthalle · 4620 |
-| 2 | Thaliastraße · 4608 | Thaliastraße · 4621 |
-| 3 | Burggasse, Stadthalle · 4609 | Josefstädter Straße · 4622 |
+Das Format-2-Paket enthält 2.388 südliche und 2.391 nördliche kalendergebundene Fahrten auf der kanonischen U6. Ankunft und Abfahrt stehen nur an tatsächlich bedienten Halten; ausgelassene Halte und außerhalb einer Kurzführung liegende Stationen bleiben `null`. Beispielsweise fehlen in vielen nördlichen Fahrten die Fahrgastzeiten für Neue Donau. Solche Fahrten erhalten keinen erfundenen Halt. Die tatsächlichen Zeiten bestimmen die nächsten bedienten Stationen, die echte GTFS-Geometrie bestimmt die Streckenentfernung dazwischen. Keine geraden Ersatzverbindungen.
 
-Zeitliche Zuordnung prüft Route, Modus, Ziel, richtige RBL-Seite, Richtung und Richtungs-ID. Der GTFS liefert hier minutengenaue Sollzeiten, der Monitor sekundengenaue Sollzeiten; die Probe zeigte beispielsweise 08:49:30 / 08:51:00 / 08:52:30 gegenüber 08:49 / 08:51 / 08:52 im GTFS. Der begrenzte Abgleich erlaubt deshalb bis 60 Sekunden Sollabweichung. Er wählt keinen einzelnen nächsten Nachbarn: konkurrierende mehrstationsfähige Kandidaten und doppelte Beobachtungen bleiben offen. Identische Sollzeiten garantieren keine Fahrzeugidentität.
+Gzip/Base64 mit deterministischem Zeitstempel hält das ausgelieferte Paket bei 310.866 Bytes. Dekodierung ist auf vier Millionen Base64-Zeichen und zwölf Millionen entpackte Bytes begrenzt; Version und Quelldigest werden vor Verwendung gegen Fahrplan und Linienkarte geprüft. Neuer Katalogschlüssel `vehicle-pilot:u6:full-v2` trennt den alten Dreihalt-Piloten. Roh-GTFS bleibt außerhalb des Deployments.
 
-Ein neuer Kandidat benötigt passende Meldungen an mindestens zwei Stationen und zwei verschiedene, frische Quellenstände. Cachewiederholungen zählen nicht erneut. Fahrtrichtung, Verkehrsdatum einschließlich Nachtfahrten und Sommerzeit, Zeitfolge, Abschnittsdauer und onStop-Anker werden gemeinsam geprüft. Interne IDs enthalten Richtung/Testlauf und laufende Nummer; ein neues Fahrzeug erbt nicht die ID des Vorgängers. Zuordnungen sind vorläufige Fahrt-Hypothesen, keine Wagen- oder offiziellen Zugnummern.
+| Südliche Folge | Station | Siebenhirten · R / 2 | Floridsdorf · H / 1 |
+| --- | --- | --- | --- |
+| 1 | Floridsdorf S U | 4646 | Ankunft ohne Abfahrts-RBL |
+| 2 | Neue Donau | 4647 | 4644 |
+| 3 | Handelskai S U | 4648 | 4643 |
+| 4 | Dresdner Straße U | 4649 | 4642 |
+| 5 | Jägerstraße U | 4650 | 4641 |
+| 6 | Spittelau S U | 4651 | 4627 |
+| 7 | Nußdorfer Straße U | 4603 | 4626 |
+| 8 | Währinger Straße, Volksoper U | 4604 | 4625 |
+| 9 | Michelbeuern U AKH | 4605 | 4624 |
+| 10 | Alser Straße U | 4606 | 4623 |
+| 11 | Josefstädter Straße U | 4607 | 4622 |
+| 12 | Thaliastraße U | 4608 | 4621 |
+| 13 | Burggasse, Stadthalle U | 4609 | 4620 |
+| 14 | Westbahnhof S U | 4610 | 4619 |
+| 15 | Gumpendorfer Straße U | 4611 | 4618 |
+| 16 | Längenfeldgasse U | 4612 | 4617 |
+| 17 | Niederhofstraße U | 4613 | 4616 |
+| 18 | Bahnhof Meidling S U | 4614 | 4615 |
+| 19 | Tscherttegasse | 4629 | 4640 |
+| 20 | Am Schöpfwerk | 4630 | 4639 |
+| 21 | Alterlaa U | 4631 | 4638 |
+| 22 | Erlaaer Straße | 4632 | 4637 |
+| 23 | Perfektastraße U | 4633 | 4636 |
+| 24 | Siebenhirten U | Ankunft ohne Abfahrts-RBL | 4635 |
 
-Alte Stationsanker dürfen begrenzt die geschätzte Abfahrt eines Abschnitts beschreiben, wenn die nächste Station die Fahrt weiterhin frisch zugeordnet meldet. Zwischen beobachteter Abfahrtsprognose und aus nächster Prognose sowie GTFS-Aufenthalt geschätzter Ankunft wird nach echter Streckenentfernung interpoliert. Beide Ansichten verwenden exakt denselben Fortschritt. Kein gerader Ersatzverlauf und keine Bewegung jenseits des Testabschnitts. Fehlende aktuelle Zuordnung, Mehrdeutigkeit oder widersprüchliche Meldungen entfernen die einzelne Lage; Verschwinden allein bestätigt keine Abfahrt. Größere Rückkorrektur unterbricht die Animation bis zu erneuter stabiler Evidenz.
+Die Tabelle ist in südlicher Stationsfolge; Floridsdorf wird in umgekehrter Reihenfolge befahren. Je Richtung gibt es 23 Abfahrts-RBLs. Die jeweilige Endstation hat keinen Monitor in Ankunftsrichtung; ihre Anfahrt erhält deshalb eine ausdrücklich unsichere Fahrplanprojektion und einen begrenzten geschätzten Endaufenthalt.
 
-## Tatsächlicher Datenversuch
+## Fahrt-Hypothesen und Kontinuität
 
-Fünf begrenzte Abfragen am 11.11.2026 von **08:49:32 bis 08:52:07 Wiener Zeit**, jeweils sechs feste öffentliche RBLs beider Seiten. Keine Nutzerposition, kein Hintergrunddienst. Ein auf die erforderlichen öffentlichen U6-Felder reduzierter Mitschnitt ist als `tests/fixtures/u6-pilot-live.json` reproduzierbar. Rohantworten mit sonstigen Meldungen bleiben ausgeschlossen.
+Route, Modus, Ziel, RBL-Seite, Richtung und Richtungs-ID müssen passen. Der GTFS ist hier minutengenau, der Monitor sekundengenau; höchstens 60 Sekunden Sollabweichung sind zulässig. Mehrere passende mehrstationsfähige Fahrten bleiben offen. Eine mehrdeutige Station verwirft keine eindeutigen Anker an anderen Stationen. Keine Zuordnung allein nach Abfahrtsrang oder nächstem Sollzeit-Nachbarn.
 
-Der südliche Kandidat behielt dieselbe temporäre ID über die Anker Josefstädter Straße → Thaliastraße → Burggasse, Stadthalle. Zwei modellbasierte Übergaben aus onStop-Stationsfolgen und eine interpolierte Lage zwischen Thaliastraße und Burggasse werden im Test geprüft. Nördlich gab es eine Rückkorrektur mit Unterbrechung und anschließender erneuter Zuordnung; eine weitere Stationsfolge blieb unter derselben ID. Das ist ein erfolgreicher Zuordnungsversuch, keine unabhängige Bestätigung desselben physischen Zuges oder einer räumlichen Genauigkeit.
+Ein neuer Kandidat benötigt Meldungen an mindestens zwei Stationen und zwei unterschiedliche frische Quellenstände. Cachewiederholungen zählen nicht erneut. Verkehrsdatum, Sommerzeit, Zeitfolge, Abschnittsdauer und `onStop` werden mitgeprüft. Interne IDs gehören zu dieser kurzlebigen Fahrt-Hypothese, nicht zu einem bestimmten Wagen. Ein neuer Kandidat erbt keine Vorgänger-ID.
 
-## Betrieb und Bedienung
+Frische passende Prognosen interpolieren die Lage entlang echter Streckenentfernung. Ein frischer vorheriger Anker darf ausschließlich bis zum nächsten tatsächlich bedienten Halt mit Sollfahrzeit überbrücken; diese schwächere Annahme ist grau gestrichelt und beschriftet. `onStop` ist ein Stationsstatus, keine GPS-Position. Ein fehlender Listeneintrag bestätigt keine Abfahrt.
 
-- Bewusster Start, Pause/Fortsetzen, Richtungswechsel, Karten-/Schemawechsel, Fahrt auswählen und auf der Karte folgen. Daten- und Modellhinweise beginnen geschlossen. Direkter Schema-Einstieg mit `?ansicht=schema`.
-- Ein sichtbarer Live-Abruf frühestens alle 30 Sekunden, genau drei RBLs der gewählten Richtung. Derselbe `foama.wl.lastApiAttempt.v1`-Schlüssel wie Monitor/Reiseansicht; Serverbudget, HTTP-Backoff und Retry-After erhalten. Kein Zusatzabruf durch Darstellungswechsel, Markertap oder Animationsbild.
-- Pause stoppt Netzwerk und Bewegung und zeigt den eingefrorenen Stand. Ausblenden, Richtungswechsel und pagehide brechen Requests ab und verwerfen verspätete Antworten. Wiederaufnahme nach längerer Pause sammelt neu. Reduzierte Bewegung zeigt nur Lageänderungen je Quellenstand.
-- Quellenzeit aus Monitor- und Serverzeit, nicht aus Cacheabrufzeit. Spätere/falsche Zeitstempel ablehnen. Nach 60 Sekunden einfrieren, nach 90 Sekunden ausblenden. Bei Abruffehler oder unvollständiger Stationsabdeckung keine fortlaufende Animation.
-- IDs/Zuordnungen höchstens 64 und zehn Minuten, Ereignisse höchstens 80, nur Arbeitsspeicher. Kein Nutzer- oder Bewegungsverlauf, keine allgemeine Diagnose-Erweiterung. Nur öffentliche, versionsgeprüfte Fahrplanbasis kann über den bestehenden Katalogspeicher offline vorliegen; kein Offline-Live-Replay.
-- Originale Wear-0.7.4-APK, Signatur und Feedmetadaten unverändert. Kein neues Störungs-Push-Verhalten und keine GPS-Anfrage.
+Bei Meldelücke, Abruffehler, Mehrdeutigkeit oder großer Rückkorrektur bleibt die letzte ableitbare Lage unter derselben ID grau gestrichelt stehen. Keine unbestätigte Weiterfahrt. Einzelne fehlende Stationsdaten stoppen andere zugeordnete Fahrten nicht. Neue passende Evidenz kann dieselbe Fahrt-Hypothese wieder aufnehmen. Ab 60 Sekunden ohne frischen Quellenstand keine weitere Bewegung, nach 90 Sekunden ohne passende Meldung beziehungsweise letzte ableitbare Lage ausblenden. Die ausgewählte Fahrt erklärt den Grund; Ereignisse nennen Lücke, Wiederaufnahme, Ablauf oder geschätztes Linienende. Fahrtende/Kurzführung wird nicht über seine tatsächliche Grenze hinaus verlängert.
 
-354 Web-/Server-Tests einschließlich 16 Pilotregressionen sowie zwölf Python-Prüfungen bestanden. Der Site-Build enthält echte Daten und beide Ansichten. Die verwaltete Vorschau wurde versucht; nach Bereinigung einer nicht erreichbaren Vorschau blockierte die Browser-URL-Richtlinie die Beobachtung. Keine visuelle Browser- oder physische Fahrtenabnahme behaupten.
+## Bedienung und Abrufbudget
+
+- [Karte](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html?ansicht=karte) und [Schema](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html?ansicht=schema), bewusster Live-Start, Pause/Fortsetzen und getrennte Richtungen.
+- Schema mit 100 px Abstand je Station im scrollbaren Ausschnitt. Fahrt auswählen und in Karte oder Schema folgen; manuelles Scrollen beendet das Folgen. „Gesamte Linie“ setzt Karte bzw. Schema zurück.
+- Zugsymbole mit temporärer ID in Karte, Schema und Fahrzeugliste. Wiederverwendbare Bus-/Tram-Symbole sind für die spätere Anbindung vorhanden; dies stellt keine Bus-/Tram-Verfolgung bereit. Hinweise beginnen als geschlossene Klappbereiche.
+- Ein sichtbarer Request mit 23 RBLs der gewählten Richtung, frühestens alle 30 Sekunden. Gemeinsamer `foama.wl.lastApiAttempt.v1`-Schlüssel, unveränderte Servergrenze von 24 RBLs, Backoff/Retry-After. Darstellungswechsel, Auswahl und Animation erzeugen keine Monitorabfrage.
+- Pause stoppt Netzwerk und Bewegung. Unsichtbarkeit, Richtungswechsel und pagehide brechen Requests ab und verwerfen späte Antworten. Längere Pause sammelt neu. Reduzierte Bewegung zeigt Quellenstände statt laufender Bewegung.
+- Quellenalter aus Monitor- und Serverzeit, keine Verjüngung durch Cacheabruf. Höchstens 128 Kandidaten und zehn Minuten, Ereignisse höchstens 80, nur Arbeitsspeicher. Keine Nutzerposition, kein Bewegungsarchiv, kein Hintergrunddienst oder Offline-Live-Replay. Nur öffentliche Fahrplanbasis kann lokal gespeichert sein.
+- Wear 0.7.4/26 samt APK, Signatur und Feedmetadaten unverändert.
+
+## Echte Proben und Prüfung
+
+Drei begrenzte RBL-Entdeckungsbatches am 11.11.2026, 09:24:45–09:26:09 Wiener Zeit, bestätigten die Seiten. Fünf südliche Ganzlinienproben folgten 09:26:49–09:29:21, zwei nördliche 09:38:56–09:39:33. Jeweils mindestens 30 Sekunden Abstand, maximal 24 RBLs pro Request. `tests/fixtures/u6-full-live.json` enthält ausschließlich die notwendigen öffentlichen U6-Zeit-/Richtungsfelder und höchstens sechs Prognosen je Halt. Rohantworten mit sonstigen Inhalten bleiben ausgeschlossen.
+
+Nach der Zweiquellenbestätigung erscheinen acht südliche bzw. elf nördliche geschätzte Lagen über große Teile der Linie. Später sind neun südliche Lagen sichtbar; drei zwischenzeitlich gehaltene Lagen werden unter denselben IDs wieder aufgenommen. Neun südliche modellbasierte Stationsübergaben werden erfasst. Die frühere Dreihalt-Probe bleibt mit eigener reduzierter Fahrplanfixture als Regression erhalten. Das belegt Verhalten des Zuordnungsmodells, keine unabhängige Bestätigung physischer Züge oder Positionsgenauigkeit.
+
+361 Web-/Server-Tests einschließlich 23 Fahrzeugregressionen, zwölf Python-Prüfungen und 77 JavaScript-Syntaxprüfungen. Neue Fälle: vollständige RBL-Abdeckung und ein Request, gleiche IDs nach Lücke, endliche 90-Sekunden-Haltezeit, lokale Mehrdeutigkeit, ausgelassene Halte mit echter Streckenentfernung, Kurzführung und unsichere Endstationsanfahrt sowie Paketbindung. Die Browser-URL-Richtlinie blockiert die verwaltete Vorschau; keine visuelle Browser- oder physische Geräteabnahme behaupten.
 
 ## Nächste Abnahme
 
-Karte und Schema auf dem Telefon prüfen, tatsächliche Zugfolgen an den drei Stationen unabhängig vergleichen und insbesondere Spitzenverkehr, längere Störung, Kurzführung, Signalhalt, Netzverlust und Tageswechsel beobachten. Erst danach den Abschnitt erweitern und andere U-Bahn-Linien, Bus/Tram oder regionale Fahrtkennungen getrennt anbinden. Keine eigene mehrdeutige Zuordnung als bestätigtes Trainingssignal verwenden.
+Karte und Schema auf dem Telefon und tatsächliche Zugfolgen unabhängig vergleichen. Spitzenverkehr, längere Störung, Kurzführung, Signalhalt, Netzverlust und Tageswechsel beobachten. Danach weitere U-Bahn-Linien und Bus/Tram getrennt anbinden. Eigene mehrdeutige Zuordnungen niemals als bestätigtes Trainingssignal verwenden.
 
-Primärquellen: [Wiener-Linien-Realtime V1.6](https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-echtzeitdaten-dokumentation.pdf), [offizieller GTFS](https://www.wienerlinien.at/ogd_realtime/doku/ogd/gtfs/gtfs.zip), [GTFS-Zeitvertrag](https://gtfs.org/documentation/schedule/reference/#stop_timestxt). Der Monitor beschreibt Abfahrtsprognosen und einen Stationsstatus, keine gemessene Fahrzeugposition.
+Primärquellen: [Wiener-Linien-Realtime V1.6](https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-echtzeitdaten-dokumentation.pdf), [offizieller GTFS](https://www.wienerlinien.at/ogd_realtime/doku/ogd/gtfs/gtfs.zip), [GTFS-Zeitvertrag](https://gtfs.org/documentation/schedule/reference/#stop_timestxt). Der Monitor liefert Abfahrtsprognosen und Stationsstatus, keine gemessene Fahrzeugposition.

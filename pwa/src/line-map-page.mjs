@@ -1,8 +1,8 @@
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.10.0';
-import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.10.0';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.10.0';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.10.0';
-import {createThemeController} from './theme.mjs?v=0.10.0';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.10.1';
+import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.10.1';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.10.1';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.10.1';
+import {createThemeController} from './theme.mjs?v=0.10.1';
 
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams;
 const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -107,7 +107,7 @@ async function start(){
   const matches=index.lines.filter(row=>row.route===params.get('linie')),entry=matches.find(row=>row.mode===params.get('verkehrsmittel'))||(matches.length===1?matches[0]:null);
   status(index.lines.length+' Wiener Linien · Fahrwege gültig '+shortDate(manifest.validFrom)+' bis '+shortDate(manifest.validThrough));
   if(!entry){renderLines();return;}
-  const catalogue=fetch('./data/stops.json?v=0.10.0',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
+  const catalogue=fetch('./data/stops.json?v=0.10.1',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
   const result=await source.line(entry,manifest,{signal:request.signal}),monitors=await catalogue;if(own!==revision||request.signal.aborted||document.hidden)return;
   monitorStops=monitors;
   line=result.data;$('mapLinePicker').hidden=true;$('mapLineView').hidden=false;
