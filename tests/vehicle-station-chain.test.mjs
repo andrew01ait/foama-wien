@@ -30,3 +30,16 @@ test('a shared stop cannot turn another line or transport type into this vehicle
  const c=recording.contexts.find(c=>c.route==='48A'),data=await decodeVehiclePilot(await json('../pwa/data/vehicle-pilot/'+c.file)),d=data.directions.find(d=>d.id===c.direction),raw=structuredClone(recording.snapshots[0]),now=Math.max(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime));for(const m of raw.data.monitors)for(const l of m.lines){l.name='49';if(l.departures)for(const dep of l.departures.departure)if(dep.vehicle)dep.vehicle.name='49';}assert.equal(normalizePilotSnapshot(raw,d,now,c.ids).rows.length,0);
  for(const m of raw.data.monitors)for(const l of m.lines){l.name='48A';l.type='ptTram';if(l.departures)for(const dep of l.departures.departure)if(dep.vehicle){dep.vehicle.name='48A';dep.vehicle.type='ptTram';}}assert.equal(normalizePilotSnapshot(raw,d,now,c.ids).rows.length,0);
 });
+
+test('real tram 46 boards form live identities when its matching GTFS variant has only off-peak departure slots',async()=>{
+ const c=await json('./fixtures/vehicle-tram-46-live.json'),data=await decodeVehiclePilot(await json('../pwa/data/vehicle-pilot/'+c.file)),direction=data.directions.find(d=>d.id===c.direction),tracker=createVehicleTracker(direction,manifest);
+ const {pilotSchedules}=await import('../pwa/src/vehicle-tracker.mjs');let view;
+ for(let i=0;i<c.snapshots.length;i++){const raw=c.snapshots[i],at=Math.min(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime));assert.equal(pilotSchedules(direction,manifest,at).length,0);assert.ok(pilotSchedules(direction,manifest,at,{profiles:true}).length);tracker.ingest(normalizePilotSnapshot(raw,direction,at,c.ids));view=tracker.view(at);if(!i)assert.equal(view.tracks.filter(t=>t.position).length,0);}
+ const positioned=view.tracks.filter(t=>t.position);assert.ok(positioned.length);assert.ok(positioned.every(t=>t.schedule.inferred&&t.hits>=2&&t.anchors.size>=3));assert.ok(positioned.some(t=>t.position.progress>0&&t.position.progress<6));
+ const at=Math.min(Date.parse(c.snapshots[0].foamaMonitorAt),Date.parse(c.snapshots[0].message.serverTime));assert.equal(pilotSchedules(direction,{...manifest,validThrough:'2026-11-10'},at,{profiles:true}).length,0);
+});
+test('real tram 46 return-direction boards confirm live estimates on the separate inbound platform sequence',async()=>{
+ const c=await json('./fixtures/vehicle-tram-46-return-live.json'),data=await decodeVehiclePilot(await json('../pwa/data/vehicle-pilot/'+c.file)),direction=data.directions.find(d=>d.id===c.direction),tracker=createVehicleTracker(direction,manifest);assert.equal(direction.monitorDirectionId,'2');assert.equal(direction.towards,'Parlament/Volkstheater');let view;
+ for(let i=0;i<c.snapshots.length;i++){const raw=c.snapshots[i],at=Math.max(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime)),snapshot=normalizePilotSnapshot(raw,direction,at,c.ids);assert.equal(snapshot.coverage.length,8);assert.ok(snapshot.rows.length>20);tracker.ingest(snapshot);view=tracker.view(at);if(!i)assert.equal(view.tracks.filter(t=>t.position).length,0);}
+ const positioned=view.tracks.filter(t=>t.position);assert.ok(positioned.length>=2);assert.ok(positioned.every(t=>t.hits>=2&&t.schedule.inferred&&t.anchors.size>=3));assert.ok(positioned.some(t=>t.position.progress>7&&t.position.progress<8));
+});

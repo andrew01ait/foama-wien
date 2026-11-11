@@ -17,6 +17,16 @@ test('station neighbourhoods keep up to five real stops before and two after wit
  const {data}=await load('bus|48A'),d=data.directions.find(d=>d.stops.length===22);const middle=stationVehicleRange(d,d.stops[8].id);assert.deepEqual([middle.start,middle.center,middle.end],[3,8,10]);assert.ok(middle.ids.length<=8);
  const first=stationVehicleRange(d,d.stops[0].id),last=stationVehicleRange(d,d.stops.at(-1).id);assert.deepEqual([first.start,first.end],[0,2]);assert.deepEqual([last.start,last.end],[16,21]);assert.equal(stationVehicleRange(d,'wl:unknown'),null);
 });
+test('tram 46 exposes both exact regular directions with separate platform-bound monitor sides',async()=>{
+ const {data,line}=await load('tram|46');assert.equal(data.directions.length,2);
+ const outward=data.directions.find(d=>d.monitorDirectionId==='1'),inward=data.directions.find(d=>d.monitorDirectionId==='2');
+ assert.equal(outward.towards,'Joachimsthalerplatz');assert.equal(inward.towards,'Parlament/Volkstheater');
+ assert.deepEqual(inward.stops.map(s=>s.rbl),['1386','585','586','1387','1388','1389','1390','1391','1392','1393','1394','1395','2635',null]);
+ const station='wl:60201372',a=stationVehicleRange(outward,station),b=stationVehicleRange(inward,station);
+ assert.ok(a&&b);assert.ok(a.ids.includes('1378'));assert.ok(b.ids.includes('1392'));assert.ok(a.ids.every(id=>!b.ids.includes(id)));
+ assert.equal(preferredVehicleDirection(data,line,manifest,{stopId:station,towards:'Parlament, U Volkstheater',day:'2026-11-11'}).id,inward.id);
+ assert.equal(vehicleTargetMatches(inward,inward.towards,'Parlament, U Volkstheater'),true);
+});
 test('long lines use explicit overlapping sections while a station view stays below eight RBLs',async()=>{
  const {data}=await load('tram|5'),d=data.directions.find(d=>d.stops.length===28),ws=vehicleWindows(d);assert.equal(ws.length,2);assert.equal(ws[0].ids.length,24);assert.deepEqual(ws[1].ids.slice(0,2),ws[0].ids.slice(-2));assert.ok(vehicleWindows(d,99).every(w=>w.ids.length<=24));
 });

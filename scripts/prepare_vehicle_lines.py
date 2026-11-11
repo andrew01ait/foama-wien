@@ -18,6 +18,17 @@ def ordered_match(sequence, expected):
         out.append(sequence[at][1]);at+=1
     return out
 
+def matching_patterns(patterns, expected):
+    matches=[];exact=[]
+    for pid,d,sequence in patterns:
+        match=ordered_match(sequence,expected[:-1])
+        if not match:continue
+        candidate=(pid,d,match);matches.append(candidate)
+        if [station for station,_ in sequence if station!='wl:']==expected:exact.append(candidate)
+    # The complete regular route is stronger evidence than a historical detour
+    # that happens to contain the same stops as a subsequence.
+    return exact or matches
+
 def decode_shape(value):
     points=[];at=0;last=[0,0]
     while at<len(value):
@@ -67,10 +78,7 @@ def reference(csv_dir, line_index):
             ss=pattern['stops'];expected=[s['id'] for s in ss]
             if len(ss)<3 or len(set(expected))!=len(ss) or not pattern['geometry']:continue
             if not usable_geometry(decode_shape(line['shapes'][pattern['geometry']]),ss):continue
-            matches=[]
-            for pid,d,seq in byline[source['LineID']]:
-                match=ordered_match(seq,expected[:-1])
-                if match:matches.append((pid,d,match))
+            matches=matching_patterns(byline[source['LineID']],expected)
             ds={d for _,d,_ in matches}
             if len(ds)!=1:continue
             d=next(iter(ds));rbls=[]

@@ -35,3 +35,9 @@ test('A-to-B station refreshes update departures without remounting the vehicle 
  for(let i=0;i<4;i++)context.renderCurrent();
  assert.equal(h.stats.refreshes,4);assert.equal(h.stats.disconnects,0);assert.equal(h.stats.mounts,0);assert.equal(h.stats.focusCalls,0);assert.equal(h.panel.open,true);
 });
+
+test('map, schema and vehicle-list selections toggle off on a second tap and stop following',()=>{
+ const source=readFileSync(new URL('../pwa/src/vehicle-page.mjs',import.meta.url),'utf8');let rendered=0;const context=vm.createContext({selected:'',follow:false,render:()=>rendered++});
+ vm.runInContext(source.slice(source.indexOf('function choose('),source.indexOf('async function showMap(')),context);
+ context.choose('U6-T001');assert.equal(context.selected,'U6-T001');context.follow=true;context.choose('U6-T001');assert.equal(context.selected,'');assert.equal(context.follow,false);context.choose('U6-T002');assert.equal(context.selected,'U6-T002');assert.equal(rendered,3);
+});

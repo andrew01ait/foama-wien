@@ -1,11 +1,11 @@
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.2';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.2';
-import {createThemeController} from './theme.mjs?v=0.11.2';
-import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.2';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.2';
-import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.2';
-import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.2';
-import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.2';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.3';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.3';
+import {createThemeController} from './theme.mjs?v=0.11.3';
+import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.3';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.3';
+import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.3';
+import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.3';
+import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.3';
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>id.replace(/^[^-]+-/,''),rowY=i=>55+i*100;
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
@@ -14,7 +14,7 @@ let lastMarkup='',lastStationMarkup='',lastDetailsMarkup='',runNumber=0,lastAnim
 const source=createVehicleData();let catalogue,loading=0,windows=[],windowIndex=0,requestedIds=[],focusStop=params.get('halt'),localRange=null,localStrip=null;
 function coordinate(position){return position.from!=null?geometry.between(position.from,position.to,position.fraction):geometry.at(position.progress);}
 function markerMarkup(){return '<span class="vehicle-body">'+vehicleSymbolMarkup(line?.mode||'metro')+'</span>';}
-function choose(id){selected=id;follow=false;render(true);}
+function choose(id){selected=selected===id?'':id;follow=false;render(true);}
 async function showMap(){
  const own=++mapRevision;if(view!=='map'||document.hidden||!geometry)return;
  try{const L=await ensureJourneyMap();if(own!==mapRevision||document.hidden||view!=='map')return;
@@ -35,20 +35,20 @@ function render(force=false){
  const ids=new Set(positions.map(t=>t.id));
  if(map&&view==='map'){
   for(const [id,marker] of mapVehicles)if(!ids.has(id)){vehicleLayer.removeLayer(marker);mapVehicles.delete(id);}
-  for(const t of positions){let marker=mapVehicles.get(t.id);if(!marker){marker=window.L.marker(coordinate(t.position),{icon:window.L.divIcon({className:'pilot-vehicle-marker',html:markerMarkup()+'<small class="vehicle-id">'+escape(short(t.id))+'</small>',iconSize:[82,62],iconAnchor:[41,22]}),keyboard:true,zIndexOffset:1000}).addTo(vehicleLayer);marker.on('click',()=>choose(t.id));mapVehicles.set(t.id,marker);}marker.setLatLng(coordinate(t.position));const el=marker.getElement();el?.setAttribute('aria-label',t.id+' · '+vehicleInfo(t));el?.setAttribute('aria-pressed',String(selected===t.id));el?.classList.toggle('stale',t.position.stale);el?.classList.toggle('uncertain',Boolean(t.position.uncertain));}
+  for(const t of positions){let marker=mapVehicles.get(t.id);if(!marker){marker=window.L.marker(coordinate(t.position),{icon:window.L.divIcon({className:'pilot-vehicle-marker',html:markerMarkup()+'<small class="vehicle-id">'+escape(short(t.id))+'</small>',iconSize:[82,62],iconAnchor:[41,22]}),keyboard:true,zIndexOffset:1000}).addTo(vehicleLayer);marker.on('click',()=>choose(t.id));mapVehicles.set(t.id,marker);}marker.setLatLng(coordinate(t.position));marker.setZIndexOffset(selected===t.id?1400:t.position.uncertain?900:1000);const el=marker.getElement();el?.setAttribute('aria-label',t.id+' · '+vehicleInfo(t));el?.setAttribute('aria-pressed',String(selected===t.id));el?.classList.toggle('stale',t.position.stale);el?.classList.toggle('uncertain',Boolean(t.position.uncertain));}
   if(follow&&selected&&mapVehicles.has(selected))map.panTo(mapVehicles.get(selected).getLatLng(),{animate:false});
  }
  const schema=$('schemaVehicles');for(const node of [...schema.children])if(!ids.has(node.dataset.train))node.remove();
  for(const t of positions){let button=[...schema.children].find(n=>n.dataset.train===t.id);if(!button){button=document.createElement('button');button.type='button';button.className='schema-vehicle';button.dataset.train=t.id;button.innerHTML=markerMarkup()+'<small class="vehicle-id">'+escape(short(t.id))+'</small>';button.addEventListener('click',()=>choose(t.id));schema.append(button);}button.style.top=rowY(t.position.progress)+'px';button.setAttribute('aria-label',t.id+' · '+vehicleInfo(t));button.setAttribute('aria-pressed',String(selected===t.id));button.classList.toggle('stale',t.position.stale);button.classList.toggle('uncertain',Boolean(t.position.uncertain));}
- const markup=positions.map(t=>`<button class="pilot-train" type="button" data-train="${escape(t.id)}" aria-pressed="${selected===t.id}"><span class="vehicle-list-symbol" aria-hidden="true">${vehicleSymbolMarkup(line.mode)}</span><span class="vehicle-list-copy"><strong>${escape(t.id)}</strong><small>${escape(vehicleInfo(t))}${t.position.stale?' · eingefroren':''}</small></span><span aria-hidden="true">›</span></button>`).join('')||`<p class="fineprint">${!started?'Starte die Anzeige, um frische Stationsmeldungen zu sammeln.':paused?'Keine geschätzte Position im eingefrorenen Stand.':state.problem||state.partial||base.stale?'Aktuell keine ausreichend frische Schätzung.':'Noch keine eindeutige Position im Abschnitt. Die aktuellen Stationsprognosen stehen im Klappbereich unten.'}</p>`;
+ const markup=positions.map(t=>`<button class="pilot-train ${t.position.uncertain||t.position.stale?'uncertain':''}" type="button" data-train="${escape(t.id)}" aria-pressed="${selected===t.id}"><span class="vehicle-list-symbol" aria-hidden="true">${vehicleSymbolMarkup(line.mode)}</span><span class="vehicle-list-copy"><strong>${escape(t.id)}</strong><small>${escape(vehicleInfo(t))}${t.position.stale?' · eingefroren':''}</small></span><span aria-hidden="true">›</span></button>`).join('')||`<p class="fineprint">${!started?'Starte die Anzeige, um frische Stationsmeldungen zu sammeln.':paused?'Keine geschätzte Position im eingefrorenen Stand.':state.problem||state.partial||base.stale?'Aktuell keine ausreichend frische Schätzung.':'Noch keine eindeutige Position im Abschnitt. Die aktuellen Stationsprognosen stehen im Klappbereich unten.'}</p>`;
  if(markup!==lastMarkup){$('pilotTrains').innerHTML=markup;lastMarkup=markup;}
  const selectedTrack=state.tracks.find(t=>t.id===selected);$('pilotSelection').hidden=!selected;
- if(selected){$('selectedVehicle').textContent=selected;$('selectedVehicleInfo').textContent=selectedTrack?vehicleInfo(selectedTrack)+' · '+selectedTrack.status+' · '+selectedTrack.hits+' unterschiedliche Quellenstände. Keine offizielle Fahrzeug-ID.':'Diese vorläufige Fahrt wird nicht mehr ausreichend frisch zugeordnet.';$('pilotFollow').setAttribute('aria-pressed',String(follow));$('pilotFollow').disabled=!selectedTrack?.position;}
+ if(selected){$('selectedVehicle').textContent=selected;$('selectedVehicleInfo').textContent=selectedTrack?vehicleInfo(selectedTrack)+' · Vorläufige Fahrt-ID, keine offizielle Fahrzeugnummer.':'Diese vorläufige Fahrt wird nicht mehr ausreichend frisch zugeordnet.';$('pilotFollow').setAttribute('aria-pressed',String(follow));$('pilotFollow').textContent=follow?'Folgen beenden':'Fahrt folgen';$('pilotFollow').disabled=!selectedTrack?.position;}
  if(!force&&Date.now()-lastRender<1000)return;lastRender=Date.now();
  const stationMarkup=direction.stops.map((s,i)=>`<article class="pilot-station"><h4>${i+1}. ${escape(s.name)}</h4><ul>${state.rows.filter(r=>r.index===i).slice(0,3).map(r=>{const matches=state.tracks.filter(t=>r.candidates?.includes(t.schedule.key)),id=matches.length===1?matches[0].id:'Zuordnung offen';return `<li><time>${escape(clock(r.actual))}</time><span>${escape(id)}${r.onStop?' · an Station gemeldet':''}</span></li>`;}).join('')||'<li>Keine frische Live-Prognose.</li>'}</ul></article>`).join('');
  if(stationMarkup!==lastStationMarkup){$('pilotStations').innerHTML=stationMarkup;lastStationMarkup=stationMarkup;}
  if(follow&&selected&&view==='schema'){const t=positions.find(t=>t.id===selected);if(t)$('pilotSchema').scrollTop=Math.max(0,rowY(t.position.progress)-$('pilotSchema').clientHeight/2);}
- const details=state.events.map(e=>`<div class="pilot-event"><strong>${escape(e.id)}</strong> · ${e.kind==='handover'?escape(direction.stops[e.from].name+' → '+direction.stops[e.to].name):({correction:'Prognosekorrektur · Lage erneut prüfen',gap:'Meldelücke · letzte Lage bleibt sichtbar',reacquired:'Wieder zugeordnet · gleiche Fahrt-ID',expired:'Zuordnung seit 90 Sekunden ausgeblieben',end:'Geschätzte Endstation erreicht'})[e.kind]||'Vorläufiger Kandidat angelegt'}<small>${clock(e.at)} · ${e.kind==='handover'?'Plausible Stationsfolge anhand „an Station“-Meldungen':'Zuordnung aus Sollzeiten und Stationsprognosen'}</small></div>`).join('')||'<p class="fineprint">Noch keine Übergabe beobachtet.</p>';
+ const details=state.events.map(e=>`<div class="pilot-event"><strong>${escape(e.id)}</strong> · ${e.kind==='handover'?escape(direction.stops[e.from].name+' → '+direction.stops[e.to].name):({correction:'Prognosekorrektur · Lage erneut prüfen',gap:'Meldelücke · letzte Lage bleibt sichtbar',reacquired:'Wieder zugeordnet · gleiche Fahrt-ID',expired:'Zuordnung seit 90 Sekunden ausgeblieben',superseded:'Letzte Lage durch bestätigte Folgefahrt überholt',end:'Geschätzte Endstation erreicht'})[e.kind]||'Vorläufiger Kandidat angelegt'}<small>${clock(e.at)} · ${e.kind==='handover'?'Plausible Stationsfolge anhand „an Station“-Meldungen':'Zuordnung aus Sollzeiten und Stationsprognosen'}</small></div>`).join('')||'<p class="fineprint">Noch keine Übergabe beobachtet.</p>';
  if(details!==lastDetailsMarkup){$('pilotEvents').innerHTML=details;lastDetailsMarkup=details;}
  $('pilotCandidates').className='pilot-candidates';$('pilotCandidates').innerHTML=state.tracks.length?'<table><thead><tr><th>Vorläufige ID</th><th>Prüfstand</th></tr></thead><tbody>'+state.tracks.map(t=>`<tr><td>${escape(t.id)}</td><td>${escape(t.status)} · ${t.hits} Quellenstände</td></tr>`).join('')+'</tbody></table>':'';
 }
@@ -57,7 +57,7 @@ function stop(){poller?.stop();cancelAnimationFrame(animation);animation=0;}
 function resume(){if(!tracker||document.hidden||paused||!started)return;if(Date.now()-tracker.view().at>90_000)tracker.clear();poller.start();cancelAnimationFrame(animation);animation=requestAnimationFrame(animate);render(true);}
 function controls(){
  const groups=[...new Set(data.directions.map(d=>d.gtfsDirection))];$('pilotDirections').innerHTML=groups.map(id=>{const d=preferredVehicleDirection(data,line,manifest,{gtfsDirection:id});return `<button type="button" data-direction="${escape(id)}" aria-pressed="${direction.gtfsDirection===id}">→ ${escape(d.towards)}</button>`;}).join('');
- const variants=data.directions.filter(d=>d.gtfsDirection===direction.gtfsDirection);$('pilotVariant').innerHTML=variants.map(d=>`<option value="${escape(d.id)}" ${d.id===direction.id?'selected':''}>${escape(d.stops[0].name)} → ${escape(d.towards)} · ${d.stops.length} Halte</option>`).join('');
+ const variants=data.directions.filter(d=>d.gtfsDirection===direction.gtfsDirection);$('pilotVariantLabel').hidden=variants.length<2;$('pilotVariant').innerHTML=variants.map(d=>`<option value="${escape(d.id)}" ${d.id===direction.id?'selected':''}>${escape(d.stops[0].name)} → ${escape(d.towards)} · ${d.stops.length} Halte</option>`).join('');
  $('pilotWindowLabel').hidden=windows.length<2||view==='station';$('pilotWindow').innerHTML=windows.map((w,i)=>`<option value="${i}" ${i===windowIndex?'selected':''}>${escape(direction.stops[w.start].name)} → ${escape(direction.stops[Math.min(w.end+1,direction.stops.length-1)].name)}</option>`).join('');
  $('pilotStation').innerHTML='<option value="">Station auswählen</option>'+direction.stops.map(s=>`<option value="${escape(s.id)}" ${s.id===focusStop?'selected':''}>${escape(s.name)}</option>`).join('');document.querySelector('[data-view="station"]').disabled=!localRange;
 }
@@ -73,7 +73,7 @@ function setDirection(id){
  if(view==='map')void showMap();render(true);resume();
 }
 function syncView(){
- $('pilotMap').hidden=view!=='map';$('pilotSchema').hidden=view!=='schema';$('pilotLocal').hidden=view!=='station';document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
+ $('pilotLegend').hidden=view==='station';$('pilotFit').textContent=view==='schema'?'Zum Linienanfang':'Gesamte Linie';$('pilotMap').hidden=view!=='map';$('pilotSchema').hidden=view!=='schema';$('pilotLocal').hidden=view!=='station';document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
 }
 async function loadLine(entry){
  const own=++loading;stop();mapRevision++;tracker=null;mapLayers?.clearLayers();vehicleLayer?.clearLayers();mapVehicles.clear();$('pilotPause').disabled=true;$('pilotStatus').textContent='Fahrzeuglinie wird geladen …';$('pilotTrains').textContent='';

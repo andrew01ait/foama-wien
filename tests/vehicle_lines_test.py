@@ -1,7 +1,7 @@
 import unittest,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from prepare_vehicle_lines import ordered_match,decode_shape,usable_geometry
+from prepare_vehicle_lines import ordered_match,matching_patterns,decode_shape,usable_geometry
 from prepare_line_maps import encode_polyline
 
 class VehicleLineImportTest(unittest.TestCase):
@@ -10,6 +10,21 @@ class VehicleLineImportTest(unittest.TestCase):
         self.assertEqual(ordered_match(sequence,['wl:1','wl:3']),['10','12'])
         self.assertIsNone(ordered_match(sequence,['wl:3','wl:1']))
         self.assertIsNone(ordered_match(sequence,['similar name']))
+
+    def test_complete_regular_route_outweighs_detour_subsequence(self):
+        regular=[('wl:1','10'),('wl:2','11'),('wl:3','12')]
+        detour=[('wl:9','90'),*regular,('wl:8','80')]
+        matches=matching_patterns([('regular','2',regular),('detour','1',detour)],['wl:1','wl:2','wl:3'])
+        self.assertEqual(matches,[('regular','2',['10','11'])])
+
+    def test_conflicting_complete_routes_remain_ambiguous(self):
+        sequence=[('wl:1','10'),('wl:2','11'),('wl:3','12')]
+        matches=matching_patterns([('a','1',sequence),('b','2',sequence)],['wl:1','wl:2','wl:3'])
+        self.assertEqual({d for _,d,_ in matches},{'1','2'})
+
+    def test_empty_diva_staging_node_does_not_hide_exact_route(self):
+        sequence=[('wl:','99'),('wl:1','10'),('wl:2','11'),('wl:3','12')]
+        self.assertEqual(matching_patterns([('regular','2',sequence)],['wl:1','wl:2','wl:3']),[('regular','2',['10','11'])])
 
     def test_shape_projection_rejects_wrong_side_order_and_distant_stations(self):
         shape=[(48,16),(48.001,16),(48.001,16.002)]

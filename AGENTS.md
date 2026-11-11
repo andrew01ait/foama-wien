@@ -1,3 +1,11 @@
+## PWA 0.11.3 · Tram 46 in beide Richtungen und klarere Fahrzeugansicht · 11.11.2026
+
+Zweites Antippen wählt eine Fahrt in Karte, Schema, Liste und Stationsausschnitt wieder ab und beendet aktives Folgen. Unsichere/fehlende Lagen erscheinen als graues Symbol ohne gestrichelten Rahmen. Eine alte gehaltene Lage wird ausgeblendet, wenn eine frisch bestätigte spätere Fahrt sie passiert hat: gleicher Zielbezug, mindestens zwei gemeinsame frische Stationsanker mit späteren Sollzeiten und zwei Quellenstände. Überlappende frische Fahrten oder ein Quellenausfall löschen keinen Marker. Erneute Darstellung einer entfernten ID benötigt wieder zwei Quellenstände; 60/90-s-Fristen bleiben erhalten.
+
+Linie 46 war durch widersprüchliche historische Umleitungsmuster nur in einer Richtung importiert. Vollständig identische öffentliche Stationsfolgen haben nun Vorrang vor bloßen Teilfolgen; widersprüchliche vollständige Zuordnungen bleiben ausgeschlossen. Rückrichtung Joachimsthalerplatz → Parlament/Volkstheater mit getrennt gebundenen RBL-Seiten ergänzt: 165 Linien/617 Varianten. Fehlender naher Sollslot blockiert Bus/Tram nicht mehr, wenn ein gültiges Reisezeitprofil derselben Streckenvariante vom aktuellen Betriebstag vorliegt; mindestens drei Live-Sollanker und zwei Quellenstände bleiben Pflicht. U-Bahn-Sollslotabgleich bleibt erhalten.
+
+Telefon: Darstellungsschalter erhalten eine eigene volle Zeile, Einzelvariantenwahl entfällt, lange Texte umbrechen. Desktop nutzt bis zu 1000 px Breite. Auswahlstatus und Folgen-Schalter klarer; redundante Legende in „Dein Halt“ entfällt. Horizontale Halteansicht bleibt vollständig in der Bildschirmbreite. Neuer PWA-Cache, Wear 0.7.4/26 erhalten.
+
 ## PWA 0.11.2 · Stationsausschnitt ohne Seitwärtsscroll · 11.11.2026
 
 Fahrzeuge im Anflug passt den kompletten Ausschnitt proportional an die Bildschirmbreite an. Bis zu acht nummerierte Halte mit vollständig umbrechenden Namen darunter, ausgewählter Halt hervorgehoben; kein horizontaler Scrollbereich und kein automatisches Zentrieren. Fahrzeug- und Stationskoordinaten verwenden dieselbe relative Skala. In Verbindungs- und A-nach-B-Details bleibt das Panel dauerhaft im DOM; Countdown-/Monitorupdates ersetzen ausschließlich Abfahrtsinhalte, ohne Panel, Fokus, Richtungswahl oder Tracker neu einzusetzen. Abrufbudgets, Quellenbindung und Wear 0.7.4/26 bleiben erhalten.

@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.2, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 616 eindeutig zugeordneten Streckenvarianten. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.3, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Ansichten und Einstiege
 
@@ -13,6 +13,8 @@ PWA 0.11.2, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.
 | „Dein Halt“ in Fahrzeuge im Anflug | Derselbe horizontale Ausschnitt nach bewusster Stationswahl, höchstens fünf Halte davor und zwei danach |
 
 Der horizontale Ausschnitt läuft in tatsächlicher Fahrtfolge von links nach rechts. Die gewählte Station ist hervorgehoben. Am Linienanfang/-ende werden fehlende Nachbarn nicht durch andere Stationen aufgefüllt. Der gesamte Ausschnitt passt ohne horizontales Scrollen in die Bildschirmbreite. Nummerierte Halte und eine kompakte Namensliste darunter halten alle Namen vollständig lesbar. Fahrzeug- und Haltekoordinaten verwenden dieselbe relative Skala. Fahrzeug-Symbole für Zug, Tram und Bus, temporäre IDs, Tastaturbedienung und reduzierte Bewegung werden unterstützt. Die ganze Strecke bleibt über den Link erreichbar.
+
+Zweites Antippen derselben Fahrt hebt die Auswahl auf und beendet aktives Folgen. Unsichere Lagen werden als graues Symbol ohne gestrichelten Rahmen dargestellt. Auf schmalen Bildschirmen stehen die drei Ansichtsschalter in einer vollen Zeile, darunter Start/Pause; eine einzelne Streckenvariante benötigt keinen redundanten Auswahlschalter. Der Desktop-Inhalt nutzt bis zu 1000 px.
 
 ## Reproduzierbare öffentliche Datenbasis
 
@@ -30,6 +32,8 @@ Ausgeschlossen bleiben 42A, 49BR, 70A, 71A, 74A, N75, ZF und 12: fehlende bestä
 
 Format 3 verwendet begrenztes Gzip/Base64. Nur die bewusst gewählte Linie wird geladen und im vorhandenen IndexedDB-Katalog mit Version/Quelldigest und Paket-Hash gespeichert. Eine andere Fahrplanbasis, beschädigte Pakete, abgelaufene Kalender und unpassende Plattformfolgen werden abgelehnt. Die alte U6-Datei und ihre beiden historischen Mitschnitte bleiben als Regressionen erhalten.
 
+Bei mehreren Fahrwegmustern hat eine vollständig identische öffentliche Stationsfolge Vorrang vor einer Umleitungsfolge, die dieselben Stationen nur als Teilfolge enthält. Vollständige Konflikte bleiben ausgeschlossen; keine Ableitung aus GTFS-Richtungscodes. Linie 46 enthält damit beide regulären Richtungen, getrennte physische RBL-Seiten und die Ankunftsstation ohne erfundenen Abfahrtsmonitor. Die zuvor unterstützte 13-Halte-Hinfahrt bleibt erhalten; die 14-Halte-Rückfahrt ist ergänzt.
+
 Zielnamen werden ausschließlich über dieselbe tatsächliche Endstations-ID verbunden, etwa „Parlament/Volkstheater“ und „Parlament, U Volkstheater“. Keine unscharfe Namensähnlichkeit oder Radiuszuordnung.
 
 ## Zwei Arten der Zuordnung
@@ -39,14 +43,15 @@ Zielnamen werden ausschließlich über dieselbe tatsächliche Endstations-ID ver
 | U-Bahn | Eindeutiger kalendergebundener GTFS-Sollslot, maximal 60 Sekunden Differenz zwischen minutengenauem GTFS und sekundengenauer Live-Sollzeit; mindestens zwei Stationen und zwei verschiedene frische Quellenstände |
 | Tram und Bus | Mindestens drei zusammenpassende Live-Sollanker und zwei verschiedene frische Quellenstände; GTFS liefert ein kompatibles Fahrzeitprofil, seine absolute Abfahrtszeit ist keine Fahrzeugidentität |
 
-Die neuen Proben zeigten für Tram 49 und Bus 48A mehrere Minuten Differenz zwischen Monitor-Sollzeiten und GTFS-Sollslots. Einfach größere Toleranz oder Abfahrtsrang als ID würde falsche Sicherheit schaffen. Stattdessen werden Live-Stationsfolgen anhand richtiger Linie, Modus, Ziel, RBL-Seite und konsistenter relativer Sollzeiten gebildet. Kalender-/zielkompatible GTFS-Profile begrenzen Fahrzeit und Haltefolge. Prototypen mit derselben tatsächlichen Beobachtungsfolge erzeugen keine zusätzlichen Fahrzeug-IDs.
+Die neuen Proben zeigten für Tram 49 und Bus 48A mehrere Minuten Differenz zwischen Monitor-Sollzeiten und GTFS-Sollslots. Einfach größere Toleranz oder Abfahrtsrang als ID würde falsche Sicherheit schaffen. Stattdessen werden Live-Stationsfolgen anhand richtiger Linie, Modus, Ziel, RBL-Seite und konsistenter relativer Sollzeiten gebildet. Kalender-/zielkompatible GTFS-Profile begrenzen Fahrzeit und Haltefolge. Fehlen nahe Sollslots, darf ein gültiges Profil derselben Streckenvariante vom aktuellen Betriebstag dienen. Die absolute GTFS-Zeit bleibt dabei keine Fahrzeug-ID; die Live-Anker und Quellenstände bleiben unverändert erforderlich. Prototypen mit derselben tatsächlichen Beobachtungsfolge erzeugen keine zusätzlichen Fahrzeug-IDs.
 
 Konkurrierende Live-Folgen, doppelte Anker, widersprüchliche Zeiten und mehrdeutige sehr enge Takte bleiben unaufgelöst. Eine existierende Bus-/Tram-ID wird nur bei mindestens zwei gemeinsamen tatsächlichen Stations-/Sollzeit-Schlüsseln weitergeführt, wenn auch diese Verknüpfung eindeutig ist. Kein nächster GTFS-Zug, keine Rangzuordnung und kein Lernen aus selbst erzeugten Positionen. Ankunfts-/Abfahrtszeiten bleiben auch bei Minutengleichheit in der Quelle erhalten; ohne positive belegbare Abschnittsdauer wird keine Bewegung erfunden.
 
-`onStop` ist ein Stationsstatus, keine GPS-Koordinate. Zwischen frischen Ankern wird auf dem echten Linienverlauf interpoliert. Ein fehlender nächster Anker darf begrenzt bis zum nächsten tatsächlich bedienten Halt mit Sollzeit überbrückt werden; diese zusätzliche Annahme ist sichtbar grau gestrichelt. Endstationen ohne Abfahrtsmonitor erhalten eine begrenzte geschätzte Ankunft, danach ein ausdrücklich erklärtes Fahrtende.
+`onStop` ist ein Stationsstatus, keine GPS-Koordinate. Zwischen frischen Ankern wird auf dem echten Linienverlauf interpoliert. Ein fehlender nächster Anker darf begrenzt bis zum nächsten tatsächlich bedienten Halt mit Sollzeit überbrückt werden; diese zusätzliche Annahme ist als schlicht graues Symbol ohne Rahmen sichtbar. Endstationen ohne Abfahrtsmonitor erhalten eine begrenzte geschätzte Ankunft, danach ein ausdrücklich erklärtes Fahrtende.
 
 ## Kontinuität und Abrufbudget
 
+- Eine gehaltene alte Lage wird entfernt, wenn eine frisch bestätigte spätere Fahrt sie um mindestens 0,35 Stationsabstände passiert hat und mindestens zwei gemeinsame frische Stationsanker jeweils über 60 Sekunden spätere Sollzeiten belegen. Kein Entfernen allein wegen räumlicher Überlappung oder Quellenausfall. Eine erneute Darstellung benötigt wieder zwei unabhängige Quellenstände.
 - Fehlende oder widersprüchliche aktuelle Zuordnung hält die letzte ableitbare Lage kurz grau unter derselben ID. Keine unbestätigte Weiterfahrt. Andere eindeutige Zuordnungen laufen weiter.
 - Ab 60 Sekunden ohne frischen Quellenstand einfrieren; nach 90 Sekunden ohne passende Meldung beziehungsweise letzte ableitbare Lage ausblenden. Die gewählte Fahrt erklärt Lücke, Ablauf oder geschätztes Linienende. Verschwinden allein ist keine bestätigte Abfahrt.
 - Ein Monitorabruf frühestens alle 30 Sekunden, höchstens 24 RBLs. Lange Strecken verwenden explizit wählbare Abschnitte mit zwei überlappenden RBLs; kein schneller Zusatzabruf oder automatisches Rundum-Polling. Abschnitt-/Richtungswechsel sammelt neu; Karte und vertikales Schema allein starten keine neue Zuordnung.

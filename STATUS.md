@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 11. November 2026. **PWA 0.11.2, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 11. November 2026. **PWA 0.11.3, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -14,7 +14,7 @@ Stand: 11. November 2026. **PWA 0.11.2, Wear 0.7.4 / Code 26.** Verbindlich sind
 | A nach B | Gemeinsamer Seitenaufbau mit Titel vor Hauptnavigation, Vollplanung, Karten, Alternativen und Orte in der PWA; Uhr zeigt importierte Routen mit aktuellen passenden Linienzeiten |
 | Tagesfahrpläne | 173 Wiener Linien, Heute zuerst, Datum/Haltestelle/Richtung, aktuelle Stunde farbig, ausdrückliche Offline-Sicherung und PDF für Haltestelle/Richtung oder ganze Linie mit datumsgültigen Variantenkarten und Haltestellen in Fahrtfolge |
 | Linienkarte | 173 Wiener Linien, 965 reale Varianten, OpenStreetMap-Hintergrund, Richtungen/Kurzführungen, Haltepunkte mit zoomabhängigen Nummern und aufklappbare Hinweise und geordnete Stationsliste; geladene Geometrie offline, Kartenkacheln online |
-| Fahrzeugschätzung | [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Linien, 616 eindeutig zugeordnete Varianten, Karte/Schema sowie horizontale Ausschnitte in Stations- und A-nach-B-Einstiegsdetails; Prognoseschätzung, keine GPS-Positionen |
+| Fahrzeugschätzung | [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Linien, 617 eindeutig zugeordnete Varianten, Karte/Schema sowie horizontale Ausschnitte in Stations- und A-nach-B-Einstiegsdetails; Prognoseschätzung, keine GPS-Positionen |
 | Städtebild | Proportionale Collage Wien/Graz/Linz/Salzburg mit Bahn, Tram und Obus; Salzburg-Einschränkung im FAQ statt separatem Banner |
 | Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), mit Verfügbarkeitssymbolen und aufklappbaren FAQ; verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
 | Störungen | Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
@@ -22,7 +22,7 @@ Stand: 11. November 2026. **PWA 0.11.2, Wear 0.7.4 / Code 26.** Verbindlich sind
 
 ## Fahrplanstand und Aktualität
 
-1.695 Wiener Stationen und 173 Linien, gültig 09.11.–12.12.2026. Vollständige offizielle Quelle am 10.11.2026 um 09:47 Wiener Zeit per SHA-256 geprüft: unverändert zum Import. Serveränderungsdatum und ZIP-Dateistand 09.11.; kein ausdrücklich angegebenes Veröffentlichungsdatum. Die Fahrplanansicht unterscheidet diese Angaben, Import und gespeicherten Prüfstand.
+1.695 Wiener Stationen und 173 Linien, gültig 09.11.–12.12.2026. Vollständige offizielle Quelle am 10.11.3026 um 09:47 Wiener Zeit per SHA-256 geprüft: unverändert zum Import. Serveränderungsdatum und ZIP-Dateistand 09.11.; kein ausdrücklich angegebenes Veröffentlichungsdatum. Die Fahrplanansicht unterscheidet diese Angaben, Import und gespeicherten Prüfstand.
 
 Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens 14 Tage Restgültigkeit, Ablauf und anhaltende Prüfprobleme. **Noch kein automatischer Neuimport/Deploy.** Andere Städte haben kein eigenes Offline-Sollfahrplanpaket. Die native Uhr hält nur den begrenzten bisherigen Abfahrtencache, keine vollständigen Linienfahrpläne.
 

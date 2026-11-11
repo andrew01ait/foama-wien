@@ -1,3 +1,11 @@
+## PWA 0.11.3 · Toggle, verlorene Marker und beide Tram-46-Richtungen · 11.11.2026
+
+397 Web-/Server-Tests, 18 Python-Prüfungen, 82 JavaScript-Syntaxprüfungen. Neue Regressionen prüfen echtes Abwählen, Folgenende, Entfernen überholter gehaltener Lagen, ausbleibendes Entfernen bei Überlappung/Quellenausfall/einem einzelnen Anker und erneute Zwei-Quellen-Bestätigung. Alle 165 Pakete/617 Varianten bleiben quell-, kalender-, geometrie- und plattformgebunden. Importprüfung: vollständige reguläre Stationsfolge schlägt historische Umleitungsteilfolge, vollständiger Richtungskonflikt bleibt offen.
+
+Neue minimale öffentliche Mitschnitte für Tram 46: H-Richtung 12:23:45/12:24:40 Wiener Zeit bestätigt Schätzlage trotz fehlender naher GTFS-Abfahrt; R-Richtung 12:39:09/12:40:06 bestätigt zwei Schätzlagen aus acht getrennten Rückrichtungs-RBLs. Keine Standort- oder offiziellen Fahrzeugidentitätsdaten. Frische GTFS-/CSV-Downloads am 11.11. stimmen per Digest mit der bestehenden Referenz überein. Die Fixture-Dateien enthalten nur die benötigten öffentlichen Monitorfelder; Rohproben sind kein Releasebestandteil.
+
+Visuelle Erstprüfung der Fahrzeugseite im verwalteten Browser bei Desktop- und 337 px CSS-Breite: beide Richtungen sichtbar, redundante Einzelvariante und gequetschte Ansichtsschalter erkannt. Daraufhin Layout, Platznutzung und Auswahlstatus optimiert. Vorschau-Refresh beim Worker-Neubau durch Browser-URL-Richtlinie blockiert; weitere veröffentlichte Sichtprüfung separat. Physische Fahrten-/Android-Abnahme bleibt offen.
+
 ## PWA 0.11.2 · stabile und bildschirmbreite Stationsansicht · 11.11.2026
 
 386 Web-/Server-Tests einschließlich zweier zusätzlicher Regressionen gegen Remount/Fokuswechsel im tatsächlichen Stations- und A-nach-B-Renderer. Horizontale Bewegung bleibt relativ und nutzt dieselbe Skala wie die Halte. Browser: acht vollständige Halte bei 337 px CSS-Breite per Zoom, Diagramm-clientWidth und scrollWidth beide 281 px, Seite jeweils 337 px; offener Bereich, gewählte Richtung und Fokus bleiben über Routineupdates erhalten. Helle und dunkle Palette kontrolliert. Dies ersetzt keine physische Android-Abnahme.

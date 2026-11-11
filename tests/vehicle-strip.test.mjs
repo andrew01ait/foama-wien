@@ -7,8 +7,8 @@ const entry=index.lines.find(l=>l.id==='bus|48A'),data=await decodeVehiclePilot(
 class Element{
  constructor(tag){this.tag=tag;this.children=[];this.style={setProperty(){}};this.dataset={};this.attributes={};this.handlers=new Map();this.selectors=new Map();this.classList={toggle(){}};this.clientWidth=320;}
  querySelector(selector){if(!this.selectors.has(selector))this.selectors.set(selector,new Element(selector));return this.selectors.get(selector);}
- addEventListener(type,fn){this.handlers.set(type,fn);}emit(type){this.handlers.get(type)?.();}
- setAttribute(k,v){this.attributes[k]=v;}append(child){this.children.push(child);}replaceChildren(...children){this.children=children;}remove(){this.removed=true;}
+ addEventListener(type,fn){this.handlers.set(type,fn);}emit(type,event){this.handlers.get(type)?.(event);}
+ setAttribute(k,v){this.attributes[k]=v;}append(child){child.parentElement=this;this.children.push(child);}replaceChildren(...children){for(const c of this.children)c.parentElement=null;this.children=[];for(const c of children)this.append(c);}remove(){this.removed=true;if(this.parentElement){this.parentElement.children=this.parentElement.children.filter(c=>c!==this);this.parentElement=null;}}
 }
 function dom(){const old={document:globalThis.document,requestAnimationFrame:globalThis.requestAnimationFrame,cancelAnimationFrame:globalThis.cancelAnimationFrame};let serial=0;const listeners=new Map();globalThis.document={hidden:false,createElement:t=>new Element(t),addEventListener:(k,v)=>listeners.set(k,v),removeEventListener:k=>listeners.delete(k)};globalThis.requestAnimationFrame=()=>++serial;globalThis.cancelAnimationFrame=()=>{};return {listeners,restore(){Object.assign(globalThis,old);}};}
 const flush=()=>new Promise(setImmediate);
@@ -35,4 +35,9 @@ test('an unsupported line reports its absence and never supplies query IDs',asyn
 test('the horizontal schematic moves vehicles left to right and keeps the selected real station marked',()=>{
  const d=dom(),range=stationVehicleRange(direction,target.stopId),strip=createHorizontalVehicleStrip({direction,range});
  try{assert.match(strip.element.innerHTML,/aria-current="location"/);assert.match(strip.element.innerHTML,/von links nach rechts/);const t={id:'48A-H1-T001',position:{progress:range.center-1,next:range.center,station:null,basis:'interpolated'},status:'Plausibel'};strip.render({at:1,tracks:[t]});const marker=strip.element.querySelector('.vehicle-strip-vehicles').children[0],before=parseFloat(marker.style.left);t.position.progress+=.5;strip.render({at:1,tracks:[t]});assert.ok(parseFloat(marker.style.left)>before);assert.equal(marker.attributes['aria-label'].includes('48A-H1-T001'),true);}finally{d.restore();}
+});
+
+test('tapping a vehicle again deselects it, and selecting another clears the first highlight',()=>{
+ const d=dom(),range=stationVehicleRange(direction,target.stopId),strip=createHorizontalVehicleStrip({direction,range});
+ try{const make=(id,progress)=>({id,position:{progress,next:range.center,station:null,basis:'interpolated'},status:'Plausibel'}),state={at:1,tracks:[make('48A-H1-T001',range.center-1),make('48A-H1-T002',range.center-.5)]};strip.render(state);const holder=strip.element.querySelector('.vehicle-strip-vehicles'),[a,b]=holder.children,click=button=>holder.emit('click',{target:{closest:()=>button}});click(a);assert.equal(a.attributes['aria-pressed'],'true');strip.render(state);assert.equal(a.attributes['aria-pressed'],'true');click(a);assert.equal(a.attributes['aria-pressed'],'false');click(a);click(b);assert.equal(a.attributes['aria-pressed'],'false');assert.equal(b.attributes['aria-pressed'],'true');click(b);assert.equal(b.attributes['aria-pressed'],'false');}finally{d.restore();}
 });
