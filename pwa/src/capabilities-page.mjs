@@ -1,5 +1,5 @@
-import {createThemeController} from './theme.mjs?v=0.10.2';
-import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.10.2';
+import {createThemeController} from './theme.mjs?v=0.11.1';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.11.1';
 
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}
 createThemeController({preference:theme});

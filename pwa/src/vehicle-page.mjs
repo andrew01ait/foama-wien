@@ -1,17 +1,17 @@
-import {createTimetable} from './timetable.mjs?v=0.10.2';
-import {createLineMaps} from './line-maps.mjs?v=0.10.2';
-import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.10.2';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.10.2';
-import {createThemeController} from './theme.mjs?v=0.10.2';
-import {decodeVehiclePilot,validateVehiclePilot,normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.10.2';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.10.2';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.10.2';
-import {createVehiclePoller} from './vehicle-poller.mjs?v=0.10.2';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.1';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.1';
+import {createThemeController} from './theme.mjs?v=0.11.1';
+import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.1';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.1';
+import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.1';
+import {createVehicleData,vehicleWindows,stationVehicleRange,preferredVehicleDirection,vehicleUrl} from './vehicle-data.mjs?v=0.11.1';
+import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.1';
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>id.replace(/^U6-/,''),rowY=i=>55+i*100;
+const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>id.replace(/^[^-]+-/,''),rowY=i=>55+i*100;
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
-let data,manifest,line,direction,tracker,geometry,poller,map,mapLayers,vehicleLayer,view=params.get('ansicht')==='schema'?'schema':'map',selected='',follow=false,started=false,paused=false,frozenAt=0,animation=0,lastRender=0,mapRevision=0;
+let data,manifest,line,direction,tracker,geometry,poller,map,mapLayers,vehicleLayer,view=params.get('ansicht')==='station'?'station':params.get('ansicht')==='schema'?'schema':'map',selected='',follow=false,started=false,paused=false,frozenAt=0,animation=0,lastRender=0,mapRevision=0;
 let lastMarkup='',lastStationMarkup='',lastDetailsMarkup='',runNumber=0,lastAnimation=0;const mapVehicles=new Map();const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const source=createVehicleData();let catalogue,loading=0,windows=[],windowIndex=0,requestedIds=[],focusStop=params.get('halt'),localRange=null,localStrip=null;
 function coordinate(position){return position.from!=null?geometry.between(position.from,position.to,position.fraction):geometry.at(position.progress);}
 function markerMarkup(){return '<span class="vehicle-body">'+vehicleSymbolMarkup(line?.mode||'metro')+'</span>';}
 function choose(id){selected=id;follow=false;render(true);}
@@ -19,18 +19,19 @@ async function showMap(){
  const own=++mapRevision;if(view!=='map'||document.hidden||!geometry)return;
  try{const L=await ensureJourneyMap();if(own!==mapRevision||document.hidden||view!=='map')return;
   if(!map){$('pilotMap').textContent='';map=L.map($('pilotMap'),{scrollWheelZoom:false});L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,referrerPolicy:'strict-origin-when-cross-origin',attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>'}).on('tileerror',()=>{$('pilotMapNote').hidden=false;$('pilotMapNote').textContent='Kartenhintergrund nicht vollständig erreichbar. Der echte Linienverlauf bleibt sichtbar; das Schema funktioniert auch ohne Straßenkarte.';}).addTo(map);mapLayers=L.layerGroup().addTo(map);vehicleLayer=L.layerGroup().addTo(map);}
-  mapLayers.clearLayers();vehicleLayer.clearLayers();mapVehicles.clear();L.polyline(geometry.points,{color:'#a87e48',weight:5,interactive:false}).addTo(mapLayers);
-  direction.stops.forEach((s,i)=>{const marker=L.circleMarker([s.lat,s.lon],{radius:7,color:'#a87e48',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(mapLayers);marker.bindPopup(document.createTextNode(s.name));});
+  mapLayers.clearLayers();vehicleLayer.clearLayers();mapVehicles.clear();L.polyline(geometry.points,{color:routeColor(line.route,line.mode),weight:5,interactive:false}).addTo(mapLayers);
+  direction.stops.forEach((s,i)=>{const marker=L.circleMarker([s.lat,s.lon],{radius:7,color:routeColor(line.route,line.mode),weight:3,fillColor:'#fff',fillOpacity:1}).addTo(mapLayers);marker.bindPopup(document.createTextNode(s.name));});
   map.invalidateSize();map.fitBounds(L.latLngBounds(geometry.points).pad(.2),{maxZoom:16,animate:false});render(true);
  }catch{$('pilotMapNote').hidden=false;$('pilotMapNote').textContent='Kartenmodul nicht verfügbar. Bitte zur Schemaansicht wechseln.';}
 }
 function vehicleInfo(t){const p=t.position;if(!p)return t.status;if(p.basis==='held')return t.status+' · letzte geschätzte Lage';if(p.basis==='schedule-bridge')return 'Anfahrt nach '+direction.stops[p.next].name+' · mit Fahrplan überbrückt';if(p.basis==='terminal-estimate')return 'Geschätzte Ankunft: '+direction.stops[p.next].name;const name=direction.stops[p.next]?.name||'';return p.basis==='onStop'?'Stationsmeldung: '+name:p.station!=null?'Geschätzter Aufenthalt: '+name:'Geschätzt unterwegs nach '+name;}
 function render(force=false){
  if(!tracker)return;const now=paused?frozenAt:Date.now(),base=tracker.view(now),state=base,positions=state.tracks.filter(t=>t.position).map(t=>reduced.matches&&!paused&&!t.position.stale&&!t.position.uncertain?{...t,position:vehiclePosition(t,state.at)||t.position}:t).filter(t=>t.position);
- const pauseText=paused?'Pausiert · eingefrorener Stand':!started?'Bereit für den Live-Test':state.problem?state.problem:base.stale&&state.at?'Daten veraltet · keine aktuelle Fahrzeuglage':state.tracks.some(t=>t.hits>=2)?positions.length+' geschätzte Position'+(positions.length===1?'':'en')+' auf der U6':'Stationsmeldungen werden zugeordnet · zwei Quellenstände nötig';
+ const pauseText=paused?'Pausiert · eingefrorener Stand':!started?'Bereit für Fahrzeuge im Anflug':state.problem?state.problem:base.stale&&state.at?'Daten veraltet · keine aktuelle Fahrzeuglage':state.tracks.some(t=>t.hits>=2)?positions.length+' geschätzte Position'+(positions.length===1?'':'en')+' auf Linie '+line.route:'Stationsmeldungen werden zugeordnet · zwei Quellenstände nötig';
  $('pilotStatus').textContent=pauseText;$('pilotStatus').parentElement.dataset.state=paused||!started?'paused':state.problem||state.partial||base.stale?'error':'live';$('pilotAge').textContent=state.at?'Stand '+clock(state.at)+(paused?'':' · '+Math.max(0,Math.floor((Date.now()-state.at)/1000))+' s'):'';
- $('pilotCoverage').textContent=state.at?state.coverage.length+' von '+state.expected+' Abfahrthaltepunkten aktualisiert · Endstationsanfahrt aus Fahrplan geschätzt':'';
- $('pilotPause').textContent=!started?'Live-Test starten':paused?'Live fortsetzen':'Pause';
+ $('pilotCoverage').textContent=state.at?state.coverage.length+' von '+state.expected+' angefragten Haltepunkten aktualisiert · '+(view==='station'?'Ausschnitt bei deiner Station':windows.length>1?'Live-Abschnitt '+(windowIndex+1)+' von '+windows.length:'Linienverlauf'):'';
+ $('pilotPause').textContent=!started?'Anzeige starten':paused?'Live fortsetzen':'Pause';
+ if(localStrip&&view==='station')localStrip.render(state);
  const ids=new Set(positions.map(t=>t.id));
  if(map&&view==='map'){
   for(const [id,marker] of mapVehicles)if(!ids.has(id)){vehicleLayer.removeLayer(marker);mapVehicles.delete(id);}
@@ -39,7 +40,7 @@ function render(force=false){
  }
  const schema=$('schemaVehicles');for(const node of [...schema.children])if(!ids.has(node.dataset.train))node.remove();
  for(const t of positions){let button=[...schema.children].find(n=>n.dataset.train===t.id);if(!button){button=document.createElement('button');button.type='button';button.className='schema-vehicle';button.dataset.train=t.id;button.innerHTML=markerMarkup()+'<small class="vehicle-id">'+escape(short(t.id))+'</small>';button.addEventListener('click',()=>choose(t.id));schema.append(button);}button.style.top=rowY(t.position.progress)+'px';button.setAttribute('aria-label',t.id+' · '+vehicleInfo(t));button.setAttribute('aria-pressed',String(selected===t.id));button.classList.toggle('stale',t.position.stale);button.classList.toggle('uncertain',Boolean(t.position.uncertain));}
- const markup=positions.map(t=>`<button class="pilot-train" type="button" data-train="${escape(t.id)}" aria-pressed="${selected===t.id}"><span class="vehicle-list-symbol" aria-hidden="true">${vehicleSymbolMarkup(line.mode)}</span><span class="vehicle-list-copy"><strong>${escape(t.id)}</strong><small>${escape(vehicleInfo(t))}${t.position.stale?' · eingefroren':''}</small></span><span aria-hidden="true">›</span></button>`).join('')||`<p class="fineprint">${!started?'Starte den Test, um frische Stationsmeldungen zu sammeln.':paused?'Keine geschätzte Position im eingefrorenen Stand.':state.problem||state.partial||base.stale?'Aktuell keine ausreichend frische Schätzung.':'Noch keine eindeutige Position im Abschnitt. Die aktuellen Stationsprognosen stehen im Klappbereich unten.'}</p>`;
+ const markup=positions.map(t=>`<button class="pilot-train" type="button" data-train="${escape(t.id)}" aria-pressed="${selected===t.id}"><span class="vehicle-list-symbol" aria-hidden="true">${vehicleSymbolMarkup(line.mode)}</span><span class="vehicle-list-copy"><strong>${escape(t.id)}</strong><small>${escape(vehicleInfo(t))}${t.position.stale?' · eingefroren':''}</small></span><span aria-hidden="true">›</span></button>`).join('')||`<p class="fineprint">${!started?'Starte die Anzeige, um frische Stationsmeldungen zu sammeln.':paused?'Keine geschätzte Position im eingefrorenen Stand.':state.problem||state.partial||base.stale?'Aktuell keine ausreichend frische Schätzung.':'Noch keine eindeutige Position im Abschnitt. Die aktuellen Stationsprognosen stehen im Klappbereich unten.'}</p>`;
  if(markup!==lastMarkup){$('pilotTrains').innerHTML=markup;lastMarkup=markup;}
  const selectedTrack=state.tracks.find(t=>t.id===selected);$('pilotSelection').hidden=!selected;
  if(selected){$('selectedVehicle').textContent=selected;$('selectedVehicleInfo').textContent=selectedTrack?vehicleInfo(selectedTrack)+' · '+selectedTrack.status+' · '+selectedTrack.hits+' unterschiedliche Quellenstände. Keine offizielle Fahrzeug-ID.':'Diese vorläufige Fahrt wird nicht mehr ausreichend frisch zugeordnet.';$('pilotFollow').setAttribute('aria-pressed',String(follow));$('pilotFollow').disabled=!selectedTrack?.position;}
@@ -54,31 +55,52 @@ function render(force=false){
 function animate(timestamp){if(document.hidden||paused||!started)return;if(timestamp-lastAnimation>250){lastAnimation=timestamp;render();}animation=requestAnimationFrame(animate);}
 function stop(){poller?.stop();cancelAnimationFrame(animation);animation=0;}
 function resume(){if(!tracker||document.hidden||paused||!started)return;if(Date.now()-tracker.view().at>90_000)tracker.clear();poller.start();cancelAnimationFrame(animation);animation=requestAnimationFrame(animate);render(true);}
+function controls(){
+ const groups=[...new Set(data.directions.map(d=>d.gtfsDirection))];$('pilotDirections').innerHTML=groups.map(id=>{const d=preferredVehicleDirection(data,line,manifest,{gtfsDirection:id});return `<button type="button" data-direction="${escape(id)}" aria-pressed="${direction.gtfsDirection===id}">→ ${escape(d.towards)}</button>`;}).join('');
+ const variants=data.directions.filter(d=>d.gtfsDirection===direction.gtfsDirection);$('pilotVariant').innerHTML=variants.map(d=>`<option value="${escape(d.id)}" ${d.id===direction.id?'selected':''}>${escape(d.stops[0].name)} → ${escape(d.towards)} · ${d.stops.length} Halte</option>`).join('');
+ $('pilotWindowLabel').hidden=windows.length<2||view==='station';$('pilotWindow').innerHTML=windows.map((w,i)=>`<option value="${i}" ${i===windowIndex?'selected':''}>${escape(direction.stops[w.start].name)} → ${escape(direction.stops[Math.min(w.end+1,direction.stops.length-1)].name)}</option>`).join('');
+ $('pilotStation').innerHTML='<option value="">Station auswählen</option>'+direction.stops.map(s=>`<option value="${escape(s.id)}" ${s.id===focusStop?'selected':''}>${escape(s.name)}</option>`).join('');document.querySelector('[data-view="station"]').disabled=!localRange;
+}
 function setDirection(id){
- stop();direction=data.directions.find(d=>d.id===id)||data.directions[0];selected='';follow=false;tracker=createVehicleTracker(direction,manifest,{prefix:'U6-'+direction.monitorDirection+(++runNumber)});const pattern=line.patterns.find(p=>p.id===direction.patternId);geometry=pilotGeometry(decodeJourneyPolyline(line.shapes[pattern.geometry]),direction.stops);
- for(const button of $('pilotDirections').children)button.setAttribute('aria-pressed',String(button.dataset.direction===direction.id));
+ stop();direction=data.directions.find(d=>d.id===id)||data.directions[0];selected='';follow=false;tracker=createVehicleTracker(direction,manifest,{prefix:line.route+'-'+direction.monitorDirection+(++runNumber)});const pattern=line.patterns.find(p=>p.id===direction.patternId);geometry=pilotGeometry(decodeJourneyPolyline(line.shapes[pattern.geometry]),direction.stops);
+ windows=vehicleWindows(direction);windowIndex=Math.min(windowIndex,windows.length-1);localRange=focusStop?stationVehicleRange(direction,focusStop):null;if(view==='station'&&!localRange)view='schema';requestedIds=view==='station'?localRange.ids:windows[windowIndex].ids;
+ const url=new URL(vehicleUrl({route:line.route,mode:line.mode,stopId:focusStop,towards:direction.towards,view:view==='map'?'karte':view,patternId:direction.patternId}),location.href);history.replaceState(history.state,'',url);
+ controls();syncView();$('pilotTrainsTitle').textContent='Auf Linie '+line.route;$('pilotBackLine').href='./linienkarte.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:focusStop||'',richtung:direction.towards});$('pilotLineTitle').textContent=line.route+' · EXPERIMENTELL';$('pilotIntro').textContent=direction.stops[0].name+' → '+direction.stops.at(-1).name+' · '+direction.stops.length+' Stationen · aus Stationsprognosen geschätzt.';document.title='Fahrzeuge im Anflug · '+line.route+' · foama-wien';document.querySelector('.vehicle-page').style.setProperty('--vehicle-line-color',routeColor(line.route,line.mode));
  const height=rowY(direction.stops.length-1)+55;$('schemaCanvas').style.height=height+'px';$('schemaTrack').setAttribute('viewBox','0 0 100 '+height);$('schemaTrack').innerHTML='<path d="M48 0V'+height+'" class="schema-outside"/><path d="M48 55V'+rowY(direction.stops.length-1)+'" class="schema-line"/>'+direction.stops.map((s,i)=>'<circle cx="48" cy="'+rowY(i)+'" r="7"/>').join('');$('pilotLegendSymbol').innerHTML=vehicleSymbolMarkup(line.mode);
- $('schemaStops').innerHTML=direction.stops.map((s,i)=>`<button type="button" class="schema-stop" style="top:${rowY(i)}px" data-stop="${i}">${escape(s.name)}<small>${i===0?'Beginn der U6':i===direction.stops.length-1?'Endstation · Ankunft geschätzt':'Live-Prognose als Stationsanker'}</small></button>`).join('');
- poller=createVehiclePoller({ids:()=>direction.stops.map(s=>s.rbl).filter(Boolean),onData(raw){try{tracker.ingest(normalizePilotSnapshot(raw,direction));}catch(e){tracker.fail(e.message);}render(true);},onError(message){tracker.fail(message);render(true);},onWaiting(ms){if(!tracker.view().at)$('pilotStatus').textContent='Gemeinsame Abfragepause · nächster Versuch in '+Math.ceil(ms/1000)+' s';}});
+ $('schemaStops').innerHTML=direction.stops.map((s,i)=>`<button type="button" class="schema-stop" style="top:${rowY(i)}px" data-stop="${i}">${escape(s.name)}<small>${i===0?'Linienbeginn':i===direction.stops.length-1?'Endstation · Ankunft geschätzt':s.rbl?'Live-Prognose als Stationsanker':'Keine eindeutige Monitorseite'}</small></button>`).join('');
+ if(localRange){localStrip=createHorizontalVehicleStrip({direction,range:localRange});$('pilotLocal').replaceChildren(localStrip.element);if(view==='station')requestAnimationFrame(()=>localStrip.center());}else{localStrip=null;$('pilotLocal').replaceChildren();}
+ poller=createVehiclePoller({ids:()=>requestedIds,onData(raw){try{tracker.ingest(normalizePilotSnapshot(raw,direction,Date.now(),requestedIds));}catch(e){tracker.fail(e.message);}render(true);},onError(message){tracker.fail(message);render(true);},onWaiting(ms){if(!tracker.view().at)$('pilotStatus').textContent='Gemeinsame Abfragepause · nächster Versuch in '+Math.ceil(ms/1000)+' s';}});
  if(view==='map')void showMap();render(true);resume();
 }
+function syncView(){
+ $('pilotMap').hidden=view!=='map';$('pilotSchema').hidden=view!=='schema';$('pilotLocal').hidden=view!=='station';document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
+}
+async function loadLine(entry){
+ const own=++loading;stop();mapRevision++;tracker=null;mapLayers?.clearLayers();vehicleLayer?.clearLayers();mapVehicles.clear();$('pilotPause').disabled=true;$('pilotStatus').textContent='Fahrzeuglinie wird geladen …';$('pilotTrains').textContent='';
+ try{const result=await source.line(entry);if(own!==loading)return;({data,line,manifest}=result);windowIndex=0;$('pilotLine').value=entry.id;
+  const explicit=params.get('variante'),preferred=(explicit&&data.directions.find(d=>d.id===explicit&&(!focusStop||d.stops.some(s=>s.id===focusStop))))||preferredVehicleDirection(data,line,manifest,{stopId:focusStop,towards:params.get('richtung')});if(!preferred)throw Error('Die gewählte Station kommt in den verfügbaren Strecken dieser Linie nicht vor. Bitte eine andere Linie wählen.');
+  $('pilotPause').disabled=false;$('pilotSource').textContent='Wiener Linien · Sollfahrplan '+manifest.validFrom+' bis '+manifest.validThrough+' · Live-Monitor · '+manifest.attribution;setDirection(preferred.id);
+ }catch(e){if(own===loading){$('pilotStatus').textContent=e.message;$('pilotPause').disabled=true;}}
+}
 async function start(){
- try{const timetables=createTimetable();manifest=await timetables.metadata();if(!manifest)throw Error('Pilotdaten fehlen. Bitte einmal mit Internetverbindung öffnen.');const maps=createLineMaps(),index=await maps.index(manifest),entry=index.lines.find(l=>l.route==='U6'&&l.mode==='metro');line=(await maps.line(entry,manifest)).data;
-  try{const response=await fetch('./data/vehicle-pilot/u6.json?v=0.10.2&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();const raw=await response.text();if(raw.length>2_000_000)throw Error();data=validateVehiclePilot(await decodeVehiclePilot(JSON.parse(raw)),manifest,line);await putCatalogue('vehicle-pilot:u6:full-v2',data).catch(()=>{});}catch{data=validateVehiclePilot(await getCatalogue('vehicle-pilot:u6:full-v2').catch(()=>null),manifest,line);}
-  $('pilotDirections').innerHTML=data.directions.map(d=>`<button type="button" data-direction="${escape(d.id)}" aria-pressed="false">→ ${escape(d.towards)}</button>`).join('');$('pilotPause').disabled=false;
-  $('pilotSource').textContent='Wiener Linien · Sollfahrplan '+manifest.validFrom+' bis '+manifest.validThrough+' · Live-Monitor · '+manifest.attribution;
-  if(Date.now()>Date.parse(manifest.validThrough+'T23:00Z'))throw Error('Die Pilot-Fahrplanbasis ist abgelaufen. Bitte zuerst erneuern.');setDirection(data.directions.find(d=>d.towards===params.get('richtung'))?.id||'1');
+ try{const result=await source.index();({manifest,index:catalogue}=result);const modes={metro:'U-Bahn',tram:'Straßenbahn',bus:'Bus'};$('pilotLine').innerHTML='<option value="">Linie wählen</option>'+Object.entries(modes).map(([mode,label])=>'<optgroup label="'+label+'">'+catalogue.lines.filter(l=>l.mode===mode).sort((a,b)=>a.route.localeCompare(b.route,'de-AT',{numeric:true})).map(l=>'<option value="'+escape(l.id)+'">'+escape(l.route)+'</option>').join('')+'</optgroup>').join('');
+  if(Date.now()>Date.parse(manifest.validThrough+'T23:00Z'))throw Error('Die Fahrplanbasis ist abgelaufen. Bitte zuerst erneuern.');
+  const route=params.get('linie')||'U6',mode=params.get('verkehrsmittel')||'metro',entry=catalogue.lines.find(l=>l.route===route&&l.mode===mode);if(!entry)throw Error('Für diese Linie ist noch keine eindeutige Fahrzeugschätzung verfügbar. Wähle oben eine andere Linie.');await loadLine(entry);
  }catch(e){$('pilotStatus').textContent=e.message;$('pilotPause').disabled=true;}
 }
 $('pilotPause').addEventListener('click',()=>{if(!started){started=true;paused=false;resume();}else if(paused){paused=false;resume();}else{frozenAt=Date.now();paused=true;stop();render(true);}});
-$('pilotDirections').addEventListener('click',event=>{const b=event.target.closest('[data-direction]');if(b&&b.dataset.direction!==direction?.id)setDirection(b.dataset.direction);});
-document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{view=button.dataset.view;document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));$('pilotMap').hidden=view!=='map';$('pilotSchema').hidden=view!=='schema';follow=false;if(view==='map')void showMap();else{mapRevision++;map?.stop();}render(true);}));
+$('pilotDirections').addEventListener('click',event=>{const b=event.target.closest('[data-direction]');if(b&&b.dataset.direction!==direction?.gtfsDirection){windowIndex=0;const d=preferredVehicleDirection(data,line,manifest,{gtfsDirection:b.dataset.direction,stopId:focusStop});if(d)setDirection(d.id);}});
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{if(!tracker)return;const old=view;view=button.dataset.view;follow=false;if(old==='station'||view==='station'){setDirection(direction.id);return;}syncView();if(view==='map')void showMap();else{mapRevision++;map?.stop();}render(true);}));
+$('pilotLine').addEventListener('change',()=>{const entry=catalogue.lines.find(l=>l.id===$('pilotLine').value);if(entry){focusStop=null;params.delete('variante');params.delete('richtung');view=view==='station'?'schema':view;void loadLine(entry);}});
+$('pilotVariant').addEventListener('change',()=>{windowIndex=0;setDirection($('pilotVariant').value);});
+$('pilotWindow').addEventListener('change',()=>{windowIndex=Number($('pilotWindow').value);setDirection(direction.id);});
+$('pilotStation').addEventListener('change',()=>{focusStop=$('pilotStation').value||null;if(focusStop)view='station';setDirection(direction.id);});
 $('pilotTrains').addEventListener('click',event=>{const b=event.target.closest('[data-train]');if(b)choose(b.dataset.train);});
 $('schemaStops').addEventListener('click',event=>{const b=event.target.closest('[data-stop]');if(b){const s=direction.stops[Number(b.dataset.stop)];$('pilotStations').parentElement.open=true;$('pilotStations').children[Number(b.dataset.stop)]?.scrollIntoView({block:'center',behavior:reduced.matches?'instant':'smooth'});}});
 $('pilotFit').addEventListener('click',()=>{follow=false;if(view==='map'&&map)map.fitBounds(window.L.latLngBounds(geometry.points).pad(.2),{maxZoom:16,animate:false});else $('pilotSchema').scrollTop=0;render(true);});
 $('pilotSchema').addEventListener('wheel',()=>{follow=false;},{passive:true});$('pilotSchema').addEventListener('pointerdown',()=>{follow=false;},{passive:true});
 $('pilotFollow').addEventListener('click',()=>{follow=!follow;render(true);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();map?.stop();mapRevision++;}else{if(view==='map')void showMap();resume();}});
-window.addEventListener('pagehide',()=>{stop();mapRevision++;map?.remove();map=null;});window.addEventListener('pageshow',event=>{if(event.persisted){if(view==='map')void showMap();resume();}});reduced.addEventListener('change',()=>render(true));
-$('pilotMap').hidden=view!=='map';$('pilotSchema').hidden=view!=='schema';document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
+window.addEventListener('pagehide',()=>{loading++;stop();mapRevision++;map?.remove();map=null;});window.addEventListener('pageshow',event=>{if(event.persisted){if(view==='map')void showMap();resume();}});reduced.addEventListener('change',()=>render(true));
+syncView();
 void start();if(location.protocol==='https:'&&'serviceWorker' in navigator)void navigator.serviceWorker.register('./sw.js').catch(()=>{});

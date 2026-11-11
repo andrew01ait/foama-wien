@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.9.0 / Wear 0.7.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.1 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -9,6 +9,7 @@ Aktueller Stand: PWA 0.9.0 / Wear 0.7.1. Die Clients verwalten ihre Favoriten un
 | PWA `pwa/src/app.mjs` | Nähe/Favoriten, Browser-Standort, sichtbare Aktualisierung und lokaler Speicher |
 | PWA `journey-*` | A-nach-B-Suche, Adressen, Karten, Varianten und lokale zeitlose Routenfavoriten |
 | PWA `line-map-*`, `line-maps` | Geografische Wiener Shapes/Varianten, Version-/Quellprüfung, lokaler Cache; OSM-Kacheln nur für sichtbare Karte |
+| PWA `vehicle-data`, `vehicle-tracker`, `vehicle-strip` | Fahrzeuge im Anflug: quellgebundene Linienbasis, kurzlebige Schätzlagen, horizontale Stationsausschnitte; gemeinsame Monitorabfrage ohne eigenen Stations-Poller |
 | PWA `timetable-pdf` | Echte lokale PDF-Dateien aus denselben Tages-/Stationsfahrplandaten, ohne externe PDF-Dienste |
 | Wear `MainActivity`, `Repo`, `JourneyStore` | Native Navigation, lokale Favoriten, importierte Routen und Vordergrund-Abfahrten |
 | Gemeinsamer Monitor-Relay | Feste Wiener-Linien-Zieladresse, begrenzte RBL-Batches, Cache und Fehlerbehandlung |

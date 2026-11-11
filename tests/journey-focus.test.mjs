@@ -3,6 +3,19 @@ import {focusedJourneyBoardings,journeyMonitorIds} from '../pwa/src/journey-clie
 import {journeyStationMarkup} from '../pwa/src/journey-station.mjs';
 import {journeyLineDepartures} from '../pwa/src/journey-planning.mjs';
 const source=readFileSync(new URL('../pwa/src/journey-page.mjs',import.meta.url),'utf8');
+function vehicleMonitorHarness(){
+ let now=100000,release,ingested=0;const calls=[],timers=new Map();let serial=0;const station={id:'wl:s',provider:'wl',rbl:['2'],platforms:[{id:'2',modes:['bus']}]};
+ const state={station,stationConnection:{route:'48A',mode:'bus',towards:'Klinik Penzing'},selected:null,stops:[station],departures:[],monitor:null,monitorRevision:0,lastAttempt:0,retryAt:0,stationCycle:0,vehicleStrip:{ids:()=>Array.from({length:28},(_,i)=>String(i+1)),ingest(){ingested++;},fail(){}}};
+ const ctx=vm.createContext({state,document:{hidden:false},Date:class extends Date{static now(){return now;}},loadPlanned(){},loadRegional(){},journeyMonitorIds,selectStopIds:()=>['2'],localStorage:{getItem:()=>null,setItem(){}},AbortController,URLSearchParams,retainDepartures:()=>[],parseWlMonitors:()=>[],renderCurrent(){},setTimeout(fn,ms){const id=++serial;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),fetch(url,opts){calls.push({url,opts});return new Promise(resolve=>release=resolve);}});
+ vm.runInContext(source.slice(source.indexOf('async function monitor('),source.indexOf('function resumeMonitor(')),ctx);return {state,calls,timers,monitor:ctx.monitor,release(){release(new Response(JSON.stringify({data:{monitors:[]}})));},get ingested(){return ingested;},advance(ms){now+=ms;}};
+}
+test('A-to-B station vehicles reuse one bounded boarding-monitor request and closing drops the extra scope',async()=>{
+ const h=vehicleMonitorHarness();let pending=h.monitor();assert.equal(h.calls.length,1);let ids=new URL(h.calls[0].url,'https://example.test').searchParams.getAll('stopId');assert.equal(ids.length,24);assert.equal(ids[0],'2');h.release();await pending;assert.equal(h.ingested,1);await h.monitor();assert.equal(h.calls.length,1);
+ h.state.vehicleStrip.ids=()=>[];h.advance(30100);pending=h.monitor();ids=new URL(h.calls[1].url,'https://example.test').searchParams.getAll('stopId');assert.deepEqual(ids,['2']);h.release();await pending;
+});
+test('a late A-to-B boarding response cannot feed a vehicle strip after the station changes',async()=>{
+ const h=vehicleMonitorHarness(),pending=h.monitor();h.state.monitorRevision++;h.state.monitor.abort();h.release();await pending;assert.equal(h.ingested,0);assert.equal(h.state.departures.length,0);
+});
 const walk={mode:'walk',from:{name:'A'},to:{name:'B'},durationSeconds:480,geometry:'selected-walk'};
 const ride=(stopId,route,towards)=>({mode:'metro',route,towards,from:{stopId,name:stopId},to:{name:'Exit'},endTime:'2099-01-01T00:00:00Z'});
 test('third-stage focus selects its own boarding station and next transfer within the shared 24-platform budget',()=>{

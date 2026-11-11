@@ -1,8 +1,9 @@
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.10.2';
-import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.10.2';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.10.2';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.10.2';
-import {createThemeController} from './theme.mjs?v=0.10.2';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.1';
+import {createLineMaps,lineMapDirections,preferredLinePattern,lineMapTimetableUrl,lineMapMonitorUrl,bindLineStopInteraction} from './line-maps.mjs?v=0.11.1';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.1';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.1';
+import {createThemeController} from './theme.mjs?v=0.11.1';
+import {createVehicleData,vehicleUrl} from './vehicle-data.mjs?v=0.11.1';
 
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams;
 const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -14,6 +15,7 @@ const timetable=createTimetable(),source=createLineMaps();
 let manifest,index,line,pattern,direction,controller,map,tiles,layers,markers=[],popups=[],revision=0;
 let selectedStopId=params.get('halt');
 let monitorStops=[];
+let vehicleCatalogue=null;
 let stopTooltip=null,hoveredStop=null;
 const status=value=>{$('mapStatus').textContent=value;};
 function cancel(){revision++;controller?.abort();controller=null;}
@@ -58,7 +60,7 @@ async function draw(){
  $('mapStopsTitle').textContent=selected.stops.length+' Haltestellen in Fahrtfolge';
  $('mapStops').innerHTML=selected.stops.map((stop,i)=>`<li><button type="button" data-stop-index="${i}" aria-pressed="false">${escape(stop.name)}</button></li>`).join('');
  $('mapVariantInfo').textContent=selected.stops[0].name+' → '+selected.stops.at(-1).name+' · '+selected.stops.length+' Haltestellen'+(selected.geometry?'':' · Verlauf fehlt, nur Haltepunkte');
- $('mapVehiclePilot').hidden=line.route!=='U6'||line.mode!=='metro';$('mapVehiclePilot').href='./fahrzeuge.html?'+new URLSearchParams({richtung:selected.towards});
+ $('mapVehiclePilot').hidden=!vehicleCatalogue?.lines.some(l=>l.id===line.id&&l.patternIds?.includes(selected.id));$('mapVehiclePilot').href=vehicleUrl({route:line.route,mode:line.mode,stopId:selectedStopId,towards:selected.towards,patternId:selected.id});
  $('mapTimetable').href='./fahrplan.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,richtung:selected.towards});
  status('Linie '+line.route+' · Richtung '+(selected.towards||selected.stops.at(-1).name));
  try{
@@ -107,9 +109,9 @@ async function start(){
   const matches=index.lines.filter(row=>row.route===params.get('linie')),entry=matches.find(row=>row.mode===params.get('verkehrsmittel'))||(matches.length===1?matches[0]:null);
   status(index.lines.length+' Wiener Linien · Fahrwege gültig '+shortDate(manifest.validFrom)+' bis '+shortDate(manifest.validThrough));
   if(!entry){renderLines();return;}
-  const catalogue=fetch('./data/stops.json?v=0.10.2',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
+  const catalogue=fetch('./data/stops.json?v=0.11.1',{signal:request.signal,credentials:'omit'}).then(response=>response.ok?response.json():null).then(data=>Array.isArray(data?.stops)?data.stops:[]).catch(()=>[]);
   const result=await source.line(entry,manifest,{signal:request.signal}),monitors=await catalogue;if(own!==revision||request.signal.aborted||document.hidden)return;
-  monitorStops=monitors;
+  monitorStops=monitors;try{vehicleCatalogue=(await createVehicleData().index()).index;}catch{}if(own!==revision||request.signal.aborted||document.hidden)return;
   line=result.data;$('mapLinePicker').hidden=true;$('mapLineView').hidden=false;
   $('mapTitle').textContent='Linienkarte '+line.route;document.title='Linie '+line.route+' · Karte · foama-wien';$('mapLineBadge').textContent=line.route;$('mapLineBadge').style.background=color(line);$('mapLineTitle').textContent=modes[line.mode]||'Linie';
   const directions=lineMapDirections(line),initial=line.patterns.find(p=>p.id===params.get('variante'))||preferredLinePattern(line.patterns,manifest,{day:timetableDate(),stopId:params.get('halt'),towards:params.get('richtung')});

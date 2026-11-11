@@ -1,9 +1,9 @@
 {
-  "version": "0.10.2",
+  "version": "0.11.1",
   "wearVersionCode": 26,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
   "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Kompakter Footer: gleichmäßige Linkabstände, Daten & Lizenzen in derselben Linkgruppe und weniger Leerraum unten in der installierten PWA.",
+  "changelog": "Fahrzeuge im Anflug: geschätzte Lagen für 165 Wiener Linien auf Karte und im Schema. In Stations- und A-nach-B-Einstiegsdetails siehst du bis zu fünf Halte davor und zwei danach von links nach rechts, mit Zug-, Tram- und Bussymbolen.",
   "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3842666,

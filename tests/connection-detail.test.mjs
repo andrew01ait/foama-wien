@@ -87,6 +87,13 @@ test('actual app polling focuses on the connection platforms and preserves other
  assert.equal(h.state.departures.length,2);assert.equal(h.state.apiFailures,0);
  await h.refresh(true);assert.equal(h.calls.length,1);assert.equal(h.timers.size,1);assert.ok([...h.timers.values()][0].ms>=30000);
 });
+test('the open vehicle strip joins the existing connection request and closing it removes neighbouring RBLs',async()=>{
+ const h=refreshHarness();h.state.vehicleStrip={ids:()=>['1','2','3','4','5','6','7','8']};let pending=h.refresh();assert.deepEqual(Array.from(h.calls[0].ids),['2','1','3','4','5','6','7','8']);h.calls[0].resolve([departure()]);await pending;assert.equal(h.calls.length,1);
+ h.state.vehicleStrip.ids=()=>[];h.advance(30100);pending=h.refresh();assert.deepEqual(Array.from(h.calls[1].ids),['2']);h.calls[1].resolve([departure()]);await pending;
+});
+test('station departures keep priority and the expanded strip never exceeds the shared 24-RBL ceiling',async()=>{
+ const h=refreshHarness();h.state.focusedConnection.ids=Array.from({length:20},(_,i)=>String(i+1));h.state.vehicleStrip={ids:()=>Array.from({length:8},(_,i)=>String(i+21))};const pending=h.refresh();assert.equal(h.calls[0].ids.length,24);assert.deepEqual(Array.from(h.calls[0].ids.slice(0,20)),h.state.focusedConnection.ids);h.calls[0].resolve([]);await pending;
+});
 test('actual app manual refresh and repeated requests preserve the global 30-second wait and backoff',async()=>{
  const h=refreshHarness();const pending=h.refresh();h.calls[0].reject(Object.assign(Error('429'),{status:429}));await pending;
  assert.equal(h.state.apiFailures,1);assert.equal(h.state.retryAt,now+60000);
@@ -110,7 +117,7 @@ test('opening and closing the real connection page retains overview scroll, sele
  const state={focusedConnection:null,departures:[departure()],favorites:[{...target}],connectionOpener:{dataset:{connectionStop:stop.id,connectionRoute:'U6',connectionTowards:'Floridsdorf'}}},nodes=new Map(),frames=[],scrolls=[];let focuses=0;
  const opener={dataset:state.connectionOpener.dataset,focus(options){assert.equal(options.preventScroll,true);focuses++;}};
  const $=id=>{if(!nodes.has(id))nodes.set(id,{hidden:false,focus(){},querySelectorAll:()=>[opener]});return nodes.get(id);};
- const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$,findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:432,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$,createStationVehiclePanel:()=>({dispose(){},ids:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:432,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);
  const before=JSON.stringify(state.favorites);ctx.showConnection(target);frames.shift()();assert.equal($('overviewMain').hidden,true);assert.equal($('connectionView').hidden,false);assert.equal(state.overviewScroll,432);
  ctx.showConnection({...target,towards:'Siebenhirten'});frames.shift()();assert.equal(state.overviewScroll,432);
@@ -128,7 +135,7 @@ test('cancelled operator response does not update learned lines, notice caches, 
 });
 test('a delayed open callback cannot scroll a restored overview back to the top',()=>{
  const state={focusedConnection:null,departures:[],connectionOpener:null},frames=[],scrolls=[];
- const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,$:()=>({hidden:false,focus(){},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
+ const ctx=vm.createContext({scheduleRequest:null,regionalRequest:null,loadPlanned:async()=>{},loadRegional:async()=>{},state,createStationVehiclePanel:()=>({dispose(){},ids:()=>[]}),$:()=>({hidden:false,focus(){},querySelectorAll:()=>[]}),findStop:()=>stop,connectionRequestIds,document:{body:{classList:{toggle(){}}}},window:{scrollY:640,scrollTo:value=>scrolls.push(value)},cancelMonitor(){},favoriteMenus:{close(){}},stationViewport:{pause(){},schedule(){}},render(){},requestAnimationFrame:fn=>frames.push(fn),refreshDepartures(){}});
  vm.runInContext(app.slice(app.indexOf('function showConnection('),app.indexOf('function connectionRefreshText(')),ctx);ctx.showConnection(target);ctx.showConnection(null);while(frames.length)frames.shift()();assert.deepEqual(scrolls.map(s=>s.top),[640]);
 });
 

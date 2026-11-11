@@ -1,3 +1,15 @@
+## PWA 0.11.1 · Fahrzeuge im Anflug · 11.11.2026
+
+Einheitlicher Name auf der Fahrzeugseite, in Seitentitel, Monitor-Footer, Linienkarte sowie Stations- und A-nach-B-Einstiegsdetails. Stationsansicht heißt „Dein Halt“. Geschlossene oder unsichtbare Bereiche verwerfen verspätete Paketantworten; ein geschlossener Bereich startet nach ausstehendem Katalogabruf keinen Liniendownload. Der Link zur ganzen Linie erhält die gewählte Strecke. Bestehender Rollout mit 165 Linien/616 Varianten bleibt erhalten. Neuer PWA-Cache, Wear 0.7.4/26 unverändert.
+
+## PWA 0.11.0 · weitere Linien und Fahrzeuge im Anflug · 11.11.2026
+
+Rollout auf 165 Wiener Linien und 616 eindeutig zugeordnete Varianten: 5 U-Bahn, 30 Tram, 130 Bus. Auswahl in echter Karte und Schema, mit expliziten begrenzten Abschnitten für lange Linien. Horizontale Stationsausschnitte in Verbindungs-/Stationsdetails und A-nach-B-Einstiegsdetails, bis zu fünf Halte davor und zwei danach, gewählte Station hervorgehoben. Anfangs geschlossen; Nachbar-RBLs teilen die bestehende Abfrage statt eines eigenen Pollers. Passende Zug-/Tram-/Bus-Symbole und temporäre IDs.
+
+U-Bahn behält den begrenzten GTFS-Sollslotabgleich. Bus/Tram benötigen drei eindeutig zusammenpassende Live-Sollanker und zwei Quellenstände; GTFS dient als Fahrzeitprofil, nicht als nächster Zug. Wiederaufnahme über gemeinsame echte Stations-/Sollzeit-Schlüssel, konkurrierende Folgen und enge mehrdeutige Takte bleiben offen. Versionierte öffentliche RBL-Referenz und Gzip-Pakete ermöglichen Reproduktion; acht unklare Linien bleiben ausgeschlossen. Wear 0.7.4/26 unverändert.
+
+382 Web-/Server-Tests, 15 Python-Prüfungen, 79 JavaScript-Syntaxprüfungen. Alle veröffentlichten Datenpakete, horizontale Darstellung, Lebenszyklus, Stations- und A-nach-B-Abrufgrenzen geprüft. Fünf neue reale U3-/49-/48A-Proben bestätigen fortschreitende Schätzlagen und stabile IDs; U3 mit fünf modellbasierten Stationsübergaben. Kein Nachweis physischer Wagenidentität. Browser-Abnahme weiterhin durch URL-Richtlinie blockiert. [Datenmodell und Grenzen](vehicle-pilot.md).
+
 ## PWA 0.10.2 · kompakter Footer · 11.11.2026
 
 Monitor-Footer trennt Metadaten und gemeinsame Linknavigation. Lizenzen stehen bei den übrigen Links; alleinstehender Trennpunkt und zusätzliche Abstände zwischen umgebrochenen Linkzeilen entfallen. 44-px-Tippflächen bleiben erhalten. Installierte Monitor-PWA nutzt unten nur 20 px plus Safe Area; Browser-Editor-Abstand und andere Seiten behalten ihre bisherigen Regeln. Wear 0.7.4/26 unverändert.

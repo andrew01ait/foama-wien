@@ -1,28 +1,31 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.10.2';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.1';
 
 export const VEHICLE_FRESH_MS=60_000,VEHICLE_EXPIRE_MS=90_000;
 export const PILOT_SCHEDULE_MATCH_MS=60_000;
 const norm=s=>String(s??'').replace(/^Wien\s+/i,'').trim().toLocaleLowerCase('de-AT');
 const time=s=>typeof s==='string'?Date.parse(s):NaN;
 const range=times=>{const indices=times.flatMap((t,i)=>t?[i]:[]);return {start:indices[0],end:indices.at(-1)};};
+const modeMatches=(type,mode)=>mode==='metro'?type==='ptMetro':mode==='tram'?['ptTram','ptTramWLB'].includes(type):mode==='bus'?/^ptBus/.test(type)||type==='ptRufBus':false;
+export const vehicleTargetMatches=(direction,expected,actual)=>norm(expected)===norm(actual)||(direction.targetAliases?.[expected]||[]).some(alias=>norm(alias)===norm(actual));
 
 export async function decodeVehiclePilot(envelope){
- if(envelope?.format!==2||envelope.encoding!=='gzip-base64'||typeof envelope.payload!=='string'||envelope.payload.length>4_000_000)throw Error('Ungültiges U6-Fahrplanpaket.');
+ if(![2,3].includes(envelope?.format)||envelope.encoding!=='gzip-base64'||typeof envelope.payload!=='string'||envelope.payload.length>4_000_000)throw Error('Ungültiges Fahrzeug-Fahrplanpaket.');
  const bytes=Uint8Array.from(atob(envelope.payload),c=>c.charCodeAt(0)),reader=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')).getReader(),decoder=new TextDecoder();let size=0,raw='';
- try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>12_000_000)throw Error('U6-Fahrplanpaket zu groß.');raw+=decoder.decode(value,{stream:true});}raw+=decoder.decode();}finally{await reader.cancel().catch(()=>{});}
- const data=JSON.parse(raw);if(data.version!==envelope.version||data.sourceSha256!==envelope.sourceSha256)throw Error('U6-Paketversion stimmt nicht überein.');return data;
+ try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>12_000_000)throw Error('Fahrzeug-Fahrplanpaket zu groß.');raw+=decoder.decode(value,{stream:true});}raw+=decoder.decode();}finally{await reader.cancel().catch(()=>{});}
+ const data=JSON.parse(raw);if(data.format!==envelope.format||data.version!==envelope.version||data.sourceSha256!==envelope.sourceSha256)throw Error('Paketversion stimmt nicht überein.');return data;
 }
 export function validateVehiclePilot(data,manifest,line){
- if(data?.format!==2||data.route!=='U6'||data.mode!=='metro'||data.version!==manifest?.version||data.sourceSha256!==manifest?.sourceSha256||line?.sourceSha256!==data.sourceSha256||!Array.isArray(data.directions)||data.directions.length!==2)throw Error('Pilot und Fahrplan passen nicht zusammen.');
+ if(![2,3].includes(data?.format)||data.route!==line?.route||data.mode!==line?.mode||!['metro','tram','bus'].includes(data.mode)||data.version!==manifest?.version||data.sourceSha256!==manifest?.sourceSha256||line?.sourceSha256!==data.sourceSha256||!Array.isArray(data.directions)||!data.directions.length||data.directions.length>100||new Set(data.directions.map(d=>d.id)).size!==data.directions.length)throw Error('Fahrzeugdaten und Fahrplan passen nicht zusammen.');
  for(const d of data.directions){
   const pattern=line.patterns.find(p=>p.id===d.patternId),count=d.stops?.length;
-  if(!pattern||pattern.direction!==d.id||pattern.towards!==d.towards||!['H','R'].includes(d.monitorDirection)||count!==24||count!==pattern.stops.length||!Array.isArray(d.trips)||!d.trips.length||d.trips.length>20_000||new Set(d.trips.map(t=>t.ref)).size!==d.trips.length)throw Error('Ungültige U6-Strecke.');
-  const rbls=d.stops.map(s=>s.rbl).filter(Boolean);if(new Set(rbls).size!==rbls.length||rbls.length!==count-1)throw Error('Ungültige Monitorabdeckung.');
-  for(let i=0;i<count;i++){const s=d.stops[i],p=pattern.stops[i];if(p.platformId!==s.platformId||p.id!==s.id||(i===count-1?s.rbl!==null:!/^\d+$/.test(s.rbl)))throw Error('Ungültige U6-Haltefolge.');}
+  if(!pattern||pattern.direction!==(d.gtfsDirection??d.id)||pattern.towards!==d.towards||!['H','R'].includes(d.monitorDirection)||!['1','2'].includes(d.monitorDirectionId)||count<3||count>400||count!==pattern.stops.length||!Array.isArray(d.trips)||!d.trips.length||d.trips.length>20_000||new Set(d.trips.map(t=>t.ref)).size!==d.trips.length||(data.format===3&&(d.route!==data.route||d.mode!==data.mode||d.id!==d.patternId)))throw Error('Ungültige Fahrzeugstrecke.');
+  const rbls=d.stops.map(s=>s.rbl).filter(Boolean);if(new Set(rbls).size!==rbls.length||rbls.length<2||(data.format===2&&rbls.length!==count-1))throw Error('Ungültige Monitorabdeckung.');
+  for(let i=0;i<count;i++){const s=d.stops[i],p=pattern.stops[i];if(p.platformId!==s.platformId||p.id!==s.id||(i===count-1?s.rbl!==null:s.rbl!==null&&!/^\d{1,7}$/.test(s.rbl)))throw Error('Ungültige Haltefolge.');}
+  if(d.targetAliases&&(typeof d.targetAliases!=='object'||Object.entries(d.targetAliases).some(([name,aliases])=>!name||!Array.isArray(aliases)||aliases.length>100||aliases.some(a=>typeof a!=='string'||a.length>200))))throw Error('Ungültige Zielzuordnung.');
   for(const t of d.trips){
    if(!/^[a-f0-9]{16}$/.test(t.ref)||!manifest.services[t.service]||typeof t.towards!=='string'||!t.towards||!Array.isArray(t.times)||t.times.length!==count)throw Error('Ungültige Pilot-Fahrtzeiten.');
    const r=range(t.times);if(r.start==null||r.end<=r.start)throw Error('Fahrtabschnitt fehlt.');
-   let previous=null;for(const p of t.times){if(p===null)continue;if(!Array.isArray(p)||p.length!==2||p.some(x=>!Number.isInteger(x)||x<0||x>=172800)||p[0]>p[1]||previous&&p[0]<=previous[1])throw Error('Ungültige Fahrtzeitfolge.');previous=p;}
+   let previous=null;for(const p of t.times){if(p===null)continue;if(!Array.isArray(p)||p.length!==2||p.some(x=>!Number.isInteger(x)||x<0||x>=172800)||p[0]>p[1]||previous&&(data.format===2?p[0]<=previous[1]:p[0]<previous[1]))throw Error('Ungültige Fahrtzeitfolge.');previous=p;}
   }
  }
  return data;
@@ -37,28 +40,28 @@ export function pilotSchedules(direction,manifest,at){
   out.push({key:day+'|'+direction.id+'|'+t.ref,ref:t.ref,day,towards:t.towards||direction.towards,times,...r});
  }}return out;
 }
-export function normalizePilotSnapshot(raw,direction,now=Date.now()){
+export function normalizePilotSnapshot(raw,direction,now=Date.now(),requestedIds=direction.stops.map(s=>s.rbl).filter(Boolean)){
  const source=time(raw?.foamaMonitorAt),server=time(raw?.message?.serverTime),at=Math.min(source,server);
  if(!Number.isFinite(at)||Math.max(source,server)>now+30_000||now-at>VEHICLE_FRESH_MS||!Array.isArray(raw?.data?.monitors))throw Error('Live-Daten fehlen oder sind zu alt.');
  if(Number(raw.message?.messageCode||0)>1)throw Error('Die Quelle meldet einen Fehler.');
- const rows=[],coverage=new Set(),targets=new Set([direction.towards,...direction.trips.map(t=>t.towards)].map(norm));
+ const rows=[],coverage=new Set(),targets=new Set([direction.towards,...direction.trips.map(t=>t.towards),...Object.values(direction.targetAliases||{}).flat()].map(norm)),requested=new Set(requestedIds),route=direction.route||'U6',mode=direction.mode||'metro';
  for(const m of raw.data.monitors){
-  const rbl=String(m.locationStop?.properties?.attributes?.rbl??''),index=direction.stops.findIndex(s=>s.rbl===rbl);if(index<0)continue;
+  const rbl=String(m.locationStop?.properties?.attributes?.rbl??''),index=direction.stops.findIndex(s=>s.rbl===rbl);if(index<0||!requested.has(rbl))continue;
   for(const l of m.lines||[]){
-   if(l.name!=='U6'||l.type!=='ptMetro'||l.direction!==direction.monitorDirection||String(l.richtungsId)!==direction.monitorDirectionId||!targets.has(norm(l.towards)))continue;coverage.add(index);
+   if(l.name!==route||!modeMatches(l.type,mode)||l.direction!==direction.monitorDirection||String(l.richtungsId)!==direction.monitorDirectionId)continue;coverage.add(index);
    for(const d of l.departures?.departure||[]){
     const v=d.vehicle||{},scheduled=time(d.departureTime?.timePlanned),actual=time(d.departureTime?.timeReal),towards=norm(v.towards??l.towards);
-    if((v.name??l.name)!=='U6'||(v.type??l.type)!=='ptMetro'||(v.direction??l.direction)!==direction.monitorDirection||String(v.richtungsId??l.richtungsId)!==direction.monitorDirectionId||!targets.has(towards)||(v.realtimeSupported??l.realtimeSupported)===false||!Number.isFinite(scheduled)||!Number.isFinite(actual)||actual<at-30_000||actual>at+2*3600_000)continue;
+    if((v.name??l.name)!==route||!modeMatches(v.type??l.type,mode)||(v.direction??l.direction)!==direction.monitorDirection||String(v.richtungsId??l.richtungsId)!==direction.monitorDirectionId||!targets.has(towards)||(v.realtimeSupported??l.realtimeSupported)===false||!Number.isFinite(scheduled)||!Number.isFinite(actual)||actual<at-30_000||actual>at+2*3600_000)continue;
     rows.push({index,rbl,scheduled,actual,towards,onStop:v.onStop===true,at,key:rbl+'|'+scheduled});
    }
   }
  }
- const expected=direction.stops.filter(s=>s.rbl).length;
+ const expected=requested.size;
  return {at,rows,coverage:[...coverage],expected,complete:coverage.size===expected};
 }
 function consistent(anchors,schedule){
  const entries=[...anchors].sort((a,b)=>a[0]-b[0]),latest=Math.max(...entries.map(([,v])=>v.at));if(entries.filter(([,v])=>v.onStop&&v.at===latest).length>1)return false;
- for(let n=1;n<entries.length;n++){const [a,x]=entries[n-1],[b,y]=entries[n],expected=schedule.times[b][1]-schedule.times[a][1],delta=y.actual-x.actual;if(delta<Math.max(15_000,expected*.25)||delta>expected*3+60_000)return false;}return true;
+ for(let n=1;n<entries.length;n++){const [a,x]=entries[n-1],[b,y]=entries[n],expected=schedule.times[b][1]-schedule.times[a][1],delta=y.actual-x.actual;if(delta<(expected===0?0:Math.max(15_000,expected*.25))||delta>expected*3+60_000)return false;}return true;
 }
 const departure=o=>Math.max(o.actual,o.onStop?o.at+10_000:o.actual);
 export function vehiclePosition(track,now){
@@ -83,26 +86,58 @@ export function vehiclePosition(track,now){
  }
  return null;
 }
-export function createVehicleTracker(direction,manifest,{prefix='U6-'+direction.monitorDirection}={}){
+// Surface monitors may use a different departure timetable. Their live planned
+// times identify a station chain; GTFS supplies only a compatible time profile.
+// No nearest GTFS departure, rank-based ID, or inferred training data is used.
+function stationChainBundles(direction,snapshot,schedules,tracks){
+ const rows=[],perStop=new Map();for(const row of snapshot.rows){row.candidates=[];const count=perStop.get(row.index)||0;if(count<8){rows.push(row);perStop.set(row.index,count+1);}}
+ const profiles=new Map();for(const schedule of schedules){const first=schedule.times[schedule.start][1],signature=JSON.stringify([schedule.towards,schedule.times.map(p=>p?[p[0]-first,p[1]-first]:null)]);if(!profiles.has(signature))profiles.set(signature,schedule);}
+ const groups=new Map(),ambiguousKeys=new Set();
+ for(const profile of profiles.values()){
+  const possible=rows.filter(r=>profile.times[r.index]&&vehicleTargetMatches(direction,profile.towards,r.towards)).map(row=>({row,delta:row.scheduled-profile.times[row.index][1]}));
+  for(const lower of new Set(possible.map(x=>x.delta))){
+   const options=new Map();for(const x of possible){if(x.delta<lower||x.delta>lower+60_000)continue;const at=options.get(x.row.index)||[];at.push(x);options.set(x.row.index,at);}
+   if(options.size>=3)for(const alternatives of options.values())if(alternatives.length>1)for(const x of alternatives)ambiguousKeys.add(x.row.key);
+   const unique=[...options.values()].filter(v=>v.length===1).map(v=>v[0]).sort((a,b)=>a.row.index-b.row.index);if(unique.length<3||unique.some((v,i)=>i&&v.row.scheduled<unique[i-1].row.scheduled))continue;
+   const anchors=new Map(unique.map(x=>[x.row.index,x.row]));if(!consistent(anchors,profile))continue;
+   const keys=new Set(unique.map(x=>x.row.key)),signature=[...keys].sort().join(';'),spread=Math.max(...unique.map(x=>x.delta))-Math.min(...unique.map(x=>x.delta));
+   if(groups.has(signature)&&groups.get(signature).spread<=spread)continue;
+   const deltas=unique.map(x=>x.delta).sort((a,b)=>a-b),offset=deltas[Math.floor(deltas.length/2)];groups.set(signature,{keys,anchors,spread,schedule:{...profile,inferred:true,prototypeRef:profile.ref,times:profile.times.map(p=>p?[p[0]+offset,p[1]+offset]:null)}});
+  }
+ }
+ const maximal=[];for(const candidate of [...groups.values()].sort((a,b)=>b.keys.size-a.keys.size))if(!maximal.some(other=>[...candidate.keys].every(k=>other.keys.has(k))))maximal.push(candidate);
+ const used=new Map();for(const c of maximal)for(const key of c.keys)used.set(key,(used.get(key)||0)+1);
+ const candidates=[];
+ for(const c of maximal){const anchors=new Map([...c.anchors].filter(([,r])=>used.get(r.key)===1&&!ambiguousKeys.has(r.key)));if(anchors.size<3)continue;const keys=new Set([...anchors.values()].map(r=>r.key)),matches=[],weak=[];
+  for(const [key,t] of tracks){if(snapshot.at-t.lastSeen>VEHICLE_EXPIRE_MS)continue;const old=new Set([...t.anchors.values()].map(r=>r.key)),overlap=[...keys].filter(k=>old.has(k)).length;if(overlap>=2)matches.push(key);else if(overlap&&t.hadPosition)weak.push(key);}
+  candidates.push({...c,anchors,keys,matches,weak});
+ }
+ const claimed=new Map();for(const c of candidates)for(const key of c.matches)claimed.set(key,(claimed.get(key)||0)+1);
+ const bundles=new Map();
+ for(const c of candidates){if(c.matches.length>1||c.matches.length===1&&claimed.get(c.matches[0])!==1||!c.matches.length&&c.weak.length)continue;
+  const key=c.matches[0]||'live|'+[...c.keys].sort().join(';'),schedule={...c.schedule,key};const options=new Map();for(const [index,row] of c.anchors){row.candidates=[key];options.set(index,[row]);}bundles.set(key,{schedule,options});
+ }return bundles;
+}
+export function createVehicleTracker(direction,manifest,{prefix=(direction.route||'U6')+'-'+direction.monitorDirection}={}){
  let lastAt=0,serial=0,latest=null,problem='',partial=false;const tracks=new Map(),events=[];
  function event(track,kind,from,to,at){events.unshift({id:track.id,kind,from,to,at});events.splice(80);}
  function remember(t,p,at){if(p&&!p.stale){t.lastPosition={...p};t.lastPositionAt=at;t.hadPosition=true;}}
  function ingest(snapshot){
   if(snapshot.at<=lastAt)return {ignored:true};lastAt=snapshot.at;latest=snapshot;partial=!snapshot.complete;problem='';
-  const schedules=pilotSchedules(direction,manifest,snapshot.at),bundles=new Map();
-  for(const observation of snapshot.rows){
-   const candidates=schedules.filter(s=>s.times[observation.index]&&(!observation.towards||norm(s.towards)===observation.towards)&&Math.abs(s.times[observation.index][1]-observation.scheduled)<=PILOT_SCHEDULE_MATCH_MS);observation.candidates=candidates.map(s=>s.key);
+  const schedules=pilotSchedules(direction,manifest,snapshot.at),chain=['bus','tram'].includes(direction.mode),bundles=chain?stationChainBundles(direction,snapshot,schedules,tracks):new Map();
+  for(const observation of chain?[]:snapshot.rows){
+   const candidates=schedules.filter(s=>s.times[observation.index]&&(!observation.towards||vehicleTargetMatches(direction,s.towards,observation.towards))&&Math.abs(s.times[observation.index][1]-observation.scheduled)<=PILOT_SCHEDULE_MATCH_MS);observation.candidates=candidates.map(s=>s.key);
    for(const schedule of candidates){let b=bundles.get(schedule.key);if(!b){b={schedule,options:new Map()};bundles.set(schedule.key,b);}const options=b.options.get(observation.index)||[];options.push(observation);b.options.set(observation.index,options);}
   }
   const viable=new Map([...bundles].filter(([key,b])=>b.options.size>=2||tracks.has(key))),updated=new Set();
   for(const [key,b] of viable){
    const anchors=new Map();for(const [i,options] of b.options){const unique=options.filter(o=>o.candidates.filter(k=>viable.has(k)).length===1);if(unique.length===1)anchors.set(i,unique[0]);}
-   let t=tracks.get(key);if(!t){if(anchors.size<2)continue;t={id:prefix+'-T'+String(++serial).padStart(3,'0'),schedule:b.schedule,hits:0,anchors:new Map(),lastSeen:0,lastReported:null,blocked:'',awaiting:false};tracks.set(key,t);}
+   let t=tracks.get(key);if(!t){if(anchors.size<(chain?3:2))continue;t={id:prefix+'-T'+String(++serial).padStart(3,'0'),schedule:b.schedule,hits:0,anchors:new Map(),lastSeen:0,lastReported:null,blocked:'',awaiting:false};tracks.set(key,t);}
    if(!anchors.size){t.awaitingReason='Mehrdeutige Stationsmeldung';continue;}
    const before=t.awaiting?t.lastPosition:vehiclePosition(t,snapshot.at);if(!t.awaiting)remember(t,before,Math.min(snapshot.at,t.lastSeen+VEHICLE_FRESH_MS));
    if(!consistent(anchors,b.schedule)){t.blocked='Widersprüchliche Stationsprognosen';t.hits=0;t.awaitingReason=t.blocked;continue;}
    const nextAnchors=new Map([...t.anchors].filter(([i,o])=>snapshot.at-o.at<300_000&&b.schedule.times[i]));for(const [i,o] of anchors)nextAnchors.set(i,o);
-   t.hits=snapshot.at-t.lastSeen<=VEHICLE_EXPIRE_MS?t.hits+1:1;t.anchors=nextAnchors;t.lastSeen=snapshot.at;t.blocked='';t.awaiting=false;t.awaitingReason='';t.expiryLogged=false;t.completed=false;updated.add(key);
+   t.hits=snapshot.at-t.lastSeen<=VEHICLE_EXPIRE_MS?t.hits+1:1;t.schedule=b.schedule;t.anchors=nextAnchors;t.lastSeen=snapshot.at;t.blocked='';t.awaiting=false;t.awaitingReason='';t.expiryLogged=false;t.completed=false;updated.add(key);
    const next=vehiclePosition(t,snapshot.at);if(before&&next&&next.progress<before.progress-.15){t.hits=1;t.blocked='Prognosekorrektur · Zuordnung wird erneut geprüft';event(t,'correction',null,null,snapshot.at);}else remember(t,next,snapshot.at);
    const reported=[...anchors].filter(([,o])=>o.onStop).map(([i])=>i);
    if(reported.length===1){const stop=reported[0];if(t.lastReported!=null&&stop<t.lastReported){t.hits=0;t.blocked='Stationsanker in falscher Reihenfolge';}else{if(t.lastReported!=null&&stop>t.lastReported)event(t,'handover',t.lastReported,stop,snapshot.at);t.lastReported=stop;}}

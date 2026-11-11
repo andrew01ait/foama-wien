@@ -1,3 +1,7 @@
+## Rollout · PWA 0.11.0 · 11.11.2026
+
+Die Fahrzeugschätzung umfasst jetzt 165 Wiener U-Bahn-, Tram- und Buslinien mit 616 verifizierbar zugeordneten Varianten. Einstieg von der Linienkarte für genau die unterstützte Variante. Stations- und A-nach-B-Details enthalten den gemeinsam gespeisten horizontalen Anflugbereich. [Aktueller Daten-/Modellvertrag und Grenzen](vehicle-pilot.md). Die folgenden U6-Abschnitte sind historische Entwicklungsschritte.
+
 ## Aktueller Pilot · PWA 0.10.1 · 11.11.2026
 
 B umfasst nun die ganze U6 mit 24 Stationen in beiden Richtungen, echter Karte und scrollbarer Schemaansicht. Zugsymbole tragen temporäre IDs; kurze Datenlücken halten die letzte Lage. [Datenmodell, echte Proben und Grenzen](vehicle-pilot.md). Der Drei-Stationen-Stand darunter ist historische Konzeption und kein aktueller Streckenumfang.
