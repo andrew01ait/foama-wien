@@ -1,8 +1,8 @@
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.8';
-import {routeColor} from './journey-geometry.mjs?v=0.11.8';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.8';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.8';
-import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.8';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.10';
+import {routeColor} from './journey-geometry.mjs?v=0.11.10';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.10';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.10';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.10';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 
@@ -24,7 +24,7 @@ export function createHorizontalVehicleStrip({direction,range,color=routeColor(d
 let panelSession=0;
 export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource=source,mapFactory=createStationVehicleMap}={}){
  const element=document.createElement('details'),panelId='station-vehicles-'+(++panelSession);element.className='station-vehicle-panel';
- element.innerHTML='<summary>Fahrzeuge im Anflug</summary><div class="station-vehicle-body"><p class="fineprint">Bis zu fünf Halte vor deiner Station und zwei danach.</p><label>Richtung &amp; Strecke <select aria-label="Richtung und Strecke für Fahrzeugschätzung"></select></label><div class="station-vehicle-view-switch" role="group" aria-label="Darstellung der Fahrzeuge im Anflug"><button type="button" data-vehicle-view="schema" aria-pressed="true" aria-controls="'+panelId+'-schema" disabled>Schema</button><button type="button" data-vehicle-view="map" aria-pressed="false" aria-controls="'+panelId+'-map" disabled>Karte</button></div><div id="'+panelId+'-schema" class="station-vehicle-strip"></div><div id="'+panelId+'-map" class="station-vehicle-map-holder" hidden></div><p class="station-vehicle-message" role="status"></p><a class="station-vehicle-full" href="'+escape(vehicleUrl({...target,view:'schema'}))+'">Ganze Linie in Karte &amp; Schema ↗</a></div>';
+ element.innerHTML='<summary>Fahrzeuge im Anflug</summary><div class="station-vehicle-body"><div class="station-vehicle-heading"><h3>Stationsausschnitt</h3><a class="station-vehicle-full" href="'+escape(vehicleUrl({...target,view:'schema'}))+'" aria-label="Ganze Linie in Karte und Schema öffnen">Ganze Linie <span aria-hidden="true">↗</span></a></div><p class="fineprint">Bis zu fünf Halte vor deiner Station und zwei danach.</p><label>Richtung &amp; Strecke <select aria-label="Richtung und Strecke für Fahrzeugschätzung"></select></label><div class="station-vehicle-view-switch" role="group" aria-label="Darstellung der Fahrzeuge im Anflug"><button type="button" data-vehicle-view="schema" aria-pressed="true" aria-controls="'+panelId+'-schema" disabled>Schema</button><button type="button" data-vehicle-view="map" aria-pressed="false" aria-controls="'+panelId+'-map" disabled>Karte</button></div><div id="'+panelId+'-schema" class="station-vehicle-strip"></div><div id="'+panelId+'-map" class="station-vehicle-map-holder" hidden></div><p class="station-vehicle-message" role="status"></p></div>';
  const select=element.querySelector('select'),message=element.querySelector('.station-vehicle-message'),holder=element.querySelector('.station-vehicle-strip'),mapHolder=element.querySelector('.station-vehicle-map-holder'),full=element.querySelector('.station-vehicle-full'),schemaButton=element.querySelector('[data-vehicle-view="schema"]'),mapButton=element.querySelector('[data-vehicle-view="map"]');
  select.disabled=true;let disposed=false,generation=0,packageData=null,tracker=null,direction=null,range=null,strip=null,mapView=null,view='schema',chosen='',animation=0,lastFrame=0;
  const active=own=>!disposed&&own===generation&&element.open&&!document.hidden;

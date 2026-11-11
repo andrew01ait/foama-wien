@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.8, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.10, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Ansichten und Einstiege
 
@@ -11,6 +11,8 @@ PWA 0.11.8, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.
 | Stations-/Verbindungsdetails | Anfangs geschlossener Bereich „Fahrzeuge im Anflug“, mit eigener Richtungs-/Streckenwahl und Schema/Karte-Umschalter für denselben Stationsausschnitt |
 | A nach B | An der konkreten Wiener Einstiegsstation: Verbindung öffnen oder „Fahrzeuge im Anflug“ wählen; derselbe Stationsbereich, bezogen auf die gewählte Linie und Richtung |
 | „Dein Halt“ in Fahrzeuge im Anflug | Derselbe horizontale Ausschnitt nach bewusster Stationswahl, höchstens fünf Halte davor und zwei danach |
+
+Neben der Überschrift **Stationsausschnitt** führt der Button **Ganze Linie** in Karte/Schema der gewählten Linie und Variante. Er behält Richtung und Station; auf schmalen Displays bricht die Kopfzeile um.
 
 Der horizontale Ausschnitt läuft in tatsächlicher Fahrtfolge von links nach rechts. Die gewählte Station ist hervorgehoben. Am Linienanfang/-ende werden fehlende Nachbarn nicht durch andere Stationen aufgefüllt. Der gesamte Ausschnitt passt ohne horizontales Scrollen in die Bildschirmbreite. Nummerierte Halte und eine kompakte Namensliste darunter halten alle Namen vollständig lesbar. Fahrzeug- und Haltekoordinaten verwenden dieselbe relative Skala. Fahrzeug-Symbole für Zug, Tram und Bus, temporäre IDs, Tastaturbedienung und reduzierte Bewegung werden unterstützt. Die ganze Strecke bleibt über den Link erreichbar.
 
@@ -52,6 +54,12 @@ Die neuen Proben zeigten für Tram 49 und Bus 48A mehrere Minuten Differenz zwis
 Konkurrierende Live-Folgen, doppelte Anker, widersprüchliche Zeiten und mehrdeutige sehr enge Takte bleiben unaufgelöst. Eine existierende Bus-/Tram-ID wird nur bei mindestens zwei gemeinsamen tatsächlichen Stations-/Sollzeit-Schlüsseln weitergeführt, wenn auch diese Verknüpfung eindeutig ist. Kein nächster GTFS-Zug, keine Rangzuordnung und kein Lernen aus selbst erzeugten Positionen. Ankunfts-/Abfahrtszeiten bleiben auch bei Minutengleichheit in der Quelle erhalten; ohne positive belegbare Abschnittsdauer wird keine Bewegung erfunden.
 
 `onStop` ist ein Stationsstatus, keine GPS-Koordinate. Zwischen frischen Ankern wird auf dem echten Linienverlauf interpoliert. Ein fehlender nächster Anker darf begrenzt bis zum nächsten tatsächlich bedienten Halt mit Sollzeit überbrückt werden; diese zusätzliche Annahme ist als schlicht graues Symbol ohne Rahmen sichtbar. Endstationen ohne Abfahrtsmonitor erhalten eine begrenzte geschätzte Ankunft, danach ein ausdrücklich erklärtes Fahrtende.
+
+## Initialisierung ab 0.11.10
+
+Fahrplanmanifest und Fahrzeugkatalog laden parallel. Anschließend werden das Fahrzeugpaket und die Linienkartendaten gleichzeitig geladen, weiterhin mit Kalender-, Hash-, Plattform- und Geometrieprüfung vor Nutzung. Bis zu vier geprüfte Linienpakete werden pro Seite wiederverwendet; gleichzeitige Anfragen derselben Linie teilen einen Download. Gespeicherte Pakete bleiben an dieselbe Datenversion gebunden. Fehler dürfen erneut geladen werden.
+
+Die eigenständige Fahrzeugseite plant die nächste Monitorabfrage 30 Sekunden nach **Beginn** der vorherigen Anfrage, nicht 30 Sekunden nach deren Antwort. Beispiel: Eine achtsekündige Antwort verlängert das Intervall nicht mehr auf 38 Sekunden. Die gemeinsame Sperre, Backoff, maximal 24 RBLs und Sichtbarkeitsregeln bleiben erhalten. Der Status erklärt den ersten zugeordneten Quellenstand und zählt bis zur nächsten Abfrage herunter. Zwei unterschiedliche frische Quellenstände sind weiterhin erforderlich; eine neu geöffnete Anzeige benötigt daher unter normalen Bedingungen noch mindestens ungefähr 30 Sekunden plus Quellenlaufzeit. Es werden keine alten Live-Daten gespeichert oder sofortige Fahrzeugpositionen versprochen.
 
 ## Kontinuität und Abrufbudget
 

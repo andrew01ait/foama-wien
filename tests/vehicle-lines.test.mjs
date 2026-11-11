@@ -37,8 +37,20 @@ test('destination aliases are bound to the actual endpoint and do not use fuzzy 
 test('vehicle data loads one selected line on demand, verifies its content and reuses the versioned local package',async()=>{
  const item=await load('bus|48A'),cache=new Map(),requests=[];let mapCalls=0;
  const source=createVehicleData({now:()=>Date.parse('2026-11-11T09:00Z'),timetable:{metadata:async()=>manifest},maps:{index:async()=>mapIndex,line:async()=>{mapCalls++;return {data:item.line};}},get:async k=>cache.get(k),put:async(k,v)=>cache.set(k,v),fetch:async url=>{requests.push(url);return new Response(url.includes('index.json')?JSON.stringify(index):item.raw);}});
- await source.index();assert.equal(requests.length,1);await source.line(item.entry);assert.equal(requests.length,2);await source.line(item.entry);assert.equal(requests.length,2);assert.equal(mapCalls,2);
+ await source.index();assert.equal(requests.length,1);await source.line(item.entry);assert.equal(requests.length,2);await source.line(item.entry);assert.equal(requests.length,2);assert.equal(mapCalls,1);
  const wrong={...item.entry,sha256:'0'.repeat(64)};await assert.rejects(source.line(wrong));
+});
+test('vehicle startup overlaps independent catalog and package requests and coalesces the selected line',async()=>{
+ const item=await load('tram|46'),events=[];let releaseManifest,releaseMap,vehicleRequests=0;
+ const source=createVehicleData({now:()=>Date.parse('2026-11-11T09:00Z'),get:async()=>null,put:async()=>{},
+  timetable:{metadata:()=>{events.push('manifest');return new Promise(resolve=>releaseManifest=resolve);}},
+  maps:{index:()=>{events.push('map-index');return new Promise(resolve=>releaseMap=resolve);},line:async()=>{events.push('map-line');return {data:item.line};}},
+  fetch:async url=>{if(url.includes('index.json')){events.push('vehicle-index');return Response.json(index);}events.push('vehicle-package');vehicleRequests++;return new Response(item.raw);}
+ });
+ const catalogue=source.index();await new Promise(setImmediate);assert.ok(events.includes('vehicle-index'));releaseManifest(manifest);await catalogue;
+ const first=source.line(item.entry),second=source.line(item.entry);await new Promise(setImmediate);
+ assert.ok(events.includes('vehicle-package'));assert.ok(!events.includes('map-line'));assert.equal(vehicleRequests,1);
+ releaseMap(mapIndex);const [a,b]=await Promise.all([first,second]);assert.equal(a,b);assert.equal(a.data.route,'46');
 });
 test('expired calendars and a catalog from another timetable cannot enable vehicle estimates',async()=>{
  const item=await load('bus|48A'),source=createVehicleData({now:()=>Date.parse('2026-12-13T09:00Z'),timetable:{metadata:async()=>manifest},get:async()=>null,put:async()=>{},fetch:async()=>new Response(JSON.stringify(index))});await assert.rejects(source.line(item.entry),/gültig/);

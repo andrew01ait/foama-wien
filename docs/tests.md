@@ -1,3 +1,13 @@
+## PWA 0.11.10 · doppelte Linie 46 und Fahrzeugstart · 11.11.2026
+
+408 Web-/Server-Tests und 18 Python-Prüfungen bestanden. Vier zusätzliche Regressionen prüfen den belegten Tram-46-Endstationsalias einschließlich Fallback, Favorit/Detail/Monitorseite und abweichenden Zielen/Modi/Stationen; parallele Katalog-/Paketdownloads und Vereinigung derselben Linienanfrage; 30-s-Startabstand trotz achtsekündiger Antwort; fremde gemeinsame Abfragesperre. Bestehende Tests erhalten Zwei-Quellen-Bestätigung, Hash-/Kalenderbindung, Backoff und Hintergrundabbruch.
+
+Browserabnahme im verwalteten Preview: reale Tram-46-LIVE-Abfahrten erscheinen auch aus dem GTFS-beschrifteten Detailverweis. Offener Stationsbereich, erste Quellenbestätigung und korrekter Link auf Linie 46 / Parlament-Volkstheater / Thaliastraße U / Variante 672c055cb3fc2a2e geprüft. Desktop und 337 px verfügbare Telefonbreite: Stationsausschnitt und Ganze-Linie-Button passen nebeneinander, Tippfläche 44 px hoch, kein horizontaler Überlauf. Startstatus zählt sichtbar bis zum nächsten Abruf herunter. Keine physische Uhr-/Fahrtenabnahme.
+
+## PWA 0.11.9 · Slogan-Konsistenz · 11.11.2026
+
+404 Web-/Server-Tests, 18 Python-Prüfungen und 82 JavaScript-Syntaxprüfungen bestanden. Wortlaut und brand-tagline-Kennzeichnung in allen 13 HTML-Seitenköpfen sowie im fokussierten Verbindungskopf geprüft; Manifest-ID unverändert, Beschreibung mit demselben Slogan. Alle 174 Offline-Shell-Pfade vorhanden. Keine neuen Tests für die reversible Text-/Layoutänderung. Lokale verwaltete Vorschau ist durch ein anderes Projekt belegt; öffentliche visuelle Prüfung nach Veröffentlichung. Native Wear-APK bleibt unverändert.
+
 ## PWA 0.11.8 · Karte bei geänderter Breite wieder anzeigen · 11.11.2026
 
 404 Web-/Server-Tests, 18 Python-Prüfungen und 82 Syntaxprüfungen bestanden. Der bestehende Kartentest prüft zusätzlich, dass Größenabgleich die geografische Mitte erhält und nicht animiert; Datenupdates/Schemawechsel passen weiterhin nicht neu ein. Öffentliche 0.11.7-Browserprobe: echte 48A-Daten, Linie in Marker/Status/Schema, Auswahl gleicher interner ID beim Schema-/Kartenwechsel. Telefonbreite: 337 px Inhalt, Schema clientWidth=scrollWidth=281 px, Karte 283 px; kein horizontaler Überlauf. Sichtbare OSM-Kacheln, hervorgehobener Zielhalt und ganze Linie mit gleicher Variante bestätigt. Die dabei beobachtete Zentrierungsverschiebung nach Rückkehr auf Desktopbreite ist in 0.11.8 korrigiert. Keine physische Geräte-/Fahrtenabnahme.

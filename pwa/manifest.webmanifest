@@ -1,7 +1,7 @@
 {
   "name": "foama-wien – Öffi-Abfahrten",
   "short_name": "foama-wien",
-  "description": "Abfahrten, Gehzeiten und Routen für Wien, Graz, Linz und Salzburg",
+  "description": "Öffis, die du noch erreichst. Abfahrten, Gehzeiten und Routen für Wien, Graz, Linz und Salzburg",
   "id": "./",
   "start_url": "./",
   "display": "standalone",

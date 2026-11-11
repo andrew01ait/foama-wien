@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.8 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.10 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -62,3 +62,5 @@ Interne Site-Quelle und öffentliches GitHub werden bewusst abgeglichen. Build-A
 Frühere Architekturentscheidungen stehen im [Archiv](history/architecture-before-github.md); insbesondere alte Durable-Object- und Versionsangaben sind keine aktuelle Betriebsanleitung.
 
 Fahrzeugkontinuität: Auswahl ist umschaltbar; entfernte gehaltene Marker benötigen bei Rückkehr erneut zwei Quellenstände. Bestätigte Folgefahrten können überholte alte Lagen anhand zweier gemeinsamer frischer Sollzeitanker ausblenden. Bus-/Tram-Profile dürfen bei fehlenden nahen Slots vom aktuellen gültigen Betriebstag derselben Variante stammen. Die strengere Live-Stationskette bleibt erforderlich. Vollständig identische öffentliche Fahrwegfolgen haben im Import Vorrang vor historischen Umleitungsteilfolgen; keine unscharfe Plattformzuordnung.
+
+Fahrzeugstart ab 0.11.10: unabhängige Katalog-/Paketdownloads parallel, maximal vier geprüfte Linienpakete im Seitenspeicher und gemeinsame laufende Downloads je Linie. Monitorzyklus ab Requestbeginn, weiterhin gemeinsame 30-s-Sperre und zwei verschiedene Quellenstände. Endstationsalias für den belegten Parlament/Volkstheater-Endpunkt wird in Monitor, Fallback, Favoriten und Detailauswahl konsistent verwendet.

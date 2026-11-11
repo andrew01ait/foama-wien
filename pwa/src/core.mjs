@@ -49,10 +49,16 @@ export function parseWlMonitors(raw,fetchedAt=new Date().toISOString()){
   return out;
 }
 export function isEnabled(mode,settings){return settings.modes?.[mode]!==false;}
+// Both labels name endpoint wl:60200246 in the official GTFS/stop reference.
+// Keep this explicit: a partial "Volkstheater" or another destination is not an alias.
+export function directionKey(value){
+ const label=String(value||'').replace(/^(?:Wien|Graz|Salzburg|Linz(?:\/Donau)?)\s+/i,'').trim().toLocaleLowerCase('de-AT');
+ return label.replace(/^parlament, u volkstheater(?=$|\s+\((?:über|üb\.?|via)\s)/u,'parlament/volkstheater').replace(/\s+(?:s\s+u|u\s+s|s|u)$/u,'').trim();
+}
 export function availableDeparts(departs,settings,now=Date.now()){
   const m=typeof now==='number'?now:+now;
   const by=new Map();
-  for(const d of departs){if(!isEnabled(d.mode,settings))continue;const when=Date.parse(d.actual);if(!Number.isFinite(when)||when<m-30_000)continue;const key=`${d.mode||''}|${d.route}|${d.towards}`;if(!by.has(key))by.set(key,[]);by.get(key).push(d);}
+  for(const d of departs){if(!isEnabled(d.mode,settings))continue;const when=Date.parse(d.actual);if(!Number.isFinite(when)||when<m-30_000)continue;const key=`${d.mode||''}|${d.route}|${directionKey(d.towards)}`;if(!by.has(key))by.set(key,[]);by.get(key).push(d);}
   return [...by.entries()].map(([id,values])=>({id,route:values[0].route,towards:values[0].towards,mode:values[0].mode,departures:values.sort((a,b)=>Date.parse(a.actual)-Date.parse(b.actual)).slice(0,2)})).sort((a,b)=>Date.parse(a.departures[0].actual)-Date.parse(b.departures[0].actual));
 }
 export function countdownMinutes(iso,now=Date.now()){const delta=Date.parse(iso)-(typeof now==='number'?now:+now);return Number.isFinite(delta)?Math.max(0,Math.ceil(delta/60000)):null;}
@@ -62,8 +68,8 @@ export function mergeSettings(value){return {...DEFAULTS,...(value||{}),modes:{.
 export function withinRadius(stops,location,radius){return stops.map(s=>({...s,airMeters:haversineMeters(location,s)})).filter(s=>s.airMeters<=radius).sort((a,b)=>a.airMeters-b.airMeters);}
 export function favoriteKey(f){return `${f.stopId}|${f.route||''}|${f.towards||''}`;}
 export function dedupeFavorites(favs){if(!Array.isArray(favs))return [];const keys=new Set();return favs.filter(f=>{const k=favoriteKey(f);if(keys.has(k))return false;keys.add(k);return true;});}
-export function directionEquivalent(expected,actual){const parts=value=>{const label=String(value||'').replace(/^(?:Wien|Graz|Salzburg|Linz(?:\/Donau)?)\s+/i,'').trim().toLocaleLowerCase('de-AT'),via=label.match(/\s+\((?:über|üb\.?|via)\s+(.+)\)$/u);return {name:(via?label.slice(0,via.index):label).replace(/\s+(?:s\s+u|u\s+s|s|u)$/u,'').trim(),via:via?.[1]||''};};const a=parts(expected),b=parts(actual);return !!a.name&&a.name===b.name&&(!a.via||a.via===b.via);}
-export function favoriteMatches(f,d){return (!f.route||f.route===d.route)&&(!f.mode||f.mode===d.mode)&&(!f.towards||f.towards===d.towards||(['gtfs','transitous','linz-efa'].includes(d.source)&&directionEquivalent(f.towards,d.towards)));}
+export function directionEquivalent(expected,actual){const parts=value=>{const label=directionKey(value),via=label.match(/\s+\((?:über|üb\.?|via)\s+(.+)\)$/u);return {name:directionKey(via?label.slice(0,via.index):label),via:via?.[1]||''};};const a=parts(expected),b=parts(actual);return !!a.name&&a.name===b.name&&(!a.via||a.via===b.via);}
+export function favoriteMatches(f,d){return (!f.route||f.route===d.route)&&(!f.mode||f.mode===d.mode)&&(!f.towards||directionKey(f.towards)===directionKey(d.towards)||(['gtfs','transitous','linz-efa'].includes(d.source)&&directionEquivalent(f.towards,d.towards)));}
 export function isActivePage(doc=globalThis.document){return !!doc&&!doc.hidden;}
 // Rail GTFS records retain explicit date validity. Only scheduled departures are emitted.
 export function railDepartures(feed,stopIds,now=new Date()){

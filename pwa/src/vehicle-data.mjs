@@ -1,7 +1,7 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.8';
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.8';
-import {createLineMaps,preferredLinePattern} from './line-maps.mjs?v=0.11.8';
-import {decodeVehiclePilot,validateVehiclePilot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.8';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.10';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.10';
+import {createLineMaps,preferredLinePattern} from './line-maps.mjs?v=0.11.10';
+import {decodeVehiclePilot,validateVehiclePilot,vehicleTargetMatches,vehiclePosition} from './vehicle-tracker.mjs?v=0.11.10';
 
 export function stationVehicleTracks(state,range){
  const reduced=globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -13,7 +13,7 @@ export function vehicleDisplayId(id,route){
 }
 export function stationVehicleStatus(state,direction,range,chosen){
  const selected=state.tracks.find(t=>t.id===chosen),tracks=stationVehicleTracks(state,range);
- return selected?vehicleDisplayId(selected.id,direction.route)+' · '+(selected.position?.basis==='held'?'Letzte geschätzte Lage · '+selected.status:selected.position?'Geschätzt vor '+direction.stops[selected.position.next].name:selected.status):state.problem||(!state.at?'Zuordnung wird aufgebaut · zwei frische Quellenstände nötig.':state.stale?'Älterer Stand · warte auf frische Stationsmeldungen.':tracks.length?tracks.length+' geschätzte Lage'+(tracks.length===1?'':'n')+' im Ausschnitt.':'Noch keine eindeutig ableitbare Lage im Ausschnitt.');
+ return selected?vehicleDisplayId(selected.id,direction.route)+' · '+(selected.position?.basis==='held'?'Letzte geschätzte Lage · '+selected.status:selected.position?'Geschätzt vor '+direction.stops[selected.position.next].name:selected.status):state.problem||(!state.at?'Zuordnung wird aufgebaut · zwei frische Quellenstände nötig.':state.stale?'Älterer Stand · warte auf frische Stationsmeldungen.':tracks.length?tracks.length+' geschätzte Lage'+(tracks.length===1?'':'n')+' im Ausschnitt.':state.tracks.some(t=>t.hits===1&&!t.blocked)?'Erster Quellenstand zugeordnet · Bestätigung beim nächsten Live-Abruf.':'Noch keine eindeutig ableitbare Lage im Ausschnitt.');
 }
 
 export function vehicleWindows(direction,limit=24){
@@ -37,24 +37,42 @@ export function vehicleUrl({route,mode,stopId,towards,view='karte',patternId}={}
  const p=new URLSearchParams({linie:route,verkehrsmittel:mode,ansicht:view});if(stopId)p.set('halt',stopId);if(towards)p.set('richtung',towards);if(patternId)p.set('variante',patternId);return './fahrzeuge.html?'+p;
 }
 export function createVehicleData({fetch=globalThis.fetch,get=getCatalogue,put=putCatalogue,timetable=createTimetable(),maps=createLineMaps(),now=()=>Date.now()}={}){
- let setup;
+ let setup,mapSetup;const lines=new Map();
  async function index(){
   if(setup)return setup;
-  setup=(async()=>{const manifest=await timetable.metadata();if(!manifest)throw Error('Fahrplanbasis fehlt. Bitte einmal online öffnen.');let index;const key='vehicles:index:v3';
-   try{const response=await fetch('./data/vehicle-pilot/index.json?v=0.11.8&fahrplan='+manifest.version,{credentials:'omit'});if(!response.ok)throw Error();index=await response.json();}catch{index=await get(key).catch(()=>null);}
+  setup=(async()=>{const key='vehicles:index:v3';
+   const catalog=(async()=>{try{const response=await fetch('./data/vehicle-pilot/index.json?v=0.11.10',{credentials:'omit'});if(!response.ok)throw Error();return await response.json();}catch{return await get(key).catch(()=>null);}})();
+   const [manifest,index]=await Promise.all([timetable.metadata(),catalog]);if(!manifest)throw Error('Fahrplanbasis fehlt. Bitte einmal online öffnen.');
    if(index?.format!==3||index.city!=='wien'||index.version!==manifest.version||index.sourceSha256!==manifest.sourceSha256||!Array.isArray(index.lines)||index.lines.length>400||index.lines.some(l=>!['metro','tram','bus'].includes(l.mode)||typeof l.route!=='string'||l.id!==l.mode+'|'+l.route||!/^[a-f0-9]{16}\.json$/.test(l.file)||!/^[a-f0-9]{64}$/.test(l.sha256)))throw Error('Fahrzeugübersicht fehlt oder gehört zu einem anderen Fahrplan.');
    await put(key,index).catch(()=>{});return {manifest,index};})();
   try{return await setup;}catch(error){setup=null;throw error;}
  }
+ async function loadLine(entry,manifest){
+  // Geometry and tracking data are independent downloads. Validate them together
+  // after both arrive, rather than putting three network round trips in series.
+  mapSetup??=maps.index(manifest).catch(error=>{mapSetup=null;throw error;});
+  const geometry=mapSetup.then(async mapIndex=>{const mapEntry=mapIndex.lines.find(l=>l.id===entry.id);if(!mapEntry)throw Error('Linienverlauf fehlt.');return (await maps.line(mapEntry,manifest)).data;});
+  const key='vehicles:line:v3:'+entry.id;
+  const packet=(async()=>{
+   const cached=await get(key).catch(()=>null);
+   if(cached?.version===manifest.version&&cached.hash===entry.sha256)return {data:cached.data,cached:true};
+   const response=await fetch('./data/vehicle-pilot/'+entry.file+'?v='+entry.sha256,{credentials:'omit'});if(!response.ok)throw Error('Diese Fahrzeuglinie ist noch nicht lokal gespeichert. Bitte online öffnen.');const raw=await response.text();if(raw.length>4_100_000)throw Error('Fahrzeugpaket zu groß.');
+   if(globalThis.crypto?.subtle){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));if([...new Uint8Array(digest)].map(n=>n.toString(16).padStart(2,'0')).join('')!==entry.sha256)throw Error('Fahrzeugpaket stimmt nicht mit der Übersicht überein.');}
+   return {data:await decodeVehiclePilot(JSON.parse(raw)),cached:false};
+  })();
+  const [line,payload]=await Promise.all([geometry,packet]);
+  const data=validateVehiclePilot(payload.data,manifest,line);
+  if(!payload.cached)await put(key,{version:manifest.version,hash:entry.sha256,data}).catch(()=>{});
+  return {data,line,manifest};
+ }
  async function line(entry){
   const {manifest,index:catalogue}=await index();if(!catalogue.lines.some(l=>l.id===entry.id&&l.sha256===entry.sha256))throw Error('Unbekannte Fahrzeuglinie.');const day=timetableDate(now());if(day<manifest.validFrom||day>manifest.validThrough)throw Error('Die Fahrplanbasis ist nicht mehr gültig. Bitte zuerst erneuern.');
-  const mapIndex=await maps.index(manifest),mapEntry=mapIndex.lines.find(l=>l.id===entry.id);if(!mapEntry)throw Error('Linienverlauf fehlt.');const line=(await maps.line(mapEntry,manifest)).data;
-  const key='vehicles:line:v3:'+entry.id,cached=await get(key).catch(()=>null);let data;
-  if(cached?.version===manifest.version&&cached.hash===entry.sha256)data=validateVehiclePilot(cached.data,manifest,line);
-  else{const response=await fetch('./data/vehicle-pilot/'+entry.file+'?v='+entry.sha256,{credentials:'omit'});if(!response.ok)throw Error('Diese Fahrzeuglinie ist noch nicht lokal gespeichert. Bitte online öffnen.');const raw=await response.text();if(raw.length>4_100_000)throw Error('Fahrzeugpaket zu groß.');
-   if(globalThis.crypto?.subtle){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));if([...new Uint8Array(digest)].map(n=>n.toString(16).padStart(2,'0')).join('')!==entry.sha256)throw Error('Fahrzeugpaket stimmt nicht mit der Übersicht überein.');}
-   data=validateVehiclePilot(await decodeVehiclePilot(JSON.parse(raw)),manifest,line);await put(key,{version:manifest.version,hash:entry.sha256,data}).catch(()=>{});
-  }return {data,line,manifest};
+  const key=entry.id+'|'+entry.sha256;
+  if(!lines.has(key)){
+   const pending=loadLine(entry,manifest).catch(error=>{if(lines.get(key)===pending)lines.delete(key);throw error;});lines.set(key,pending);
+   while(lines.size>4)lines.delete(lines.keys().next().value);
+  }
+  return lines.get(key);
  }
  return {index,line};
 }

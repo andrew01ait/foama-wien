@@ -23,3 +23,7 @@ Auf Nutzerwunsch: Nachtlinien mit N-Präfix (auch N30R usw.) erhalten dunkelblau
 ## Städtecollage ab PWA 0.8.2
 
 Die Seite Städte & Funktionen verwendet `pwa/images/foama-vier-staedte-v1.webp` als vollständiges proportionales Titelbild. Stadtwahrzeichen und Fahrzeuge sind eine dekorative Collage; sie stellen keinen tatsächlichen Linienverlauf dar. Die separate App-Marke wird durch die Collage nicht ersetzt. [Bildherkunft und Gestaltungsbrief](assets/foama-vier-staedte.md).
+
+## Einheitlicher PWA-Slogan ab 0.11.9
+
+Verbindliche Schreibweise: **Öffis, die du noch erreichst.** Alle 13 ausgelieferten HTML-Seiten zeigen denselben Slogan im Markenkopf, einschließlich der rechtlichen Informationen, der Debugging-Umzugsseite und des historischen Uhr-Entwurfs. Im fokussierten Abfahrtsmonitor, der den Hauptkopf ausblendet, steht er im Verbindungskopf. Seitenspezifische Titel/Quellen, Willkommen-Hauptaussage und bestehende Fußzeilen behalten ihren Zweck. Gemeinsame `.brand-tagline`- und `.brand-copy`-Stile sorgen für natürliches Umbrechen ohne Kürzung. Die Manifest-Beschreibung und der Teilen-Text verwenden denselben Wortlaut. Keine Änderung der nativen Wear-APK.
