@@ -6,6 +6,7 @@ Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Reposito
 | --- | --- |
 | Wo finden neue Nutzer einen Einstieg? | [Willkommen](https://foama-wien.endruuu.chatgpt.site/willkommen.html), [Seitenaufbau und Installation](landing-page.md) |
 | Wie sehe ich Tagesfahrpläne und den Datenstand? | [Linienfahrpläne](https://foama-wien.endruuu.chatgpt.site/fahrplan.html), [Import und Aktualitätsprüfung](timetable-fallback.md), [PDF-Download](timetable-pdf.md) |
+| Warum sehen Warnmeldungen einheitlich aus und erscheinen auch in gespeicherten Wegen? | [Warnmeldungen, gemeinsamer Cache und Abrufumfang](warning-panel.md) |
 | Wie bleiben Fahrzeugdaten beim Seitenwechsel erhalten? | [Liniensitzung, Abrufplanung und Ladeanzeige](vehicle-line-session.md) |
 | Warum erscheinen Fahrzeuge verzögert oder verschwinden? | [Untersuchung vom 12.11.2026](vehicle-audit-20261112.md) |
 | Wie sehe ich geschätzte Fahrzeuge und horizontale Stationsausschnitte? | [Wiener Fahrzeugschätzung](vehicle-pilot.md) |

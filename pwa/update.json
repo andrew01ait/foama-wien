@@ -1,9 +1,9 @@
 {
-  "version": "0.11.21",
+  "version": "0.11.22",
   "wearVersionCode": 27,
   "wearApkUrl": "/apk/foama-wien-wear-0.8.0.apk",
   "wearApkSha256": "3b814dfed160470a470733ce795f7ead082ecaf0abb908d4304de4d0ac1fb1ba",
-  "changelog": "Fahrzeuge im Anflug behalten beim Wechsel zwischen Verbindungsdetail, A nach B und ganzer Linie vorhandene Fahrzeugdaten, Fahrtkennungen und Aktualisierungszeit. Die Ladeanzeige zeigt nur noch einen kleinen Balken, verständlichen Status und die nächste Aktualisierung. Der aktuelle Uhr-Release 0.8.0 bleibt enthalten.",
+  "changelog": "Warnmeldungen sehen in Übersicht, Verbindungsdetail und A nach B einheitlich aus. Keine doppelten Warnsymbole oder Linienkennzeichen beim Aufklappen und keine wiederholten Warnungen unter jeder Übersichtskarte. Gespeicherte Wege übernehmen bereits geladene Warnungen sofort; alle Fahrtabschnitte werden im bestehenden Abruflimit berücksichtigt.",
   "wearVersion": "0.8.0",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 5213642,
@@ -16,8 +16,8 @@
     "Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen."
   ],
   "releaseNotes": [
-    "Fahrzeugdaten und Fahrtkennungen bleiben beim Seitenwechsel erhalten.",
-    "Kurzer Ladebalken mit verständlichem Status und nächster Aktualisierung.",
-    "Aktuelle Uhr-App 0.8.0 weiterhin verfügbar."
+    "Einheitliche, übersichtliche Warnmeldungen in allen Ansichten.",
+    "Keine doppelten Symbole, Linienkennzeichen oder Übersichtswarnungen.",
+    "Warnungen erscheinen auch bei gespeicherten A-nach-B-Wegen."
   ]
 }

@@ -10,7 +10,7 @@
 
 - Aktueller Standort als blauer Punkt mit Genauigkeitskreis auf allen interaktiven Karten, soweit freigegeben und frisch verfügbar; eigener Knopf zum Zentrieren.
 - Fahrzeuge im Anflug erhalten Prognosen und Fahrtkennungen beim Wechsel zwischen Verbindungsdetail, A nach B und ganzer Linie. Ein kleiner Ladebalken mit verständlichem Status und nächster Aktualisierung wechselt automatisch zur Fahrzeugansicht.
-- Relevante Wiener-Linien-Störungen im Verbindungsdetail sowie in A-nach-B-Reisen und deren Stationsdetails, mit Quellenstand und aufklappbaren Hinweisen.
+- Einheitliche Warnmeldungen in Übersicht, Verbindungsdetail und A nach B, mit Quellenstand und aufklappbaren Details ohne doppelte Symbole. Gespeicherte Wege übernehmen vorhandene Warnungen sofort beim Öffnen.
 - Live-Abfahrten in der Nähe mit Gehzeit, Erreichbarkeit und zwei nächsten Abfahrten.
 - Lokale Favoriten für ganze Haltestellen, einzelne Linien/Richtungen und A-nach-B-Wege.
 - Routenplanung mit Adressen, eigenen Orten, Karten, Alternativen und Vergleich von Fahrzeit und Umstiegen.
@@ -24,7 +24,7 @@
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.11.21 und Wear 0.8.0**, nativer Versionscode **27**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.11.22 und Wear 0.8.0**, nativer Versionscode **27**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

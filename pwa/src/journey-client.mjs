@@ -1,7 +1,7 @@
-import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.11.21';
-import {connectionRequestIds} from './connection-detail.mjs?v=0.11.21';
-import {journeyBoardingTargets} from './journey-planning.mjs?v=0.11.21';
-import {mergeJourneyResults} from './journey-options.mjs?v=0.11.21';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.11.22';
+import {connectionRequestIds} from './connection-detail.mjs?v=0.11.22';
+import {journeyBoardingTargets} from './journey-planning.mjs?v=0.11.22';
+import {mergeJourneyResults} from './journey-options.mjs?v=0.11.22';
 
 export const viennaInput=(date=new Date())=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Vienna',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date).replace(' ','T');
 export function viennaTime(value){
@@ -51,6 +51,13 @@ export function upcomingBoardings(journey,now=Date.now()){
 export function focusedJourneyBoardings(journey,index,now=Date.now()){
  if(!journey)return [];
  return Number.isInteger(index)&&index>=0&&index<journey.legs.length?journeyBoardingTargets({...journey,legs:journey.legs.slice(index)},{limit:2}):upcomingBoardings(journey,now);
+}
+export function journeyWarningTargets(journey){
+ const targets=new Map();
+ for(const leg of journey?.legs||[]){if(leg.mode==='walk'||!leg.route)continue;
+  for(const point of [leg.from,leg.to])if(point?.stopId?.startsWith('wl:')){const key=point.stopId+'|'+leg.route;targets.set(key,{stopId:point.stopId,route:leg.route,mode:leg.mode,towards:leg.towards});}
+ }
+ return [...targets.values()];
 }
 export function journeyMonitorIds(targets,stops,departures=[]){
  const groups=targets.map(target=>connectionRequestIds(stops.find(stop=>stop.id===target.stopId),target,departures)),ids=[];

@@ -1,8 +1,8 @@
 import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from '../pwa/src/monitor-timing.mjs';
 const tick=()=>new Promise(setImmediate);
-import {updateTrafficCache} from '../pwa/src/traffic-info.mjs';
+import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches} from '../pwa/src/traffic-info.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
-import {focusedJourneyBoardings,journeyMonitorIds} from '../pwa/src/journey-client.mjs';
+import {focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from '../pwa/src/journey-client.mjs';
 import {journeyStationMarkup} from '../pwa/src/journey-station.mjs';
 import {journeyLineDepartures} from '../pwa/src/journey-planning.mjs';
 const source=readFileSync(new URL('../pwa/src/journey-page.mjs',import.meta.url),'utf8');
@@ -10,6 +10,7 @@ function vehicleMonitorHarness(){
  let now=100000,release,ingested=0;const calls=[],timers=new Map();let serial=0;const station={id:'wl:s',provider:'wl',rbl:['2'],platforms:[{id:'2',modes:['bus']}]};
  const state={station,stationConnection:{route:'48A',mode:'bus',towards:'Klinik Penzing'},selected:null,stops:[station],departures:[],monitor:null,monitorRevision:0,lastAttempt:0,retryAt:0,stationCycle:0,vehicleStrip:{ids:()=>Array.from({length:28},(_,i)=>String(i+1)),ingest(){ingested++;},fail(){}}};
  const ctx=vm.createContext({state,document:{hidden:false},Date:class extends Date{static now(){return now;}},loadPlanned(){},loadRegional(){},journeyMonitorIds,selectStopIds:()=>['2'],localStorage:{getItem:()=>null,setItem(){}},AbortController,URLSearchParams,retainDepartures:()=>[],parseWlMonitors:()=>[],updateTrafficCache,renderCurrent(){},setTimeout(fn,ms){const id=++serial;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),fetch(url,opts){calls.push({url,opts});return new Promise(resolve=>release=resolve);}});
+ ctx.readTrafficCache=()=>readTrafficCache({storage:ctx.localStorage,now:ctx.Date.now()});ctx.saveTrafficCache=cache=>saveTrafficCache(cache,{storage:ctx.localStorage,now:ctx.Date.now()});ctx.mergeTrafficCaches=(a,b)=>mergeTrafficCaches(a,b,ctx.Date.now());ctx.journeyWarningTargets=journeyWarningTargets;
  ctx.monitorAllowedAt=(ids,options)=>monitorAllowedAt(ids,{...options,now:ctx.Date.now(),storage:ctx.localStorage});ctx.claimMonitorAttempt=(ids,options)=>claimMonitorAttempt(ids,{...options,now:()=>ctx.Date.now(),storage:ctx.localStorage,locks:null});ctx.recordMonitorSource=(raw,ids)=>recordMonitorSource(raw,ids,{now:ctx.Date.now(),storage:ctx.localStorage});
  vm.runInContext(source.slice(source.indexOf('async function monitor('),source.indexOf('function resumeMonitor(')),ctx);return {state,calls,timers,monitor:ctx.monitor,release(){release(new Response(JSON.stringify({data:{monitors:[]}})));},get ingested(){return ingested;},advance(ms){now+=ms;}};
 }

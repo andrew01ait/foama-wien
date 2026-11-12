@@ -1,6 +1,25 @@
-import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.11.21';
+import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.11.22';
 
 export const TRAFFIC_CACHE_MS=15*60_000;
+export const TRAFFIC_STORAGE_KEY='foama.traffic.v1';
+const browserStorage=()=>{try{return globalThis.localStorage;}catch{return null;}};
+// Reuse the same public operator notices on every page without renewing their
+// timestamps. A confirmed empty record also needs to survive navigation.
+export function mergeTrafficCaches(previous={},incoming={},now=Date.now()){
+ const out={};
+ for(const cache of [previous,incoming])for(const [id,record] of Object.entries(cache||{})){
+  if(!/^\d{1,7}$/.test(id)||!Number.isFinite(record?.checkedAt)||record.checkedAt>now+30000||now-record.checkedAt>=TRAFFIC_CACHE_MS||!Array.isArray(record.notices))continue;
+  const notices=record.notices.filter(n=>n&&typeof n.id==='string'&&typeof n.title==='string'&&typeof n.category==='string'&&['lines','stops','boundStops'].every(key=>Array.isArray(n[key])&&n[key].every(v=>typeof v==='string'))&&!n.resolved&&(!n.end||Date.parse(n.end)>=now)).slice(0,20);
+  if(!out[id]||record.checkedAt>=out[id].checkedAt)out[id]={checkedAt:record.checkedAt,notices};
+ }
+ return Object.fromEntries(Object.entries(out).sort((a,b)=>b[1].checkedAt-a[1].checkedAt).slice(0,128));
+}
+export function readTrafficCache({storage=browserStorage(),now=Date.now()}={}){
+ try{const value=storage?.getItem(TRAFFIC_STORAGE_KEY);return value&&value.length<=1_000_000?mergeTrafficCaches({},JSON.parse(value),now):{};}catch{return {};}
+}
+export function saveTrafficCache(cache,{storage=browserStorage(),now=Date.now()}={}){
+ const safe=mergeTrafficCaches({},cache,now);try{const value=JSON.stringify(safe);if(value.length<=1_000_000)storage?.setItem(TRAFFIC_STORAGE_KEY,value);}catch{}return safe;
+}
 const list=value=>[...new Set((Array.isArray(value)?value:String(value??'').split(',')).map(x=>String(x).trim()).filter(Boolean))];
 const text=(value,max=2200)=>String(value??'').replace(/<[^>]*>/g,' ').replace(/&(?:nbsp|amp|lt|gt|quot);/g,m=>({'&nbsp;':' ','&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"'}[m])).replace(/\s+/g,' ').trim().slice(0,max);
 const categoryLabels={stoerunglang:'Betriebsstörung',stoerungkurz:'Betriebshinweis',aufzugsinfo:'Aufzug',fahrtreppeninfo:'Fahrtreppe',information:'Information'};

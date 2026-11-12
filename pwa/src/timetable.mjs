@@ -1,5 +1,5 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.21';
-import {directionKey} from './core.mjs?v=0.11.21';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.22';
+import {directionKey} from './core.mjs?v=0.11.22';
 
 const zone='Europe/Vienna', dayMs=86400_000;
 const dateParts=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});

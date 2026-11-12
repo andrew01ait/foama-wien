@@ -1,11 +1,11 @@
 import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from '../pwa/src/monitor-timing.mjs';
 const tick=()=>new Promise(setImmediate);
-import {updateTrafficCache} from '../pwa/src/traffic-info.mjs';
+import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches} from '../pwa/src/traffic-info.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {upcomingBoardings,focusedJourneyBoardings,journeyMonitorIds} from '../pwa/src/journey-client.mjs';
+import {upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from '../pwa/src/journey-client.mjs';
 import {parseWlMonitors} from '../pwa/src/core.mjs';
 import {retainDepartures} from '../pwa/src/departure-cache.mjs';
 const source=readFileSync(new URL('../pwa/src/journey-page.mjs',import.meta.url),'utf8');
@@ -21,6 +21,7 @@ function harness(){
   setTimeout:(fn,ms)=>{const id=++nextId;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++nextId,clearInterval(){},
   selectStopIds:(stops,modes,limit)=>stops.flatMap(s=>s.rbl).slice(0,limit),retainDepartures:(old,rows,ids)=>retainDepartures(old,rows,ids,clock),
   fetch:(url,options)=>new Promise(resolve=>calls.push({url,options,resolve})),parseWlMonitors,updateTrafficCache,renderCurrent:()=>renders++});
+ ctx.readTrafficCache=()=>readTrafficCache({storage:ctx.localStorage,now:ctx.Date.now()});ctx.saveTrafficCache=cache=>saveTrafficCache(cache,{storage:ctx.localStorage,now:ctx.Date.now()});ctx.mergeTrafficCaches=(a,b)=>mergeTrafficCaches(a,b,ctx.Date.now());ctx.journeyWarningTargets=journeyWarningTargets;
  ctx.monitorAllowedAt=(ids,options)=>monitorAllowedAt(ids,{...options,now:ctx.Date.now(),storage:ctx.localStorage});ctx.claimMonitorAttempt=(ids,options)=>claimMonitorAttempt(ids,{...options,now:()=>ctx.Date.now(),storage:ctx.localStorage,locks:null});ctx.recordMonitorSource=(raw,ids)=>recordMonitorSource(raw,ids,{now:ctx.Date.now(),storage:ctx.localStorage});
  vm.runInContext(monitorCode,ctx);return {state,document,calls,timers,storage,monitor:ctx.monitor,pause:ctx.pauseMonitor,advance:ms=>clock+=ms,response:()=>Response.json({data:{monitors:[{locationStop:{properties:{title:'Test station',attributes:{rbl:'1'}}},lines:[{name:'U6',type:'ptMetro',towards:'Floridsdorf',departures:{departure:[{departureTime:{timeReal:new Date(clock+240000).toISOString()}}]}}]}]}}),get renders(){return renders;}};
 }

@@ -1,3 +1,13 @@
+## PWA 0.11.22 · Einheitliche Warnmeldungen und gespeicherte Wege · 12.11.2026
+
+Monitorübersicht, Stations-/Verbindungsdetails und A nach B verwenden denselben Warnungsbaustein. Ein ruhiger Kopf mit Warnsymbol, Titel, Anzahl und Aufklappen; betroffene Linien und Vorschau nur geschlossen, im offenen Inhalt einmal pro Meldung. Der Titel wiederholt den direkt daneben stehenden Linienpräfix nicht. Kategorie-/Scope-Doppelzeilen und wiederholte Warnungen unter den Übersichtskarten entfallen. Aufzüge/Fahrtreppen und zukünftige Hinweise bleiben getrennt neutral zugänglich. Quellenstand, Gültigkeit, Alterskennzeichnung und Betreiberlink bleiben erhalten. Helles und dunkles Farbschema sowie schmale Ansichten berücksichtigt.
+
+A nach B initialisierte den Meldungscache leer, während der Monitor bereits gültige Meldungen in `foama.traffic.v1` hielt. Beide Seiten lesen und schreiben jetzt denselben geprüften Cache; Wiederaufnahme und andere Tabs übernehmen dessen neuen Stand. Echte Quellzeiten und erfolgreiche leere Datensätze bleiben erhalten. Kein Verjüngen durch Lesen oder Wiederöffnen, keine Entwarnung bei Quellfehlern. 128 öffentliche RBL-Datensätze, höchstens 1 MB JSON; 15-Minuten-Ablauf und Älter-Markierung ab 90 Sekunden unverändert. Keine Nutzerpositionen oder Favoriten im Meldungscache.
+
+Die vorhandene gemeinsame A-nach-B-Monitorabfrage nimmt zusätzlich passende Ein-/Ausstiegsanker aller gewählten Fahrtabschnitte auf. Die aktuellen fokussierten Einstiege und ein offener Fahrzeugbereich haben Vorrang. Höchstens 24 RBLs, derselbe 30-s-/Quellcache-/Backoff-Rhythmus, keine zusätzlichen parallelen Requests oder Neuplanung. Fremde Linien/Halte, Aufzüge und zukünftige Hinweise werden weiterhin nicht zu aktuellen Routenwarnungen.
+
+489 Web-/Server-, 18 Python- und 88 Syntaxprüfungen bestanden. Neue Regressionen: Warnung bei gespeichertem Weg vor dem ersten eigenen Abruf, Quellalter/Expiry, leere Bestätigung über Seitenwechsel, fehlerhafter/blockierter Speicher, Warnungsanker späterer Abschnitte und einmalige Artikelkennzeichnung. Aktueller Wear-Release 0.8.0/27 unverändert. Details: docs/warning-panel.md.
+
 ## PWA 0.11.21 · Fahrzeugdaten über Seitenwechsel erhalten · 12.11.2026
 
 Verbindungsdetail, A nach B und ganze Fahrzeugseite übernehmen jetzt dieselbe kurzlebige Liniensitzung. Vorhandene Prognosen, temporäre IDs, Bestätigungen, Korrekturpausen und nächster Abruf bleiben beim Navigieren erhalten; auch eine aus dem Browser-Zurückcache zurückkehrende Seite übernimmt den neueren Stand. Ein zwischengespeicherter Stand wird nie erneut als Live-Beleg eingelesen. Zwei unterschiedliche frische Quellenstände und die bisherigen 60-/90-s-Altersgrenzen bleiben erhalten.

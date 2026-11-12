@@ -33,14 +33,14 @@ test('A-to-B warning data retains its source age and disappears on expiry, resol
 test('A-to-B station warnings sit after the station and chosen line but before departures, with the same focused-line filter',()=>{
  const stop=stops[0],connection={route:'U6',mode:'metro',towards:'Ziel'},departure={provider:'wl',rbl:'1',route:'U6',mode:'metro',towards:'Ziel',actual:new Date(now+240000).toISOString(),fetchedAt:new Date(now).toISOString(),quality:'live'};
  const html=journeyStationMarkup(stop,[departure],{escape,badge,now,connection,trafficCache:cache,isNoticeOpen:()=>true});
- assert.ok(html.indexOf('Einstieg')<html.indexOf('⚠'));assert.ok(html.indexOf('journey-line-heading')<html.indexOf('⚠'));assert.ok(html.indexOf('⚠')<html.indexOf('route-station-departures'));assert.match(html,/U6: Unterbrechung/);assert.doesNotMatch(html,/U4: Unterbrechung|46: Unterbrechung/);assert.match(html,/secondary-notices/);assert.match(html,/ open>/);
- const all=journeyStationMarkup(stop,[],{escape,badge,now,trafficCache:cache});assert.match(all,/U4: Unterbrechung/);
+ assert.ok(html.indexOf('Einstieg')<html.indexOf('warning-disclosure'));assert.ok(html.indexOf('journey-line-heading')<html.indexOf('warning-disclosure'));assert.ok(html.indexOf('warning-disclosure')<html.indexOf('route-station-departures'));assert.match(html,/<b>U6<\/b>/);assert.doesNotMatch(html,/<b>U4<\/b>|<b>46<\/b>/);assert.match(html,/secondary-notices/);assert.match(html,/ open>/);
+ const all=journeyStationMarkup(stop,[],{escape,badge,now,trafficCache:cache});assert.match(all,/<b>U4<\/b>/);
 });
 
 test('journey warning details retain source scope and stale labels and escape provider text',()=>{
  const notices=journeyTrafficNotices(journey,stops,cache,{now:now+91000});notices[0]={...notices[0],description:'<script>provider text</script>'};
  const html=journeyNoticeMarkup(notices,{escape,badge,key:'chosen-route',isOpen:key=>key==='chosen-route',now:now+91000});
- assert.match(html,/Letzter Stand – nicht aktuell bestätigt/);assert.match(html,/Betrifft die Linie, nicht zwingend diese Haltestelle/);assert.match(html,/Wiener Linien Betriebsinfo/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);assert.match(html,/ open>/);
+ assert.match(html,/Älterer Stand/);assert.match(html,/Betrifft die Linie, nicht zwingend diese Haltestelle/);assert.match(html,/Wiener Linien Betriebsinfo/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);assert.match(html,/ open>/);
 });
 
 test('routine A-to-B warning updates and route switches keep existing walking maps mounted',()=>{
@@ -48,6 +48,6 @@ test('routine A-to-B warning updates and route switches keep existing walking ma
  const slot={dataset:{liveLeg:'0'}},ui=new Map(),host={get innerHTML(){return markup;},set innerHTML(value){writes++;markup=value;}},steps={querySelectorAll:()=>[slot],set innerHTML(value){assert.fail('existing journey body must stay mounted');}};
  const $=id=>{if(id==='journeyNotices')return host;if(id==='journeySteps')return steps;if(!ui.has(id))ui.set(id,{setAttribute(){}});return ui.get(id);};
  const ctx=vm.createContext({state,$,journeyTrafficNotices,journeyNoticeMarkup,journeyPathKey,escape,badge,clearWalkMaps:()=>cleared++,liveMarkup:()=>'<p>Live departure</p>'});
- vm.runInContext(source.slice(source.indexOf('function showSteps('),source.indexOf('function renderCurrent(')),ctx);ctx.showSteps();ctx.showSteps();assert.equal(writes,1);assert.match(markup,/U6: Unterbrechung/);assert.match(markup,/46: Unterbrechung/);
- state.selected={savedPath:true,legs:[ride('wl:a','wl:b','U4')]};state.renderedJourney=state.selected;ctx.showSteps();assert.match(markup,/U4: Unterbrechung/);assert.doesNotMatch(markup,/U6: Unterbrechung/);assert.equal(cleared,0);assert.equal(state.walkMaps.size,1);
+ vm.runInContext(source.slice(source.indexOf('function showSteps('),source.indexOf('function renderCurrent(')),ctx);ctx.showSteps();ctx.showSteps();assert.equal(writes,1);assert.match(markup,/<b>U6<\/b>/);assert.match(markup,/<b>46<\/b>/);
+ state.selected={savedPath:true,legs:[ride('wl:a','wl:b','U4')]};state.renderedJourney=state.selected;ctx.showSteps();assert.match(markup,/<b>U4<\/b>/);assert.doesNotMatch(markup,/<b>U6<\/b>/);assert.equal(cleared,0);assert.equal(state.walkMaps.size,1);
 });
