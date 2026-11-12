@@ -39,3 +39,5 @@
  .journey-point .journey-search-label{display:none}
  .journey-point .journey-search-place{width:48px;flex-basis:48px;padding:0}
 }
+
+.journey-point-context{margin:5px 0 0;font-size:12px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}

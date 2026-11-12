@@ -1,4 +1,4 @@
-import {VEHICLE_FRESH_MS} from './vehicle-tracker.mjs?v=0.11.29';
+import {VEHICLE_FRESH_MS} from './vehicle-tracker.mjs?v=0.11.31';
 export function vehicleArrival(track,direction,stopId,now=Date.now()){
  const target=direction.stops.findIndex(s=>s.id===stopId),p=track.position,times=track.schedule?.times,stop=times?.[target];
  if(target<0||!stop||!p||track.hits<2||track.blocked||track.retired||track.awaiting||p.stale||p.basis==='held'||p.progress>target+.01||now-track.lastSeen>VEHICLE_FRESH_MS)return null;

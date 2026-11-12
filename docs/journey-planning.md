@@ -1,3 +1,11 @@
+## Adressen und Meine Orte ab PWA 0.11.31
+
+Start und Ziel bewahren die vorhandenen Ortszusätze aus dem gewählten Suchtreffer. Die Straße bleibt im Eingabefeld, Postleitzahl/Ort/Bezirk stehen gut umbrechend darunter. Bei einem eigenen Ort steht der selbst vergebene Name, etwa Arbeit, im Feld; darunter die physische Adresse einschließlich verfügbarer Ortsangaben. Die Reiseübersicht und neu gespeicherte Routen bewahren diese Information ebenfalls. Eine alte Route ohne Ortszusatz wird nicht automatisch erneut an einen Geocoder geschickt.
+
+„☆ Meine Orte“ oberhalb des Formulars öffnen und „Als Start“ oder „Als Ziel“ wählen. Die ersten vier Orte können direkt unter dem Start-/Zielfeld angetippt werden; bei mehr Einträgen öffnet „Weitere Orte“ die vollständige Liste. Die Auswahl benutzt die lokal gespeicherten Koordinaten und löst keine neue Ortssuche aus.
+
+Routen speichern ein optionales auf 160 Zeichen begrenztes `detail`-Feld für feste Endpunkte. Es beeinflusst weder physische Endpunkt-/Linienwegidentität noch bereits vergebene Routennamen. Eigene Ortsnamen bleiben lokale Anzeige; dynamische GPS-Endpunkte speichern weder Adresse noch Fix. Bestehende Speicher-/QR-Formate und Standorte bleiben kompatibel.
+
 ## Störungen ab PWA 0.11.14
 
 Die ausgewählte Reise zeigt aktuelle Betriebsmeldungen ihrer Wiener Linien direkt unter Start/Ziel. Varianten und importierte Favoriten verwenden nur ihre jeweils gewählten Fahrtabschnitte. Aufklappen zeigt Beschreibung, Linienbezug, Gültigkeit, Abrufstand und amtlichen Link. In Stationsdetails stehen passende Hinweise vor den Abfahrten; eine gewählte Verbindung filtert auf ihre Linie. Aufzüge/Fahrtreppen und geplante Meldungen bleiben dort eigene neutrale Informationen.

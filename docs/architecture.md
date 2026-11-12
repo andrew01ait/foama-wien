@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.29 / Wear 0.9.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.31 / Wear 0.9.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -44,6 +44,8 @@ Die optionale native Ultra-Sparfunktion reduziert unter 20 Prozent Akku nach Opt
 Der öffentliche Katalog verbindet offizielle Haltepunkte mit nachgewiesenen Linien. Reguläre Fahrgastfahrten aus GTFS und datierte Live-Bestätigungen werden getrennt von bloßen Fahrwegvarianten behandelt. Neue Live-Beobachtungen bestätigen Linien für 30 Tage; vollständige Prüfungen und Tageszeitabdeckung schützen vor falschem Entfernen durch bloße Datenlücken. [Metadatenprüfung](wiener-linien-metadata.md).
 
 Vollständige Reiseplanung erfolgt nur auf bewusste Suche in der PWA. Zwei begrenzte Profilabfragen erlauben den Vergleich schnellster Wege und weniger Umstiege; beide zählen im gemeinsamen Budget von höchstens 700 Planungs-/Fußwegabrufen je konservativen 25 Stunden. Karten- und Variantenwechsel lösen keine neue Vollplanung aus. Favoriten speichern Linienwege und Umstiege, keine alten Fahrtzeiten oder Trip-IDs. Ein GPS-Endpunkt bleibt dynamisch, ohne gespeicherten Fix. Die Uhr zeigt aktuelle passende Etappenzeiten; ein gleicher Linienname ist keine garantierte konkrete Fahrt oder Anschlusszusage.
+
+Gewählte Adressen behalten den vom Geocoder gelieferten Ortskontext als optionales begrenztes `detail`-Feld. Eigene Orte zeigen ihren lokalen Namen und die physische Adresse getrennt. Der Kontext beeinflusst die Endpunktidentität nicht, bleibt in gespeicherten Routen erhalten und wird bei dynamischen GPS-Endpunkten entfernt. Die Ortsauswahl verwendet vorhandene lokale Koordinaten ohne erneuten Geocoding-Aufruf. [Bedienung und Datenvertrag](journey-planning.md).
 
 ## Favoritenübertragung
 

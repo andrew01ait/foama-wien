@@ -1,28 +1,28 @@
-import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.29';
-import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.11.29';
-import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.11.29';
-import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.11.29';
-import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.11.29';
-import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.11.29';
-import {createThemeController} from './theme.mjs?v=0.11.29';
-import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.11.29';
-import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from './journey-client.mjs?v=0.11.29';
-import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.11.29';
-import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.11.29';
-import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.29';
-import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.11.29';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.29';
-import {createJourneyMap} from './journey-map.mjs?v=0.11.29';
-import {publishMapPosition} from './map-position.mjs?v=0.11.29';
-import {coordinate} from './journey-geometry.mjs?v=0.11.29';
-import {journeyStationMarkup,journeyTrafficNotices,journeyNoticeMarkup} from './journey-station.mjs?v=0.11.29';
-import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches,TRAFFIC_STORAGE_KEY} from './traffic-info.mjs?v=0.11.29';
-import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.11.29';
-import {selectStopIds} from './station-catalog.mjs?v=0.11.29';
-import {retainDepartures} from './departure-cache.mjs?v=0.11.29';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.29';
-import {jsonExportName} from './export-file.mjs?v=0.11.29';
-import {bindAppShare} from './app-share.mjs?v=0.11.29';
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.31';
+import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.11.31';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.11.31';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.11.31';
+import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.11.31';
+import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.11.31';
+import {createThemeController} from './theme.mjs?v=0.11.31';
+import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.11.31';
+import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from './journey-client.mjs?v=0.11.31';
+import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.11.31';
+import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.11.31';
+import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.31';
+import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.11.31';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.31';
+import {createJourneyMap} from './journey-map.mjs?v=0.11.31';
+import {publishMapPosition} from './map-position.mjs?v=0.11.31';
+import {coordinate} from './journey-geometry.mjs?v=0.11.31';
+import {journeyStationMarkup,journeyTrafficNotices,journeyNoticeMarkup} from './journey-station.mjs?v=0.11.31';
+import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches,TRAFFIC_STORAGE_KEY} from './traffic-info.mjs?v=0.11.31';
+import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.11.31';
+import {selectStopIds} from './station-catalog.mjs?v=0.11.31';
+import {retainDepartures} from './departure-cache.mjs?v=0.11.31';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.31';
+import {jsonExportName} from './export-file.mjs?v=0.11.31';
+import {bindAppShare} from './app-share.mjs?v=0.11.31';
 
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -56,13 +56,20 @@ function cancelSearch(){state.revision++;client.abort();placeClient.abort();walk
 function invalidateResults(){state.journeys=[];state.planContext=null;$('journeyResults').replaceChildren();}
 function setOverviewMode(mode){cancelSearch();state.overviewMode=mode;$('journeyForm').hidden=mode==='saved';$('journeyFavorites').hidden=mode!=='saved';$('journeyModeSearch').setAttribute('aria-pressed',String(mode==='search'));$('journeyModeSaved').setAttribute('aria-pressed',String(mode==='saved'));$('journeyResults').hidden=mode==='saved';status('');}
 function pointControls(){
- for(const kind of ['from','to'])$(kind+'Address').disabled=!!state[kind];
+ for(const kind of ['from','to']){
+  const point=state[kind],key=kind==='from'?'From':'To',input=$('journey'+key),context=$('journey'+key+'Context');
+  $(kind+'Address').disabled=!!point;
+  const label=placesUI?.describeParts?.(point)||{name:point?.name||'',detail:point?.detail||''};
+  if(point)input.value=label.name;
+  input.title=point?[label.name,label.detail].filter(Boolean).join(' · '):'';
+  context.textContent=point?label.detail:'';context.hidden=!context.textContent;
+ }
  const current=state.from?.kind==='current';$('journeyGps').setAttribute('aria-pressed',String(current));$('journeyGpsHint').hidden=!current;
  $('journeyGpsHint').textContent=state.from?.fixedAt?'Standort als Start gesetzt. „Verbindungen suchen“ startet die Planung.':'GPS wird beim Tippen auf „Verbindungen suchen“ ermittelt.';
  placesUI?.renderChoices();
 }
 function selectPoint(kind,point){
- state[kind]={name:point.name,kind:point.kind==='current'?'current':'point',...(coordinate(point)||{}),...(point.fixedAt?{fixedAt:point.fixedAt}:{}),...(point.placeId?{placeId:point.placeId}:{})};
+ state[kind]={name:point.name,kind:point.kind==='current'?'current':'point',...(coordinate(point)||{}),...(point.kind!=='current'&&typeof point.detail==='string'&&point.detail.trim()?{detail:point.detail.trim().slice(0,160)}:{}),...(point.fixedAt?{fixedAt:point.fixedAt}:{}),...(point.placeId?{placeId:point.placeId}:{})};
  const input=$('journey'+(kind==='from'?'From':'To'));input.value=point.name;input.dataset.chosen='true';$(kind+'Choices').replaceChildren();$('journeyGps').setAttribute('aria-pressed',String(state.from?.kind==='current'));pointControls();status('');
 }
 function localChoices(kind){
@@ -95,7 +102,7 @@ async function useGps(){cancelSearch();invalidateResults();selectPoint('from',{k
 function renderFavorites(){
  routeMenus.close();
  $('journeyFavoriteCount').textContent=String(state.favorites.length);$('journeyFavoriteEmpty').hidden=!!state.favorites.length;
- $('journeyFavoriteList').innerHTML=state.favorites.map(f=>`<article class="journey-favorite"><button type="button" class="journey-favorite-open" data-route-favorite="${escape(f.id)}"><strong>${escape(f.name)}</strong><small class="journey-favorite-stations">${escape(journeyStations(f))}</small><small>${escape(f.from.name)} → ${escape(f.to.name)}${f.alternatives?.length?' · '+f.alternatives.length+' Alternativen':''}</small><span>${f.legs.filter(l=>l.mode!=='walk').map(boardingPreview).join('')}</span></button><details class="journey-favorite-menu favorite-menu" data-favorite-menu="${escape(f.id)}"><summary aria-label="${escape(f.name)} bearbeiten">⋯</summary><div><button type="button" data-route-reverse="${escape(f.id)}">Rückfahrt planen</button><button type="button" data-route-rename="${escape(f.id)}">Umbenennen</button><button type="button" data-route-remove="${escape(f.id)}">Entfernen</button></div></details></article>`).join('');
+ $('journeyFavoriteList').innerHTML=state.favorites.map(f=>`<article class="journey-favorite"><button type="button" class="journey-favorite-open" data-route-favorite="${escape(f.id)}"><strong>${escape(f.name)}</strong><small class="journey-favorite-stations">${escape(journeyStations(f))}</small><small>${escape([f.from.name,f.from.detail].filter(Boolean).join(", "))} → ${escape([f.to.name,f.to.detail].filter(Boolean).join(", "))}${f.alternatives?.length?' · '+f.alternatives.length+' Alternativen':''}</small><span>${f.legs.filter(l=>l.mode!=='walk').map(boardingPreview).join('')}</span></button><details class="journey-favorite-menu favorite-menu" data-favorite-menu="${escape(f.id)}"><summary aria-label="${escape(f.name)} bearbeiten">⋯</summary><div><button type="button" data-route-reverse="${escape(f.id)}">Rückfahrt planen</button><button type="button" data-route-rename="${escape(f.id)}">Umbenennen</button><button type="button" data-route-remove="${escape(f.id)}">Entfernen</button></div></details></article>`).join('');
 }
 function refreshSavedJourneys(){const next=sanitizeJourneyFavorites(get('foama.journeyFavorites.v1',[]));if(JSON.stringify(next)!==JSON.stringify(state.favorites)){state.favorites=next;renderFavorites();if(state.selected&&!state.station)showSteps();}}
 function persistFavorites(){try{localStorage.setItem('foama.journeyFavorites.v1',JSON.stringify(state.favorites));renderFavorites();return true;}catch{state.favorites=sanitizeJourneyFavorites(get('foama.journeyFavorites.v1',[]));renderFavorites();status('Die Route konnte auf diesem Gerät nicht gespeichert werden.');return false;}}
@@ -108,7 +115,7 @@ function journeyStations(journey){const legs=rides(journey);return legs.length?s
 function renderRouteOverview(){
  if(!state.selected)return;const from=state.from||state.openedFavorite?.from,to=state.to||state.openedFavorite?.to;
  for(const [key,point] of [['From',from],['To',to]]){
-  const label=placesUI?.describeParts?.(point)||{name:point?.name||'',detail:''};
+  const label=placesUI?.describeParts?.(point)||{name:point?.name||'',detail:point?.detail||''};
   $('journeyRoute'+key).textContent=label.name;
   const detail=$('journeyRoute'+key+'Detail');detail.textContent=label.detail;detail.hidden=!label.detail;
  }
@@ -328,6 +335,6 @@ $('journeyWalkRefresh').addEventListener('click',async()=>{
 window.addEventListener('popstate',()=>{if(history.state?.foamaJourneyStation){openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});return;}if(state.station){closeStation();return;}showJourney(history.state?.foamaJourneyFavorite??(Number.isInteger(history.state?.foamaJourney)?history.state.foamaJourney:null),{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});});
 function pause(){cancelSearch();pauseMonitor();closePicker();clearWalkMaps();placesUI?.pause();}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();resumeMonitor();}});window.addEventListener('pagehide',pause);window.addEventListener('storage',event=>{if(event.key===TRAFFIC_STORAGE_KEY){state.trafficCache=readTrafficCache();if(!document.hidden)renderCurrent();}if(event.key==='foama.journeyFavorites.v1')refreshSavedJourneys();if(event.key==='foama.journeyPlaces.v1')placesUI?.refresh();});window.addEventListener('pageshow',()=>{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();if(!document.hidden)resumeMonitor();});
-placesUI=mountJourneyPlaces({client:createJourneyClient(),escape,getPoint:kind=>state[kind],onOpen:cancelSearch,onChoose:(kind,point)=>{cancelSearch();invalidateResults();setOverviewMode('search');selectPoint(kind,point);},onChange:()=>{if(state.selected&&!state.station)renderRouteOverview();}});
+placesUI=mountJourneyPlaces({client:createJourneyClient(),escape,getPoint:kind=>state[kind],onOpen:cancelSearch,onChoose:(kind,point)=>{cancelSearch();invalidateResults();setOverviewMode('search');selectPoint(kind,point);},onChange:()=>{pointControls();if(state.selected&&!state.station)renderRouteOverview();}});
 pointControls();renderFavorites();setJourneyPreference(state.preference);setOverviewMode(location.hash==='#routen'?'saved':'search');
-try{const response=await fetch('./data/stops.json?v=0.11.29');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}
+try{const response=await fetch('./data/stops.json?v=0.11.31');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}

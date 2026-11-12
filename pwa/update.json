@@ -1,9 +1,9 @@
 {
-  "version": "0.11.29",
+  "version": "0.11.31",
   "wearVersionCode": 32,
   "wearApkUrl": "/apk/foama-wien-wear-0.9.1.apk",
   "wearApkSha256": "ec1a9223256a41cc00d3eeab4470c1343617afc93bef031bb188104ad4b4323c",
-  "changelog": "Update-Hinweise auf Handys mit klaren Textzeilen und Button darunter. Uhr-Karte mit dauerhaft erreichbarer Stationsliste und übersichtlicher Linienansicht.",
+  "changelog": "A nach B behält vollständige Adressangaben. Meine Orte zeigt den eigenen Namen mit Adresse und Ort darunter.",
   "wearVersion": "0.9.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 7196177,
@@ -15,7 +15,7 @@
     "Offline-GPS und der vollständige Wiener Fahrplan mit festem Ablaufdatum bleiben verfügbar."
   ],
   "releaseNotes": [
-    "Update-Hinweis auf schmalen Displays mit separater Versionszeile und großem Button darunter.",
-    "Uhr-Karte: Stationsliste jederzeit öffnen und nur die Haltestellen einer ausgewählten Linie anzeigen."
+    "Ausgewählte Adressen behalten Postleitzahl, Ort und vorhandene Bezirksangaben, auch in gespeicherten Routen.",
+    "Meine Orte zeigt den eigenen Namen im Start-/Zielfeld und die vollständige Adresse darunter."
   ]
 }

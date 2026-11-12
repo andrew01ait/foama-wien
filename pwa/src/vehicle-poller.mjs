@@ -1,5 +1,5 @@
-import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.29';
-import {createVehiclePositionOwner} from './vehicle-position-owner.mjs?v=0.11.29';
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.31';
+import {createVehiclePositionOwner} from './vehicle-position-owner.mjs?v=0.11.31';
 export function createVehiclePoller({ids,onData,onError,onWaiting=()=>{},onRequest=()=>{},notBefore=()=>0,fetch=globalThis.fetch,storage=globalThis.localStorage,locks=globalThis.navigator?.locks,now=()=>Date.now(),visible=()=>!document.hidden,schedule=setTimeout,cancel=clearTimeout}={}){
  let enabled=false,timer=null,request=null,last=0,retry=0,generation=0;
  const owner=createVehiclePositionOwner(stop);

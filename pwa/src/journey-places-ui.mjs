@@ -1,6 +1,6 @@
-import {JOURNEY_PLACES_KEY,sanitizeJourneyPlaces,saveJourneyPlace,journeyPlacePoint,matchingJourneyPlace,journeyEndpointLabel} from './journey-places.mjs?v=0.11.29';
-import {uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.29';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.29';
+import {JOURNEY_PLACES_KEY,sanitizeJourneyPlaces,saveJourneyPlace,journeyPlacePoint,matchingJourneyPlace,journeyEndpointLabel} from './journey-places.mjs?v=0.11.31';
+import {uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.31';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.31';
 
 export function mountJourneyPlaces({doc=document,storage=localStorage,client,escape,getPoint,onChoose,onOpen=()=>{},onChange=()=>{},confirm=message=>window.confirm(message)}={}){
  const $=id=>doc.getElementById(id),dialog=$('journeyPlacesDialog');let places=[],editingId=null,candidate=null,matches=[],revision=0;
@@ -46,5 +46,5 @@ export function mountJourneyPlaces({doc=document,storage=localStorage,client,esc
  for(const kind of ['from','to'])$(kind+'SavedPlaces').addEventListener('click',event=>{const button=event.target.closest('button');if(button?.dataset.placesMore){open();return;}const p=places.find(p=>p.id===button?.dataset.placeId);if(p)choose(kind,p);});
  function refresh(){const next=read();if(JSON.stringify(next)!==JSON.stringify(places)){places=next;render();onChange();}}
  places=read();render();
- return {renderChoices,pause,refresh,describeParts:point=>journeyEndpointLabel(places,point),describe:point=>{const p=matchingJourneyPlace(places,point);return p?p.label+' · '+p.address:point?.name||'';}};
+ return {renderChoices,pause,refresh,describeParts:point=>journeyEndpointLabel(places,point),describe:point=>{const label=journeyEndpointLabel(places,point);return [label.name,label.detail].filter(Boolean).join(' · ');}};
 }

@@ -1,3 +1,11 @@
+## PWA 0.11.31 · vollständige Adressen und Meine Orte · 12.11.2026
+
+Die Auswahl übernimmt jetzt die bereits vom Geocoder gelieferten Zusatzangaben wie Postleitzahl, Ort und Bezirk. Unter dem Start-/Zielfeld steht eine kompakte umbrechende Kontextzeile, die auch per Screenreader zugeordnet ist. Eigene Orte zeigen ihren Namen im Feld und die vollständige Adresse darunter; die Reiseübersicht und neu gespeicherte Routen erhalten denselben Kontext. Beim Bearbeiten oder Wechsel zu GPS wird alter Adresskontext entfernt. Keine neue Orts-/GPS-Abfrage und keine erfundenen fehlenden Bezirksangaben.
+
+„☆ Meine Orte“ öffnet die lokale Liste; „Als Start“ bzw. „Als Ziel“ übernimmt den Ort. Die ersten vier Orte sind außerdem direkt unter den jeweiligen Feldern auswählbar, weitere über „Weitere Orte“. Der eigene Anzeigename ersetzt keine physischen Endpunkte. Das optionale begrenzte `detail`-Feld bleibt bei JSON-/QR-Übertragung erhalten; Routenidentität ignoriert es, sodass vorhandene Favoriten beim erneuten Speichern ihren Namen und ihre ID behalten. Alte gespeicherte Routen ohne Kontext bleiben lesbar und werden ohne erneute bewusste Auswahl nicht nachgeocodiert. Kompakte Stationskarten aus 0.11.30 enthalten; Wear 0.9.1 / Code 32 unverändert.
+
+505 Web-/Server- und 22 Python-Tests bestanden. Sieben neue Regressionen prüfen tatsächliche Formularauswahl, Ortsname und Adresse, Umbenennen, Bearbeiten/GPS, Speicherung/Rückfahrt und direkte Ortsauswahl ohne Netzaufruf. Browser-Vorschau weiterhin durch die Zugriffspolicy gesperrt; responsive Darstellung nicht visuell abgenommen.
+
 ## PWA 0.11.29 / Wear 0.9.1 · Update-Hinweis und Kartenliste · 12.11.2026
 
 Update-Hinweise zeigen Titel und aktuelle App-Version getrennt. Auf Handybreiten bis 600 px steht der mindestens 44 px hohe Button unter dem Text; Desktop behält die seitliche Anordnung. Schrumpfbare Textspalte, natürliche Zeilenumbrüche und kürzerer Offline-/Push-Hinweis erhalten die unterscheidbaren App-/Komponentenfälle. Aktivierung, Fehlerwiederholung und Nutzerbestätigung unverändert. Neuer PWA-Cache.

@@ -1,10 +1,10 @@
-import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.29';
-import {lineDayDepartures,hourlyTimetable,timetableHourKey,timetableDayOptions} from './line-timetable.mjs?v=0.11.29';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.29';
-import {createThemeController} from './theme.mjs?v=0.11.29';
-import {createTimetablePdf,timetablePdfName} from './timetable-pdf.mjs?v=0.11.29';
-import {createLineMaps} from './line-maps.mjs?v=0.11.29';
-import {pdfRoutePatterns,pdfMapViewport,createPdfMapBackground} from './timetable-pdf-map.mjs?v=0.11.29';
+import {createTimetable,timetableDate} from './timetable.mjs?v=0.11.31';
+import {lineDayDepartures,hourlyTimetable,timetableHourKey,timetableDayOptions} from './line-timetable.mjs?v=0.11.31';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.31';
+import {createThemeController} from './theme.mjs?v=0.11.31';
+import {createTimetablePdf,timetablePdfName} from './timetable-pdf.mjs?v=0.11.31';
+import {createLineMaps} from './line-maps.mjs?v=0.11.31';
+import {pdfRoutePatterns,pdfMapViewport,createPdfMapBackground} from './timetable-pdf-map.mjs?v=0.11.31';
 
 const $=id=>document.getElementById(id),escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const modes={metro:'U-Bahn',tram:'Straßenbahn',bus:'Bus',sbahn:'S-Bahn',regional:'Regionalzug',long:'Fernverkehr'};

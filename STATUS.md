@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.29, Wear 0.9.1 / Code 32.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.31, Wear 0.9.1 / Code 32.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -68,3 +68,5 @@ Wear 0.8.2: Fahrzeugdaten über Ansichts- und Stationswechsel behalten, geteilte
 0.11.26: Standortkarte mit eindeutigem Haltepunkt unter dem verbundenen Linienlabel und passenden physischen Plattformkoordinaten. [Datenvertrag und Prüfung](docs/station-map-points.md).
 
 PWA 0.11.29: Update-Hinweis mit separaten Titel-/Versionszeilen und darunterliegendem Button bis 600 px. Wear 0.9.1: dauerhafte Kartenliste und gemeinsame Linienfilterung von Punkten, Antippen und Liste. Browser-Vorschauzugriff gesperrt; native Kartenbilder bei 192/240 dp geprüft. [Release und Grenzen](docs/wear-os-release-0.9.1.md).
+
+PWA 0.11.31: ausgewählte Adressen und gespeicherte Routen behalten Ortszusätze. Meine Orte zeigt den eigenen Namen mit vollständiger Adresse darunter; Auswahl über Als Start/Als Ziel oder direkte Ortsbuttons. Keine zusätzliche Geocoding- oder GPS-Abfrage. [Bedienung und Datenvertrag](docs/journey-planning.md).

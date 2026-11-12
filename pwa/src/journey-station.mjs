@@ -1,10 +1,10 @@
-import {availableDeparts,countdownMinutes} from './core.mjs?v=0.11.29';
-import {departureAtStation} from './connection-detail.mjs?v=0.11.29';
-import {departureIsFresh} from './departure-cache.mjs?v=0.11.29';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.29';
-import {journeyDirectionMatches} from './journey-planning.mjs?v=0.11.29';
-import {trafficAtStation} from './traffic-info.mjs?v=0.11.29';
-import {warningsForTargets,stationNoticeSections,trafficNoticeMarkup,trafficNoticeBadges} from './warning-panel.mjs?v=0.11.29';
+import {availableDeparts,countdownMinutes} from './core.mjs?v=0.11.31';
+import {departureAtStation} from './connection-detail.mjs?v=0.11.31';
+import {departureIsFresh} from './departure-cache.mjs?v=0.11.31';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.31';
+import {journeyDirectionMatches} from './journey-planning.mjs?v=0.11.31';
+import {trafficAtStation} from './traffic-info.mjs?v=0.11.31';
+import {warningsForTargets,stationNoticeSections,trafficNoticeMarkup,trafficNoticeBadges} from './warning-panel.mjs?v=0.11.31';
 
 export function journeyTrafficNotices(journey,stops,cache,{now=Date.now()}={}){
  const targets=(journey?.legs||[]).filter(leg=>leg.mode!=='walk'&&leg.route).flatMap(leg=>[leg.from,leg.to].map(point=>({stop:stops.find(stop=>stop.id===point?.stopId),routes:[leg.route]})));

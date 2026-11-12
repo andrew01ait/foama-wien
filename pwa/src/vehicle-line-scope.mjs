@@ -1,4 +1,4 @@
-import {vehicleWindows,stationVehicleRange} from './vehicle-data.mjs?v=0.11.29';
+import {vehicleWindows,stationVehicleRange} from './vehicle-data.mjs?v=0.11.31';
 
 // One line session, independent of its map/schema/station presentation. A
 // selected area gets the next evidence samples; other areas still rotate.
