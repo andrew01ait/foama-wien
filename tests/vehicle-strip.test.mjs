@@ -55,6 +55,22 @@ function leaflet(){
  return {L,stats};
 }
 
+test('the station map establishes its first view before adding any vector layer',async()=>{
+ const d=dom(),h=leaflet();let ready=false;const originalMap=h.L.map,originalLine=h.L.polyline;
+ h.L.map=(...args)=>{const map=originalMap(...args),fit=map.fitBounds;map.fitBounds=(...bounds)=>{fit(...bounds);ready=true;};return map;};
+ h.L.polyline=(...args)=>{assert.equal(ready,true,'queued SVG layers must not race the synchronous cached location hook');return originalLine(...args);};
+ const view=createStationVehicleMap({direction,range:stationVehicleRange(direction,target.stopId),line,loadMap:async()=>h.L});
+ try{await view.show();assert.equal(h.stats.paths.length,1);assert.equal(h.stats.stops.length,8);assert.equal(h.stats.fits,1);assert.doesNotMatch(view.element.querySelector('.station-vehicle-map-note').textContent,/nicht verfügbar/);view.dispose();}finally{d.restore();}
+});
+
+test('a partial map initialization is disposed, ignores track updates and can be retried',async()=>{
+ const d=dom(),h=leaflet(),originalLine=h.L.polyline;let fail=true;
+ h.L.polyline=(...args)=>{if(fail){fail=false;throw Error('renderer unavailable');}return originalLine(...args);};
+ const range=stationVehicleRange(direction,target.stopId),view=createStationVehicleMap({direction,range,line,loadMap:async()=>h.L});
+ const state={at:1,tracks:[{id:'48A-R5-T001',position:{progress:range.center-1,next:range.center,basis:'interpolated'},status:'Plausibel'}]};
+ try{await view.show();assert.match(view.element.querySelector('.station-vehicle-map-note').textContent,/zum Schema wechseln/);assert.equal(h.stats.removed,1);assert.equal(view.element.querySelector('button').disabled,true);view.render(state);assert.equal(h.stats.markers.length,0);await view.show();assert.equal(h.stats.maps,2);assert.equal(h.stats.paths.length,1);assert.equal(h.stats.markers.length,1);assert.doesNotMatch(view.element.querySelector('.station-vehicle-map-note').textContent,/nicht verfügbar/);view.dispose();assert.equal(h.stats.removed,2);}finally{d.restore();}
+});
+
 test('display identifiers include the line and never expose internal direction/session prefixes',()=>{
  for(const [id,route,label] of [['U6-R5-T001','U6','U6 · 01'],['46-H2-T002','46','46 · 02'],['48A-H18-T003','48A','48A · 03'],['N29-R1-T123','N29','N29 · 123']])assert.equal(vehicleDisplayId(id,route),label);
  assert.equal(vehicleDisplayId('unassigned','48A'),'48A');

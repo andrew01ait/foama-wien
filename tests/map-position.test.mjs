@@ -55,14 +55,26 @@ test('all Leaflet map instances receive the location hook exactly once',()=>{
  let hooks=0;const L={Map:{addInitHook(){hooks++;}}};assert.equal(installMapPositions(L),L);installMapPositions(L);assert.equal(hooks,1);assert.equal(installMapPositions({}).Map,undefined);
 });
 
-test('the installed overlay waits for Leaflet to finish loading its first view',()=>{
- let hook,ready,reads=0;
+test('the installed overlay waits for all queued first-view renderer layers, including a cached GPS fix',t=>{
+ let hook,ready,reads=0,rendererReady=false;const pending=[];
+ t.mock.method(globalThis,'queueMicrotask',callback=>pending.push(callback));
  const L={Map:{addInitHook(callback){hook=callback;}}};
  installMapPositions(L);
- const map={whenReady(callback){ready=callback;},getContainer(){reads++;throw Error('overlay attached');}};
+ const map={once(){},whenReady(callback){ready=callback;},getContainer(){reads++;assert.equal(rendererReady,true);throw Error('overlay attached');}};
  hook.call(map);
  assert.equal(reads,0,'a synchronous cached GPS fix must not touch uninitialized vector paths');
  assert.equal(typeof ready,'function');
- assert.throws(()=>ready(),/overlay attached/);
- assert.equal(reads,1,'overlay starts only after the first view is ready');
+ ready();assert.equal(reads,0,'the first load listener must allow later queued vector/renderer listeners to finish');
+ rendererReady=true;assert.equal(pending.length,1);assert.throws(()=>pending[0](),/overlay attached/);
+ assert.equal(reads,1,'overlay starts after the complete load event');
+});
+
+test('removing a map before its deferred position hook runs cannot resurrect the overlay',t=>{
+ const pending=[];t.mock.method(globalThis,'queueMicrotask',callback=>pending.push(callback));
+ for(const removeBeforeReady of [false,true]){
+  let hook,ready,unload;
+  const L={Map:{addInitHook(callback){hook=callback;}}};installMapPositions(L);
+  const map={once(event,callback){assert.equal(event,'unload');unload=callback;},whenReady(callback){ready=callback;},getContainer(){assert.fail('removed map must not attach position layers or subscribe to GPS');}};
+  hook.call(map);if(removeBeforeReady)unload();ready();if(!removeBeforeReady)unload();pending.shift()();
+ }
 });

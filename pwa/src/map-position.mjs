@@ -57,8 +57,9 @@ const installed=new WeakSet();
 export function installMapPositions(L){
  if(L?.Map?.addInitHook&&!installed.has(L)){
   installed.add(L);
-  // A cached GPS fix is delivered synchronously on subscription. Leaflet's
-  // vector paths do not exist until the initial view has finished loading.
-  L.Map.addInitHook(function(){this.whenReady(()=>attachMapPosition(L,this));});
+  // whenReady runs inside Leaflet's first load event, before later listeners
+  // have initialized any queued SVG renderer. A cached fix is synchronous,
+  // so attach only after the entire load event (and cancel on early removal).
+  L.Map.addInitHook(function(){let removed=false;this.once('unload',()=>{removed=true;});this.whenReady(()=>queueMicrotask(()=>{if(!removed)attachMapPosition(L,this);}));});
  }return L;
 }

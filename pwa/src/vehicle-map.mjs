@@ -1,8 +1,8 @@
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.17';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.17';
-import {pilotGeometry} from './vehicle-tracker.mjs?v=0.11.17';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.17';
-import {stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.17';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.18';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.18';
+import {pilotGeometry} from './vehicle-tracker.mjs?v=0.11.18';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.18';
+import {stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.18';
 
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -22,10 +22,11 @@ export function createStationVehicleMap({direction,range,line,loadMap=ensureJour
  const markers=new Map();let map,tiles,vehicles,L,geometry,lastState,chosen='',shown=false,disposed=false,revision=0,tilesAdded=false;
  const active=own=>!disposed&&shown&&isCurrent()&&(own==null||own===revision);
  function fitRange(){if(!active()||!map)return;map.invalidateSize({pan:true,animate:false});map.fitBounds(L.latLngBounds(geometry.path).pad(.12),{padding:[26,32],maxZoom:16,animate:false});}
+ function removeMap(){const previous=map;map=vehicles=geometry=null;tiles?.off();tiles=null;tilesAdded=false;markers.clear();fit.disabled=true;previous?.remove();}
  fit.addEventListener('click',fitRange);
  function render(state){
   if(disposed)return;lastState=state;status.textContent=stationVehicleStatus(state,direction,range,chosen);
-  if(!active()||!map)return;
+  if(!active()||!map||!vehicles)return;
   const tracks=stationVehicleTracks(state,range),ids=new Set(tracks.map(t=>t.id));
   for(const [id,marker] of markers)if(!ids.has(id)){vehicles.removeLayer(marker);markers.delete(id);}
   for(const track of tracks){
@@ -39,15 +40,17 @@ export function createStationVehicleMap({direction,range,line,loadMap=ensureJour
   if(disposed)return;shown=true;const own=++revision;
   try{
    if(!map){L=await loadMap();if(!active(own))return;geometry=stationVehicleGeometry(direction,range,line);map=L.map(canvas,{scrollWheelZoom:false});
+    // Establish the first view before adding vector paths or their renderer.
+    fitRange();
     tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,referrerPolicy:'strict-origin-when-cross-origin',attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>'});
     tiles.on('tileerror',()=>{if(active())note.textContent='Kartenhintergrund nicht vollständig erreichbar. Linienverlauf und Schema bleiben verfügbar.';});
     L.polyline(geometry.path,{color:routeColor(direction.route,direction.mode),weight:5,interactive:false}).addTo(map);
     direction.stops.slice(range.start,range.end+1).forEach((stop,k)=>{const current=range.start+k===range.center;L.circleMarker([stop.lat,stop.lon],{radius:current?8:5,weight:current?3:2,color:current?'#074b3b':routeColor(direction.route,direction.mode),fillColor:current?'#73e0b7':'#fff',fillOpacity:1}).addTo(map).bindPopup(document.createTextNode((current?'Deine Haltestelle: ':'')+stop.name));});
-    vehicles=L.layerGroup().addTo(map);fit.disabled=false;fitRange();note.textContent='Deine Haltestelle ist mintfarben hervorgehoben.';
+    vehicles=L.layerGroup().addTo(map);fit.disabled=false;note.textContent='Deine Haltestelle ist mintfarben hervorgehoben.';
    }
    if(!active(own))return;if(!tilesAdded){tiles.addTo(map);tilesAdded=true;}map.invalidateSize({pan:true,animate:false});if(lastState)render(lastState);
-  }catch{if(active(own))note.textContent='Karte gerade nicht verfügbar. Du kannst jederzeit zum Schema wechseln.';}
+  }catch{if(active(own)){removeMap();note.textContent='Karte gerade nicht verfügbar. Du kannst jederzeit zum Schema wechseln.';}}
  }
  function hide(){shown=false;revision++;map?.stop();if(tilesAdded){tiles.remove();tilesAdded=false;}}
- return {element,show,hide,render,setSelected(id){chosen=id;if(lastState)render(lastState);},dispose(){hide();disposed=true;tiles?.off();map?.remove();markers.clear();element.remove();}};
+ return {element,show,hide,render,setSelected(id){chosen=id;if(lastState)render(lastState);},dispose(){hide();disposed=true;removeMap();element.remove();}};
 }

@@ -1,4 +1,4 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.17';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.18';
 
 export const VEHICLE_FRESH_MS=60_000,VEHICLE_EXPIRE_MS=90_000;
 export const PILOT_SCHEDULE_MATCH_MS=60_000;

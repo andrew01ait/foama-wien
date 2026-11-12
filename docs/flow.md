@@ -239,3 +239,7 @@ Nach bewusst bestätigtem QR-Import und erfolgreichem Transferabschluss öffnet 
 ## Reparaturen 0.11.15
 
 Standortkarte öffnen: zuerst Leaflet-Ansicht initialisieren, dann vorhandenen freigegebenen GPS-Fix und Genauigkeitskreis einblenden. Meldungsaktualisierung: Quellzeit bewahren; bei unvollständiger Zusatzquelle vorhandene Warnung mit ihrem alten Stand erhalten, bei vollständiger erfolgreicher Leerantwort entfernen.
+
+## Kartenreparatur 0.11.18
+
+Karte öffnen → erste Ansicht setzen → alle Vektoren aufbauen → Standortschicht nach vollständigem Leaflet-Ladeereignis anmelden. Bereits bekannte Positionen dürfen die Rendererinitialisierung nicht unterbrechen. Fehlerhaften Stationsaufbau verwerfen; zurück auf Karte versucht eine neue vollständige Initialisierung.

@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.17, 12. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.18, 12. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Grafischer Datenstand
 
@@ -106,3 +106,5 @@ Primärquellen: [offizieller GTFS](https://www.wienerlinien.at/ogd_realtime/doku
 0.11.17: Die ganze Fahrzeugansicht startet automatisch nach der geprüften Linienbasis, ohne Start-/Pause-Steuerung. Unsichtbar stoppen, bei Rückkehr automatisch fortsetzen; bestehende Abrufgrenzen und geschlossene eingebettete Stationspanels erhalten.
 
 Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das nächste Fahrzeug: groß in Minuten als Kartenüberlagerung, sonst als kompakte Zeile. Er nutzt vorhandene frische Prognosen; ein Ersatz aus dem Fahrzeitprofil bleibt als Fahrplan-Schätzung erkennbar. Keine neuen Abfragen oder behaupteten Fahrzeugpositionen allein durch den Countdown.
+
+0.11.18: Der gemeinsame Standort-Hook wartet nach `whenReady` zusätzlich bis nach dem gesamten ersten Ladeereignis, damit zuvor eingereihte SVG-Renderer bereit sind. Frühes Entfernen verwirft die Anmeldung. Stationskarten initialisieren ihre Ansicht vor Vektoren und entsorgen einen unvollständigen Aufbau vor einem erneuten Versuch. [Diagnose und Abnahme](map-overlays-20261112.md).

@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.17, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.18, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -52,3 +52,5 @@ Neue Arbeiten starten über die [Dokumentationsübersicht](docs/README.md).
 0.11.17: Die ganze Fahrzeugansicht startet automatisch nach der geprüften Linienbasis, ohne Start-/Pause-Steuerung. Unsichtbar stoppen, bei Rückkehr automatisch fortsetzen; bestehende Abrufgrenzen und geschlossene eingebettete Stationspanels erhalten.
 
 Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das nächste Fahrzeug: groß in Minuten als Kartenüberlagerung, sonst als kompakte Zeile. Er nutzt vorhandene frische Prognosen; ein Ersatz aus dem Fahrzeitprofil bleibt als Fahrplan-Schätzung erkennbar. Keine neuen Abfragen oder behaupteten Fahrzeugpositionen allein durch den Countdown.
+
+0.11.18: Der gemeinsame Standort-Hook wartet nach `whenReady` zusätzlich bis nach dem gesamten ersten Ladeereignis, damit zuvor eingereihte SVG-Renderer bereit sind. Frühes Entfernen verwirft die Anmeldung. Stationskarten initialisieren ihre Ansicht vor Vektoren und entsorgen einen unvollständigen Aufbau vor einem erneuten Versuch. [Diagnose und Abnahme](docs/map-overlays-20261112.md).

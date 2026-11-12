@@ -1,9 +1,9 @@
 {
-  "version": "0.11.17",
+  "version": "0.11.18",
   "wearVersionCode": 26,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
   "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Fahrzeuge im Anflug startet automatisch. Bei gewählter Haltestelle steht die geschätzte Ankunft des nächsten Fahrzeugs in Minuten direkt auf der Karte, sonst als kompakte Zeile. Hintergrundpause und bestehende Abrufgrenzen bleiben erhalten. Karten- und Zuordnungsverbesserungen aus 0.11.16 sind enthalten.",
+  "changelog": "Kartenkorrektur: Linienverlauf, Haltestellen, Fahrzeuge und vorhandener Standort werden auch bei einem bereits bekannten GPS-Fix vollständig gezeichnet. Kartenstart wartet auf alle Leaflet-Zeichenebenen; fehlgeschlagener Aufbau lässt sich neu versuchen. Automatischer Fahrzeugstart und Ankunft in Minuten bleiben enthalten.",
   "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3842666,

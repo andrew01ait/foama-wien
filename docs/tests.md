@@ -1,3 +1,7 @@
+## PWA 0.11.18 · Kartenebenen bei vorhandenem Standort · 12.11.2026
+
+464 Web-/Server-Tests, 18 Python-Prüfungen und 86 JavaScript-Syntaxprüfungen erfolgreich. Regressionen für vollständiges erstes Leaflet-Ladeereignis, abgebrochene verzögerte Positionsanmeldung, Ansicht vor Vektoren sowie Entsorgen/Neuversuch eines teilweise aufgebauten Stationsausschnitts. Die vier zugehörigen Fälle schlugen vor der Reparatur fehl. Echter Leaflet-Browsertest mit realer 29B-Geometrie und ausdrücklich synthetischem Fix: vorher null Vektoren/Fahrzeug/Standort und `intersects`-Fehler, nachher Linie, acht Halte, Fahrzeug, Standort und Genauigkeitskreis; Verbergen/Wiederöffnen und absichtlich vor der Ansicht eingereihte Vektoren erfolgreich. [Genaue Diagnose](map-overlays-20261112.md). Keine physische GPS-/Fahrzeugabnahme behaupten.
+
 ## PWA 0.11.17 · automatischer Start und Ankunft am gewählten Halt · 12.11.2026
 
 Die ganze Fahrzeugseite beginnt den Live-Abgleich unmittelbar nach erfolgreich geladener und geprüfter Linienbasis. Start-/Pause-Button und Hinweise auf einen nötigen Klick entfernt. Linien-, Richtungs-, Varianten- und Abschnittwechsel starten den gewählten gültigen Umfang automatisch neu, innerhalb derselben globalen 30-s-/Quellencache-/Backoff-Grenzen. Hintergrund und Pagehide stoppen Requests und Bewegung; Rückkehr setzt automatisch fort. Während fehlender oder fehlerhafter Linienbasis keine Monitorabfrage. Die eingebetteten Stationsbereiche bleiben bewusst geschlossen und laden erst beim Öffnen. Wear 0.7.4/26 unverändert.

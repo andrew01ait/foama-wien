@@ -1,10 +1,10 @@
-import {recordMonitorSource} from './monitor-timing.mjs?v=0.11.17';
-import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.17';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.17';
-import {routeColor} from './journey-geometry.mjs?v=0.11.17';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.17';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.17';
-import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.17';
+import {recordMonitorSource} from './monitor-timing.mjs?v=0.11.18';
+import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.18';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.18';
+import {routeColor} from './journey-geometry.mjs?v=0.11.18';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.18';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.18';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.18';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 

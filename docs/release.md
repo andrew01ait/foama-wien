@@ -1,3 +1,9 @@
+## PWA 0.11.18 · Kartenebenen bei vorhandenem Standort · 12.11.2026
+
+Der Stationsausschnitt zeigte Kacheln, aber weder Linie, Halte noch Fahrzeug oder Standort. Reproduziert mit echtem Leaflet, realer 29B-Geometrie und ausdrücklich synthetischer Position: Ein synchron zugestellter vorhandener Fix lief bereits im ersten `load`-Listener, während der zuvor eingereihte SVG-Renderer noch keine Bounds hatte (`intersects`-Fehler). `whenReady` allein reichte nicht. Der gemeinsame Standort-Hook startet jetzt in einer Microtask nach dem vollständigen ersten Ladeereignis; Entfernen vor diesem Zeitpunkt verhindert jede verspätete Anmeldung. Das schützt alle Leaflet-Karten. Der Stationsausschnitt setzt zusätzlich seine erste Ansicht vor dem Hinzufügen der Vektoren.
+
+Ein gescheiterter Stationskartenaufbau entfernt die teilweise erstellte Karte, deaktiviert den Ausschnittknopf und nimmt keine Fahrzeugupdates in unvollständige Ebenen auf. Erneutes Karte/Schema-Umschalten baut sauber neu auf. Normale Updates und Wiederöffnen erhalten Ausschnitt, Zoom, Tracker und Fahrzeugauswahl. Keine neuen Netzwerkanfragen oder Standortfreigaben; Wear 0.7.4/26 unverändert. [Reproduktion und Abnahme](map-overlays-20261112.md).
+
 ## PWA 0.11.17 · automatischer Start und Ankunft am gewählten Halt · 12.11.2026
 
 Die ganze Fahrzeugseite beginnt den Live-Abgleich unmittelbar nach erfolgreich geladener und geprüfter Linienbasis. Start-/Pause-Button und Hinweise auf einen nötigen Klick entfernt. Linien-, Richtungs-, Varianten- und Abschnittwechsel starten den gewählten gültigen Umfang automatisch neu, innerhalb derselben globalen 30-s-/Quellencache-/Backoff-Grenzen. Hintergrund und Pagehide stoppen Requests und Bewegung; Rückkehr setzt automatisch fort. Während fehlender oder fehlerhafter Linienbasis keine Monitorabfrage. Die eingebetteten Stationsbereiche bleiben bewusst geschlossen und laden erst beim Öffnen. Wear 0.7.4/26 unverändert.
