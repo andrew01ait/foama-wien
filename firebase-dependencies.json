@@ -12,9 +12,9 @@
       "sha256": "fa5e67ffcc52a0413f4b39c2737b43c1ba6c6975b4bd4a4ea8627549e766285b"
     },
     {
-      "name": "annotation-experimental-1.3.0.aar",
-      "url": "https://dl.google.com/dl/android/maven2/androidx/annotation/annotation-experimental/1.3.0/annotation-experimental-1.3.0.aar",
-      "sha256": "abfd29c8556e5bd0325a9f769ab9e9d154ff4a5515c476cdd5a2a8285b1b19dc"
+      "name": "annotation-experimental-1.4.1.aar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/annotation/annotation-experimental/1.4.1/annotation-experimental-1.4.1.aar",
+      "sha256": "6bd4c7c7476f8260cd3bdbb81183583e93fc9f790c27dea7dc314181cbf87aa0"
     },
     {
       "name": "annotation-jvm-1.8.1.jar",
@@ -357,9 +357,39 @@
       "sha256": "1d5c7f3135a1bba661fc373fd72e11eb0a4adbb3396787826dd8e4190d5d9edd"
     },
     {
+      "name": "protolayout-1.2.1.aar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/wear/protolayout/protolayout/1.2.1/protolayout-1.2.1.aar",
+      "sha256": "2baca490363b891c16718fbbc7db9ea3cc648b51909c4ff2285d2525c30e537a"
+    },
+    {
+      "name": "protolayout-expression-1.2.1.aar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/wear/protolayout/protolayout-expression/1.2.1/protolayout-expression-1.2.1.aar",
+      "sha256": "bf152fbce301a66118405b41920c0733a3fa008bda1af46696c5d871020b95d3"
+    },
+    {
+      "name": "protolayout-external-protobuf-1.2.1.jar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/wear/protolayout/protolayout-external-protobuf/1.2.1/protolayout-external-protobuf-1.2.1.jar",
+      "sha256": "3a06ed2dc85ed0edb06579c0fd7bc708717793946b8b810b8b1d062ecc14abf3"
+    },
+    {
+      "name": "protolayout-proto-1.2.1.jar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/wear/protolayout/protolayout-proto/1.2.1/protolayout-proto-1.2.1.jar",
+      "sha256": "9b51b7738a9cc41deaf9a81dcbce7583f55a6abef7a4c1ad72b3852c839fd006"
+    },
+    {
       "name": "savedstate-1.0.0.aar",
       "url": "https://dl.google.com/dl/android/maven2/androidx/savedstate/savedstate/1.0.0/savedstate-1.0.0.aar",
       "sha256": "2510a5619c37579c9ce1a04574faaf323cd0ffe2fc4e20fa8f8f01e5bb402e83"
+    },
+    {
+      "name": "tiles-1.4.1.aar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/wear/tiles/tiles/1.4.1/tiles-1.4.1.aar",
+      "sha256": "c0e7d86f4227edab5ac69b09c48849325d6ea645a26d5d04a7f417383c80ff5c"
+    },
+    {
+      "name": "tiles-proto-1.4.1.jar",
+      "url": "https://dl.google.com/dl/android/maven2/androidx/wear/tiles/tiles-proto/1.4.1/tiles-proto-1.4.1.jar",
+      "sha256": "f60550dfbfa86f8d7e81d45cc694bc3a073dd84f08fba3d7d5daa5011734c288"
     },
     {
       "name": "transport-api-5.0.0.aar",

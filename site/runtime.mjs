@@ -1,11 +1,17 @@
 import {serveNativeRelease,nativeReleaseApi} from './native-releases.mjs';
+import {createWearApproach} from './wear-approach.mjs';
 // Serves the retained PWA and its fixed-endpoint API relay from one HTTPS origin.
 export function createSiteWorker(apiWorker,assets){
   let pushCatalog=null,regionalCatalog=null;
+  let wearApproach;
   const regional=()=>regionalCatalog??=['graz','linz','salzburg'].flatMap(city=>{const asset=assets['/data/cities/'+city+'.json'];return asset?JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(asset.base64),c=>c.charCodeAt(0)))).stops:[];});
   const catalogue=()=>pushCatalog??=(assets['/data/stops.json']?JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(assets['/data/stops.json'].base64),character=>character.charCodeAt(0)))).stops:[]);
   return {scheduled(controller,env,ctx){return apiWorker.scheduled?.(controller,env,ctx);},async fetch(request,env,ctx){
     const url=new URL(request.url);
+    if(url.pathname==='/api/wear/approach'){
+      wearApproach??=createWearApproach({assets});
+      return wearApproach(request,internal=>apiWorker.fetch(internal,{...env,LINE_STOPS:catalogue()},ctx));
+    }
     const native=await nativeReleaseApi(request,env,assets,ctx)||await serveNativeRelease(request,env,assets,ctx);if(native)return native;
     const bundledCatalogue=url.pathname==='/api/stops-index'&&['GET','HEAD'].includes(request.method)&&assets['/data/stops.json'];
     if((url.pathname.startsWith('/api/')&&!bundledCatalogue)||url.pathname==='/mcp'){

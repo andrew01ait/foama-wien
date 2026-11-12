@@ -1,5 +1,5 @@
-import {createThemeController} from './theme.mjs?v=0.11.19';
-import './install.mjs?v=0.11.19';
+import {createThemeController} from './theme.mjs?v=0.11.21';
+import './install.mjs?v=0.11.21';
 
 let theme='system';
 try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}

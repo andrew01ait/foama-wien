@@ -91,14 +91,10 @@ public class MainActivityTest {
         app.onBackPressed();assertEquals("more|push",page());click("Infos");assertNotNull(text("Deine Daten"));assertNull(find(app.getWindow().getDecorView(),"Aktivieren"));app.onBackPressed();assertEquals("more|push",page());
         click("Auswahl");assertNotNull(text("✓ Alle Linien"));assertNotNull(text((app.push.quiet()?"✓ ":"○ ")+"Nachtruhe"));app.onBackPressed();click("Push");assertEquals("more|push-delivery",page());assertFalse(text("Aktivieren").isEnabled());assertNull(shadowOf(app).getLastRequestedPermission());
     }
-    @Test public void globalFilterShortcutPrecedesTheFirstStationOutsideFavoriteCards(){
+    @Test public void globalFilterShortcutPrecedesNearbyStationsAndDoesNotDuplicateFavoritesControls(){
         Repo.Stop station=station();android.location.Location fix=new android.location.Location("test");fix.setLatitude(station.lat);fix.setLongitude(station.lon);fix.setAccuracy(5);fix.setTime(System.currentTimeMillis());app.repo.acceptLocation(fix);addDeparture();app.repo.toggleFavorite(station,"U1","Leopoldau");
-        for(String tab:new String[]{"near","fav"}){
-            app.changeView(tab);View decor=app.getWindow().getDecorView();int pixels=Math.round(227*app.getResources().getDisplayMetrics().density);forceLayoutTree(decor);decor.measure(View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(pixels,View.MeasureSpec.EXACTLY));decor.layout(0,0,pixels,pixels);
-            View shortcut=filters();TextView heading=text(station.name);android.graphics.Rect filterBounds=new android.graphics.Rect(0,0,shortcut.getWidth(),shortcut.getHeight()),stationBounds=new android.graphics.Rect(0,0,heading.getWidth(),heading.getHeight());((ViewGroup)decor).offsetDescendantRectToMyCoords(shortcut,filterBounds);((ViewGroup)decor).offsetDescendantRectToMyCoords(heading,stationBounds);assertTrue("Global filters precede station headings: "+tab+" "+filterBounds+" / "+stationBounds,filterBounds.bottom<=stationBounds.top);
-            assertFalse(shortcut.getContentDescription().toString().contains(station.name));assertEquals(tab.equals("fav")?2:0,((ViewGroup)shortcut.getParent()).indexOfChild(shortcut));if(tab.equals("fav"))assertEquals("favorite-switch",((ViewGroup)shortcut.getParent()).getChildAt(0).getTag());
-            if(tab.equals("fav"))assertNotSame(decor.findViewWithTag("favorite-station:"+station.id),shortcut.getParent());
-        }
+        app.changeView("near");assertNotNull(filters());assertNotNull(text("Karte"));assertFalse(filters().getContentDescription().toString().contains(station.name));
+        app.changeView("fav");assertNull(app.getWindow().getDecorView().findViewWithTag("transport-shortcut"));assertNotNull(text("Stationen"));assertNotNull(text("4′"));
     }
     @Test @GraphicsMode(GraphicsMode.Mode.NATIVE) public void shortDisruptionsLabelFitsOneLineOnSmallWatchWithLargeText()throws Exception {
         RuntimeEnvironment.setQualifiers("w192dp-h192dp-round-xhdpi");controller.stop().destroy();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();
@@ -111,7 +107,7 @@ public class MainActivityTest {
     }
     private View filters(){View row=app.getWindow().getDecorView().findViewWithTag("transport-shortcut");assertNotNull(row);return row;}
     @Test public void enabledFiltersOpenDirectSettingsAndReturnToSameHomeTab()throws Exception {
-        for(String tab:new String[]{"near","fav"}){
+        for(String tab:new String[]{"near"}){
             app.changeView(tab);View shortcut=filters();assertTrue(shortcut.getContentDescription().toString().contains("U-Bahn, Tram, Bus, S-Bahn"));
             assertTrue(shortcut.performClick());assertEquals("more|modes",page());click("✓ Bus");click("Zurück");assertEquals("home",app.screen);assertEquals(tab,app.view);assertFalse(app.isFinishing());
             assertFalse(filters().getContentDescription().toString().contains("Bus"));filters().performClick();click("○ Bus");swipe(350,180,40,180,false);assertEquals("home",app.screen);assertEquals(tab,app.view);assertTrue(filters().getContentDescription().toString().contains("Bus"));
@@ -132,7 +128,7 @@ public class MainActivityTest {
         app.repo.toggleFavorite(s,"U1","Leopoldau");app.repo.toggleFavorite(other,"","");app.repo.toggleFavorite(s,"U3","Ottakring");
         String saved=app.repo.prefs.getString("favorites","");app.changeView("fav");
         assertEquals(2,app.repo.favoriteGroups().size());assertEquals(2,app.repo.favoriteGroups().get(s.id).size());assertEquals(saved,app.repo.prefs.getString("favorites",""));
-        ViewGroup panel=app.getWindow().getDecorView().findViewWithTag("favorite-station:"+s.id);assertNotNull(panel);assertNotSame(panel,app.getWindow().getDecorView().findViewWithTag("transport-shortcut").getParent());
+        ViewGroup panel=app.getWindow().getDecorView().findViewWithTag("favorite-station:"+s.id);assertNotNull(panel);assertNull(app.getWindow().getDecorView().findViewWithTag("transport-shortcut"));
         assertTrue("Station is the main heading",text(s.name).getTextSize()>text("Leopoldau").getTextSize());assertNotNull(find(panel,"4′"));assertNotNull(find(panel,"6′"));
         click("Leopoldau");click("Favorit entfernen");app.onBackPressed();assertFalse(app.repo.hasFavorite(s,"U1","Leopoldau"));assertTrue(app.repo.hasFavorite(s,"U3","Ottakring"));assertTrue(app.repo.hasFavorite(other,"",""));
         assertNotNull(app.getWindow().getDecorView().findViewWithTag("favorite-station:"+s.id));
@@ -143,8 +139,8 @@ public class MainActivityTest {
         java.util.List<android.graphics.Rect> expected=new java.util.ArrayList<>();String saved=app.repo.prefs.getString("favorites","");
         for(String tab:new String[]{"near","fav"}){
             app.changeView(tab);render(".local/wear-station-"+tab+"-192.png",192);ViewGroup panel=app.getWindow().getDecorView().findViewWithTag((tab.equals("near")?"near-station:":"favorite-station:")+s.id);assertNotNull(panel);
-            assertNotNull(find(panel,s.name));assertNotNull(find(panel,"↗ 1′"));assertNotNull(find(panel,"Leopoldau"));
-            int i=0;for(String label:new String[]{s.name,"↗ 1′","U1","Leopoldau","4′"}){
+            String walking="↗ 1′ · "+app.repo.feasibility(s,app.repo.departures.get(0));assertNotNull(find(panel,s.name));assertNotNull(find(panel,walking));assertNotNull(find(panel,"Leopoldau"));
+            int i=0;for(String label:new String[]{s.name,walking,"U1","Leopoldau","4′"}){
                 TextView value=find(panel,label);android.graphics.Rect bounds=new android.graphics.Rect(0,0,value.getWidth(),value.getHeight());panel.offsetDescendantRectToMyCoords(value,bounds);
                 if(tab.equals("near"))expected.add(bounds);else assertEquals("Same station layout: "+label,expected.get(i),bounds);i++;
             }

@@ -1,14 +1,14 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.7.4",
-  "versionCode": 26,
+  "versionName": "0.8.0",
+  "versionCode": 27,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach.",
-    "Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab.",
-    "Android-Installation wird ohne Blockieren der Oberfläche vorbereitet.",
-    "Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich."
+    "Lesbare Abfahrten und Navigation auf kleinen und großen Uhren; Rückkehr an dieselbe Stelle.",
+    "Neue Stationskarte mit Standort, Zoom und Wiener Linienverläufen.",
+    "Fahrzeuge im Anflug mit Prognose, kurzem Schema und klar geschätzten Positionen.",
+    "Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen."
   ]
 }

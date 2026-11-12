@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.19, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.21, Wear 0.8.0 / Code 27.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -28,7 +28,7 @@ Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens
 
 ## Verifikation und Grenzen
 
-Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache, Marker-Auswahl und PDF mit echten U1-Daten; Prüfzahlen siehe [Tests](docs/tests.md). Der aktuelle native Release hält Update-Dialoge bis zur Android-Übergabe sichtbar wach und bereitet Installationen ohne blockierte Oberfläche vor. Kurze sichtbare Unterbrechungen erhalten nur den bestätigten Update-Vorgang; Display aus und echtes Verlassen bereinigen weiter. Android kann beim eigentlichen APK-Ersetzen den bisherigen Prozess beenden. Er zeigt weiterhin die aktive Stadt über der Hauptnavigation und rückt Favoritensegmente, Verkehrsmittel und Abschnittsüberschrift enger zusammen; große getrennte Tippflächen bleiben erhalten. Stadtfilter für beide Routenlisten, erreichbare Hauptnavigation und genaue Wiederholungsplanung bleiben erhalten. Fehlerpausen bleiben je Stadt erhalten, die globale 30-Sekunden-Sperre gilt auch beim Wechseln. Aktuelle native Abnahme und signierte Metadaten: [Wear 0.7.4](docs/wear-os-release-0.7.4.md). Öffentliche Einzelproben aus der Buildumgebung lieferten Graz/Linz LIVE und Salzburg Fahrplan in jeweils rund sieben Sekunden; dies ist keine Laufzeitmessung auf der Uhr. Physische OnePlus-Abnahme bleibt separat.
+Aktuelle PWA-Abnahme: geografischer Import, Kalender-/Quellbindung, Offlinecache, Marker-Auswahl und PDF mit echten U1-Daten; Prüfzahlen siehe [Tests](docs/tests.md). Die Uhr-App 0.8.0 ergänzt adaptive Verbindungszeilen, Rückkehr an die Leseposition, eine Stationskarte für alle vier Städte mit Wiener Liniengeometrien, geschätzte Fahrzeuge im Anflug für unterstützte Wiener Verbindungen, fokussierte Routenschritte und ein Tile mit zwei direkten Einstiegen. Die bestehenden 30-s-/90-s-Abrufregeln, Vordergrundbindung, QR-Übertragung und Updateübergabe bleiben erhalten. [Verhalten, Datenfluss und Grenzen](docs/wear-experience.md). Physische OnePlus-Abnahme bleibt separat.
 
 Wiener Störungsquelle weiterhin stündlich im Hintergrund, bei ohnehin aktiver PWA ungefähr alle fünf Minuten ergänzend. Kein neuer externer Timer, keine Hintergrundortung oder Abfahrtsabfragen. Nutzer bestätigt Empfang einer PWA-Testnachricht; tatsächliche lokale Geräteanzeige und reale Störungszustellung weiter praktisch beobachten.
 
@@ -56,3 +56,5 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 0.11.18: Der gemeinsame Standort-Hook wartet nach `whenReady` zusätzlich bis nach dem gesamten ersten Ladeereignis, damit zuvor eingereihte SVG-Renderer bereit sind. Frühes Entfernen verwirft die Anmeldung. Stationskarten initialisieren ihre Ansicht vor Vektoren und entsorgen einen unvollständigen Aufbau vor einem erneuten Versuch. [Diagnose und Abnahme](docs/map-overlays-20261112.md).
 
 0.11.19: Eine gemeinsame Liniensitzung für Karte, Schema und Dein Halt. Stationswahl erhält Prognosen, IDs, Bestätigung und Abruf-Countdown; der Stationsbereich erhält Vorrang. Ganze lange Linien werden fair in maximal 24 RBL großen Abschnitten innerhalb derselben Abrufgrenzen aktualisiert. Schmale Ansichten verwenden einen kompakten Fortschrittsbalken.
+
+0.11.21: Fahrzeugdaten und nächster Abruf bleiben auch beim Wechsel zwischen unterschiedlichen Seiten erhalten. Derselbe geprüfte Datenstand für Verbindungs-/A-nach-B-Panels und ganze Linie; altersgerechte Fortsetzung statt neuer Initialisierung. Kurzer Balken, verständlicher Status und Aktualisierungs-Countdown auf allen Bildschirmgrößen.

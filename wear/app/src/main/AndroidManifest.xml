@@ -20,6 +20,10 @@
         <activity android:name="at.foama.wien.MainActivity" android:exported="true" android:screenOrientation="unspecified">
             <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity>
+        <activity android:name="at.foama.wien.MapActivity" android:exported="false"/>
+        <service android:name="at.foama.wien.FoamaTileService" android:label="foama · Schnellzugriff" android:exported="true" android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter><action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER"/></intent-filter>
+        </service>
         <receiver android:name="at.foama.wien.UpdateReceiver" android:exported="false" />
     </application>
 </manifest>

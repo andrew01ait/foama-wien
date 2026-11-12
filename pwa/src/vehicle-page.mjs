@@ -1,19 +1,20 @@
-import {nextVehicleArrival,nextVehicleArrivalText} from './vehicle-arrival.mjs?v=0.11.19';
-import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.19';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.19';
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.19';
-import {createThemeController} from './theme.mjs?v=0.11.19';
-import {normalizePilotSnapshot,createVehicleTracker,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.19';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.19';
-import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.19';
-import {createVehicleData,stationVehicleRange,stationVehicleTracks,preferredVehicleDirection,vehicleUrl,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.19';
-import {createVehicleLineScope} from './vehicle-line-scope.mjs?v=0.11.19';
-import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.19';
+import {createVehicleSession} from './vehicle-session.mjs?v=0.11.21';
+import {nextVehicleArrival,nextVehicleArrivalText} from './vehicle-arrival.mjs?v=0.11.21';
+import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.21';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.21';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.21';
+import {createThemeController} from './theme.mjs?v=0.11.21';
+import {normalizePilotSnapshot,vehiclePosition,pilotGeometry} from './vehicle-tracker.mjs?v=0.11.21';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.21';
+import {createVehiclePoller} from './vehicle-poller.mjs?v=0.11.21';
+import {createVehicleData,stationVehicleRange,stationVehicleTracks,preferredVehicleDirection,vehicleUrl,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.21';
+import {createVehicleLineScope} from './vehicle-line-scope.mjs?v=0.11.21';
+import {createHorizontalVehicleStrip} from './vehicle-strip.mjs?v=0.11.21';
 const $=id=>document.getElementById(id),params=new URL(location.href).searchParams,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clock=t=>new Date(t).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',second:'2-digit'}),short=id=>vehicleDisplayId(id,line?.route),rowY=i=>55+i*100;
 let theme='system';try{theme=JSON.parse(localStorage.getItem('foama.settings.v1')||'{}').theme;}catch{}createThemeController({preference:theme});
-let data,manifest,line,direction,tracker,geometry,poller,map,mapLayers,vehicleLayer,view=params.get('ansicht')==='station'?'station':params.get('ansicht')==='schema'?'schema':'map',selected='',follow=false,animation=0,lastRender=0,mapRevision=0;
-let lastMarkup='',lastStationMarkup='',lastDetailsMarkup='',runNumber=0,lastAnimation=0,waitingUntil=0,requesting=false,repeated=false,readinessStage='catalogue',mapShown=false,mapDirection=null;const mapVehicles=new Map();const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+let data,manifest,line,direction,tracker,vehicleSession,geometry,poller,map,mapLayers,vehicleLayer,view=params.get('ansicht')==='station'?'station':params.get('ansicht')==='schema'?'schema':'map',selected='',follow=false,animation=0,lastRender=0,mapRevision=0;
+let lastMarkup='',lastStationMarkup='',lastDetailsMarkup='',lastAnimation=0,waitingUntil=0,requesting=false,repeated=false,readinessStage='catalogue',mapShown=false,mapDirection=null;const mapVehicles=new Map();const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const readiness=createVehicleReadiness();$('pilotReadiness').append(readiness.element);
 const source=createVehicleData();let catalogue,loading=0,scope,requestedIds=[],focusStop=params.get('halt'),localRange=null,localStrip=null;
 function coordinate(position){return position.from!=null?geometry.between(position.from,position.to,position.fraction):geometry.at(position.progress);}
@@ -75,20 +76,20 @@ function render(force=false){
  $('pilotCandidates').className='pilot-candidates';$('pilotCandidates').innerHTML=state.tracks.length?'<table><thead><tr><th>Vorläufige ID</th><th>Prüfstand</th></tr></thead><tbody>'+state.tracks.map(t=>`<tr><td>${escape(short(t.id))}</td><td>${escape(t.status)} · ${t.hits} Quellenstände</td></tr>`).join('')+'</tbody></table>':'';
 }
 function animate(timestamp){if(document.hidden||!tracker)return;if(timestamp-lastAnimation>250){lastAnimation=timestamp;render();}animation=requestAnimationFrame(animate);}
-function stop(){poller?.stop();cancelAnimationFrame(animation);animation=0;}
-function resume(){if(!tracker||document.hidden)return;if(Date.now()-tracker.view().at>90_000)tracker.clear();poller.start();cancelAnimationFrame(animation);animation=requestAnimationFrame(animate);render(true);}
+function stop(){requesting=false;vehicleSession?.checkpoint();poller?.stop();cancelAnimationFrame(animation);animation=0;}
+function resume(){if(!tracker||document.hidden)return;vehicleSession.refresh();waitingUntil=vehicleSession.waitingUntil;if(Date.now()-tracker.view().at>90_000)tracker.clear();poller.start();cancelAnimationFrame(animation);animation=requestAnimationFrame(animate);render(true);}
 function controls(){
  const groups=[...new Set(data.directions.map(d=>d.gtfsDirection))];$('pilotDirections').innerHTML=groups.map(id=>{const d=preferredVehicleDirection(data,line,manifest,{gtfsDirection:id});return `<button type="button" data-direction="${escape(id)}" aria-pressed="${direction.gtfsDirection===id}">→ ${escape(d.towards)}</button>`;}).join('');
  const variants=data.directions.filter(d=>d.gtfsDirection===direction.gtfsDirection);$('pilotVariantLabel').hidden=variants.length<2;$('pilotVariant').innerHTML=variants.map(d=>`<option value="${escape(d.id)}" ${d.id===direction.id?'selected':''}>${escape(d.stops[0].name)} → ${escape(d.towards)} · ${d.stops.length} Halte</option>`).join('');
  $('pilotStation').innerHTML='<option value="">Station auswählen</option>'+direction.stops.map(s=>`<option value="${escape(s.id)}" ${s.id===focusStop?'selected':''}>${escape(s.name)}</option>`).join('');document.querySelector('[data-view="station"]').disabled=!localRange;
 }
 function setDirection(id){
- stop();syncPresentation(false);waitingUntil=0;requesting=false;repeated=false;direction=data.directions.find(d=>d.id===id)||data.directions[0];selected='';follow=false;tracker=createVehicleTracker(direction,manifest,{prefix:line.route+'-'+direction.monitorDirection+(++runNumber),fullLine:true});const pattern=line.patterns.find(p=>p.id===direction.patternId);geometry=pilotGeometry(decodeJourneyPolyline(line.shapes[pattern.geometry]),direction.stops);
+ stop();syncPresentation(false);waitingUntil=0;requesting=false;repeated=false;direction=data.directions.find(d=>d.id===id)||data.directions[0];selected='';follow=false;vehicleSession=createVehicleSession(direction,manifest);tracker=vehicleSession.tracker;waitingUntil=vehicleSession.waitingUntil;const pattern=line.patterns.find(p=>p.id===direction.patternId);geometry=pilotGeometry(decodeJourneyPolyline(line.shapes[pattern.geometry]),direction.stops);
  scope=createVehicleLineScope(direction,{focusStop});requestedIds=scope.ids();updateStation();updateUrl();
  controls();syncView();$('pilotTrainsTitle').textContent='Auf Linie '+line.route;$('pilotBackLine').href='./linienkarte.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:focusStop||'',richtung:direction.towards});$('pilotLineTitle').textContent=line.route+' · LIVE-ÜBERSICHT';$('pilotIntro').textContent=direction.stops[0].name+' → '+direction.stops.at(-1).name+' · '+direction.stops.length+' Stationen · aus Stationsprognosen geschätzt.';document.title='Fahrzeuge im Anflug · '+line.route+' · foama-wien';document.querySelector('.vehicle-page').style.setProperty('--vehicle-line-color',routeColor(line.route,line.mode));
  const height=rowY(direction.stops.length-1)+55;$('schemaCanvas').style.height=height+'px';$('schemaTrack').setAttribute('viewBox','0 0 100 '+height);$('schemaTrack').innerHTML='<path d="M48 0V'+height+'" class="schema-outside"/><path d="M48 55V'+rowY(direction.stops.length-1)+'" class="schema-line"/>'+direction.stops.map((s,i)=>'<circle cx="48" cy="'+rowY(i)+'" r="7"/>').join('');$('pilotLegendSymbol').innerHTML=vehicleSymbolMarkup(line.mode);
  $('schemaStops').innerHTML=direction.stops.map((s,i)=>`<button type="button" class="schema-stop" style="top:${rowY(i)}px" data-stop="${i}">${escape(s.name)}<small>${i===0?'Linienbeginn':i===direction.stops.length-1?'Endstation · Ankunft geschätzt':s.rbl?'Live-Prognose als Stationsanker':'Keine eindeutige Monitorseite'}</small></button>`).join('');
- poller=createVehiclePoller({ids:()=>scope.ids(),onData(raw,ids=requestedIds){requesting=false;try{const snapshot=normalizePilotSnapshot(raw,direction,Date.now(),ids);repeated=tracker.ingest(snapshot)?.ignored===true;scope.received(ids,snapshot.at);}catch(e){tracker.fail(e.message);}render(true);},onError(message){requesting=false;tracker.fail(message);render(true);},onRequest(at,ids=requestedIds){requestedIds=ids;scope.started(ids);requesting=true;render(true);},onWaiting(ms){waitingUntil=Date.now()+ms;render(true);}});
+ poller=createVehiclePoller({ids:()=>scope.ids(),notBefore:()=>vehicleSession.waitingUntil,onData(raw,ids=requestedIds){requesting=false;try{const snapshot=normalizePilotSnapshot(raw,direction,Date.now(),ids);repeated=tracker.ingest(snapshot)?.ignored===true;scope.received(ids,snapshot.at);}catch(e){tracker.fail(e.message);}render(true);},onError(message){requesting=false;tracker.fail(message);render(true);},onRequest(at,ids=requestedIds){requestedIds=ids;scope.started(ids);requesting=true;render(true);},onWaiting(ms){requesting=false;vehicleSession.waiting(ms);waitingUntil=vehicleSession.waitingUntil;render(true);}});
  render(true);resume();
 }
 function updateUrl(){const url=new URL(vehicleUrl({route:line.route,mode:line.mode,stopId:focusStop,towards:direction.towards,view:view==='map'?'karte':view,patternId:direction.patternId}),location.href);history.replaceState(history.state,'',url);$('pilotBackLine').href='./linienkarte.html?'+new URLSearchParams({linie:line.route,verkehrsmittel:line.mode,halt:focusStop||'',richtung:direction.towards});}

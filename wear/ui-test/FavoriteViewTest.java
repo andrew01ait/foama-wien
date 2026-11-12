@@ -57,17 +57,14 @@ public class FavoriteViewTest {
     }
     private Rect bounds(View view){Rect result=new Rect(0,0,view.getWidth(),view.getHeight());((ViewGroup)app.getWindow().getDecorView()).offsetDescendantRectToMyCoords(view,result);return result;}
     private void assertCompactFilterGap(String selected){
-        ViewGroup decor=(ViewGroup)app.getWindow().getDecorView(),filter=decor.findViewWithTag("transport-shortcut");ViewGroup icons=(ViewGroup)filter.getChildAt(0);
-        TextView tab=text(selected);android.graphics.drawable.InsetDrawable background=(android.graphics.drawable.InsetDrawable)tab.getBackground();
-        float density=app.getResources().getDisplayMetrics().density;
-        float gap=(bounds(icons.getChildAt(0)).top-bounds(tab).top-background.getDrawable().getBounds().bottom)/density;
-        assertTrue("Visible filter gap: "+gap,gap>=4&&gap<=16);
-        assertTrue("Separate 48dp touch rows: "+bounds(tab)+" / "+bounds(filter),bounds(tab).bottom<=bounds(filter).top);assertTrue(filter.getHeight()/density>=48);
-        if(selected.equals("Stationen"))assertTrue("Station follows the full filter touch target",bounds(filter).bottom<=bounds(text(station().name)).top);
+        View filter=app.getWindow().getDecorView().findViewWithTag("transport-shortcut");
+        assertNull("Nearby transport filters do not occupy favorites space",filter);
+        View tab=text(selected);assertTrue(tab.getHeight()/app.getResources().getDisplayMetrics().density>=48);
+        if(selected.equals("Stationen"))assertTrue(bounds(tab).bottom<=bounds(text(station().name)).top);
     }
     @Test @GraphicsMode(GraphicsMode.Mode.NATIVE) public void lowBatteryOfferRetainsItsOwnTouchAreaAfterFilter()throws Exception{
         app.changeView("fav");app.applyBattery(19);app.renderContent();render(227,".local/wear-favorite-low-battery-227.png");
-        View filter=app.getWindow().getDecorView().findViewWithTag("transport-shortcut");assertTrue(bounds(filter).bottom<=bounds(text("Akku sparen?")).top);
+        View tab=text("Stationen");assertTrue(bounds(tab).bottom<=bounds(text("Akku sparen?")).top);
         click("Akku sparen?");assertNotNull(text("Unter 20 % aktivieren"));
     }
     private void layoutTree(View v){v.forceLayout();v.invalidate();if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++)layoutTree(((ViewGroup)v).getChildAt(i));}

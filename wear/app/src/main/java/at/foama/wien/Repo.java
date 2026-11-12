@@ -264,6 +264,14 @@ final class Repo {
         }catch(Exception e){if(scope.isCancelled())return;failed=true;scope.commit(()->regionalError="Regionale Abfahrten nicht erreichbar");}
         final boolean hasError=failed;scope.commit(()->{if(hasError){failures++;nextFetchElapsed=SystemClock.elapsedRealtime()+WearPolicy.retryDelay(failures);}else{failures=0;lastFetch=System.currentTimeMillis();}mergeRail(selected);saveCache();});
     }
+    JSONObject fetchApproach(Stop stop,String route,String towards,String mode,RequestScope scope)throws Exception{
+        final boolean[] reserved={false};scope.commit(()->{syncDepartureCity();long elapsed=SystemClock.elapsedRealtime();if(elapsed<nextFetchElapsed)return;requestSpacingUntil=elapsed+WearPolicy.REFRESH_MS;nextFetchElapsed=requestSpacingUntil;reserved[0]=true;});if(!reserved[0])return null;
+        try{
+            String url=BuildConfig.FOAMA_BASE_URL+"/api/wear/approach?route="+URLEncoder.encode(route,"UTF-8")+"&mode="+URLEncoder.encode(mode,"UTF-8")+"&stop="+URLEncoder.encode(stop.id,"UTF-8")+"&towards="+URLEncoder.encode(towards,"UTF-8");
+            JSONObject payload=new JSONObject(jsonHttp(url,"GET",null,scope));
+            scope.commit(()->{JSONObject board=payload.optJSONObject("board");List<String> ids=strings(payload.optJSONArray("boardIds"));if(board!=null&&!ids.isEmpty())mergeMonitor(board,Collections.singletonList(stop),ids,System.currentTimeMillis());nextFetchElapsed=Math.max(nextFetchElapsed,SystemClock.elapsedRealtime()+Math.min(300000,Math.max(30000,payload.optLong("retryAfterMs",30000))));failures=0;lastError="";saveCache();});return payload;
+        }catch(Exception e){if(!scope.isCancelled())scope.commit(()->{failures++;lastError="Livedaten nicht erreichbar";nextFetchElapsed=SystemClock.elapsedRealtime()+WearPolicy.retryDelay(failures);});throw e;}
+    }
     void mergeMonitor(JSONObject payload,List<Stop> selected,List<String> ids,long now)throws Exception{
         JSONObject data=payload.optJSONObject("data");JSONArray monitors=data==null?null:data.optJSONArray("monitors");
         JSONObject message=payload.optJSONObject("message");if(monitors==null||(message!=null&&message.optInt("value",1)!=1))throw new IOException("Ungültige API-Antwort");

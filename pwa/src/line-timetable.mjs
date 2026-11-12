@@ -1,4 +1,4 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.19';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.21';
 
 const clockFormat=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Vienna',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZoneName:'short'});
 const dayFormat=new Intl.DateTimeFormat('de-AT',{timeZone:'Europe/Vienna',weekday:'short',day:'numeric',month:'numeric',year:'numeric'});

@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.17 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.21 / Wear 0.8.0. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -78,3 +78,5 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 0.11.18: Der gemeinsame Standort-Hook wartet nach `whenReady` zusätzlich bis nach dem gesamten ersten Ladeereignis, damit zuvor eingereihte SVG-Renderer bereit sind. Frühes Entfernen verwirft die Anmeldung. Stationskarten initialisieren ihre Ansicht vor Vektoren und entsorgen einen unvollständigen Aufbau vor einem erneuten Versuch. [Diagnose und Abnahme](map-overlays-20261112.md).
 
 0.11.19: Eine gemeinsame Liniensitzung für Karte, Schema und Dein Halt. Stationswahl erhält Prognosen, IDs, Bestätigung und Abruf-Countdown; der Stationsbereich erhält Vorrang. Ganze lange Linien werden fair in maximal 24 RBL großen Abschnitten innerhalb derselben Abrufgrenzen aktualisiert. Schmale Ansichten verwenden einen kompakten Fortschrittsbalken.
+
+0.11.21: `vehicle-session.mjs` verbindet kanonische Tracker mit einem begrenzten tablokalen `sessionStorage`-Checkpoint. Identität bindet an Fahrplanversion, Quellhash, Linie, Modus, Richtung und genaue Variante. Trackerzustand umfasst ID-Zähler, Anker, Boardzeiten, Quellen-Deduplizierung und Korrektur-/Ablaufzustand; kein Replay als neuer Quellenstand. Wiederaufnahme aus dem Browser-Zurückcache liest vor der Fortsetzung den neueren Zustand. Höchstens vier Sitzungen/1,5 Mio. Zeichen, höchstens fünf Minuten seit letzter Nutzung; Fahrzeugbelege laufen unabhängig weiterhin nach 60/90 Sekunden aus. Keine Standort-/Favoritendaten, keine Hintergrundarbeit und kein eigener Panel-Poller. Paneldarstellung filtert die kanonischen Fahrten auf das gewählte Ziel. `notBefore` erhält den nächsten Termin einschließlich Fehlerpause über den Seitenwechsel hinweg.

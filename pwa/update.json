@@ -1,18 +1,23 @@
 {
-  "version": "0.11.19",
-  "wearVersionCode": 26,
-  "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
-  "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Fahrzeuge im Anflug: schmaler Fortschrittsbalken statt nummerierter Datenkarten auf kleinen Ansichten. Karte, Schema, Dein Halt und Stationswahl behalten jetzt vorhandene Prognosen und Fahrzeuge. Die ganze Strecke wird innerhalb derselben Abrufgrenzen beobachtet; dein Stationsbereich hat Vorrang. Kartenkorrektur, automatischer Start und Ankunft in Minuten sind enthalten.",
-  "wearVersion": "0.7.4",
+  "version": "0.11.21",
+  "wearVersionCode": 27,
+  "wearApkUrl": "/apk/foama-wien-wear-0.8.0.apk",
+  "wearApkSha256": "3b814dfed160470a470733ce795f7ead082ecaf0abb908d4304de4d0ac1fb1ba",
+  "changelog": "Fahrzeuge im Anflug behalten beim Wechsel zwischen Verbindungsdetail, A nach B und ganzer Linie vorhandene Fahrzeugdaten, Fahrtkennungen und Aktualisierungszeit. Die Ladeanzeige zeigt nur noch einen kleinen Balken, verständlichen Status und die nächste Aktualisierung. Der aktuelle Uhr-Release 0.8.0 bleibt enthalten.",
+  "wearVersion": "0.8.0",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 3842666,
+  "wearApkBytes": 5213642,
   "wearMinSdk": 30,
-  "wearChangelog": "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach. Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab. Android-Installation wird ohne Blockieren der Oberfläche vorbereitet. Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich.",
+  "wearChangelog": "Lesbare Abfahrten und Navigation auf kleinen und großen Uhren; Rückkehr an dieselbe Stelle. Neue Stationskarte mit Standort, Zoom und Wiener Linienverläufen. Fahrzeuge im Anflug mit Prognose, kurzem Schema und klar geschätzten Positionen. Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen.",
   "wearReleaseNotes": [
-    "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach.",
-    "Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab.",
-    "Android-Installation wird ohne Blockieren der Oberfläche vorbereitet.",
-    "Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich."
+    "Lesbare Abfahrten und Navigation auf kleinen und großen Uhren; Rückkehr an dieselbe Stelle.",
+    "Neue Stationskarte mit Standort, Zoom und Wiener Linienverläufen.",
+    "Fahrzeuge im Anflug mit Prognose, kurzem Schema und klar geschätzten Positionen.",
+    "Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen."
+  ],
+  "releaseNotes": [
+    "Fahrzeugdaten und Fahrtkennungen bleiben beim Seitenwechsel erhalten.",
+    "Kurzer Ladebalken mit verständlichem Status und nächster Aktualisierung.",
+    "Aktuelle Uhr-App 0.8.0 weiterhin verfügbar."
   ]
 }

@@ -1,3 +1,14 @@
+## PWA 0.11.21 · Fahrzeugdaten über Seitenwechsel erhalten · 12.11.2026
+
+Verbindungsdetail, A nach B und ganze Fahrzeugseite übernehmen jetzt dieselbe kurzlebige Liniensitzung. Vorhandene Prognosen, temporäre IDs, Bestätigungen, Korrekturpausen und nächster Abruf bleiben beim Navigieren erhalten; auch eine aus dem Browser-Zurückcache zurückkehrende Seite übernimmt den neueren Stand. Ein zwischengespeicherter Stand wird nie erneut als Live-Beleg eingelesen. Zwei unterschiedliche frische Quellenstände und die bisherigen 60-/90-s-Altersgrenzen bleiben erhalten.
+
+Die kanonische Strecke enthält alle zugehörigen Fahrten. Stationspanels filtern deren Anzeige weiterhin auf das gewählte Ziel und nutzen unverändert den gemeinsamen Monitorabruf, ohne eigenen Poller. Maximal vier Sitzungen und 1,5 Millionen Zeichen im Tab-Speicher, nach fünf Minuten ohne Nutzung verworfen; keine Nutzerposition, Favoriten oder Exporte. Beschädigter bzw. blockierter Speicher verhindert die Live-Anzeige nicht. Abrufpause/Backoff werden auch beim Wechsel übernommen.
+
+Die Initialisierung zeigt in jeder Bildschirmgröße ausschließlich einen kleinen vierteiligen Balken, verständlichen Status, einen kurzen Hinweis und gegebenenfalls den Countdown zur nächsten Aktualisierung. Nummerierte Karten, Quellen-/Kandidaten-/Haltezähler und zusätzliche technische Fortschrittstexte entfallen. Kein versprochener Zeitpunkt für die erste Fahrzeugposition. Vorhandener Wear-Release 0.8.0/27 unverändert. Details: docs/vehicle-line-session.md.
+## Wear 0.8.0 / PWA 0.11.20 · 2026-11-12
+
+Adaptive Abfahrtszeilen und lesbare Navigation für verschiedene Uhrgrößen und große Systemschrift. Favoriten mit weniger Kopfzeilen, Rückkehr an die Leseposition. Optionale Stationskarte für vier Städte und Wiener Linienverläufe; Fahrzeuge im Anflug in Wiener Verbindungsdetails mit derselben konservativen Zwei-Quellen-Schätzung wie in der PWA. Aktueller Routeneinstieg mit kompakter Umstiegsvorschau; direkter Schnellzugriff über ein Tile. Vordergrund-/30-s-/Ultra-Sparregeln, Originalpaket und Signatur erhalten.
+
 ## PWA 0.11.19 · kompakter Fortschritt und durchgehende Liniensitzung · 12.11.2026
 
 Auf schmalen Bildschirmen (bis 620 px) und in schmalen Inhaltsbereichen (bis 540 px Innenbreite) ersetzt ein sechspixelhoher vierteiliger Balken die nummerierten Datenkarten und den großen Schrittzähler. Mint zeigt abgeschlossene Datenstufen, Amber die aktive, die übrigen bleiben neutral. Aktueller Schritt, Datenstand, Fehler-/Wartetext und nächster Abruf bleiben sichtbar. Breite Ansichten behalten die ausführlichen vier Stufen. Semantischer Fortschrittsbalken mit aktuellem Wert, Maximum und lesbarer Stufenbeschreibung; abgelaufene Quellen setzen auch den Balken zurück.

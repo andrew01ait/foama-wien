@@ -1,4 +1,4 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.19';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.21';
 
 export const VEHICLE_FRESH_MS=60_000,VEHICLE_EXPIRE_MS=90_000;
 export const PILOT_SCHEDULE_MATCH_MS=60_000;
@@ -142,6 +142,28 @@ function stationChainBundles(direction,snapshot,schedules,tracks){
 }
 export function createVehicleTracker(direction,manifest,{prefix=(direction.route||'U6')+'-'+direction.monitorDirection,fullLine=false}={}){
  let lastAt=0,serial=0,latest=null,problem='',partial=false;const tracks=new Map(),events=[],samples=new Map(),boards=new Map();
+ const identity=JSON.stringify([manifest.version,manifest.sourceSha256,direction.route,direction.mode,direction.id,direction.monitorDirection,direction.monitorDirectionId,direction.stops.map(s=>[s.id,s.rbl]),direction.trips.map(t=>t.ref)]);
+ // Navigation restores evidence directly, never replays it as another live
+ // observation. Keep source times, duplicate guards and ID allocation intact.
+ function checkpoint(){return {format:1,identity,prefix,fullLine,lastAt,serial,latest,problem,partial,tracks:[...tracks].map(([key,t])=>[key,{...t,anchors:[...t.anchors]}]),events:events.slice(),samples:[...samples],boards:[...boards]};}
+ function restore(saved,now=Date.now()){
+  try{
+   const list=(value,limit)=>Array.isArray(value)&&value.length<=limit,index=i=>Number.isInteger(i)&&i>=0&&i<direction.stops.length;
+   const row=r=>r&&index(r.index)&&[r.at,r.scheduled,r.actual].every(Number.isFinite)&&typeof r.key==='string';
+   if(saved?.format!==1||saved.identity!==identity||saved.fullLine!==fullLine||typeof saved.prefix!=='string'||saved.prefix.length>160||!Number.isFinite(saved.lastAt)||!saved.lastAt||saved.lastAt>now+30000||now-saved.lastAt>VEHICLE_EXPIRE_MS||!Number.isSafeInteger(saved.serial)||saved.serial<0||!list(saved.tracks,128)||!list(saved.events,80)||!list(saved.samples,64)||!list(saved.boards,400)||typeof saved.problem!=='string')return false;
+   const restored=new Map();
+   for(const [key,t] of saved.tracks){
+    if(typeof key!=='string'||typeof t.id!=='string'||!t.id.startsWith(saved.prefix+'-T')||!Number.isInteger(t.hits)||t.hits<0||!Number.isFinite(t.lastSeen)||t.lastSeen>saved.lastAt||!list(t.anchors,400)||!list(t.schedule?.times,400)||t.schedule.times.length!==direction.stops.length||t.schedule.key!==key||!index(t.schedule.start)||!index(t.schedule.end))return false;
+    if(t.schedule.times.some(p=>p!==null&&(!Array.isArray(p)||p.length!==2||!p.every(Number.isFinite))))return false;
+    if(t.anchors.some(([i,r])=>!index(i)||!row(r)||r.index!==i||!t.schedule.times[i]))return false;
+    if(t.lastPosition&&(!Number.isFinite(t.lastPositionAt)||!Number.isFinite(t.lastPosition.progress)||t.lastPosition.progress<0||t.lastPosition.progress>direction.stops.length-1))return false;
+    restored.set(key,{...t,anchors:new Map(t.anchors)});
+   }
+   if(saved.samples.some(([scope,at])=>typeof scope!=='string'||!Number.isFinite(at))||saved.boards.some(([i,b])=>!index(i)||!Number.isFinite(b.at)||!list(b.rows,1000)||!b.rows.every(row)))return false;
+   tracks.clear();for(const [key,t] of restored)tracks.set(key,t);samples.clear();for(const [key,at] of saved.samples)samples.set(key,at);boards.clear();for(const [i,b] of saved.boards)boards.set(i,b);
+   events.splice(0,events.length,...saved.events);({lastAt,serial,latest,problem,partial,prefix}=saved);return true;
+  }catch{return false;}
+ }
  function event(track,kind,from,to,at){events.unshift({id:track.id,kind,from,to,at});events.splice(80);}
  function remember(t,p,at){if(p&&!p.stale){t.lastPosition={...p};t.lastPositionAt=at;t.hadPosition=true;}}
  function ingest(snapshot){
@@ -208,7 +230,7 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
   const freshBoards=fullLine?[...boards].filter(([,board])=>now-board.at<=VEHICLE_FRESH_MS):[],coverage=fullLine?freshBoards.filter(([,board])=>board.covered).map(([index])=>index):latest?.coverage||[],expected=fullLine?direction.stops.filter(s=>s.rbl).length:latest?.expected??direction.stops.filter(s=>s.rbl).length;
   return {at:lastAt,problem,fullLine,partial:fullLine?coverage.length<expected:partial,stale,rows:fullLine?freshBoards.flatMap(([,board])=>board.rows):latest?.rows||[],coverage,expected,budgetLimited:fullLine?0:latest?.budgetLimited||0,events:events.slice(),tracks:out};
  }
- return {ingest,view,fail(message){problem=message;for(const t of tracks.values())if(t.hadPosition&&!t.awaiting){t.awaiting=true;t.awaitingReason=message;event(t,'gap',null,null,lastAt);}},clear(){tracks.clear();samples.clear();boards.clear();events.length=0;lastAt=0;latest=null;problem='';partial=false;}};
+ return {ingest,view,checkpoint,restore,fail(message){problem=message;for(const t of tracks.values())if(t.hadPosition&&!t.awaiting){t.awaiting=true;t.awaitingReason=message;event(t,'gap',null,null,lastAt);}},clear(){tracks.clear();samples.clear();boards.clear();events.length=0;lastAt=0;latest=null;problem='';partial=false;}};
 }
 
 

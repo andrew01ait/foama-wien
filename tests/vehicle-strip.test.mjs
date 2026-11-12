@@ -1,3 +1,4 @@
+import {createVehicleSession} from '../pwa/src/vehicle-session.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
 import {createStationVehiclePanel,createHorizontalVehicleStrip} from '../pwa/src/vehicle-strip.mjs';
 import {decodeVehiclePilot,pilotGeometry} from '../pwa/src/vehicle-tracker.mjs';import {stationVehicleRange,vehicleDisplayId} from '../pwa/src/vehicle-data.mjs';
@@ -145,4 +146,19 @@ test('a late map module load cannot create a map after hiding, backgrounding or 
 test('a failed map module reports a recoverable fallback while leaving the schematic available',async()=>{
  const d=dom(),view=createStationVehicleMap({direction,range:stationVehicleRange(direction,target.stopId),line,loadMap:async()=>{throw Error('offline');}});
  try{await view.show();assert.match(view.element.querySelector('.station-vehicle-map-note').textContent,/zum Schema wechseln/);view.dispose();}finally{d.restore();}
+});
+
+
+test('a reopened connection panel immediately uses whole-line evidence, IDs and update time from the other document',async()=>{
+ const d=dom(),originalNow=Date.now,recording=await json('./fixtures/vehicle-station-live.json'),context=recording.contexts.find(c=>c.route==='48A'),bus=await decodeVehiclePilot(await json('../pwa/data/vehicle-pilot/'+context.file)),route=bus.directions.find(d=>d.id===context.direction),values=new Map(),storage={getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)};let now=Date.parse(recording.snapshots[0].foamaMonitorAt),loads=0;
+ Date.now=()=>now;const dataSource={index:async()=>({index}),line:async()=>{loads++;return {data:bus,line,manifest};}},options={target:{...context,towards:route.towards,rbls:context.ids},dataSource,sessionOptions:{storage,now:()=>now}};
+ let panel=createStationVehiclePanel(options);
+ try{
+  panel.element.open=true;panel.element.emit('toggle');await flush();
+  for(const raw of recording.snapshots){now=Math.max(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime));panel.ingest(raw,context.ids);}
+  const firstStrip=panel.element.querySelector('.station-vehicle-strip').children[0],firstIds=firstStrip.querySelector('.vehicle-strip-vehicles').children.map(n=>n.dataset.vehicle);assert.ok(firstIds.length);panel.waiting(23000);const deadline=panel.notBefore();panel.dispose();
+  const whole=createVehicleSession(route,manifest,{storage,now:()=>now});assert.ok(whole.tracker.view(now).tracks.some(t=>firstIds.includes(t.id)&&t.position));assert.equal(whole.waitingUntil,deadline);whole.waiting(21000);
+  panel=createStationVehiclePanel(options);panel.element.open=true;panel.element.emit('toggle');await flush();
+  const holder=panel.element.querySelector('.station-vehicle-strip');assert.equal(panel.element.querySelector('.station-vehicle-readiness').hidden,true,'do not re-enter initialization when fresh positions already exist');assert.deepEqual(holder.children[0].querySelector('.vehicle-strip-vehicles').children.map(n=>n.dataset.vehicle),firstIds);assert.equal(panel.notBefore(),whole.waitingUntil);assert.equal(loads,2,'only the local line metadata is opened again; no new live source is needed');
+ }finally{panel.dispose();Date.now=originalNow;d.restore();}
 });
