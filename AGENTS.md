@@ -1,3 +1,25 @@
+## Wear 0.9.0 / PWA 0.11.28 · Offline-Fahrplan und GPS · 12.11.2026
+
+Vollständiger vorhandener Wiener-Linien-Fahrplan direkt in der APK; rund 1,97 MB, 1.695 Stationen, gültig 09.11.–12.12.2026. Jede Berechnung prüft Wiener Kalendergrenzen; danach keine alten Offline-Abfahrten. Nähe, Stations-/Linienfavoriten und gespeicherte Routen verwenden dieselbe lokale Basis, frische passende API-Gruppen haben Vorrang. Eindeutige Zielnormalisierung einschließlich S/U-Suffixen erhalten. Keine Offline-Zeilen als frische API-Belege oder sichere Geh-Ampel ausgeben.
+
+Einstellungen → Offline-Fahrplan zeigt Datum und Erneuerung. Sichtbar mit Internet höchstens täglich feste öffentliche Metadaten prüfen; Archiv nur bei Änderungen laden, Größe/SHA/Vollständigkeit/Kalender prüfen und erst danach übernehmen. Künftiges Paket erst zum Anfangsdatum aktivieren; kaputte, abgebrochene oder weiterhin abgelaufene Quellen verlängern keine Frist. Keine neue Hintergrundarbeit oder automatischer Server-GTFS-Neuimport. Generator wird im nativen und Site-Build ausgeführt; generierte ZIPs aus Source/Git ausschließen.
+
+Offline-GPS sofort starten und bis zu 90 s begrenzt suchen. Letzten echten Fix höchstens zehn Minuten ausschließlich im RAM halten, nach 90 s unsicher; keine GPS-Persistenz, verspätete Antworten nach Pause verwerfen. Normale ACCESS_NETWORK_STATE-Berechtigung für lokale Netzerkennung. Originalpaket/Schlüssel und bestehende Nutzerfavoriten erhalten.
+
+205 native, 498 Web-/Server- und 22 Python-Tests bestanden; physische OnePlus-Abnahme offen. Details: docs/wear-offline.md und docs/wear-os-release-0.9.0.md.
+
+## Wear 0.8.3 / PWA 0.11.27 · Einheitliches lächelndes Logo · 12.11.2026
+
+Nutzer meldet altes Logo in nativer App und installierter PWA. Native app_icon.xml enthielt tatsächlich die alte gefüllte Bahn. Die Uhr übernimmt jetzt die bestätigte mintfarbene Bahnkontur mit Augen, Lächeln und Gleis aus pwa/icons/foama-mark.svg. scripts/sync_branding.py erzeugt die native Vektorgrafik vor jedem CLI-Build; icon und roundIcon zeigen denselben Master.
+
+PWA-PNGs enthielten bereits das neue Logo; neue inhaltsgebundene Symboladressen in Manifest, Apple-Touch-Icon, Offline-Shell und Push lösen erneut die Symbolprüfung aus. Manifest-Verknüpfungen verwenden eine stabile URL ohne Releasequery. Manifest-ID, Start, Scope, Paket, ursprünglicher Signierschlüssel und Favoriten bleiben erhalten. Chrome 144+ behandelt größere Symboländerungen als bestätigbares Identitätsupdate; keinen sofortigen Launcherwechsel oder eine erledigte Geräteabnahme behaupten. Anleitung unter App & Installation; Quelle und Buildvertrag in docs/branding.md. Stationspunkt-Korrektur aus 0.11.26 erhalten.
+
+## PWA 0.11.26 · Eindeutige Stationspunkte · 12.11.2026
+
+Standortkarte: Die bisher um mindestens 32 CSS-Pixel über einem unsichtbaren Anker schwebenden Linienlabels besitzen jetzt einen sichtbaren Stationspunkt mit kurzer Verbindung. Dessen Mittelpunkt entspricht exakt dem Leaflet-Koordinatenanker, auch bei mehrzeiligen Linienrastern; mindestens 44 × 44 CSS-Pixel Tippfläche bleiben erhalten.
+
+Ein aus den vorhandenen offiziellen Linienpaketen abgeleiteter Index verwendet den dem Katalogpunkt nächsten tatsächlich bedienten Plattformpunkt für die gewählten Linien/Verkehrsmittel und den Wiener Kalendertag. Kein Mittelwert zwischen Gegenrichtungen und keine Namens-/Nähe-Verknüpfung verschiedener Stationen. Giefinggasse und Paukerwerkstraße sind gegen die importierten Plattformkoordinaten geprüft. Fehlende, abgelaufene oder nicht passende Daten verwenden den bisherigen Katalogpunkt. Katalog-/Gehzeitbasis und native App bleiben erhalten; keine zusätzlichen Monitor-/Fahrzeugabfragen. [Datenvertrag und Abnahme](docs/station-map-points.md).
+
 ## Wear 0.8.2 / Code 29 · Einstellungen klar benennen · 12.11.2026
 
 Nutzer beanstandet die unter Mehr verborgenen Einstellungen. Bestehenden Zugang am Listenende mit Zahnrad und sichtbarem Namen Einstellungen versehen; Menütitel und aktuelle Bedienhinweise einheitlich anpassen. Keine zusätzliche Kopfzeile vor den priorisierten Abfahrten. Bestehende 48-dp-Ziele, Elternpfade, Favoriten, Abrufbudgets und Fahrzeuge-im-Anflug-Optimierungen aus 0.8.1 erhalten. Karten-Zentrierknopf bleibt auf ausdrücklichen Wunsch ein Symbol ohne Standort-Label. Wear 0.8.2 / Code 29 mit ursprünglichem Paket/Schlüssel, PWA-Begleitstand 0.11.25.

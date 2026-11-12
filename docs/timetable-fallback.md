@@ -40,3 +40,7 @@ Ab PWA 0.9.0: [PDF-Download](timetable-pdf.md) und [geografische Linienkarte](li
 ## Gleiche Endstation mit unterschiedlichen Namen ab 0.11.10
 
 Der reguläre Endpunkt `wl:60200246` heißt im GTFS **Parlament/Volkstheater**, im Live-Monitor **Parlament, U Volkstheater**. Eine explizite Aliasregel verbindet genau diese Namen in Monitorgruppen, Fahrplanvorrang, Favoriten und Verbindungsdetails. Frische passende Live-Daten unterdrücken den zusätzlichen Fahrplaneintrag; bei veraltetem Live-Stand tritt der klar gekennzeichnete Fahrplan an dessen Stelle. Richtige Station, Linie und Verkehrsmittel bleiben Bestandteil der Identität. Bloßes „Volkstheater“, andere Ziele und unterschiedliche explizite via-Wege werden nicht pauschal gleichgesetzt. Gespeicherte Favoriten müssen nicht umgeschrieben werden.
+
+## Vollständiges natives Offlinepaket ab Wear 0.9.0
+
+Der Watch-Generator verwendet dieselben 32 kanonischen Stationspakete und Kalender für ein rund 1,97 MB großes Komplettarchiv. Bereits in der APK; eigenständige überprüfte Erneuerung aus der Site. Feste Wiener Datumsgrenzen bei jedem Lesen, nach Ablauf keine Offline-Abfahrten. Ein App-Download ist kein GTFS-Neuimport. [Watch-Vertrag und Workflow](wear-offline.md).

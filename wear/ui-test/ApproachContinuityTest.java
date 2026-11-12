@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricTestRunner.class) @Config(sdk=34,qualifiers="w192dp-h192dp-round-xhdpi") @LooperMode(LooperMode.Mode.PAUSED)
 public class ApproachContinuityTest {
     private ActivityController<MainActivity> controller;private MainActivity app;
-    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
+    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();WatchTestEnvironment.online();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
     @After public void cleanup(){app.active=false;controller.stop().destroy();}
     private void set(String name,Object value)throws Exception{java.lang.reflect.Field f=MainActivity.class.getDeclaredField(name);f.setAccessible(true);f.set(app,value);}
     private Object get(String name)throws Exception{java.lang.reflect.Field f=MainActivity.class.getDeclaredField(name);f.setAccessible(true);return f.get(app);}

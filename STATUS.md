@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.25, Wear 0.8.2 / Code 29.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.28, Wear 0.9.0 / Code 31.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -24,7 +24,7 @@ Stand: 12. November 2026. **PWA 0.11.25, Wear 0.8.2 / Code 29.** Verbindlich sin
 
 1.695 Wiener Stationen und 173 Linien, gültig 09.11.–12.12.2026. Vollständige offizielle Quelle am 10.11.5026 um 09:47 Wiener Zeit per SHA-256 geprüft: unverändert zum Import. Serveränderungsdatum und ZIP-Dateistand 09.11.; kein ausdrücklich angegebenes Veröffentlichungsdatum. Die Fahrplanansicht unterscheidet diese Angaben, Import und gespeicherten Prüfstand.
 
-Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens 14 Tage Restgültigkeit, Ablauf und anhaltende Prüfprobleme. **Noch kein automatischer Neuimport/Deploy.** Andere Städte haben kein eigenes Offline-Sollfahrplanpaket. Die native Uhr hält nur den begrenzten bisherigen Abfahrtencache, keine vollständigen Linienfahrpläne.
+Wöchentliche Quellenprüfung ab 16.11. montags; meldet neue Quellen, höchstens 14 Tage Restgültigkeit, Ablauf und anhaltende Prüfprobleme. **Noch kein automatischer Neuimport/Deploy.** Andere Städte haben kein eigenes Offline-Sollfahrplanpaket. Die native Uhr enthält den vollständigen Wiener-Linien-Fahrplan als rund 1,97 MB großes Offlinepaket. Feste Gültigkeit in Wiener Zeit; automatische Metadatenprüfung nur bei sichtbarer App und Verbindung, atomare Erneuerung ohne APK-Update. [Offlinevertrag](docs/wear-offline.md).
 
 ## Verifikation und Grenzen
 
@@ -64,3 +64,5 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 0.11.23: Genau eine aktive Zuständigkeit für Fahrzeugpositionen in der PWA. Neue Linie beendet den vorherigen Poller bzw. Panels-Abfrageumfang vor Übernahme; verborgene und gespeicherte Linien bleiben passiv. Warnungsfix und Darstellung aus 0.11.22 enthalten.
 
 Wear 0.8.2: Fahrzeugdaten über Ansichts- und Stationswechsel behalten, geteilte Liniensitzung, acht priorisierte Stations-RBLs, kompakter Fortschritt statt leerem Schema. Karten-Zentrierung weiterhin als Symbol, jetzt mit Such-/Ergebnis-/Fehlerrückmeldung. [Bedienwege und Grenzen](docs/wear-experience.md).
+
+0.11.26: Standortkarte mit eindeutigem Haltepunkt unter dem verbundenen Linienlabel und passenden physischen Plattformkoordinaten. [Datenvertrag und Prüfung](docs/station-map-points.md).

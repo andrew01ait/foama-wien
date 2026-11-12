@@ -35,6 +35,8 @@ public final class MainActivity extends Activity {
 
     private final Handler handler=new Handler(Looper.getMainLooper());
     private final ExecutorService network=Executors.newSingleThreadExecutor();
+    private final ExecutorService timetableNetwork=Executors.newSingleThreadExecutor();
+    private RequestScope timetableScope;private Future<?> timetableRequest;private boolean timetableManual;
     private RequestScope requests=new RequestScope();
     private Future<?> departureRequest,updateRequest;
     private RequestScope updateScope,fileScope;RequestScope.ConnectionFactory updateConnectionFactory;
@@ -83,7 +85,7 @@ public final class MainActivity extends Activity {
     private final Runnable viewportRefresh=()->refresh();
     private final Runnable gatedRefresh=()->refresh();
     private final BroadcastReceiver screenState=new BroadcastReceiver(){public void onReceive(Context c,Intent intent){if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction()))stopForegroundWork();else if(Intent.ACTION_SCREEN_ON.equals(intent.getAction()))startForegroundWork();}};
-    private final Runnable departureTicker=new Runnable(){public void run(){if(!active)return;if(powerSaver.active&&locationScreen())startLocation(false);refresh();handler.postDelayed(this,powerSaver.departureInterval());}};
+    private final Runnable departureTicker=new Runnable(){public void run(){if(!active)return;maybeUpdateTimetable(false);if(powerSaver.active&&locationScreen())startLocation(false);refresh();handler.postDelayed(this,powerSaver.departureInterval());}};
     private final Runnable renderTicker=new Runnable(){public void run(){if(!active)return;if(!screen.equals("more")&&!screen.equals("file-import")&&!screen.equals("transfer"))renderContent();handler.postDelayed(this,powerSaver.renderInterval());}};
     @Override public void onCreate(Bundle state){
         super.onCreate(state);getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);
@@ -121,6 +123,7 @@ public final class MainActivity extends Activity {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if(batteryRegistered){unregisterReceiver(batteryReceiver);batteryRegistered=false;}
         boolean wasActive=active;active=false;handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.removeCallbacks(viewportRefresh);handler.removeCallbacks(gatedRefresh);stopLocation();requests.cancel();if(push!=null)push.pause();
+        if(timetableScope!=null)timetableScope.cancel();if(timetableRequest!=null)timetableRequest.cancel(true);timetableRequest=null;timetableScope=null;timetableManual=false;
         if(departureRequest!=null)departureRequest.cancel(true);fetching=false;
         if(stopUpdate)cancelUpdate(updateHandedToInstaller?"Update an Android übergeben.":"Update angehalten. Bei Bedarf erneut prüfen.");cancelFileRead();filePreview=null;
         if(wasActive)repo.pause();if(transfer!=null){closeTransfer();screen=transferFromRoutes?"routes":"more";settingsSection=transferParentSection;}
@@ -128,7 +131,7 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onPause(){resumed=false;PowerManager power=(PowerManager)getSystemService(POWER_SERVICE);boolean visibleUpdate=updateDownloading&&!isFinishing()&&!isChangingConfigurations()&&(power==null||power.isInteractive());stopForegroundWork(!visibleUpdate);super.onPause();}
     @Override protected void onStop(){stopForegroundWork();super.onStop();}
-    @Override protected void onDestroy(){resumed=false;stopForegroundWork();handler.removeCallbacksAndMessages(null);unregisterReceiver(screenState);Updater.removeInstallObserver(installStatus);if(Build.VERSION.SDK_INT>=33&&backRegistration!=null)Api33Back.unregister(this,backRegistration);network.shutdownNow();super.onDestroy();}
+    @Override protected void onDestroy(){resumed=false;stopForegroundWork();handler.removeCallbacksAndMessages(null);unregisterReceiver(screenState);Updater.removeInstallObserver(installStatus);if(Build.VERSION.SDK_INT>=33&&backRegistration!=null)Api33Back.unregister(this,backRegistration);network.shutdownNow();timetableNetwork.shutdownNow();super.onDestroy();}
     private static final class Api33Back {
         static Object register(MainActivity app){android.window.OnBackInvokedCallback callback=app::navigateBack;app.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,callback);return callback;}
         static void unregister(MainActivity app,Object callback){app.getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback((android.window.OnBackInvokedCallback)callback);}
@@ -297,6 +300,7 @@ public final class MainActivity extends Activity {
     private void refresh(){
         handler.removeCallbacks(gatedRefresh);
         if(!active||fetching||screen.equals("more")||screen.equals("transfer")||screen.equals("file-import")||screen.equals("alerts"))return;
+        if(!OfflineTimetable.online(this)){renderContent();return;}
         repo.syncDepartureCity();long readyAt=repo.nextFetchElapsed;
         if(powerSaver.active&&lastDepartureAttempt>=0)readyAt=Math.max(readyAt,lastDepartureAttempt+powerSaver.departureInterval());
         long wait=readyAt-SystemClock.elapsedRealtime();if(wait>0){handler.postDelayed(gatedRefresh,wait);return;}
@@ -307,7 +311,9 @@ public final class MainActivity extends Activity {
         });
     }
     void renderContent(){
-        TextView cityTitle=root==null?null:root.findViewWithTag("main-title");if(cityTitle!=null)cityTitle.setText(CityProfiles.name(repo.cities.current()));
+        repo.expireMemoryLocation();
+        boolean offline=!OfflineTimetable.online(this);
+        TextView cityTitle=root==null?null:root.findViewWithTag("main-title");if(cityTitle!=null)cityTitle.setText(CityProfiles.name(repo.cities.current())+(offline?" · offline":""));
         if(screen.equals("transfer")){content.removeAllViews();renderTransfer();return;}
         if(content==null)return;
         if(screen.equals("file-import")){content.removeAllViews();renderFileImport();return;}
@@ -317,6 +323,7 @@ public final class MainActivity extends Activity {
         if(!currentError.isEmpty())status.setText(currentError+" · gespeicherter Stand");
         else if(repo.currentLocation!=null&&!repo.reliableLocation())status.setText(locationMessage.isEmpty()?screen.equals("home")&&view.equals("fav")?"":repo.manualLocation?"Stadtmitte · Gehzeit ungewiss":repo.locationStatus()+" · Gehzeit ungewiss":locationMessage);
         else status.setText("");
+        if(repo.cities.current().equals("wien")&&offline&&repo.timetable.current(System.currentTimeMillis())==null)status.setText(repo.timetable.status(System.currentTimeMillis()));
         status.setVisibility(status.getText().length()==0?View.GONE:View.VISIBLE);
         if(!batteryMessage.isEmpty()){status.setText(status.getText().length()==0?batteryMessage:status.getText()+"\n"+batteryMessage);status.setVisibility(View.VISIBLE);}
         if(screen.equals("home")){if(view.equals("fav"))favoriteSwitcher();else transportShortcut();if(powerSaver.percent>=0&&powerSaver.percent<20&&!powerSaver.enabled)fullButton(content,"Akku sparen?",()->{screen="more";section("battery");renderLayout();});}
@@ -326,9 +333,9 @@ public final class MainActivity extends Activity {
     private void restoreScroll(int y){int revision=++scrollRevision;scrollRestoreY=y;scroll.requestLayout();scroll.post(()->{if(revision!=scrollRevision||scroll.isLayoutRequested())return;scroll.scrollTo(0,y);scrollRestoreY=-1;openingPage=false;});}
     private LinearLayout placeholder(String heading,String explanation){LinearLayout c=card(content);c.addView(text(heading,16,WHITE,true));space(c,6);c.addView(text(explanation,12,MUTED,false));return c;}
     private void renderNear(){
-        if(repo.currentLocation==null){
+        if(!repo.hasUsableLocation()){
             space(content,5);centered(content,"Was fährt in der Nähe?",17,WHITE,true);space(content,8);
-            centered(content,locationMessage.isEmpty()?"Erlaube den Standort auf deiner Uhr. Favoriten funktionieren auch ohne Ortung.":locationMessage,12,MUTED,false);space(content,13);
+            centered(content,locationMessage.isEmpty()?hasLocationPermission()?"Noch kein GPS-Standort. Offline kann die Suche im Freien länger dauern. Favoriten funktionieren ohne Ortung.":"Erlaube den Standort auf deiner Uhr. Favoriten funktionieren auch ohne Ortung.":locationMessage,12,MUTED,false);space(content,13);
             fullButton(content,hasLocationPermission()?"Erneut versuchen":"Standort aktivieren","primary",()->startLocation(true));
             if(hasLocationPermission()||locationDenied)fullButton(content,hasLocationPermission()?"Standorteinstellungen":"App-Freigabe öffnen","quiet",()->openLocationSettings());return;
         }
@@ -570,9 +577,15 @@ public final class MainActivity extends Activity {
     }
     private void renderMore(){
         status.setVisibility(View.GONE);
-        String title=settingsSection.isEmpty()?"Einstellungen":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
+        String title=settingsSection.isEmpty()?"Einstellungen":settingsSection.equals("timetable")?"Offline-Fahrplan":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
         centered(content,title,17,WHITE,true);space(content,14);
-        if(settingsSection.equals("push")){renderPush();
+        if(settingsSection.equals("timetable")){
+            centered(content,repo.timetable.status(System.currentTimeMillis()),13,MINT,true);space(content,9);
+            centered(content,repo.timetable.details(System.currentTimeMillis()),12,MUTED,false);space(content,12);
+            fullButton(content,timetableRequest!=null&&!timetableRequest.isDone()?"Wird aktualisiert …":"Fahrplan aktualisieren","primary",()->maybeUpdateTimetable(true));
+            if(!repo.timetable.updateMessage.isEmpty()){centered(content,repo.timetable.updateMessage,12,AMBER,false);space(content,9);}
+            centered(content,"Alle Wiener-Linien-Abfahrten auf der Uhr. Mit Internet täglich nach Änderungen suchen; vor Ablauf erneuern. Ohne neue gültige Daten bleibt nur Live mit Verbindung verfügbar. Keine Live-Verspätungen oder aktuellen Störungen im Offline-Fahrplan.",12,MUTED,false);
+        }else if(settingsSection.equals("push")){renderPush();
         }else if(settingsSection.equals("push-delivery")){renderPushDelivery();
         }else if(settingsSection.equals("push-filters")){renderPushFilters();
         }else if(settingsSection.equals("push-info")){renderPushInfo();
@@ -631,6 +644,7 @@ public final class MainActivity extends Activity {
             menuRow("Standort & Nähe",repo.prefs.getInt("radius",300)+" m · Verkehrsmittel","⌖",()->section("location"));
             menuRow("Gehen & Reserve",String.valueOf(repo.prefs.getFloat("speed",4.5f)).replace('.',',')+" km/h · "+repo.prefs.getInt("buffer",1)+" Min.","↗",()->section("walking"));
             menuRow("Favoriten",repo.favorites.size()+" Station/Linie · "+repo.journeys.all().length()+" Routen","☆",()->section("favorites"));
+            menuRow("Offline-Fahrplan",repo.timetable.status(System.currentTimeMillis()),"↓",()->section("timetable"));
             menuRow("Störungen",push.enabled()?"Direkt auf dieser Uhr":"Optional · Push-Hinweise","⚠︎",()->section("push"));
             menuRow("App & Updates","v"+BuildConfig.VERSION_NAME,"↻",()->section("about"));
         }
@@ -663,7 +677,18 @@ public final class MainActivity extends Activity {
             if(fromUser)requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION},11);
             return;
         }
-        lastLocationAttempt=SystemClock.elapsedRealtime();watchLocation.start(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED,powerSaver.active);
+        lastLocationAttempt=SystemClock.elapsedRealtime();watchLocation.start(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED,powerSaver.active,!OfflineTimetable.online(this));
+    }
+    private void maybeUpdateTimetable(boolean force){
+        if(!active||timetableRequest!=null&&!timetableRequest.isDone()||!force&&!repo.timetable.due(System.currentTimeMillis()))return;
+        if(!OfflineTimetable.online(this)){if(force){repo.timetable.updateMessage="Kein Internet. Zum Aktualisieren verbinden.";if(screen.equals("more"))refreshMore();}return;}
+        RequestScope scope=new RequestScope();timetableScope=scope;
+        if(force){timetableManual=true;getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);repo.timetable.updateMessage="Fahrplan wird geprüft …";}
+        timetableRequest=timetableNetwork.submit(()->{
+            try{repo.timetable.update(scope,force);}catch(Exception ignored){}
+            handler.post(()->{if(active&&timetableScope==scope&&!scope.isCancelled()){if(timetableManual){timetableManual=false;if(!updateDownloading&&transfer==null)getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}if(screen.equals("more")&&settingsSection.equals("timetable"))refreshMore();else if(!screen.equals("more"))renderContent();}});
+        });
+        if(force&&screen.equals("more"))refreshMore();
     }
     private void stopLocation(){if(watchLocation!=null)watchLocation.stop();}
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==WatchPush.PERMISSION){push.permissionResult();return;}if(code==11&&active){locationDenied=!hasLocationPermission();if(!locationDenied)startLocation(false);else{locationMessage="Standort nicht erlaubt. Freigabe in den App-Einstellungen der Uhr ändern.";updateLocationUi();}}}

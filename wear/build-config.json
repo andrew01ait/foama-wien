@@ -1,13 +1,14 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.8.2",
-  "versionCode": 29,
+  "versionName": "0.9.0",
+  "versionCode": 31,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Einstellungen sind mit Zahnrad und klarem Namen statt Mehr erkennbar.",
-    "Menütitel und Navigationshinweise verwenden einheitlich Einstellungen.",
-    "Fahrzeuge-im-Anflug-Optimierungen und Karten-Zentriersymbol aus 0.8.1 bleiben enthalten."
+    "Wiener-Linien-Fahrplan vollständig offline auf der Uhr, auch für Nähe und Favoriten.",
+    "Feste Gültigkeit in Wiener Zeit; abgelaufene Fahrpläne werden gesperrt und mit Verbindung erneuert.",
+    "GPS startet ohne Internet sofort auf der Uhr und erhält mehr Zeit für den ersten Fix.",
+    "Letzte Position kurz im Arbeitsspeicher behalten; kein Standortverlauf und keine Hintergrundortung."
   ]
 }

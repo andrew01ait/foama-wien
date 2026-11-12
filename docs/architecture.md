@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.25 / Wear 0.8.2. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.28 / Wear 0.9.0. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -86,3 +86,9 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 0.11.23: Der aktive Positionseigentümer ist von den passiven Liniensitzungen getrennt. Ganzlinien-Poller und Stationspanel teilen die Zuständigkeit; Übernahme stoppt den bisherigen Request/Umfang vor neuem Start. Zusätzliche Warnungsanker lösen keine zusätzliche Fahrzeugberechnung aus. [Einzelne Fahrzeuglinie](vehicle-line-session.md).
 
 Wear 0.8.2: Stationswechsel teilt einen kanonischen Ganzrichtungs-Tracker pro Linie/Richtung/Quelldigest im Worker. Nur der bewusst ausgewählte Ausschnitt fragt höchstens acht RBLs ab. Die Uhr hält vier passive Antworten fünf Minuten im RAM; Quellenalter und Abrufsperre werden nie durch Lesen erneuert. Wechsel storniert die vorige Zuständigkeit; ein Quellenfehler lässt gehaltene Lagen grau altern. [Bedienung und Grenzen](wear-experience.md).
+
+0.11.26: `station-map-marker.mjs` verankert den sichtbaren Punkt statt eines unsichtbaren Abstands unter dem Label. Ein rein öffentlicher Index aus den bereits importierten GTFS-Linienpaketen wählt einen tatsächlich bedienten Plattformpunkt anhand exakter Stations-/Linien-/Modusidentität und Kalender. Er ändert weder Katalog-/Gehzeitkoordinaten noch Monitor-/Fahrzeugbudgets. [Vertrag](station-map-points.md).
+
+## Native Offline-Daten ab 0.9.0
+
+`OfflineTimetable` liest das vollständige gebündelte ZIP und bis zu zwei spätere, geprüfte Pakete. Kalendergrenzen werden bei jeder Abfrage neu geprüft. Aktualisierung läuft ausschließlich mit aktiver Activity und Verbindung, auf einem getrennten cancellierbaren Worker; API-/Fahrzeugbudgets bleiben erhalten. Die manuelle Erneuerung hält nur das sichtbare Display an. Keine Favoriten/GPS im Download. [Vollständiger Datenvertrag](wear-offline.md).

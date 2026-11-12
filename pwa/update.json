@@ -1,21 +1,22 @@
 {
-  "version": "0.11.25",
-  "wearVersionCode": 29,
-  "wearApkUrl": "/apk/foama-wien-wear-0.8.2.apk",
-  "wearApkSha256": "00797d5fe36588291b45685f651250260fc5011314c219740fb3fc5f0f50d972",
-  "changelog": "Uhr: Zahnrad und klarer Name Einstellungen statt Mehr. Einheitliche Menütitel und Navigation; Fahrzeugoptimierungen aus 0.8.1 enthalten.",
-  "wearVersion": "0.8.2",
+  "version": "0.11.28",
+  "wearVersionCode": 31,
+  "wearApkUrl": "/apk/foama-wien-wear-0.9.0.apk",
+  "wearApkSha256": "01a2fd9c1bf098afef65c7e6212e3bee101a11c1ff9b8e4661ca1d36a7c381cc",
+  "changelog": "Wiener Offline-Fahrplan für die Uhr mit festem Gültigkeitsdatum und verbesserter GPS-Suche ohne Internet.",
+  "wearVersion": "0.9.0",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 5217738,
+  "wearApkBytes": 7196177,
   "wearMinSdk": 30,
-  "wearChangelog": "Einstellungen sind mit Zahnrad und klarem Namen statt Mehr erkennbar. Menütitel und Navigationshinweise verwenden einheitlich Einstellungen. Fahrzeuge-im-Anflug-Optimierungen und Karten-Zentriersymbol aus 0.8.1 bleiben enthalten.",
+  "wearChangelog": "Wiener-Linien-Fahrplan vollständig offline auf der Uhr, auch für Nähe und Favoriten. Feste Gültigkeit in Wiener Zeit; abgelaufene Fahrpläne werden gesperrt und mit Verbindung erneuert. GPS startet ohne Internet sofort auf der Uhr und erhält mehr Zeit für den ersten Fix. Letzte Position kurz im Arbeitsspeicher behalten; kein Standortverlauf und keine Hintergrundortung.",
   "wearReleaseNotes": [
-    "Einstellungen sind mit Zahnrad und klarem Namen statt Mehr erkennbar.",
-    "Menütitel und Navigationshinweise verwenden einheitlich Einstellungen.",
-    "Fahrzeuge-im-Anflug-Optimierungen und Karten-Zentriersymbol aus 0.8.1 bleiben enthalten."
+    "Wiener-Linien-Fahrplan vollständig offline auf der Uhr, auch für Nähe und Favoriten.",
+    "Feste Gültigkeit in Wiener Zeit; abgelaufene Fahrpläne werden gesperrt und mit Verbindung erneuert.",
+    "GPS startet ohne Internet sofort auf der Uhr und erhält mehr Zeit für den ersten Fix.",
+    "Letzte Position kurz im Arbeitsspeicher behalten; kein Standortverlauf und keine Hintergrundortung."
   ],
   "releaseNotes": [
-    "Uhr: Zahnrad und klarer Name Einstellungen statt Mehr.",
-    "Einheitliche Menütitel und Navigation; Fahrzeugoptimierungen aus 0.8.1 enthalten."
+    "Uhr-App mit vollständigem Wiener Offline-Fahrplan und geprüftem Gültigkeitsdatum.",
+    "Offline-GPS-Suche verbessert; Fahrplanstatus und Aktualisierung direkt in den Uhr-Einstellungen."
   ]
 }

@@ -1,6 +1,20 @@
-# foama – Branding v0.11.6
+# foama – Branding ab PWA 0.11.27 / Wear 0.8.3
 
-Master: `pwa/icons/foama-mark.svg`, die vom Nutzer gewählte Variante **Bahn + Schiene mit Lächeln**. Mintfarbene Kontur auf Navy, zwei helle Punkte als Augen und ein kleines Lächeln; kurzes Gleis mit zwei Schwellen. Als skalierbare native SVG umgesetzt, ohne Beschriftung oder Präsentationsrand. Header und Favicons verwenden denselben Master. `python3 scripts/render_icons.py` erzeugt die unversionierten 192-/512-Pixel-PNGs und passende versionierte Kopien gemäß `pwa/config.json`. Manifest, Apple-Touch-Icon, Offline-Shell und Benachrichtigungen verwenden die neuen Dateinamen, damit alte Caches das vorherige Logo nicht festhalten. Manifest-ID und Startadresse bleiben erhalten. Android bestimmt selbst, wann sich ein bereits installiertes Launcher-Symbol aktualisiert. Die Wear-APK 0.7.4 enthält weiterhin ihr bisheriges natives Symbol; dieser Release aktualisiert die PWA und Website.
+Verbindlicher Master ist `pwa/icons/foama-mark.svg`: die vom Nutzer gewählte **Bahn + Schiene mit Lächeln**. Mintfarbene Kontur auf Navy, zwei helle Augen, kleines Lächeln und kurzes Gleis. Die Maskable-Sicherheitsabstände des Masters bleiben erhalten.
+
+## Gemeinsame Erzeugung
+
+`python3 scripts/render_icons.py` rendert 192-/512-Pixel-PNGs und stabile Aliasdateien. Die Installationsdateinamen enthalten die ersten zwölf SHA-256-Zeichen des SVG-Masters; eine geänderte Grafik erhält neue URLs, ein reines App-Update keine neue Logoidentität. Manifest, Apple-Touch-Icon, Offline-Shell und Push verwenden denselben Inhalt.
+
+`python3 scripts/sync_branding.py` erzeugt `wear/app/src/main/res/drawable/app_icon.xml` aus genau diesem SVG, einschließlich Transformationen, runden Konturen, Augen und Lächeln. Der CLI-Builder führt dies vor dem Kompilieren der Android-Ressourcen aus. Normales und rundes Launcher-Symbol referenzieren die erzeugte Vektorgrafik. Unbekannte Formen/Transformationen lassen die Synchronisierung fehlschlagen, statt stillschweigend alte Symbole zu übernehmen. Der alte gefüllte Bahnvektor aus Wear 0.8.2 ist ersetzt.
+
+## Bereits installierte PWA
+
+Das Manifest bleibt unter `manifest.webmanifest` erreichbar; der Pfad, die App-ID, Startadresse und Scope bleiben stabil. Alte Manifest-URLs mit Versionsquery funktionieren über denselben Serverpfad weiter. Der Service Worker holt Manifeste zuerst aus dem Netz und verwendet gespeicherte Exemplare bei fehlender Verbindung.
+
+Chrome 144+ prüft Icons nur erneut, wenn sich deren Manifestmetadaten oder URLs ändern. Größere Logoänderungen sind optionale Identitätsupdates, die Nutzer über **Review app update** im App-Menü prüfen und bestätigen können. Die Website kann diesen Android-/Browserdialog nicht selbst bestätigen. App-Aktualisierung, Service-Worker-Aktivierung und Launcher-Symbol sind getrennte Vorgänge. Keine garantierte sofortige Änderung und keine Deinstallation zur Symbolaktualisierung vorsehen.
+
+Quelle: [Chrome-Team, 21. Januar 2026: A better way to update your web apps](https://developer.chrome.com/blog/improvements-to-web-app-updates). Die ältere Anleitung mit pauschaler 24-Stunden-Prüfung ist für Chrome 144+ nicht die maßgebliche Erklärung.
 
 ## U-Bahn-Linienfarben
 

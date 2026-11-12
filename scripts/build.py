@@ -60,6 +60,7 @@ def create_key(path,alias):
 
 def build(args):
     conf=json.loads(DEFAULT_CONFIG.read_text());check_config(conf)
+    call(sys.executable,ROOT/'scripts/sync_branding.py')
     call(sys.executable,ROOT/'scripts/sync_wear_assets.py')
     sdk=Path(args.sdk).expanduser().resolve();site=require_sensible_url(args.base_url or os.environ.get('FOAMA_BASE_URL',''))
     tools=sdk/'build-tools/34.0.0';aapt=sdk_command(tools/'aapt2');d8=sdk_command(tools/'d8');align=sdk_command(tools/'zipalign');signer=sdk_command(tools/'apksigner')

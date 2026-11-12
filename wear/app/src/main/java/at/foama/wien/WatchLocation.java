@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 
 /** Foreground-only acquisition: do not let an enabled but silent provider block GPS. */
 final class WatchLocation {
-    static final long FALLBACK_MS=8000, TIMEOUT_MS=30000;
+    static final long FALLBACK_MS=8000, TIMEOUT_MS=30000, OFFLINE_TIMEOUT_MS=90000;
     interface Callback {
         boolean onFix(Location fix);
         void onStatus(String message);
@@ -27,7 +27,7 @@ final class WatchLocation {
     private Runnable fallback,timeout;
     private int generation;
     private String settledProvider="";
-    private boolean running,fineAllowed,settled,hasFix,singleFix;
+    private boolean running,fineAllowed,settled,hasFix,singleFix,offlineMode;
 
     WatchLocation(LocationManager manager,Handler handler,Executor executor,Callback callback){
         this.manager=manager;this.handler=handler;this.executor=executor;this.callback=callback;
@@ -36,7 +36,10 @@ final class WatchLocation {
         start(fine,false);
     }
     void start(boolean fine,boolean once){
-        stop();fineAllowed=fine;singleFix=once;
+        start(fine,once,false);
+    }
+    void start(boolean fine,boolean once,boolean offline){
+        stop();fineAllowed=fine;singleFix=once;offlineMode=offline;
         if(manager==null){callback.onStatus("Ortung nicht verfügbar. Favoriten bleiben nutzbar.");return;}
         try{
             if(!manager.isLocationEnabled()){callback.onStatus("Standort auf der Uhr einschalten.");return;}
@@ -50,13 +53,13 @@ final class WatchLocation {
         }catch(RuntimeException e){callback.onStatus("Ortung nicht verfügbar. App-Freigabe prüfen.");return;}
         if(providers.isEmpty()){callback.onStatus(fine?"Keine Ortungsquelle verfügbar. Standorteinstellungen prüfen.":"Keine ungefähre Ortung verfügbar. Genauen Standort für foama-wien erlauben.");return;}
         running=true;settled=false;settledProvider="";hasFix=false;final int current=generation;
-        callback.onStatus("Position wird gesucht …");
+        callback.onStatus(offline?"GPS wird gesucht · offline kann das länger dauern. Bitte ins Freie gehen.":"Position wird gesucht …");
         // Check every enabled cache, not only the primary source. Repo validates age and values.
         for(String p:providers){try{Location cached=manager.getLastKnownLocation(p);if(cached!=null)deliver(cached,p,current,false);}catch(RuntimeException ignored){}}
         if(!valid(current))return;
         fallback=()->{
             if(!valid(current)||settled)return;
-            callback.onStatus(hasFix?"Standort nur ungefähr · suche weiter …":"Suche weiter · bitte kurz ins Freie gehen.");
+            callback.onStatus(hasFix?"Standort nur ungefähr · suche weiter …":offlineMode?"GPS-Suche ohne Internet · bitte im Freien kurz warten.":"Suche weiter · bitte kurz ins Freie gehen.");
             for(String p:providers){if(!valid(current)||settled)break;begin(p,current);}
         };
         timeout=()->{
@@ -64,8 +67,10 @@ final class WatchLocation {
             boolean retained=hasFix;stop();
             callback.onStatus(retained?"Kein genauer Standort. Letzte Position bleibt als ungefähr markiert. Erneut versuchen oder ins Freie gehen.":"Noch keine Position. Bitte ins Freie gehen und erneut versuchen. Favoriten bleiben nutzbar.");
         };
-        handler.postDelayed(fallback,FALLBACK_MS);handler.postDelayed(timeout,TIMEOUT_MS);
+        handler.postDelayed(fallback,FALLBACK_MS);handler.postDelayed(timeout,offline&&fine?OFFLINE_TIMEOUT_MS:TIMEOUT_MS);
         for(String p:providers){if(begin(p,current))break;}
+        // A phone/network source may be enabled but silent without internet. Start the watch GPS now.
+        if(offline&&fine&&providers.contains(LocationManager.GPS_PROVIDER))begin(LocationManager.GPS_PROVIDER,current);
     }
     private boolean valid(int current){return running&&current==generation;}
     private boolean begin(String provider,int current){
@@ -73,7 +78,7 @@ final class WatchLocation {
         LocationListener listener=new LocationListener(){
             @Override public void onLocationChanged(Location fix){deliver(fix,provider,current,true);}
             @Override public void onProviderEnabled(String p){}
-            @Override public void onProviderDisabled(String p){handler.post(()->{if(valid(current))start(fineAllowed,singleFix);});}
+            @Override public void onProviderDisabled(String p){handler.post(()->{if(valid(current))start(fineAllowed,singleFix,offlineMode);});}
         };
         boolean started=false;
         try{manager.requestLocationUpdates(provider,20000,0,listener,Looper.getMainLooper());listeners.put(provider,listener);started=true;}catch(RuntimeException ignored){}

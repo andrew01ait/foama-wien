@@ -6,8 +6,9 @@
 
 ## Funktionen
 
-- Uhr-App 0.8.2: adaptive Abfahrten, Stationskarte, geschätzte Fahrzeuge im Anflug, fokussierte Routenschritte und Schnellzugriff-Tile. [Bedienung und Grenzen](docs/wear-experience.md).
+- Uhr-App 0.9.0: vollständiger Wiener Offline-Fahrplan mit festem Gültigkeitsdatum und robusterer GPS-Suche ohne Internet; adaptive Abfahrten, Stationskarte, geschätzte Fahrzeuge im Anflug, fokussierte Routenschritte und Schnellzugriff-Tile. [Bedienung und Grenzen](docs/wear-experience.md).
 
+- Standortkarte mit sichtbaren Haltepunkten, verbundenen Linienlabels und Plattformkoordinaten aus dem vorhandenen Wiener Fahrplan. [Details](docs/station-map-points.md).
 - Aktueller Standort als blauer Punkt mit Genauigkeitskreis auf allen interaktiven Karten, soweit freigegeben und frisch verfügbar; eigener Knopf zum Zentrieren.
 - Fahrzeuge im Anflug erhalten Prognosen und Fahrtkennungen beim Wechsel zwischen Verbindungsdetail, A nach B und ganzer Linie. Ein kleiner Ladebalken mit verständlichem Status und nächster Aktualisierung wechselt automatisch zur Fahrzeugansicht.
 - Einheitliche Warnmeldungen in Übersicht, Verbindungsdetail und A nach B, mit Quellenstand und aufklappbaren Details ohne doppelte Symbole. Gespeicherte Wege übernehmen vorhandene Warnungen sofort beim Öffnen.
@@ -24,7 +25,7 @@
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.11.25 und Wear 0.8.2**, nativer Versionscode **29**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.11.28 und Wear 0.9.0**, nativer Versionscode **31**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

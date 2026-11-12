@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.*;
 
 @RunWith(RobolectricTestRunner.class) @Config(sdk=34) @LooperMode(LooperMode.Mode.PAUSED)
 public class DepartureTimingTest {
-    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();}
+    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();WatchTestEnvironment.online();}
     Repo.Stop station(Repo repo,String city){for(Repo.Stop s:repo.stops)if(s.city.equals(city))return s;throw new AssertionError(city);}
     static final class Connection extends HttpURLConnection {final int status;Connection(URL url,int status){super(url);this.status=status;}public void disconnect(){}public boolean usingProxy(){return false;}public void connect(){}public int getResponseCode(){return status;}public InputStream getInputStream(){return new ByteArrayInputStream("{\"stations\":[],\"departures\":[]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));}}
     @Test public void retryBelongsToFailedCityWhileThirtySecondSpacingAppliesToEveryCity()throws Exception{

@@ -16,7 +16,7 @@ import java.time.Duration;
 @RunWith(RobolectricTestRunner.class) @Config(sdk=34,qualifiers="w227dp-h227dp-round-xhdpi") @LooperMode(LooperMode.Mode.PAUSED)
 public class CityRouteViewTest {
     ActivityController<MainActivity> controller;MainActivity app;
-    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
+    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();WatchTestEnvironment.online();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
     @After public void cleanup(){controller.stop().destroy();}
     Repo.Stop stop(String city){for(Repo.Stop s:app.repo.stops)if(s.city.equals(city))return s;throw new AssertionError(city);}
     JSONObject route(String city)throws Exception{

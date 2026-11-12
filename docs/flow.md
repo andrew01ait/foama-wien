@@ -1,3 +1,7 @@
+## Uhr 0.9.0 · Offline und Erneuerung
+
+App öffnen → lokaler Kalender prüfen → Nähe mit echtem/kurz behaltenem Fix oder Favoriten/Routen ohne GPS → geplante Zeiten mit FAHRPLAN. Mit Verbindung haben frische passende API-Zeiten Vorrang. Einstellungen → Offline-Fahrplan → Datum/Status → Fahrplan aktualisieren. Nach Ablauf nur klare Aktualisierungsaufforderung bzw. echte Live-Zeiten mit Verbindung. Ein Download verlängert keine Kalenderdaten. Offline-GPS sofort bis zu 90 Sekunden, Hintergrund stoppt die Suche. [Grenzen und Betriebsworkflow](wear-offline.md).
+
 ## PWA 0.11.17 · automatischer Start und Ankunft am gewählten Halt · 12.11.2026
 
 Die ganze Fahrzeugseite beginnt den Live-Abgleich unmittelbar nach erfolgreich geladener und geprüfter Linienbasis. Start-/Pause-Button und Hinweise auf einen nötigen Klick entfernt. Linien-, Richtungs-, Varianten- und Abschnittwechsel starten den gewählten gültigen Umfang automatisch neu, innerhalb derselben globalen 30-s-/Quellencache-/Backoff-Grenzen. Hintergrund und Pagehide stoppen Requests und Bewegung; Rückkehr setzt automatisch fort. Während fehlender oder fehlerhafter Linienbasis keine Monitorabfrage. Die eingebetteten Stationsbereiche bleiben bewusst geschlossen und laden erst beim Öffnen. Wear 0.7.4/26 unverändert.

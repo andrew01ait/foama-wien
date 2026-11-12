@@ -16,7 +16,7 @@ import java.util.*;
 @RunWith(RobolectricTestRunner.class) @Config(sdk=34,qualifiers="w227dp-h227dp-round-xhdpi") @LooperMode(LooperMode.Mode.PAUSED)
 public class FavoriteViewTest {
     private ActivityController<MainActivity> controller;private MainActivity app;
-    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
+    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();WatchTestEnvironment.online();controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();}
     @After public void cleanup(){controller.stop().destroy();}
     private JSONObject route()throws Exception{return new JSONObject(new String(Files.readAllBytes(Paths.get("tests/fixtures/transfer-routes-webcrypto.json")),StandardCharsets.UTF_8)).getJSONObject("value").getJSONArray("journeys").getJSONObject(0).put("name","Arbeitsweg");}
     private TextView find(View v,String label){if(v instanceof TextView&&((TextView)v).getText().toString().equals(label))return (TextView)v;if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++){TextView found=find(((ViewGroup)v).getChildAt(i),label);if(found!=null)return found;}return null;}
