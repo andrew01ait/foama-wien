@@ -1,3 +1,11 @@
+## PWA 0.11.29 / Wear 0.9.1 · Update-Hinweis und Kartenliste · 12.11.2026
+
+Update-Hinweise zeigen Titel und aktuelle App-Version getrennt. Auf Handybreiten bis 600 px steht der mindestens 44 px hohe Button unter dem Text; Desktop behält die seitliche Anordnung. Schrumpfbare Textspalte, natürliche Zeilenumbrüche und kürzerer Offline-/Push-Hinweis erhalten die unterscheidbaren App-/Komponentenfälle. Aktivierung, Fehlerwiederholung und Nutzerbestätigung unverändert. Neuer PWA-Cache.
+
+Die Uhr-Karte bietet oben einen dauerhaften Liste-Knopf, unabhängig von der Stationsauswahl. Linie zeigen filtert gezeichnete und antippbare Stationspunkte sowie die Liste auf dieselbe angezeigte Strecke. Alle Stationen zeigen entfernt die Linienebene und stellt den allgemeinen Katalogfilter wieder her. Auswahl bleibt erhalten; keine neue Standort-/API-/Kachelabfrage. Karte verwendet dieselbe Offline-GPS-Akquisition wie die Hauptansicht. Originalpaket und Signatur erhalten, Wear 0.9.1 / Code 32.
+
+210 native Tests bestanden, Kartenbilder bei 192 und 240 dp visuell geprüft. Die lokale Browserroute war durch die Browser-Zugriffspolicy gesperrt; responsive PWA-Darstellung deshalb nicht visuell abgenommen. Native physische OnePlus-Abnahme bleibt offen. Details: docs/wear-os-release-0.9.1.md.
+
 ## Uhr 0.9.0 · Offline und Erneuerung
 
 App öffnen → lokaler Kalender prüfen → Nähe mit echtem/kurz behaltenem Fix oder Favoriten/Routen ohne GPS → geplante Zeiten mit FAHRPLAN. Mit Verbindung haben frische passende API-Zeiten Vorrang. Einstellungen → Offline-Fahrplan → Datum/Status → Fahrplan aktualisieren. Nach Ablauf nur klare Aktualisierungsaufforderung bzw. echte Live-Zeiten mit Verbindung. Ein Download verlängert keine Kalenderdaten. Offline-GPS sofort bis zu 90 Sekunden, Hintergrund stoppt die Suche. [Grenzen und Betriebsworkflow](wear-offline.md).

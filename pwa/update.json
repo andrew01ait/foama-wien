@@ -1,22 +1,21 @@
 {
-  "version": "0.11.28",
-  "wearVersionCode": 31,
-  "wearApkUrl": "/apk/foama-wien-wear-0.9.0.apk",
-  "wearApkSha256": "01a2fd9c1bf098afef65c7e6212e3bee101a11c1ff9b8e4661ca1d36a7c381cc",
-  "changelog": "Wiener Offline-Fahrplan für die Uhr mit festem Gültigkeitsdatum und verbesserter GPS-Suche ohne Internet.",
-  "wearVersion": "0.9.0",
+  "version": "0.11.29",
+  "wearVersionCode": 32,
+  "wearApkUrl": "/apk/foama-wien-wear-0.9.1.apk",
+  "wearApkSha256": "ec1a9223256a41cc00d3eeab4470c1343617afc93bef031bb188104ad4b4323c",
+  "changelog": "Update-Hinweise auf Handys mit klaren Textzeilen und Button darunter. Uhr-Karte mit dauerhaft erreichbarer Stationsliste und übersichtlicher Linienansicht.",
+  "wearVersion": "0.9.1",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 7196177,
   "wearMinSdk": 30,
-  "wearChangelog": "Wiener-Linien-Fahrplan vollständig offline auf der Uhr, auch für Nähe und Favoriten. Feste Gültigkeit in Wiener Zeit; abgelaufene Fahrpläne werden gesperrt und mit Verbindung erneuert. GPS startet ohne Internet sofort auf der Uhr und erhält mehr Zeit für den ersten Fix. Letzte Position kurz im Arbeitsspeicher behalten; kein Standortverlauf und keine Hintergrundortung.",
+  "wearChangelog": "Stationsliste auf der Karte bleibt auch nach einer Stationsauswahl erreichbar. Linienansicht zeigt nur Haltestellen der gewählten Strecke; alle Stationen lassen sich wieder einblenden. Offline-GPS und der vollständige Wiener Fahrplan mit festem Ablaufdatum bleiben verfügbar.",
   "wearReleaseNotes": [
-    "Wiener-Linien-Fahrplan vollständig offline auf der Uhr, auch für Nähe und Favoriten.",
-    "Feste Gültigkeit in Wiener Zeit; abgelaufene Fahrpläne werden gesperrt und mit Verbindung erneuert.",
-    "GPS startet ohne Internet sofort auf der Uhr und erhält mehr Zeit für den ersten Fix.",
-    "Letzte Position kurz im Arbeitsspeicher behalten; kein Standortverlauf und keine Hintergrundortung."
+    "Stationsliste auf der Karte bleibt auch nach einer Stationsauswahl erreichbar.",
+    "Linienansicht zeigt nur Haltestellen der gewählten Strecke; alle Stationen lassen sich wieder einblenden.",
+    "Offline-GPS und der vollständige Wiener Fahrplan mit festem Ablaufdatum bleiben verfügbar."
   ],
   "releaseNotes": [
-    "Uhr-App mit vollständigem Wiener Offline-Fahrplan und geprüftem Gültigkeitsdatum.",
-    "Offline-GPS-Suche verbessert; Fahrplanstatus und Aktualisierung direkt in den Uhr-Einstellungen."
+    "Update-Hinweis auf schmalen Displays mit separater Versionszeile und großem Button darunter.",
+    "Uhr-Karte: Stationsliste jederzeit öffnen und nur die Haltestellen einer ausgewählten Linie anzeigen."
   ]
 }

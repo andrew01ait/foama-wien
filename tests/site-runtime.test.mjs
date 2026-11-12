@@ -27,7 +27,7 @@ test('the site retains app and diagnostics routes, serves real bytes and allows 
  }
  assert.equal((await worker.fetch(new Request('https://foama.example/missing'),{},{})).status,404);
  const health=await worker.fetch(new Request('https://foama.example/api/health'),{},{});
- assert.equal((await health.json()).version,'0.11.28');
+ assert.equal((await health.json()).version,'0.11.29');
 });
 test('line-wide construction is added from the official notice feed while unrelated lift closures stay out',async()=>{
  const oldFetch=globalThis.fetch,oldCaches=globalThis.caches;const saved=new Map(),jobs=[];

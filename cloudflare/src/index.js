@@ -26,7 +26,7 @@ export default {
     const origin=request.headers.get('Origin');if(origin&&origin!==url.origin){return fail('Nur gleiche Website erlaubt',403);}
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':url.origin,'access-control-allow-methods':'GET,PUT,POST,DELETE,OPTIONS','access-control-allow-headers':'Content-Type','access-control-max-age':'300'}});
     if(env.DB&&!url.pathname.startsWith('/api/transfer/'))ctx.waitUntil(purgeTransfers(env.DB).catch(()=>{}));
-    if(url.pathname==='/api/health')return json({ok:true,service:'foama-wien',version:'0.11.28',serverTime:new Date().toISOString()});
+    if(url.pathname==='/api/health')return json({ok:true,service:'foama-wien',version:'0.11.29',serverTime:new Date().toISOString()});
     if(url.pathname.startsWith('/api/push/')||url.pathname==='/api/disruptions')return pushApi(request,env);
     if(url.pathname==='/api/regional/board')return regionalApi(request,env);
     if(url.pathname.startsWith('/api/journeys/'))return journeyApi(request,env);

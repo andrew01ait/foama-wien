@@ -1,3 +1,11 @@
+## PWA 0.11.29 / Wear 0.9.1 · Update-Hinweis und Kartenliste · 12.11.2026
+
+Update-Hinweise zeigen Titel und aktuelle App-Version getrennt. Auf Handybreiten bis 600 px steht der mindestens 44 px hohe Button unter dem Text; Desktop behält die seitliche Anordnung. Schrumpfbare Textspalte, natürliche Zeilenumbrüche und kürzerer Offline-/Push-Hinweis erhalten die unterscheidbaren App-/Komponentenfälle. Aktivierung, Fehlerwiederholung und Nutzerbestätigung unverändert. Neuer PWA-Cache.
+
+Die Uhr-Karte bietet oben einen dauerhaften Liste-Knopf, unabhängig von der Stationsauswahl. Linie zeigen filtert gezeichnete und antippbare Stationspunkte sowie die Liste auf dieselbe angezeigte Strecke. Alle Stationen zeigen entfernt die Linienebene und stellt den allgemeinen Katalogfilter wieder her. Auswahl bleibt erhalten; keine neue Standort-/API-/Kachelabfrage. Karte verwendet dieselbe Offline-GPS-Akquisition wie die Hauptansicht. Originalpaket und Signatur erhalten, Wear 0.9.1 / Code 32.
+
+210 native Tests bestanden, Kartenbilder bei 192 und 240 dp visuell geprüft. Die lokale Browserroute war durch die Browser-Zugriffspolicy gesperrt; responsive PWA-Darstellung deshalb nicht visuell abgenommen. Native physische OnePlus-Abnahme bleibt offen. Details: docs/wear-os-release-0.9.1.md.
+
 ## Wear 0.9.0 / PWA 0.11.28 · Offline-Fahrplan und GPS · 12.11.2026
 
 Vollständiger vorhandener Wiener-Linien-Fahrplan direkt in der APK; rund 1,97 MB, 1.695 Stationen, gültig 09.11.–12.12.2026. Jede Berechnung prüft Wiener Kalendergrenzen; danach keine alten Offline-Abfahrten. Nähe, Stations-/Linienfavoriten und gespeicherte Routen verwenden dieselbe lokale Basis, frische passende API-Gruppen haben Vorrang. Eindeutige Zielnormalisierung einschließlich S/U-Suffixen erhalten. Keine Offline-Zeilen als frische API-Belege oder sichere Geh-Ampel ausgeben.

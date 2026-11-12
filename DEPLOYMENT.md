@@ -1,6 +1,6 @@
 # Veröffentlichung und Betrieb
 
-Aktueller App-Stand: PWA 0.11.28 / Wear 0.9.0, nativer Code 31. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+Aktueller App-Stand: PWA 0.11.29 / Wear 0.9.1, nativer Code 32. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
 
 ## Drei getrennte Ergebnisse
 
@@ -87,6 +87,6 @@ Ab 0.11.16 teilen identische Monitorbatches und Zusatzmeldungsabrufe laufende Re
 
 Ab 0.11.26 erzeugt der Linienkartenimport auch `pwa/data/station-map-points.json`. Ein vorhandener unveränderter Linienkartenstand lässt sich mit `python3 scripts/prepare_station_map_points.py` ableiten; Digest und Quellbindung werden geprüft. Den Index zusammen mit den Kartenpaketen, dem Quell-ZIP und dem Service-Worker-Cache veröffentlichen.
 
-## Native Fahrplanerneuerung ab Wear 0.9.0
+## Native Fahrplanerneuerung ab Wear 0.9.1
 
 Nach einem echten neuen GTFS-Import `python3 scripts/prepare_watch_timetable.py` ausführen. Der Site-Build erzeugt denselben kompletten Download und dessen Metadaten; beide zusammen veröffentlichen. Die bereits installierte Uhr kann die neue Periode ohne APK-Update laden. Alte Kalender niemals verlängern. App-Prüfung ersetzt keinen Server-Neuimport. [Vollständiger Ablauf](docs/wear-offline.md).

@@ -1,7 +1,7 @@
 import {reserveJourneyRequest} from './journey-service.mjs';
 import {normalizeRegionalBoard,normalizeLinzBoard} from '../../pwa/src/regional-departures.mjs';
 
-const UA='foama-wien/0.11.28 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
+const UA='foama-wien/0.11.29 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
 const inflight=new Map();
 const answer=(body,status=200)=>Response.json(body,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 async function boundedJson(response){

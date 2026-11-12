@@ -1,4 +1,4 @@
-# Uhr-App 0.9.0: Abfahrten zuerst
+# Uhr-App 0.9.1: Abfahrten zuerst
 
 Die Hauptziele bleiben Nähe, Favoriten und A nach B. Abfahrtszeit, nächste Verbindung, Gehzeit und Erreichbarkeit haben Vorrang. Karten und Fahrzeuge sind bewusst optionale Detailansichten. Keine neuen dauerhaften Jobs, keine Ortung oder Abfahrtsabfragen bei ausgeschaltetem Bildschirm.
 
@@ -14,6 +14,7 @@ Die Hauptziele bleiben Nähe, Favoriten und A nach B. Abfahrtszeit, nächste Ver
 
 | Funktion | Weg auf der Uhr |
 | --- | --- |
+| Stationsliste | Karte → Liste; vor und nach einer Stationswahl erreichbar. |
 | Stationskarte | Nähe → Karte neben den Verkehrsmitteln; alternativ Station öffnen → nach unten zu Station auf Karte. |
 | Wiener Linienverlauf | Stationspunkt antippen → Stationsname am unteren Kartenrand → Linie … zeigen. |
 | Fahrzeuge im Anflug | Eine konkrete Wiener U-Bahn-, Tram- oder Busverbindung öffnen → nach unten zu Fahrzeuge im Anflug. |
@@ -53,7 +54,7 @@ Bis tatsächlich sichtbare Fahrzeuge vorhanden sind, erscheinen nur Prognose, ku
 
 ## Veröffentlichung und Prüfung
 
-Paket und ursprüngliche Release-Signatur bleiben erhalten; 0.9.0 ist Code 31. Der Update-Download und die Installer-Übergabe aus 0.7.4 bleiben bestehen. Das Tile verwendet AndroidX Tiles 1.4.1 / ProtoLayout 1.2.1; die ursprüngliche Datei `firebase-dependencies.json` hält aus Kompatibilitätsgründen jetzt auch diese nativen Abhängigkeiten und ihre SHA-256-Prüfsummen fest.
+Paket und ursprüngliche Release-Signatur bleiben erhalten; 0.9.1 ist Code 32. Der Update-Download und die Installer-Übergabe aus 0.7.4 bleiben bestehen. Das Tile verwendet AndroidX Tiles 1.4.1 / ProtoLayout 1.2.1; die ursprüngliche Datei `firebase-dependencies.json` hält aus Kompatibilitätsgründen jetzt auch diese nativen Abhängigkeiten und ihre SHA-256-Prüfsummen fest.
 
 Vor Veröffentlichung: native Tests, Originalsignatur, APK-Metadaten, zipalign, Größe/Hash und öffentlicher Bytevergleich. Zusätzlich auf der physischen Uhr: Update ohne Deinstallation, Schriftgrößen, Kartenzoom/Drehkrone/Back, echter GPS-Fix, Tile hinzufügen und Vordergrund-/Display-aus-Verhalten prüfen.
 
@@ -64,3 +65,7 @@ Am Ende der Hauptansichten steht der bisherige Mehr-Zugang ab 0.8.2 als **Einste
 ## Offline ab 0.9.0
 
 Einstellungen → Offline-Fahrplan zeigt Gültigkeit und manuelle Erneuerung. Vollständige Wiener Sollzeiten sind bereits mit der APK verfügbar, auch für Nähe, Stations-/Linienfavoriten und importierte Routen. Fester Ablauf in Wiener Zeit; kein Verlängern durch Download oder Neustart. Ohne Netz GPS sofort und bis zu 90 Sekunden suchen; letzte echte Position höchstens zehn Minuten nur im RAM behalten. [Kalender-, Update- und Standortvertrag](wear-offline.md).
+
+## Karte ab 0.9.1
+
+Liste bleibt oben immer erreichbar. Die gewählte Linie beschränkt Zeichnung, Antippen und Liste auf die angezeigte Strecke. Stationsaktionen → Alle Stationen zeigen stellt den allgemeinen Katalogfilter wieder her. Eigene Position und gewählter Halt bleiben erhalten. [Prüfung und Grenzen](wear-os-release-0.9.1.md).

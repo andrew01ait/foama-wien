@@ -1,14 +1,13 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.9.0",
-  "versionCode": 31,
+  "versionName": "0.9.1",
+  "versionCode": 32,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Wiener-Linien-Fahrplan vollständig offline auf der Uhr, auch für Nähe und Favoriten.",
-    "Feste Gültigkeit in Wiener Zeit; abgelaufene Fahrpläne werden gesperrt und mit Verbindung erneuert.",
-    "GPS startet ohne Internet sofort auf der Uhr und erhält mehr Zeit für den ersten Fix.",
-    "Letzte Position kurz im Arbeitsspeicher behalten; kein Standortverlauf und keine Hintergrundortung."
+    "Stationsliste auf der Karte bleibt auch nach einer Stationsauswahl erreichbar.",
+    "Linienansicht zeigt nur Haltestellen der gewählten Strecke; alle Stationen lassen sich wieder einblenden.",
+    "Offline-GPS und der vollständige Wiener Fahrplan mit festem Ablaufdatum bleiben verfügbar."
   ]
 }

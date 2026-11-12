@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.28 / Wear 0.9.0. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.29 / Wear 0.9.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -92,3 +92,5 @@ Wear 0.8.2: Stationswechsel teilt einen kanonischen Ganzrichtungs-Tracker pro Li
 ## Native Offline-Daten ab 0.9.0
 
 `OfflineTimetable` liest das vollständige gebündelte ZIP und bis zu zwei spätere, geprüfte Pakete. Kalendergrenzen werden bei jeder Abfrage neu geprüft. Aktualisierung läuft ausschließlich mit aktiver Activity und Verbindung, auf einem getrennten cancellierbaren Worker; API-/Fahrzeugbudgets bleiben erhalten. Die manuelle Erneuerung hält nur das sichtbare Display an. Keine Favoriten/GPS im Download. [Vollständiger Datenvertrag](wear-offline.md).
+
+Kartenfilter ab Wear 0.9.1: Die dargestellte Liniengeometrie und die Menge ihrer echten Stations-IDs werden gemeinsam übernommen. Zeichnen, Trefferprüfung und Liste verwenden dieselbe sichtbare Stationsmenge; eine gescheiterte Linienwahl verändert den vorhandenen Stand nicht. Es entsteht kein neuer Netzwerkabruf. Der Listenzugang ist von der ausgewählten Station unabhängig.

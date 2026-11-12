@@ -249,7 +249,15 @@ button.station-line-button.line-unconfirmed>.route-pill,.connection-destination.
 /* Public app invitation; local data is never part of the shared link. */
 #shareApp{min-width:44px;min-height:44px}#shareApp svg{display:block}.share-link{display:grid;gap:6px;margin:18px 0}.share-link label{font-size:12px;color:var(--muted)}.share-link input{width:100%;min-width:0;padding:11px;border:1px solid var(--stroke);border-radius:10px;color:var(--text);background:var(--bg);font-size:13px}.share-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.share-actions a{display:inline-flex;align-items:center;text-decoration:none;min-height:44px}#appShareStatus{min-height:1.5em;margin-top:12px}
 
-.app-update{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--mint);border-radius:14px;background:var(--surface);margin:0 0 18px}.app-update[hidden]{display:none}.app-update strong{font-size:13px}.app-update p{font-size:11px;color:var(--muted);margin:4px 0 0}.app-update p:empty{display:none}.app-update .primary-btn{font-size:12px;flex-shrink:0}@media(max-width:370px){.app-update{align-items:stretch;flex-direction:column}.app-update .primary-btn{width:100%}}
+.app-update{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px 16px;padding:14px;border:1px solid var(--mint);border-radius:14px;background:var(--surface);margin:0 0 18px}
+.app-update[hidden]{display:none}
+.app-update-copy{min-width:0;overflow-wrap:anywhere}
+.app-update strong{display:block;font-size:14px;line-height:1.45;text-wrap:pretty}
+.app-update p{font-size:12px;line-height:1.5;color:var(--muted);margin:5px 0 0}
+.app-update p:empty{display:none}
+.app-update-version{font-variant-numeric:tabular-nums}
+.app-update .primary-btn{min-height:44px;font-size:14px;white-space:nowrap}
+@media(max-width:600px){.app-update{grid-template-columns:minmax(0,1fr)}.app-update .primary-btn{width:100%}}
 
 /* Header actions share the same touch target and vector proportions. */
 .head-actions .icon-btn{width:44px;height:44px;min-width:44px;min-height:44px;flex:0 0 44px}.head-actions .icon-btn svg{display:block;width:22px;height:22px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
