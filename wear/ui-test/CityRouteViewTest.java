@@ -49,13 +49,13 @@ public class CityRouteViewTest {
     }
     @Test public void navigationRemainsSelectedAndSettingsReturnToRoutesAfterCityChange()throws Exception{
         app.repo.journeys.merge(new JSONArray().put(route("wien")));app.openRoutes();assertNotNull(app.getWindow().getDecorView().findViewWithTag("main-navigation"));assertTrue(((View)find(app.getWindow().getDecorView(),"A nach B").getParent()).isSelected());
-        click("Mehr");click("Stadtprofil");click("Graz");app.navigateBack();app.navigateBack();assertEquals("routes",app.screen);assertNotNull(find(app.getWindow().getDecorView(),"Noch keine Routen in Graz"));
+        click("Einstellungen");click("Stadtprofil");click("Graz");app.navigateBack();app.navigateBack();assertEquals("routes",app.screen);assertNotNull(find(app.getWindow().getDecorView(),"Noch keine Routen in Graz"));
         app.repo.nextFetchElapsed=Long.MAX_VALUE;click("Nähe");assertEquals("home",app.screen);assertEquals("near",app.view);assertEquals(Long.MAX_VALUE,app.repo.nextFetchElapsed);click("A nach B");click("Favoriten");assertEquals("home",app.screen);assertEquals("fav",app.view);
     }
     private TextView cityTitle(){TextView title=app.getWindow().getDecorView().findViewWithTag("main-title");assertNotNull(title);return title;}
     @Test public void titleFollowsAllManualCityProfilesAndMainDestinations(){
         for(String city:new String[]{"graz","linz","salzburg","wien"}){
-            app.openRoutes();click("Mehr");click("Stadtprofil");click(CityProfiles.name(city));app.navigateBack();app.navigateBack();assertEquals(CityProfiles.name(city),cityTitle().getText().toString());
+            app.openRoutes();click("Einstellungen");click("Stadtprofil");click(CityProfiles.name(city));app.navigateBack();app.navigateBack();assertEquals(CityProfiles.name(city),cityTitle().getText().toString());
             for(String view:new String[]{"near","fav"}){app.changeView(view);assertEquals(CityProfiles.name(city),cityTitle().getText().toString());}
             app.openRoutes();assertEquals(CityProfiles.name(city),cityTitle().getText().toString());
         }

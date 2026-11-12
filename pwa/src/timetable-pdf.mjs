@@ -1,7 +1,7 @@
-import {lineDayDepartures,hourlyTimetable} from './line-timetable.mjs?v=0.11.24';
-import {timetableDate} from './timetable.mjs?v=0.11.24';
-import {pdfRoutePatterns,pdfMapViewport,pdfMapPoint} from './timetable-pdf-map.mjs?v=0.11.24';
-import {routeColor} from './journey-geometry.mjs?v=0.11.24';
+import {lineDayDepartures,hourlyTimetable} from './line-timetable.mjs?v=0.11.25';
+import {timetableDate} from './timetable.mjs?v=0.11.25';
+import {pdfRoutePatterns,pdfMapViewport,pdfMapPoint} from './timetable-pdf-map.mjs?v=0.11.25';
+import {routeColor} from './journey-geometry.mjs?v=0.11.25';
 
 // Standard PDF fonts use WinAnsi. All shipped Vienna station/destination names
 // are checked against this encoding; never silently replace a user's text.

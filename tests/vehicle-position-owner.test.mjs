@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createVehiclePoller} from '../pwa/src/vehicle-poller.mjs';
-import {createVehiclePositionOwner} from '../pwa/src/vehicle-position-owner.mjs?v=0.11.24';
+import {createVehiclePositionOwner} from '../pwa/src/vehicle-position-owner.mjs?v=0.11.25';
 const tick=()=>new Promise(setImmediate);
 test('a new position line aborts the old in-flight poll before sending its own; late old replies are ignored',async()=>{
  const active=new Set(),calls=[],replies=new Map(),data=[];let peak=0;

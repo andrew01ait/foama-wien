@@ -1,4 +1,4 @@
-import {createVehicleTracker,VEHICLE_EXPIRE_MS} from './vehicle-tracker.mjs?v=0.11.24';
+import {createVehicleTracker,VEHICLE_EXPIRE_MS} from './vehicle-tracker.mjs?v=0.11.25';
 
 const KEY='foama.vehicle.sessions.v1',LIMIT=4,MAX_BYTES=1_500_000;
 const tabStorage=()=>{try{return globalThis.sessionStorage;}catch{return null;}};

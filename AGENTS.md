@@ -1,3 +1,7 @@
+## Wear 0.8.2 / Code 29 · Einstellungen klar benennen · 12.11.2026
+
+Nutzer beanstandet die unter Mehr verborgenen Einstellungen. Bestehenden Zugang am Listenende mit Zahnrad und sichtbarem Namen Einstellungen versehen; Menütitel und aktuelle Bedienhinweise einheitlich anpassen. Keine zusätzliche Kopfzeile vor den priorisierten Abfahrten. Bestehende 48-dp-Ziele, Elternpfade, Favoriten, Abrufbudgets und Fahrzeuge-im-Anflug-Optimierungen aus 0.8.1 erhalten. Karten-Zentrierknopf bleibt auf ausdrücklichen Wunsch ein Symbol ohne Standort-Label. Wear 0.8.2 / Code 29 mit ursprünglichem Paket/Schlüssel, PWA-Begleitstand 0.11.25.
+
 ## Wear 0.8.1 / Code 28 · Fahrzeuge fortsetzen · 12.11.2026
 
 Nutzerauftrag: Fahrzeuge-im-Anflug-Optimierungen auch auf der Uhr; linkes Karten-Zentriersymbol auf ausdrücklichen Wunsch ohne sichtbares Standort-Label belassen. Tippen bestätigt Zentrierung und erklärt Suche, Freigabe, deaktivierte Ortung, ungenauen Empfang und Timeout; Hintergrund/Display aus verwirft Feedback und laufende Ortung.

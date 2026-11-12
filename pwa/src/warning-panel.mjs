@@ -1,4 +1,4 @@
-import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice,noticeLines,affectedNoticeLines} from './traffic-info.mjs?v=0.11.24';
+import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice,noticeLines,affectedNoticeLines} from './traffic-info.mjs?v=0.11.25';
 
 const noticeDate=iso=>iso?new Date(iso).toLocaleString('de-AT',{timeZone:'Europe/Vienna',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
 const warningIcon='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10.3 4.2 2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4m0 3h.01"/></svg>';

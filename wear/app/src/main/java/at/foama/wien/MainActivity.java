@@ -143,6 +143,7 @@ public final class MainActivity extends Activity {
     private Button button(String label,String style){
         Button b=new Button(this);b.setAllCaps(false);b.setText(label);b.setTextSize(12);b.setTypeface(android.graphics.Typeface.create("sans-serif-medium",0));
         if(label.equals("A nach B")){NavigationIcon icon=NavigationIcon.route(MINT);icon.setBounds(0,0,dp(17),dp(17));b.setCompoundDrawables(icon,null,null,null);b.setCompoundDrawablePadding(dp(5));}
+        if(label.equals("Einstellungen")){SettingsIcon icon=new SettingsIcon(MINT);icon.setBounds(0,0,dp(17),dp(17));b.setCompoundDrawables(icon,null,null,null);b.setCompoundDrawablePadding(dp(5));}
         b.setGravity(Gravity.CENTER);b.setMinWidth(dp(48));b.setMinimumWidth(dp(48));b.setMinHeight(dp(48));b.setMinimumHeight(dp(48));b.setPadding(dp(9),dp(9),dp(9),dp(9));
         // Material's default tint/elevation must not replace our native mockup colours.
         b.setBackgroundTintList(null);b.setStateListAnimator(null);b.setElevation(0);
@@ -246,7 +247,7 @@ public final class MainActivity extends Activity {
         }
         status=text("",12,AMBER,false);status.setGravity(Gravity.CENTER);status.setPadding(0,0,0,dp(7));root.addView(status);
         content=vertical();root.addView(content);renderContent();
-        if(screen.equals("home")||screen.equals("routes")){space(root,5);fullButton(root,"Mehr",()->openMore());}
+        if(screen.equals("home")||screen.equals("routes")){space(root,5);fullButton(root,"Einstellungen",()->openMore());}
         restoreScroll(pendingReadingPosition);
     }
     private String pageKey(){return screen+"|"+(screen.equals("home")?view+"|"+favoriteView:screen.equals("detail")||screen.equals("approach")?(detailStop==null?"":detailStop.id)+"|"+detailRoute+"|"+detailTowards:screen.equals("journey")?journeyId+"|"+journeyVariant+"|"+journeyBoarding:screen.equals("more")?settingsSection:"");}
@@ -411,12 +412,12 @@ public final class MainActivity extends Activity {
     }
     private void renderFavorites(){
         if(favoriteRoutes()){
-            if(repo.cityJourneys().length()==0)tightenFavoriteHeading(placeholder(repo.journeys.all().length()==0?"Noch keine Routen":"Noch keine Routen in "+CityProfiles.name(repo.cities.current()),"Am Handy planen und als Routenfavorit speichern. Unter Mehr → Favoriten → Aus PWA importieren auf diese Uhr übernehmen."));
+            if(repo.cityJourneys().length()==0)tightenFavoriteHeading(placeholder(repo.journeys.all().length()==0?"Noch keine Routen":"Noch keine Routen in "+CityProfiles.name(repo.cities.current()),"Am Handy planen und als Routenfavorit speichern. Unter Einstellungen → Favoriten → Aus PWA importieren auf diese Uhr übernehmen."));
             else renderJourneyCards();
             return;
         }
         TextView stationSection=centered(content,"Haltestellen & Linien",14,MINT,true);if(!repo.orderedFavorites().isEmpty())stationSection.setVisibility(View.GONE);else space(content,7);
-        if(repo.orderedFavorites().isEmpty()){placeholder(repo.favorites.isEmpty()?"Deine wichtigsten Wege":"Noch keine Favoriten in "+CityProfiles.name(repo.cities.current()),"Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Mehr → Favoriten → Aus PWA importieren übernehmen.");return;}
+        if(repo.orderedFavorites().isEmpty()){placeholder(repo.favorites.isEmpty()?"Deine wichtigsten Wege":"Noch keine Favoriten in "+CityProfiles.name(repo.cities.current()),"Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Einstellungen → Favoriten → Aus PWA importieren übernehmen.");return;}
         for(Map.Entry<String,List<Repo.Favorite>> entry:repo.favoriteGroups().entrySet()){
             Repo.Stop s=repo.findStop(entry.getKey());if(s==null)continue;
             LinearLayout panel=stationPanel(s,true);
@@ -561,7 +562,7 @@ public final class MainActivity extends Activity {
     private void renderAlerts(){
         status.setVisibility(View.GONE);centered(content,"Letzte Hinweise",17,WHITE,true);space(content,10);
         org.json.JSONArray rows=WatchPush.inbox(this,System.currentTimeMillis());
-        if(rows.length()==0)placeholder("Noch keine Hinweise","Push unter Mehr → Störungen aktivieren. Fehlende Hinweise sind keine Entwarnung.");
+        if(rows.length()==0)placeholder("Noch keine Hinweise","Push unter Einstellungen → Störungen aktivieren. Fehlende Hinweise sind keine Entwarnung.");
         for(int i=0;i<rows.length();i++){org.json.JSONObject row=rows.optJSONObject(i);LinearLayout panel=card(content);panel.addView(text(row.optString("title"),14,WHITE,true));space(panel,5);panel.addView(text(row.optString("body"),12,MUTED,false));space(panel,5);
             String at=java.time.Instant.ofEpochMilli(row.optLong("at")).atZone(java.time.ZoneId.of("Europe/Vienna")).format(java.time.format.DateTimeFormatter.ofPattern("dd.MM. HH:mm"));panel.addView(text(at+" · Wiener Linien",12,MINT,false));}
         if(rows.length()>0){space(content,6);centered(content,"Gespeicherte Hinweise können inzwischen erledigt sein. Neueste Details in der Smartphone-PWA.",12,MUTED,false);}
@@ -569,7 +570,7 @@ public final class MainActivity extends Activity {
     }
     private void renderMore(){
         status.setVisibility(View.GONE);
-        String title=settingsSection.isEmpty()?"Mehr":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
+        String title=settingsSection.isEmpty()?"Einstellungen":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
         centered(content,title,17,WHITE,true);space(content,14);
         if(settingsSection.equals("push")){renderPush();
         }else if(settingsSection.equals("push-delivery")){renderPushDelivery();

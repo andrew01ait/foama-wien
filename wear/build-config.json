@@ -1,14 +1,13 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.8.1",
-  "versionCode": 28,
+  "versionName": "0.8.2",
+  "versionCode": 29,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Fahrzeuge im Anflug behalten vorhandene Daten und Fahrtkennungen beim Wiederöffnen und Stationswechsel.",
-    "Kompakter Ladebalken, Schema erst bei sichtbaren Fahrzeugen und Vorrang für die gewählte Station.",
-    "Ein aktiver Fahrzeugabruf; Quellenalter und Aktualisierungspause bleiben beim Wechsel erhalten.",
-    "Standortknopf bleibt ein Symbol und meldet Suche, Zentrierung und Ortungsprobleme."
+    "Einstellungen sind mit Zahnrad und klarem Namen statt Mehr erkennbar.",
+    "Menütitel und Navigationshinweise verwenden einheitlich Einstellungen.",
+    "Fahrzeuge-im-Anflug-Optimierungen und Karten-Zentriersymbol aus 0.8.1 bleiben enthalten."
   ]
 }

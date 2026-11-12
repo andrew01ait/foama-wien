@@ -1,4 +1,4 @@
-# Uhr-App 0.8.1: Abfahrten zuerst
+# Uhr-App 0.8.2: Abfahrten zuerst
 
 Die Hauptziele bleiben Nähe, Favoriten und A nach B. Abfahrtszeit, nächste Verbindung, Gehzeit und Erreichbarkeit haben Vorrang. Karten und Fahrzeuge sind bewusst optionale Detailansichten. Keine neuen dauerhaften Jobs, keine Ortung oder Abfahrtsabfragen bei ausgeschaltetem Bildschirm.
 
@@ -21,7 +21,7 @@ Die Hauptziele bleiben Nähe, Favoriten und A nach B. Abfahrtszeit, nächste Ver
 | Schnellzugriff | In der Kachelverwaltung der Uhr foama hinzufügen. Die beiden Aktionen öffnen Favoriten bzw. In der Nähe. |
 | Layout und Leseposition | Automatisch je Display und Systemschrift; kein zusätzlicher Schalter. |
 
-Routen zunächst in der Handy-PWA speichern und unter Mehr → Favoriten → Aus PWA importieren übernehmen. Auf der Karte zoomen Pinch, Plus/Minus und Drehkrone; Ziehen verschiebt den Ausschnitt. Der linke ◎-Knopf zentriert auf die eigene Position. Auf ausdrücklichen Nutzerwunsch bleibt er **ohne sichtbares Standort-Textlabel**. Antippen bestätigt den blauen Punkt auch bei bereits zentrierter Karte; Suche, fehlende Freigabe, deaktivierte Ortung, ungenauer Empfang und Timeout erhalten eine Rückmeldung.
+Routen zunächst in der Handy-PWA speichern und unter Einstellungen → Favoriten → Aus PWA importieren übernehmen. Auf der Karte zoomen Pinch, Plus/Minus und Drehkrone; Ziehen verschiebt den Ausschnitt. Der linke ◎-Knopf zentriert auf die eigene Position. Auf ausdrücklichen Nutzerwunsch bleibt er **ohne sichtbares Standort-Textlabel**. Antippen bestätigt den blauen Punkt auch bei bereits zentrierter Karte; Suche, fehlende Freigabe, deaktivierte Ortung, ungenauer Empfang und Timeout erhalten eine Rückmeldung.
 
 ## Bildschirmgrößen
 
@@ -53,6 +53,10 @@ Bis tatsächlich sichtbare Fahrzeuge vorhanden sind, erscheinen nur Prognose, ku
 
 ## Veröffentlichung und Prüfung
 
-Paket und ursprüngliche Release-Signatur bleiben erhalten; 0.8.1 ist Code 28. Der Update-Download und die Installer-Übergabe aus 0.7.4 bleiben bestehen. Das Tile verwendet AndroidX Tiles 1.4.1 / ProtoLayout 1.2.1; die ursprüngliche Datei `firebase-dependencies.json` hält aus Kompatibilitätsgründen jetzt auch diese nativen Abhängigkeiten und ihre SHA-256-Prüfsummen fest.
+Paket und ursprüngliche Release-Signatur bleiben erhalten; 0.8.2 ist Code 29. Der Update-Download und die Installer-Übergabe aus 0.7.4 bleiben bestehen. Das Tile verwendet AndroidX Tiles 1.4.1 / ProtoLayout 1.2.1; die ursprüngliche Datei `firebase-dependencies.json` hält aus Kompatibilitätsgründen jetzt auch diese nativen Abhängigkeiten und ihre SHA-256-Prüfsummen fest.
 
 Vor Veröffentlichung: native Tests, Originalsignatur, APK-Metadaten, zipalign, Größe/Hash und öffentlicher Bytevergleich. Zusätzlich auf der physischen Uhr: Update ohne Deinstallation, Schriftgrößen, Kartenzoom/Drehkrone/Back, echter GPS-Fix, Tile hinzufügen und Vordergrund-/Display-aus-Verhalten prüfen.
+
+## Einstellungen finden
+
+Am Ende der Hauptansichten steht der bisherige Mehr-Zugang ab 0.8.2 als **Einstellungen** mit Zahnrad. Der Menüpunkt **App & Updates** enthält die Updateprüfung, **Favoriten** den PWA-Import. Der Rückweg führt weiterhin zur vorherigen Nähe-/Favoriten- oder Routenansicht. Keine neue Zeile über den Abfahrten.

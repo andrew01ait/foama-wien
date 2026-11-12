@@ -6,7 +6,7 @@
 
 ## Funktionen
 
-- Uhr-App 0.8.1: adaptive Abfahrten, Stationskarte, geschätzte Fahrzeuge im Anflug, fokussierte Routenschritte und Schnellzugriff-Tile. [Bedienung und Grenzen](docs/wear-experience.md).
+- Uhr-App 0.8.2: adaptive Abfahrten, Stationskarte, geschätzte Fahrzeuge im Anflug, fokussierte Routenschritte und Schnellzugriff-Tile. [Bedienung und Grenzen](docs/wear-experience.md).
 
 - Aktueller Standort als blauer Punkt mit Genauigkeitskreis auf allen interaktiven Karten, soweit freigegeben und frisch verfügbar; eigener Knopf zum Zentrieren.
 - Fahrzeuge im Anflug erhalten Prognosen und Fahrtkennungen beim Wechsel zwischen Verbindungsdetail, A nach B und ganzer Linie. Ein kleiner Ladebalken mit verständlichem Status und nächster Aktualisierung wechselt automatisch zur Fahrzeugansicht.
@@ -24,7 +24,7 @@
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.11.24 und Wear 0.8.1**, nativer Versionscode **28**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.11.25 und Wear 0.8.2**, nativer Versionscode **29**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

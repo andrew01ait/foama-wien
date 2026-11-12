@@ -1,13 +1,13 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.24, Wear 0.8.1 / Code 28.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.25, Wear 0.8.2 / Code 29.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
 | Bereich | Stand |
 | --- | --- |
 | Willkommen | Eigene Startinfo mit Panorama, App-Einstieg, Installationshilfe, Funktionen und FAQ; App-Teilen führt zur Willkommen-Seite |
-| Stadtprofile | Wien, Graz, Linz, Salzburg in PWA und nativer Uhr; Wien als Standard, frische Vordergrundortung oder manuelle Auswahl nur Einstellungen/Mehr → Stadtprofil |
+| Stadtprofile | Wien, Graz, Linz, Salzburg in PWA und nativer Uhr; Wien als Standard, frische Vordergrundortung oder manuelle Auswahl nur Einstellungen/Einstellungen → Stadtprofil |
 | Abfahrten | Nähe/Favoriten, Filter, Gehzeit und Erreichbarkeit; sichtbare Aktualisierung alle 30 Sekunden mit gemeinsamen Budgets und Rücksicht auf Sichtbarkeit |
 | Datenqualität | Wien/Wiener Linien, Graz/Transitous und Linz/EFA nach Datenlage live; Salzburg ausschließlich Fahrplan im Monitor |
 | Favoriten/QR | Lokale Gerätefavoriten, Stationen und Linien, importierte Routen auf der Uhr je gewählter Stadt; stadtübergreifende Wege in allen betroffenen Profilen; Vorschau/bewusste Übernahme, zehn Minuten verschlüsselt; alte Uhren sperren regionale Auswahl weiter |
@@ -63,4 +63,4 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 
 0.11.23: Genau eine aktive Zuständigkeit für Fahrzeugpositionen in der PWA. Neue Linie beendet den vorherigen Poller bzw. Panels-Abfrageumfang vor Übernahme; verborgene und gespeicherte Linien bleiben passiv. Warnungsfix und Darstellung aus 0.11.22 enthalten.
 
-Wear 0.8.1: Fahrzeugdaten über Ansichts- und Stationswechsel behalten, geteilte Liniensitzung, acht priorisierte Stations-RBLs, kompakter Fortschritt statt leerem Schema. Karten-Zentrierung weiterhin als Symbol, jetzt mit Such-/Ergebnis-/Fehlerrückmeldung. [Bedienwege und Grenzen](docs/wear-experience.md).
+Wear 0.8.2: Fahrzeugdaten über Ansichts- und Stationswechsel behalten, geteilte Liniensitzung, acht priorisierte Stations-RBLs, kompakter Fortschritt statt leerem Schema. Karten-Zentrierung weiterhin als Symbol, jetzt mit Such-/Ergebnis-/Fehlerrückmeldung. [Bedienwege und Grenzen](docs/wear-experience.md).

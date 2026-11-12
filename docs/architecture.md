@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.24 / Wear 0.8.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.25 / Wear 0.8.2. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -85,4 +85,4 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 
 0.11.23: Der aktive Positionseigentümer ist von den passiven Liniensitzungen getrennt. Ganzlinien-Poller und Stationspanel teilen die Zuständigkeit; Übernahme stoppt den bisherigen Request/Umfang vor neuem Start. Zusätzliche Warnungsanker lösen keine zusätzliche Fahrzeugberechnung aus. [Einzelne Fahrzeuglinie](vehicle-line-session.md).
 
-Wear 0.8.1: Stationswechsel teilt einen kanonischen Ganzrichtungs-Tracker pro Linie/Richtung/Quelldigest im Worker. Nur der bewusst ausgewählte Ausschnitt fragt höchstens acht RBLs ab. Die Uhr hält vier passive Antworten fünf Minuten im RAM; Quellenalter und Abrufsperre werden nie durch Lesen erneuert. Wechsel storniert die vorige Zuständigkeit; ein Quellenfehler lässt gehaltene Lagen grau altern. [Bedienung und Grenzen](wear-experience.md).
+Wear 0.8.2: Stationswechsel teilt einen kanonischen Ganzrichtungs-Tracker pro Linie/Richtung/Quelldigest im Worker. Nur der bewusst ausgewählte Ausschnitt fragt höchstens acht RBLs ab. Die Uhr hält vier passive Antworten fünf Minuten im RAM; Quellenalter und Abrufsperre werden nie durch Lesen erneuert. Wechsel storniert die vorige Zuständigkeit; ein Quellenfehler lässt gehaltene Lagen grau altern. [Bedienung und Grenzen](wear-experience.md).

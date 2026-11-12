@@ -1,23 +1,21 @@
 {
-  "version": "0.11.24",
-  "wearVersionCode": 28,
-  "wearApkUrl": "/apk/foama-wien-wear-0.8.1.apk",
-  "wearApkSha256": "eb2d70ab908c034b4c763e4e4bbae6921f572df9144c202eff6d37f67e9638a8",
-  "changelog": "Uhr: Fahrzeugdaten und Fahrtkennungen beim Wechsel erhalten. Kompakter Fahrzeugstart mit gemeinsamem Linienstand und Vorrang für die gewählte Station. Standortknopf mit sichtbarer Rückmeldung; Symbol bleibt erhalten.",
-  "wearVersion": "0.8.1",
+  "version": "0.11.25",
+  "wearVersionCode": 29,
+  "wearApkUrl": "/apk/foama-wien-wear-0.8.2.apk",
+  "wearApkSha256": "00797d5fe36588291b45685f651250260fc5011314c219740fb3fc5f0f50d972",
+  "changelog": "Uhr: Zahnrad und klarer Name Einstellungen statt Mehr. Einheitliche Menütitel und Navigation; Fahrzeugoptimierungen aus 0.8.1 enthalten.",
+  "wearVersion": "0.8.2",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 5217738,
   "wearMinSdk": 30,
-  "wearChangelog": "Fahrzeuge im Anflug behalten vorhandene Daten und Fahrtkennungen beim Wiederöffnen und Stationswechsel. Kompakter Ladebalken, Schema erst bei sichtbaren Fahrzeugen und Vorrang für die gewählte Station. Ein aktiver Fahrzeugabruf; Quellenalter und Aktualisierungspause bleiben beim Wechsel erhalten. Standortknopf bleibt ein Symbol und meldet Suche, Zentrierung und Ortungsprobleme.",
+  "wearChangelog": "Einstellungen sind mit Zahnrad und klarem Namen statt Mehr erkennbar. Menütitel und Navigationshinweise verwenden einheitlich Einstellungen. Fahrzeuge-im-Anflug-Optimierungen und Karten-Zentriersymbol aus 0.8.1 bleiben enthalten.",
   "wearReleaseNotes": [
-    "Fahrzeuge im Anflug behalten vorhandene Daten und Fahrtkennungen beim Wiederöffnen und Stationswechsel.",
-    "Kompakter Ladebalken, Schema erst bei sichtbaren Fahrzeugen und Vorrang für die gewählte Station.",
-    "Ein aktiver Fahrzeugabruf; Quellenalter und Aktualisierungspause bleiben beim Wechsel erhalten.",
-    "Standortknopf bleibt ein Symbol und meldet Suche, Zentrierung und Ortungsprobleme."
+    "Einstellungen sind mit Zahnrad und klarem Namen statt Mehr erkennbar.",
+    "Menütitel und Navigationshinweise verwenden einheitlich Einstellungen.",
+    "Fahrzeuge-im-Anflug-Optimierungen und Karten-Zentriersymbol aus 0.8.1 bleiben enthalten."
   ],
   "releaseNotes": [
-    "Uhr: Fahrzeugdaten und Fahrtkennungen beim Wechsel erhalten.",
-    "Kompakter Fahrzeugstart mit gemeinsamem Linienstand und Vorrang für die gewählte Station.",
-    "Standortknopf mit sichtbarer Rückmeldung; Symbol bleibt erhalten."
+    "Uhr: Zahnrad und klarer Name Einstellungen statt Mehr.",
+    "Einheitliche Menütitel und Navigation; Fahrzeugoptimierungen aus 0.8.1 enthalten."
   ]
 }
