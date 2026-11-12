@@ -35,3 +35,6 @@
  .pilot-fit{grid-column:1/-1;justify-self:stretch;width:100%;margin:4px 0 0}
  .pilot-train{gap:9px;padding:12px}
 }
+
+.pilot-arrival{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;padding:11px 14px;margin:12px 0;border:1px solid var(--stroke);border-radius:12px;background:var(--surface)}.pilot-arrival strong{font-size:18px;color:var(--mint)}.pilot-arrival span{font-size:12px;color:var(--muted)}
+.pilot-arrival[hidden]{display:none}.pilot-map-frame{position:relative}.pilot-arrival-caption{font-weight:700}.pilot-map-frame.has-map .pilot-arrival{position:absolute;top:12px;right:12px;z-index:650;max-width:calc(100% - 70px);width:190px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin:0;box-shadow:0 2px 12px #0003;pointer-events:none}.pilot-map-frame.has-map .pilot-arrival strong{font-size:24px;line-height:1.15}.pilot-map-frame.has-map .pilot-arrival span{font-size:11px;line-height:1.35}

@@ -1,3 +1,11 @@
+## PWA 0.11.17 · automatischer Start und Ankunft am gewählten Halt · 12.11.2026
+
+Die ganze Fahrzeugseite beginnt den Live-Abgleich unmittelbar nach erfolgreich geladener und geprüfter Linienbasis. Start-/Pause-Button und Hinweise auf einen nötigen Klick entfernt. Linien-, Richtungs-, Varianten- und Abschnittwechsel starten den gewählten gültigen Umfang automatisch neu, innerhalb derselben globalen 30-s-/Quellencache-/Backoff-Grenzen. Hintergrund und Pagehide stoppen Requests und Bewegung; Rückkehr setzt automatisch fort. Während fehlender oder fehlerhafter Linienbasis keine Monitorabfrage. Die eingebetteten Stationsbereiche bleiben bewusst geschlossen und laden erst beim Öffnen. Wear 0.7.4/26 unverändert.
+
+Für die gewählte Station gibt es genau einen Countdown für das nächste Fahrzeug in Minuten. Auf der Karte steht er als kompakte obere rechte Überlagerung; im Schema und während des Positionsaufbaus als schmale Zeile davor. Eine frische Stationsprognose darf den Countdown bereits vor abgeschlossener Fahrzeug-ID-Zuordnung liefern, ohne dadurch eine Kartenposition zu behaupten. Abfahrtsprognose als Grundlage offenlegen; bekannte Haltezeit bei eindeutigem bestätigtem Anker abziehen. Nur aktuelle anfahrende zugeordnete Fahrzeuge dürfen bei fehlendem Zielmonitor eine ausdrücklich benannte Fahrplan-Schätzung liefern. Bereits passierte Halte, veraltete Quellen/Zeilen, Fehler und ausgelassene Ziele liefern keinen Countdown. Keine zusätzlichen Requests.
+
+461 Web-/Server-Tests, 18 Python-Prüfungen und 86 JavaScript-Syntaxprüfungen.
+
 ## PWA 0.11.16 · Standort und Fußweg
 
 Standort → Karte → alle aktivierten Linien pro Stationsmarker → Station → Fußweg & Navigation. Stationstitel/Fußwegaktion → sofortige Stationskarte → Gehweg nach erfolgreicher Berechnung. Schließen/Back/Hintergrund baut die Karte ab und bricht Routing ab. Erneutes Öffnen besitzt eine neue Sitzung. Routingfehler lassen Station und externe Kartenaktionen sichtbar. Manuelle Teststation ist kein GPS-Fix.

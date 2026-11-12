@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.16 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.17 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -70,3 +70,7 @@ Die gemeinsame Kartenschicht in `map-position.mjs` wird über die beiden Leaflet
 Seit 0.11.15 startet die Karten-Standortschicht nach Leaflet whenReady. Der Meldungscache verwendet Monitor-/Feed-Zeitstempel; eine unvollständige Zusatzquelle darf vorhandene Warnungen nicht löschen oder verjüngen. Diagnose und umgesetzte Fahrzeugverbesserungen: [Untersuchung 12.11.2026](vehicle-audit-20261112.md).
 
 0.11.16: monitor-timing.mjs verbindet globale Startsperre, cachebezogene Quellengrenze und kurze Web-Locks-Zeitstempelvergabe für Monitor, A nach B und Fahrzeugseite. Worker-In-Flight-Maps sind auf je 64 laufende Batches/Origins begrenzt; keine Fahrzeughistorie. ETA-Änderungen mit identischen Ankern verändern Lageunsicherheit statt Identität. walking-map.mjs besitzt Karte, Routing-AbortController und Sitzung; Rendering beginnt unabhängig vom Routing. station-map-marker.mjs zeigt alle gefilterten Linien mit maximal vier Spalten.
+
+0.11.17: Die ganze Fahrzeugansicht startet automatisch nach der geprüften Linienbasis, ohne Start-/Pause-Steuerung. Unsichtbar stoppen, bei Rückkehr automatisch fortsetzen; bestehende Abrufgrenzen und geschlossene eingebettete Stationspanels erhalten.
+
+Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das nächste Fahrzeug: groß in Minuten als Kartenüberlagerung, sonst als kompakte Zeile. Er nutzt vorhandene frische Prognosen; ein Ersatz aus dem Fahrzeitprofil bleibt als Fahrplan-Schätzung erkennbar. Keine neuen Abfragen oder behaupteten Fahrzeugpositionen allein durch den Countdown.

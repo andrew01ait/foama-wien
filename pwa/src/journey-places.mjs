@@ -1,4 +1,4 @@
-import {coordinate} from './journey-geometry.mjs?v=0.11.16';
+import {coordinate} from './journey-geometry.mjs?v=0.11.17';
 const clean=(value,n)=>typeof value==='string'?value.trim().slice(0,n):'';
 const labelKey=value=>value.normalize('NFKC').toLocaleLowerCase('de-AT');
 export const JOURNEY_PLACES_KEY='foama.journeyPlaces.v1';

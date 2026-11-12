@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.16, 12. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.17, 12. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Grafischer Datenstand
 
@@ -102,3 +102,7 @@ Die U3 zeigt nach zwei Quellenständen zwei bis drei Schätzlagen und fünf mode
 Die verwaltete Vorschau ist nach Wiederherstellung des Worker-Builds erreichbar. Im Browser geprüft: einheitlicher Name, Linien-/Stationswahl, horizontaler U6-Ausschnitt bei Thaliastraße, Einstieg aus der Linienkarte in den geöffneten Stationsbereich und Link mit gewählter Variante. Bei 337 px CSS-Breite (Browser-Zoom) bleiben Seite und gesamter Stationsausschnitt ohne horizontalen Überlauf; Diagramm-clientWidth und scrollWidth jeweils 281 px. Offener Bereich, gewählte Richtung und Fokus bleiben bei Routineupdates erhalten. Dies ist keine physische Smartphone- oder unabhängige Fahrtenabnahme. Der Vorschau-Relay zeigte auch einen korrekt behandelten vorübergehenden Live-Ausfall. Nach dem abschließenden Neubau blockierte die Browser-URL-Richtlinie weitere Vorschauaufrufe; die visuelle A-nach-B-Ende-zu-Ende-Abnahme bleibt daher offen. Als nächste Abnahme kommen echte Zug-/Tram-/Busfolgen, Störungen, Signalhalte, Spitzenverkehr und Kurzführungen auf dem Telefon hinzu. Andere Städte benötigen getrennte Quellenbindung.
 
 Primärquellen: [offizieller GTFS](https://www.wienerlinien.at/ogd_realtime/doku/ogd/gtfs/gtfs.zip), [Haltepunkte](https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-haltepunkte.csv), [Linien](https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-linien.csv), [Fahrwegverläufe](https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-ogd-fahrwegverlaeufe.csv), [Realtime-Dokumentation](https://www.wienerlinien.at/ogd_realtime/doku/ogd/wienerlinien-echtzeitdaten-dokumentation.pdf).
+
+0.11.17: Die ganze Fahrzeugansicht startet automatisch nach der geprüften Linienbasis, ohne Start-/Pause-Steuerung. Unsichtbar stoppen, bei Rückkehr automatisch fortsetzen; bestehende Abrufgrenzen und geschlossene eingebettete Stationspanels erhalten.
+
+Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das nächste Fahrzeug: groß in Minuten als Kartenüberlagerung, sonst als kompakte Zeile. Er nutzt vorhandene frische Prognosen; ein Ersatz aus dem Fahrzeitprofil bleibt als Fahrplan-Schätzung erkennbar. Keine neuen Abfragen oder behaupteten Fahrzeugpositionen allein durch den Countdown.

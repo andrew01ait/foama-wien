@@ -2,6 +2,10 @@
 
 12 November 2026. All clock times below use Europe/Vienna. Baseline: deployed PWA 0.11.14, source 19c264a2f667f087d569858a0dd5a270b9c9602f. Repairs prepared in PWA 0.11.15. Wear 0.7.4 / code 26 is unchanged.
 
+## Follow-up: PWA 0.11.17
+
+Full vehicle pages start automatically once their validated line data is ready. Manual Start/Pause controls are removed; visibility and existing budgets still govern polling. A selected stop gets one next-vehicle countdown in minutes, placed over the map and kept as a compact line in schematic/loading views. It uses the existing fresh station forecast or a clearly identified travel-profile fallback for a confirmed approaching journey. A countdown can precede identity confirmation without implying a map position. Failed/stale sources and passed/skipped stops suppress it. 461 web/server tests, 18 Python checks and 86 syntax checks.
+
 ## Implementation follow-up: PWA 0.11.16
 
 The accepted repairs are implemented. Findings below describe the dated baseline. Cache-aware scheduling uses source timestamp + 31 seconds, at least request start + 30 seconds and backoff. Web Locks atomically claim request turns where supported. Identical batches and supplemental-feed requests share in-flight operations per Worker instance. Application code 316 receives a 60-second cooldown across changed scopes. Different overlapping batches and separate instances still have no distributed coordinator.

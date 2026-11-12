@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.16, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.17, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -48,3 +48,7 @@ Neue Arbeiten starten über die [Dokumentationsübersicht](docs/README.md).
 0.11.15 behebt den GPS-abhängigen Kartenstart und die Alter-/Fehlerbehandlung des Störungscaches. Die Fahrzeuganalyse bestätigt 18 erfolgreiche begrenzte Monitorproben, aber doppelte Quellenstände und häufige Korrekturpausen. Die abgeleiteten Verbesserungen sind in 0.11.16 umgesetzt; Ergebnisse und Grenzen: [Befunde und Prioritäten](docs/vehicle-audit-20261112.md).
 
 0.11.16: alle aktivierten Linien auf Stationsmarkern, sofortige Fußwegkarte, Quellencache-Planung, atomare Tab-Sperre, Requestvereinigung, Fehler 316, ETA-Kontinuität und begrenzte Randprojektion. Zwei unabhängige Quellenstände bleiben nötig. Physische Android-/Stationsbeobachtung und global verteilte Koordination bleiben gesondert.
+
+0.11.17: Die ganze Fahrzeugansicht startet automatisch nach der geprüften Linienbasis, ohne Start-/Pause-Steuerung. Unsichtbar stoppen, bei Rückkehr automatisch fortsetzen; bestehende Abrufgrenzen und geschlossene eingebettete Stationspanels erhalten.
+
+Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das nächste Fahrzeug: groß in Minuten als Kartenüberlagerung, sonst als kompakte Zeile. Er nutzt vorhandene frische Prognosen; ein Ersatz aus dem Fahrzeitprofil bleibt als Fahrplan-Schätzung erkennbar. Keine neuen Abfragen oder behaupteten Fahrzeugpositionen allein durch den Countdown.
