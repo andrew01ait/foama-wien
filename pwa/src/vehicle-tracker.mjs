@@ -1,4 +1,4 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.18';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.19';
 
 export const VEHICLE_FRESH_MS=60_000,VEHICLE_EXPIRE_MS=90_000;
 export const PILOT_SCHEDULE_MATCH_MS=60_000;
@@ -57,7 +57,7 @@ export function normalizePilotSnapshot(raw,direction,now=Date.now(),requestedIds
   }
  }
  const expected=requested.size,budgetLimited=[...new Set(desiredIds)].filter(id=>!requested.has(id)).length;
- return {at,rows,coverage:[...coverage],expected,budgetLimited,complete:expected>0&&coverage.size===expected};
+ return {at,rows,coverage:[...coverage],requested:direction.stops.flatMap((s,i)=>s.rbl&&requested.has(s.rbl)?[i]:[]),expected,budgetLimited,complete:expected>0&&coverage.size===expected};
 }
 function consistent(anchors,schedule){
  const entries=[...anchors].sort((a,b)=>a[0]-b[0]),latest=Math.max(...entries.map(([,v])=>v.at));if(entries.filter(([,v])=>v.onStop&&v.at===latest).length>1)return false;
@@ -140,12 +140,15 @@ function stationChainBundles(direction,snapshot,schedules,tracks){
  }
  return bundles;
 }
-export function createVehicleTracker(direction,manifest,{prefix=(direction.route||'U6')+'-'+direction.monitorDirection}={}){
- let lastAt=0,serial=0,latest=null,problem='',partial=false;const tracks=new Map(),events=[];
+export function createVehicleTracker(direction,manifest,{prefix=(direction.route||'U6')+'-'+direction.monitorDirection,fullLine=false}={}){
+ let lastAt=0,serial=0,latest=null,problem='',partial=false;const tracks=new Map(),events=[],samples=new Map(),boards=new Map();
  function event(track,kind,from,to,at){events.unshift({id:track.id,kind,from,to,at});events.splice(80);}
  function remember(t,p,at){if(p&&!p.stale){t.lastPosition={...p};t.lastPositionAt=at;t.hadPosition=true;}}
  function ingest(snapshot){
-  if(snapshot.at<=lastAt)return {ignored:true};lastAt=snapshot.at;latest=snapshot;partial=!snapshot.complete;problem='';
+  const scoped=fullLine&&Array.isArray(snapshot.requested),scope=scoped?snapshot.requested.join(','):'all';
+  if(snapshot.at<=(scoped?samples.get(scope)||0:lastAt))return {ignored:true};
+  if(scoped){samples.set(scope,snapshot.at);while(samples.size>64)samples.delete(samples.keys().next().value);for(const index of snapshot.requested){if((boards.get(index)?.at||0)>snapshot.at)continue;boards.set(index,{at:snapshot.at,covered:snapshot.coverage.includes(index),rows:snapshot.rows.filter(row=>row.index===index)});}}
+  if(snapshot.at>=lastAt){lastAt=snapshot.at;latest=snapshot;}partial=!snapshot.complete;problem='';
   const chain=['bus','tram'].includes(direction.mode),nearby=pilotSchedules(direction,manifest,snapshot.at),schedules=chain&&!nearby.length?pilotSchedules(direction,manifest,snapshot.at,{profiles:true}):nearby,bundles=chain?stationChainBundles(direction,snapshot,schedules,tracks):new Map();
   for(const observation of chain?[]:snapshot.rows){
    const candidates=schedules.filter(s=>s.times[observation.index]&&(!observation.towards||vehicleTargetMatches(direction,s.towards,observation.towards))&&Math.abs(s.times[observation.index][1]-observation.scheduled)<=PILOT_SCHEDULE_MATCH_MS);observation.candidates=candidates.map(s=>s.key);
@@ -154,7 +157,7 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
   const viable=new Map([...bundles].filter(([key,b])=>b.options.size>=2||tracks.has(key))),updated=new Set();
   for(const [key,b] of viable){
    const anchors=new Map();for(const [i,options] of b.options){const unique=options.filter(o=>o.candidates.filter(k=>viable.has(k)).length===1);if(unique.length===1)anchors.set(i,unique[0]);}
-   let t=tracks.get(key);if(!t){if(anchors.size<(chain?3:2))continue;t={id:prefix+'-T'+String(++serial).padStart(3,'0'),schedule:b.schedule,hits:0,anchors:new Map(),lastSeen:0,lastReported:null,blocked:'',awaiting:false};tracks.set(key,t);}
+   let t=tracks.get(key);if(scoped&&t&&snapshot.at<=t.lastSeen){updated.add(key);continue;}if(!t){if(anchors.size<(chain?3:2))continue;t={id:prefix+'-T'+String(++serial).padStart(3,'0'),schedule:b.schedule,hits:0,anchors:new Map(),lastSeen:0,lastReported:null,blocked:'',awaiting:false};tracks.set(key,t);}
    if(t.retired&&anchors.size<(chain?3:2))continue;
    if(!anchors.size){t.awaitingReason='Mehrdeutige Stationsmeldung';continue;}
    const before=t.awaiting||t.correction?t.lastPosition:vehiclePosition(t,snapshot.at);if(!t.awaiting&&!t.correction)remember(t,before,Math.min(snapshot.at,t.lastSeen+VEHICLE_FRESH_MS));
@@ -171,7 +174,7 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
    if(reported.length===1){const stop=reported[0];if(t.lastReported!=null&&stop<t.lastReported){t.hits=0;t.blocked='Stationsanker in falscher Reihenfolge';}else{if(t.lastReported!=null&&stop>t.lastReported)event(t,'handover',t.lastReported,stop,snapshot.at);t.lastReported=stop;}}
    if(t.hits===1&&!t.blocked)event(t,'candidate',null,null,snapshot.at);
   }
-  for(const [key,t] of tracks){if(!updated.has(key)&&t.hadPosition&&!t.awaiting){t.awaiting=true;t.awaitingReason=t.awaitingReason||'Stationsmeldung fehlt';event(t,'gap',null,null,snapshot.at);}if(snapshot.at-t.lastSeen>600_000)tracks.delete(key);}
+  for(const [key,t] of tracks){const observed=!scoped||snapshot.requested.some(index=>t.anchors.has(index));if(!updated.has(key)&&(t.hadPosition||scoped)&&!t.awaiting&&observed&&(!scoped||snapshot.at>t.lastSeen)){t.awaiting=true;t.awaitingReason=t.awaitingReason||'Stationsmeldung fehlt';event(t,'gap',null,null,snapshot.at);}if(snapshot.at-t.lastSeen>600_000)tracks.delete(key);}
   while(tracks.size>128)tracks.delete(tracks.keys().next().value);
   return {accepted:true,partial};
  }
@@ -180,10 +183,10 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
   for(const t of tracks.values()){
    const expired=now-t.lastSeen>VEHICLE_EXPIRE_MS;
    if(expired&&t.hadPosition&&!t.expiryLogged){event(t,'expired',null,null,now);t.expiryLogged=true;}
-   let position=!problem&&t.lastSeen===lastAt&&!expired?vehiclePosition(t,now):null;
+   let position=!problem&&(fullLine?!t.awaiting:t.lastSeen===lastAt)&&!expired?vehiclePosition(t,now):null;
    if(t.correction){if(position&&position.progress>=t.correction.progress-.01){t.correction=null;}else position=null;}
    if(position&&!position.stale)remember(t,position,now);
-   let status=t.blocked||(t.lastSeen!==lastAt?t.awaitingReason||'Stationsmeldung fehlt':t.hits<2?'Zuordnung wird geprüft':stale?'Daten veraltet':'Plausibel zugeordnet');
+   let status=t.blocked||((fullLine?t.awaiting:t.lastSeen!==lastAt)?t.awaitingReason||'Stationsmeldung fehlt':t.hits<2?'Zuordnung wird geprüft':now-t.lastSeen>VEHICLE_FRESH_MS?'Daten veraltet':'Plausibel zugeordnet');
    if((!position||position.stale||problem)&&t.lastPosition&&!expired&&now-t.lastPositionAt<=VEHICLE_EXPIRE_MS){position={...t.lastPosition,stale:true,uncertain:true,basis:'held'};status=problem||t.blocked||t.awaitingReason||(t.correction?'Prognosekorrektur · letzte Lage kurz gehalten':'Warte auf nächste Stationsmeldung');}
    const holding=position?.basis==='held';if(holding&&!t.holding&&!t.awaiting)event(t,'gap',null,null,now);if(position&&!holding&&t.holding)event(t,'reacquired',null,null,now);t.holding=holding;
    if(!position&&t.hadPosition&&!expired)status=t.blocked||t.awaitingReason||'Keine aktuelle Lage aus den Stationsmeldungen ableitbar';
@@ -202,9 +205,10 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
    });
    if(following){const t=tracks.get(lost.schedule.key);t.retired=true;t.hits=0;t.lastPosition=null;t.lastPositionAt=0;t.holding=false;t.awaiting=true;t.awaitingReason='Letzte Lage durch bestätigte Folgefahrt überholt';event(t,'superseded',null,null,lastAt);Object.assign(lost,{retired:true,position:null,status:t.awaitingReason});}
   }
-  return {at:lastAt,problem,partial,stale,rows:latest?.rows||[],coverage:latest?.coverage||[],expected:latest?.expected??direction.stops.filter(s=>s.rbl).length,budgetLimited:latest?.budgetLimited||0,events:events.slice(),tracks:out};
+  const freshBoards=fullLine?[...boards].filter(([,board])=>now-board.at<=VEHICLE_FRESH_MS):[],coverage=fullLine?freshBoards.filter(([,board])=>board.covered).map(([index])=>index):latest?.coverage||[],expected=fullLine?direction.stops.filter(s=>s.rbl).length:latest?.expected??direction.stops.filter(s=>s.rbl).length;
+  return {at:lastAt,problem,fullLine,partial:fullLine?coverage.length<expected:partial,stale,rows:fullLine?freshBoards.flatMap(([,board])=>board.rows):latest?.rows||[],coverage,expected,budgetLimited:fullLine?0:latest?.budgetLimited||0,events:events.slice(),tracks:out};
  }
- return {ingest,view,fail(message){problem=message;for(const t of tracks.values())if(t.hadPosition&&!t.awaiting){t.awaiting=true;t.awaitingReason=message;event(t,'gap',null,null,lastAt);}},clear(){tracks.clear();events.length=0;lastAt=0;latest=null;problem='';partial=false;}};
+ return {ingest,view,fail(message){problem=message;for(const t of tracks.values())if(t.hadPosition&&!t.awaiting){t.awaiting=true;t.awaitingReason=message;event(t,'gap',null,null,lastAt);}},clear(){tracks.clear();samples.clear();boards.clear();events.length=0;lastAt=0;latest=null;problem='';partial=false;}};
 }
 
 

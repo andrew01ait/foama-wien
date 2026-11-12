@@ -1,50 +1,50 @@
-import {createWalkingMap} from './walking-map.mjs?v=0.11.18';
-import {stationMapMarker} from './station-map-marker.mjs?v=0.11.18';
-import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.18';
-import {CITY_PREFERENCE,CITY_PROFILES,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.11.18';
-import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.11.18';
-import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.11.18';
-import {installMapPositions,publishMapPosition,clearMapPosition,setMapPositionExternalTracking} from './map-position.mjs?v=0.11.18';
-import {createAppUpdates} from './app-updates.mjs?v=0.11.18';
-import {bindAppShare} from './app-share.mjs?v=0.11.18';
-import {createNotifications} from './notifications.mjs?v=0.11.18&r=3';
-import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.11.18';
-import {jsonExportName} from './export-file.mjs?v=0.11.18';
-import {transferableJourneys} from './journey-favorites.mjs?v=0.11.18';
-import {mergeTransferBundle} from './transfer.mjs?v=0.11.18';
-import {warningsForTargets,updateWarningPanel,stationNoticeSections,trafficNoticeMarkup as noticeMarkup} from './warning-panel.mjs?v=0.11.18';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.18';
-import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.11.18';
-import {createThemeController} from './theme.mjs?v=0.11.18';
-import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.11.18';
-import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.11.18';
-import {connectionsAtStation} from './station-search.mjs?v=0.11.18';
-import {createLocationController,locationMessage} from './location.mjs?v=0.11.18';
-import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.11.18';
-import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.11.18';
-import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.11.18';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.18';
-import {stationAddressMarkup} from './station-addresses.mjs?v=0.11.18';
-import {createAddressLookup} from './address-index.mjs?v=0.11.18';
-import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.11.18';
-import {updateTrafficCache,trafficAtStation,affectedNoticeLines} from './traffic-info.mjs?v=0.11.18';
-import {createDebugging} from './debugging.mjs?v=0.11.18&r=2';
-import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.11.18';
-import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.11.18';
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.18';
-import {departureAtStation,connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation,connectionUrlTarget} from './connection-detail.mjs?v=0.11.18';
-import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.11.18';
+import {createWalkingMap} from './walking-map.mjs?v=0.11.19';
+import {stationMapMarker} from './station-map-marker.mjs?v=0.11.19';
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.19';
+import {CITY_PREFERENCE,CITY_PROFILES,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.11.19';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.11.19';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.11.19';
+import {installMapPositions,publishMapPosition,clearMapPosition,setMapPositionExternalTracking} from './map-position.mjs?v=0.11.19';
+import {createAppUpdates} from './app-updates.mjs?v=0.11.19';
+import {bindAppShare} from './app-share.mjs?v=0.11.19';
+import {createNotifications} from './notifications.mjs?v=0.11.19&r=3';
+import {visibleStationIds,bindStationViewport} from './station-viewport.mjs?v=0.11.19';
+import {jsonExportName} from './export-file.mjs?v=0.11.19';
+import {transferableJourneys} from './journey-favorites.mjs?v=0.11.19';
+import {mergeTransferBundle} from './transfer.mjs?v=0.11.19';
+import {warningsForTargets,updateWarningPanel,stationNoticeSections,trafficNoticeMarkup as noticeMarkup} from './warning-panel.mjs?v=0.11.19';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.19';
+import {MODE_CHOICES,modeButtonMarkup,compactFiltersMarkup,bindModeToggles,bindLocationDisclosure} from './transport-controls.mjs?v=0.11.19';
+import {createThemeController} from './theme.mjs?v=0.11.19';
+import {favoriteEntries,groupFavoriteEntries,moveFavoriteStation,removeFavoriteStation,addStationFavorite,favoriteDistanceText,favoriteStopIds} from './favorite-state.mjs?v=0.11.19';
+import {openStationFavoritePicker} from './favorite-picker.mjs?v=0.11.19';
+import {connectionsAtStation} from './station-search.mjs?v=0.11.19';
+import {createLocationController,locationMessage} from './location.mjs?v=0.11.19';
+import {updateLocation,locationSnapshot,positionAgeText} from './location-state.mjs?v=0.11.19';
+import {MODE_LABELS,stationLines,stationPriority,stationQueryIncomplete,stationMatchesModes,selectStopIds,enrichStops,nearbyMapStops} from './station-catalog.mjs?v=0.11.19';
+import {retainDepartures,departureIsFresh,retryDelay} from './departure-cache.mjs?v=0.11.19';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.19';
+import {stationAddressMarkup} from './station-addresses.mjs?v=0.11.19';
+import {createAddressLookup} from './address-index.mjs?v=0.11.19';
+import {googleMapsLocation,googleMapsWalk} from './map-links.mjs?v=0.11.19';
+import {updateTrafficCache,trafficAtStation,affectedNoticeLines} from './traffic-info.mjs?v=0.11.19';
+import {createDebugging} from './debugging.mjs?v=0.11.19&r=2';
+import {DEFAULTS,MAX_STOP_IDS,mergeSettings,parseWlStopsCsv,parseWlMonitors,modeFromWl,withinRadius,haversineMeters,walkingMinutes,reachability,countdownMinutes,availableDeparts,railDepartures,dedupeFavorites,favoriteKey,favoriteMatches} from './core.mjs?v=0.11.19';
+import {mergeObservedLines,evidenceForStation} from './line-evidence.mjs?v=0.11.19';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.19';
+import {departureAtStation,connectionDepartures,connectionRequestIds,lineHasCurrentDeparture,createConnectionNavigation,connectionUrlTarget} from './connection-detail.mjs?v=0.11.19';
+import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.11.19';
 const $=id=>document.getElementById(id), escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let notifications=null;
 const timetable=createTimetable();
 let plannedDepartures=[],scheduleRequest=null,regionalRequest=null,regionalRetry=0,regionalCycle=0;const cityLoads=new Map();
-const appUpdates=createAppUpdates({version:'0.11.18'});
+const appUpdates=createAppUpdates({version:'0.11.19'});
 const keys={settings:'foama.settings.v1',favorites:'foama.favorites.v1',stops:'foama.stops.v1',rail:'foama.rail.v1',departures:'foama.departures.v1',lines:'foama.stationLines.v1'};
 function datasetDB(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window))return reject(Error('IndexedDB fehlt'));const request=indexedDB.open('foama-wien',1);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains('datasets'))db.createObjectStore('datasets');};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function datasetGet(key){let db;try{db=await datasetDB();return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readonly'),request=tx.objectStore('datasets').get(key);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error);});}catch{return null;}finally{db?.close();}}
 async function datasetPut(key,value){const db=await datasetDB();try{return await new Promise((resolve,reject)=>{const tx=db.transaction('datasets','readwrite');tx.objectStore('datasets').put(value,key);tx.oncomplete=()=>resolve(true);tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
 function retrieve(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}}
-const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.11.18'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
+const state={settings:mergeSettings(retrieve(keys.settings,{})),favorites:dedupeFavorites(retrieve(keys.favorites,[])),stops:[],rail:null,position:null,manual:false,nearby:[],expanded:new Set(),departures:[],fetchError:'',locationError:'',routes:new Map(),lastWlFetch:0,lastRefresh:null,watchId:null,timer:null,renderTimer:null,routingLock:false,fetchLock:false,mode:'',transfer:null,config:{apiBase:'',version:'0.11.19'},idleMode:false,stopsUnavailable:false,lastQueryKey:'',nextFetchTimer:null,lastRouteAt:0,lastWlData:[],map:null,liveSource:'auto'};
 Object.assign(state,{locationData:{},locationPhase:'ready',locationInfo:{phase:'ready'},nearbyAnchor:null,addressLookup:null,bundledStops:[],learnedLines:retrieve(keys.lines,{}),apiFailures:0,retryAt:0,batchCycle:0,queriedIds:new Set(),platformChecks:new Map(),positionMap:null});
 const themeControl=createThemeController({preference:state.settings.theme});
 state.trafficCache=retrieve('foama.traffic.v1',{});state.noticesError=false;
@@ -566,16 +566,16 @@ function bindEvents(){const persistDetails=e=>{const key=e.target.dataset?.persi
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopActive();else{startActive();if($('routeDialog').open&&state.routeStop)openRoute(state.routeStop);}});window.addEventListener('pagehide',stopActive);
 }
 async function prepareTransfer(){if(location.hash.includes('session='))location.replace('./transfer.html'+location.hash);}
-async function init(){try{const config=await fetchJson('./config.json?v=0.11.18');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
-  try{const baked=await fetchJson('./data/stops.json?v=0.11.18');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
+async function init(){try{const config=await fetchJson('./config.json?v=0.11.19');state.config={...state.config,...config};}catch{}configureUI();bindEvents();appUpdates.start();if(['debugging','settings'].some(key=>new URLSearchParams(location.search).has(key)))$('settings').showModal();
+  try{const baked=await fetchJson('./data/stops.json?v=0.11.19');state.stops=Array.isArray(baked.stops)?baked.stops:[];state.bundledStops=state.stops;}catch{}
   const storedStops=(await datasetGet('wl'))||retrieve(keys.stops,[]);if(storedStops.length)state.stops=[...state.stops.filter(s=>s.provider!=='wl'),...enrichStops(storedStops,state.bundledStops)];
   try{state.rail=(await datasetGet('rail'))||retrieve(keys.rail,null)||await fetchJson('./data/rail.json');if(state.rail?.stops)state.stops.push(...state.rail.stops);}catch{}
   await ensureCityStops(state.cityProfile.id).catch(()=>{});renderCity();if(cityControl.preference()!=='auto'&&!state.position)setPosition(state.cityProfile.center,true);
   state.stopsUnavailable=!state.stops.length;$('stopNames').innerHTML=activeStops().slice(0,9000).map(s=>`<option value="${escape(s.name)}"></option>`).join('');
   // Request a prepared WL index from the proxy only if the static bundle contains none.
   if(state.stopsUnavailable&&(!state.config.staticOnly||state.settings.proxyBase||state.config.apiBase)){try{const api=state.settings.proxyBase||state.config.apiBase||(location.origin!=='null'?location.origin:'');if(!api)throw Error('Kein Index-Backend konfiguriert');const index=await fetchJson(`${api}/api/stops-index`,10_000);if(index.stops?.length){state.stops=index.stops;state.stopsUnavailable=false;$('stopNames').innerHTML=state.stops.map(s=>`<option value="${escape(s.name)}"></option>`).join('');}}catch{}}
-  void fetchJson('./data/station-addresses.json?v=0.11.18').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
-  void fetchJson('./data/streets.json?v=0.11.18').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
+  void fetchJson('./data/station-addresses.json?v=0.11.19').then(data=>{state.stationAddresses=data;renderStationAddress();}).catch(()=>{});
+  void fetchJson('./data/streets.json?v=0.11.19').then(data=>{state.addressLookup=createAddressLookup(data);renderLocation();renderStationAddress();}).catch(()=>{state.addressLookup=()=>null;renderStationAddress();});
   for(const stop of state.stops.filter(s=>s.provider==='rail')){const departures=(state.rail?.departures||[]).filter(d=>(stop.platformIds||[stop.id.slice(5)]).includes(d.stop));stop.lines=[...new Map(departures.map(d=>[(d.mode||'regional')+'|'+d.route,{route:d.route,mode:d.mode||'regional'}])).values()];}
   if(['#favoriten','#naehe'].includes(location.hash)){state.settings.view=location.hash==='#favoriten'?'fav':'near';saveSettings();}saveFavorites();const linkedConnection=connectionUrlTarget(location.search,state.stops);if(linkedConnection&&!window.history.state?.foamaConnection)connectionNavigation.open(linkedConnection,{replace:true});else connectionNavigation.sync();render();await prepareTransfer();if(!state.manual&&!state.focusedConnection)void locationControl.init();startActive();if(state.stopsUnavailable)msgStatus('Haltestellenkatalog fehlt · CSV importieren oder Serverdaten aktivieren',true);
   notifications=createNotifications({getFavorites:()=>state.favorites,getStops:()=>state.stops,getJourneys:()=>retrieve('foama.journeyFavorites.v1',[])});

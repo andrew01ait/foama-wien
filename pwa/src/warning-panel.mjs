@@ -1,4 +1,4 @@
-import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice,noticeLines,affectedNoticeLines} from './traffic-info.mjs?v=0.11.18';
+import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice,noticeLines,affectedNoticeLines} from './traffic-info.mjs?v=0.11.19';
 
 const noticeDate=iso=>iso?new Date(iso).toLocaleString('de-AT',{timeZone:'Europe/Vienna',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
 export function trafficNoticeMarkup(notice,{escape,renderBadge,hasError=false}={}){

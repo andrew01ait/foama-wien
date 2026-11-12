@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {vehicleReadiness} from '../pwa/src/vehicle-readiness.mjs';
+import {vehicleReadiness,createVehicleReadiness} from '../pwa/src/vehicle-readiness.mjs';
 const now=100000,base={at:now,stale:false,partial:false,coverage:[0,1,2],expected:3,rows:[{},{},{}],tracks:[]};
 const track=(hits=1,extra={})=>({hits,blocked:'',anchors:new Map([[0,{}],[1,{}],[2,{}]]),...extra});
 test('loading, ready and first-query stages distinguish real data from work still needed',()=>{
@@ -34,4 +34,12 @@ test('future journeys, missing positions and omitted boards receive distinct exp
  const pending=vehicleReadiness({state:{...base,tracks:[track(2)]},range:{start:0,end:5},now});assert.match(pending.title,/Position noch offen/);assert.doesNotMatch(pending.detail,/außerhalb/);
  const future=vehicleReadiness({state:{...base,tracks:[track(2,{schedule:{start:0,times:[[now+600000,now+600000]]}})]},range:{start:0,end:5},now});assert.match(future.title,/starten später/);assert.doesNotMatch(future.detail,/außerhalb/);
  const budget=vehicleReadiness({state:{...base,expected:2,coverage:[0,1],budgetLimited:6},now});assert.match(budget.steps[1].detail,/2 \/ 2.*6 weitere Halte/);assert.equal(budget.steps[1].status,'active');
+});
+
+test('the compact progress indicator advances with evidence and retreats when its source expires',()=>{
+ const nodes=new Map(),node=()=>({dataset:{},attributes:{},textContent:'',innerHTML:'',setAttribute(key,value){this.attributes[key]=value;},querySelector(key){if(!nodes.has(key))nodes.set(key,node());return nodes.get(key);}}),widget=createVehicleReadiness({doc:{createElement:node}}),bar=nodes.get('.vehicle-readiness-progress');
+ assert.equal(bar.attributes['aria-valuenow'],'0');
+ widget.render({state:{...base,tracks:[track()]},waitingUntil:now+23000,now});assert.equal(bar.attributes['aria-valuenow'],'3');assert.match(bar.attributes['aria-valuetext'],/Bestätigung.*1 \/ 2/);assert.equal((bar.innerHTML.match(/data-state="done"/g)||[]).length,3);assert.equal((bar.innerHTML.match(/data-state="active"/g)||[]).length,1);
+ widget.render({state:{...base,tracks:[track(2,{position:{progress:2}})]},now});assert.equal(bar.attributes['aria-valuenow'],'4');assert.equal((bar.innerHTML.match(/data-state="done"/g)||[]).length,4);
+ widget.render({state:{...base,stale:true,tracks:[track(2,{position:{progress:2}})]},now});assert.equal(bar.attributes['aria-valuenow'],'1');assert.match(nodes.get('.vehicle-readiness-phase').textContent,/Stationsdaten.*Frischer Quellenstand/);assert.equal((bar.innerHTML.match(/data-state="done"/g)||[]).length,1);
 });

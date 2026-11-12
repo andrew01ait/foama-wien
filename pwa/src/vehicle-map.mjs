@@ -1,8 +1,8 @@
-import {ensureJourneyMap} from './journey-map.mjs?v=0.11.18';
-import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.18';
-import {pilotGeometry} from './vehicle-tracker.mjs?v=0.11.18';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.18';
-import {stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.18';
+import {ensureJourneyMap} from './journey-map.mjs?v=0.11.19';
+import {decodeJourneyPolyline,routeColor} from './journey-geometry.mjs?v=0.11.19';
+import {pilotGeometry} from './vehicle-tracker.mjs?v=0.11.19';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.19';
+import {stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.19';
 
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

@@ -1,6 +1,6 @@
-import {jsonExportName} from './export-file.mjs?v=0.11.18';
+import {jsonExportName} from './export-file.mjs?v=0.11.19';
 import {DIRECT_CATALOGUE_URL, API_RATE_LIMIT_MS, monitorUrl, proxyMonitorUrl,
-  summarizeMonitor,summarizeCsv,classifyFetchError,appendDiagnostic,buildReport,validateRbl} from './diagnostic-core.mjs?v=0.11.18';
+  summarizeMonitor,summarizeCsv,classifyFetchError,appendDiagnostic,buildReport,validateRbl} from './diagnostic-core.mjs?v=0.11.19';
 const $=id=>document.getElementById(id);
 const LOG_KEY='foama.diagnostics.events.v1', RATE_KEY='foama.wl.lastApiAttempt.v1';
 const HTML_ESCAPE=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
