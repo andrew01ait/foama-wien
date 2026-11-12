@@ -1,3 +1,4 @@
+import {createVehiclePoller} from '../pwa/src/vehicle-poller.mjs';
 import {createVehicleSession} from '../pwa/src/vehicle-session.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
 import {createStationVehiclePanel,createHorizontalVehicleStrip} from '../pwa/src/vehicle-strip.mjs';
@@ -161,4 +162,16 @@ test('a reopened connection panel immediately uses whole-line evidence, IDs and 
   panel=createStationVehiclePanel(options);panel.element.open=true;panel.element.emit('toggle');await flush();
   const holder=panel.element.querySelector('.station-vehicle-strip');assert.equal(panel.element.querySelector('.station-vehicle-readiness').hidden,true,'do not re-enter initialization when fresh positions already exist');assert.deepEqual(holder.children[0].querySelector('.vehicle-strip-vehicles').children.map(n=>n.dataset.vehicle),firstIds);assert.equal(panel.notBefore(),whole.waitingUntil);assert.equal(loads,2,'only the local line metadata is opened again; no new live source is needed');
  }finally{panel.dispose();Date.now=originalNow;d.restore();}
+});
+
+
+test('an embedded position panel and full-line poller cannot request positions together',async()=>{
+ const d=dom();let signal,changes=0;
+ const panel=createStationVehiclePanel({target,dataSource:{index:async()=>({index}),line:async()=>({data,line,manifest})},onIdsChanged:()=>changes++});
+ const poller=createVehiclePoller({ids:()=>['1'],storage:null,locks:null,visible:()=>true,onData:assert.fail,onError:assert.fail,fetch:(_url,{signal:current})=>{signal=current;return new Promise((_,reject)=>current.addEventListener('abort',()=>reject(Error('aborted'))));}});
+ try{
+  panel.element.open=true;panel.element.emit('toggle');await flush();assert.ok(panel.ids().length);const before=changes;
+  poller.start();await flush();assert.equal(panel.ids().length,0,'a superseded panel contributes no vehicle-position IDs');assert.ok(changes>before,'the shared monitor is notified to drop its old position scope');
+  panel.element.querySelector('[data-vehicle-view="map"]').emit('click');assert.equal(poller.running(),false);assert.equal(signal.aborted,true);assert.ok(panel.ids().length,'an explicit visible panel action can take over after aborting the old line');
+ }finally{panel.dispose();poller.stop();await flush();d.restore();}
 });

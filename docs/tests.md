@@ -1,3 +1,11 @@
+## PWA 0.11.23 · Nur eine aktive Fahrzeuglinie · 12.11.2026
+
+Nutzerregel: Fahrzeugpositionen nur für eine aktive Linie gleichzeitig laden. `vehicle-position-owner.mjs` teilt eine exklusive aktive Zuständigkeit zwischen Ganzlinien-Poller und eingebetteten Stations-/A-nach-B-Panels. Übernahme beendet den vorigen Abruf synchron, entfernt dessen Timer und Fahrzeug-Abfrageumfang und verwirft verspätete Antworten. Verborgene Ansichten übernehmen keine Zuständigkeit. Geschlossene, entfernte und unsichtbare Panels geben sie frei. Ein alter Besitzer kann seinen Nachfolger nicht freigeben. Bereits gespeicherte Linienstände bleiben passiv und erzeugen keine Requests. Bestehende Seitensichtbarkeit, globale Monitor-Startsperre und 30-s-/Cache-/Backoff-Grenzen bleiben erhalten.
+
+Die zusätzlichen Warnungsanker aus 0.11.22 werden nur als Meldungs-/Abfahrtsdaten verarbeitet. Der einzige aktive Fahrzeugtracker normalisiert ausschließlich seine gewählte Linie und Richtung. Keine parallele Fahrzeugberechnung für andere Warnungslinien. Warnungsvereinheitlichung und Cacheübernahme gespeicherter Wege aus 0.11.22 enthalten; Wear 0.8.0/27 unverändert.
+
+493 Web-/Server-Tests bestanden, einschließlich zweier konkurrierender Poller mit maximal einem aktiven Request, Abbruch vor Übernahme, verworfener alter Antwort, verborgenem Start, altem Freigabeversuch und tatsächlichem Panel-/Pollerwechsel. Details: docs/vehicle-line-session.md.
+
 ## PWA 0.11.22 · Einheitliche Warnmeldungen und gespeicherte Wege · 12.11.2026
 
 Monitorübersicht, Stations-/Verbindungsdetails und A nach B verwenden denselben Warnungsbaustein. Ein ruhiger Kopf mit Warnsymbol, Titel, Anzahl und Aufklappen; betroffene Linien und Vorschau nur geschlossen, im offenen Inhalt einmal pro Meldung. Der Titel wiederholt den direkt daneben stehenden Linienpräfix nicht. Kategorie-/Scope-Doppelzeilen und wiederholte Warnungen unter den Übersichtskarten entfallen. Aufzüge/Fahrtreppen und zukünftige Hinweise bleiben getrennt neutral zugänglich. Quellenstand, Gültigkeit, Alterskennzeichnung und Betreiberlink bleiben erhalten. Helles und dunkles Farbschema sowie schmale Ansichten berücksichtigt.

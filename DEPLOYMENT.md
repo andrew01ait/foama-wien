@@ -1,6 +1,6 @@
 # Veröffentlichung und Betrieb
 
-Aktueller App-Stand: PWA 0.11.22 / Wear 0.8.0, nativer Code 27. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+Aktueller App-Stand: PWA 0.11.23 / Wear 0.8.0, nativer Code 27. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
 
 ## Drei getrennte Ergebnisse
 

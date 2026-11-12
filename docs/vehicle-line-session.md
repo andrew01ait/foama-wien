@@ -36,3 +36,12 @@ Automatisierte Regressionen prüfen dieselben Tracker-/Pollerobjekte, Kennungen 
 
 
 Die zusätzlichen Regressionen für 0.11.21 prüfen reale aufgezeichnete Busdaten beim Wechsel Panel → ganze Linie → neues Panel, gleiche IDs/Bestätigungen ohne erneuten Abruf, den ersten unbestätigten Stand ohne falsche Cachebestätigung, neuere Daten beim Zurückkehren, Quellalter, graue Übergangsphase/Ablauf, Varianten-/Quell-/Tabtrennung, Speicherfehler und übernommene Retry-Fristen. Browserprobe mit 29B/Paukerwerkstraße über die echte Verbindungsseite und „Ganze Linie“: bestätigter Gesamtstand im Stationspanel erkannt, anschließend vorhandene Fahrtkennungen 29B · 06 und 29B · 08 ohne neuen Initialisierungsdurchlauf auf der ganzen Linie dargestellt; ihrem Alter entsprechend grau. Keine physische Fahrzeugzählung.
+
+
+## Eine aktive Fahrzeuglinie (0.11.23)
+
+`vehicle-position-owner.mjs` verwaltet innerhalb der App die aktive Zuständigkeit für Positionen. Ganzlinien-Poller und geöffnete Stationspanels beanspruchen sie ausschließlich sichtbar und mit geprüfter Linie. Eine neue Ansicht stoppt die vorherige Zuständigkeit synchron: Requests abbrechen, Timer entfernen, keine neuen Fahrzeug-IDs in den gemeinsamen Monitor geben und verspätete Antworten verwerfen. Inaktive Panels pausieren die Bewegung und können durch bewusstes Öffnen oder Ansichtswechsel wieder übernehmen. Ein alter Besitzer kann die neuere Zuständigkeit nicht freigeben.
+
+Passive gespeicherte Trackerstände haben diese Zuständigkeit nicht und rufen keine Daten ab. Zusätzliche Halte für Warnungen/Abfahrten starten keine weitere Positionsermittlung. Der aktive Tracker nimmt ausschließlich Beobachtungen seiner gewählten Linie, Richtung und Variante an. Die vorhandenen Seiten-/Hintergrundstopps und die globale 30-Sekunden-Monitorsperre gelten zusätzlich; keine neuen Hintergrundaufträge oder Geräte-/Nutzerkennungen.
+
+Regressionen prüfen zwei konkurrierende Poller ohne die normale Startsperre als zusätzliche Absicherung: maximal ein aktiver Request, Abbruch vor dem nächsten Start, verworfene späte Antwort. Weitere Fälle: verborgener Start verdrängt keine aktive Linie; Panel verdrängt Poller; tatsächlicher Stationspanel-/Ganzlinienwechsel; alte Freigabe verändert den neuen Besitzer nicht. 493 Web-/Server-Tests bestanden.

@@ -1,11 +1,12 @@
-import {createVehicleSession} from './vehicle-session.mjs?v=0.11.22';
-import {recordMonitorSource} from './monitor-timing.mjs?v=0.11.22';
-import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.22';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.22';
-import {routeColor} from './journey-geometry.mjs?v=0.11.22';
-import {normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.22';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.22';
-import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.22';
+import {createVehiclePositionOwner} from './vehicle-position-owner.mjs?v=0.11.23';
+import {createVehicleSession} from './vehicle-session.mjs?v=0.11.23';
+import {recordMonitorSource} from './monitor-timing.mjs?v=0.11.23';
+import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.23';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.23';
+import {routeColor} from './journey-geometry.mjs?v=0.11.23';
+import {normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.23';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.23';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.23';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();
 
@@ -31,10 +32,11 @@ export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource
  const select=element.querySelector('select'),message=element.querySelector('.station-vehicle-message'),holder=element.querySelector('.station-vehicle-strip'),mapHolder=element.querySelector('.station-vehicle-map-holder'),full=element.querySelector('.station-vehicle-full'),schemaButton=element.querySelector('[data-vehicle-view="schema"]'),mapButton=element.querySelector('[data-vehicle-view="map"]');
  const readiness=createVehicleReadiness(),progressHolder=element.querySelector('.station-vehicle-readiness');progressHolder.append(readiness.element);holder.hidden=true;mapHolder.hidden=true;message.hidden=true;
  select.disabled=true;let disposed=false,generation=0,packageData=null,tracker=null,vehicleSession=null,direction=null,range=null,strip=null,mapView=null,mapShown=false,view='schema',chosen='',animation=0,lastFrame=0,waitingUntil=0,lastAttempt=0,requesting=false,repeated=false;
+ const owner=createVehiclePositionOwner(()=>{cancelAnimationFrame(animation);requesting=false;mapShown=false;mapView?.hide();onIdsChanged();draw();});
  const active=own=>!disposed&&own===generation&&element.open&&!document.hidden;
- function ids(){return !disposed&&element.open&&!document.hidden?range?.ids||[]:[];}
+ function ids(){return !disposed&&element.open&&!document.hidden&&owner.active()?range?.ids||[]:[];}
  function draw(){
-  if(!tracker)return;const all=tracker.view(),state=target.towards?{...all,tracks:all.tracks.filter(t=>vehicleTargetMatches(direction,t.schedule.towards,target.towards)),rows:all.rows.filter(r=>vehicleTargetMatches(direction,r.towards,target.towards))}:all,hasPositions=stationVehicleTracks(state,range).length>0;
+  if(!tracker)return;if(!owner.active()){progressHolder.hidden=false;holder.hidden=true;mapHolder.hidden=true;message.hidden=true;readiness.render({stage:'ready',state:tracker.view(),paused:true});return;}const all=tracker.view(),state=target.towards?{...all,tracks:all.tracks.filter(t=>vehicleTargetMatches(direction,t.schedule.towards,target.towards)),rows:all.rows.filter(r=>vehicleTargetMatches(direction,r.towards,target.towards))}:all,hasPositions=stationVehicleTracks(state,range).length>0;
   progressHolder.hidden=hasPositions;holder.hidden=!hasPositions||view!=='schema';mapHolder.hidden=!hasPositions||view!=='map';message.hidden=!hasPositions;
   if(!hasPositions)readiness.render({stage:'ready',state,range,requesting,waitingUntil:Math.max(waitingUntil,vehicleSession.waitingUntil),repeated});
   if(hasPositions&&view==='map'&&element.open&&!document.hidden){
@@ -48,14 +50,14 @@ export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource
   full.href=vehicleUrl({...target,towards:direction?.towards||target.towards,patternId:direction?.patternId,view:view==='map'?'karte':'schema'});
   draw();
  }
- function setView(next){if(disposed||!direction||next===view)return;view=next;syncView();}
+ function setView(next){if(disposed||!direction||next===view&&owner.active())return;const reclaim=!owner.active();view=next;if(reclaim)resume();syncView();if(reclaim)onIdsChanged();}
  function animate(at){if(disposed||!element.open||document.hidden)return;if(at-lastFrame>=250){lastFrame=at;draw();}animation=requestAnimationFrame(animate);}
- function resume(){vehicleSession?.refresh();if(vehicleSession)waitingUntil=vehicleSession.waitingUntil;cancelAnimationFrame(animation);if(!disposed&&element.open&&!document.hidden)animation=requestAnimationFrame(animate);}
+ function resume(){vehicleSession?.refresh();if(vehicleSession)waitingUntil=vehicleSession.waitingUntil;cancelAnimationFrame(animation);if(!disposed&&element.open&&!document.hidden){owner.claim();animation=requestAnimationFrame(animate);}}
  function choose(id){
   const original=packageData.data.directions.find(d=>d.id===id);if(!original)return;
   mapView?.dispose();mapView=null;mapShown=false;chosen='';waitingUntil=0;requesting=false;repeated=false;direction=original;range=stationVehicleRange(direction,target.stopId);vehicleSession=createVehicleSession(direction,packageData.manifest,sessionOptions);tracker=vehicleSession.tracker;waitingUntil=vehicleSession.waitingUntil;
   strip=createHorizontalVehicleStrip({direction,range,onSelect:selectVehicle});holder.replaceChildren(strip.element);mapHolder.replaceChildren();select.value=id;schemaButton.disabled=false;mapButton.disabled=false;
-  message.textContent='Frische Stationsmeldungen werden beim nächsten gemeinsamen Abruf geladen.';syncView();onIdsChanged();resume();
+  message.textContent='Frische Stationsmeldungen werden beim nächsten gemeinsamen Abruf geladen.';resume();syncView();onIdsChanged();
  }
  async function load(){
   const own=++generation;readiness.render({stage:'line'});message.textContent='Linienverlauf wird geladen …';
@@ -64,8 +66,8 @@ export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource
    const sided=candidates.filter(d=>target.rbls?.includes(d.stops.find(s=>s.id===target.stopId)?.rbl));if(sided.length)candidates=sided;select.disabled=false;const filtered={...loaded.data,directions:candidates},preferred=preferredVehicleDirection(filtered,loaded.line,loaded.manifest,{stopId:target.stopId,towards:target.towards});select.innerHTML=candidates.map(d=>`<option value="${escape(d.id)}">→ ${escape(d.towards)} · ab ${escape(d.stops[0].name)} · ${d.stops.length} Halte</option>`).join('');choose(preferred.id);
   }catch(error){if(active(own)){range=null;readiness.render({stage:'line',error:error.message});message.textContent=error.message;onIdsChanged();}}
  }
- element.addEventListener('toggle',()=>{if(disposed)return;if(element.open){if(packageData&&direction){resume();syncView();onIdsChanged();}else void load();}else{generation++;cancelAnimationFrame(animation);mapShown=false;mapView?.hide();onIdsChanged();}});
+ element.addEventListener('toggle',()=>{if(disposed)return;if(element.open){if(packageData&&direction){resume();syncView();onIdsChanged();}else void load();}else{owner.release();generation++;cancelAnimationFrame(animation);mapShown=false;mapView?.hide();onIdsChanged();}});
  select.addEventListener('change',()=>choose(select.value));schemaButton.addEventListener('click',()=>setView('schema'));mapButton.addEventListener('click',()=>setView('map'));
- const visibility=()=>{if(document.hidden){generation++;cancelAnimationFrame(animation);mapShown=false;mapView?.hide();}else if(element.open){if(packageData&&direction){resume();syncView();}else void load();}};document.addEventListener('visibilitychange',visibility);
- return {element,ids,notBefore:()=>vehicleSession?.waitingUntil||0,waiting(ms){requesting=false;vehicleSession?.waiting(ms);waitingUntil=Date.now()+ms;draw();},requesting(at=Date.now()){lastAttempt=at;requesting=true;draw();},ingest(raw,submittedIds=ids()){if(!ids().length||!tracker)return;try{requesting=false;waitingUntil=Math.max(lastAttempt?lastAttempt+30000:0,recordMonitorSource(raw,submittedIds));vehicleSession.waiting(Math.max(0,waitingUntil-Date.now()));const submitted=new Set(submittedIds.map(String)),scope=direction.stops.map(s=>s.rbl).filter(id=>id&&submitted.has(id));if(!scope.length)return;repeated=tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),scope,ids()))?.ignored===true;message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){requesting=false;tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
+ const visibility=()=>{if(document.hidden){owner.release();generation++;cancelAnimationFrame(animation);mapShown=false;mapView?.hide();}else if(element.open){if(packageData&&direction){resume();syncView();}else void load();}};document.addEventListener('visibilitychange',visibility);
+ return {element,ids,notBefore:()=>vehicleSession?.waitingUntil||0,waiting(ms){requesting=false;vehicleSession?.waiting(ms);waitingUntil=Date.now()+ms;draw();},requesting(at=Date.now()){lastAttempt=at;requesting=true;draw();},ingest(raw,submittedIds=ids()){if(!ids().length||!tracker)return;try{requesting=false;waitingUntil=Math.max(lastAttempt?lastAttempt+30000:0,recordMonitorSource(raw,submittedIds));vehicleSession.waiting(Math.max(0,waitingUntil-Date.now()));const submitted=new Set(submittedIds.map(String)),scope=direction.stops.map(s=>s.rbl).filter(id=>id&&submitted.has(id));if(!scope.length)return;repeated=tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),scope,ids()))?.ignored===true;message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){requesting=false;tracker?.fail(reason);message.textContent=reason;draw();},dispose(){owner.release();disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
 }

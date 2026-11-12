@@ -1,9 +1,9 @@
 {
-  "version": "0.11.22",
+  "version": "0.11.23",
   "wearVersionCode": 27,
   "wearApkUrl": "/apk/foama-wien-wear-0.8.0.apk",
   "wearApkSha256": "3b814dfed160470a470733ce795f7ead082ecaf0abb908d4304de4d0ac1fb1ba",
-  "changelog": "Warnmeldungen sehen in Übersicht, Verbindungsdetail und A nach B einheitlich aus. Keine doppelten Warnsymbole oder Linienkennzeichen beim Aufklappen und keine wiederholten Warnungen unter jeder Übersichtskarte. Gespeicherte Wege übernehmen bereits geladene Warnungen sofort; alle Fahrtabschnitte werden im bestehenden Abruflimit berücksichtigt.",
+  "changelog": "Einheitliche Warnmeldungen ohne doppelte Symbole und Linienkennzeichen. Gespeicherte A-nach-B-Wege übernehmen vorhandene Warnungen sofort. Fahrzeugpositionen haben genau einen aktiven Besitzer: Eine neue Linie stoppt den bisherigen Abruf; andere Liniendaten bleiben passiv gespeichert.",
   "wearVersion": "0.8.0",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 5213642,
@@ -16,8 +16,8 @@
     "Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen."
   ],
   "releaseNotes": [
-    "Einheitliche, übersichtliche Warnmeldungen in allen Ansichten.",
-    "Keine doppelten Symbole, Linienkennzeichen oder Übersichtswarnungen.",
-    "Warnungen erscheinen auch bei gespeicherten A-nach-B-Wegen."
+    "Einheitliche Warnmeldungen in Übersicht, Details und A nach B.",
+    "Warnungen auch bei gespeicherten Wegen; keine doppelten Kennzeichen.",
+    "Nur eine Linie lädt Fahrzeugpositionen; beim Wechsel wird die vorige beendet."
   ]
 }

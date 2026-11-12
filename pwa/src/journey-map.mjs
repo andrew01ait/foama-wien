@@ -1,5 +1,5 @@
-import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.11.22';
-import {installMapPositions} from './map-position.mjs?v=0.11.22';
+import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.11.23';
+import {installMapPositions} from './map-position.mjs?v=0.11.23';
 let pending;
 export function ensureJourneyMap(){
  if(window.L)return Promise.resolve(installMapPositions(window.L));

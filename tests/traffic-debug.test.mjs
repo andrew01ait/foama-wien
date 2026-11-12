@@ -75,7 +75,7 @@ test('error export admits only technical fields and bounded counts, never locati
   lat:48.123456,lon:16.123456,stopId:'PRIVATE_STOP',favorites:['PRIVATE_FAVORITE'],url:'PRIVATE_URL',message:'PRIVATE_MESSAGE',summary:{position:'PRIVATE_POSITION'},stack:'PRIVATE_STACK',qrKey:'PRIVATE_KEY'});
  const report=debugReport(events,{secureContext:true,online:true,serviceWorkerControlled:true,pageProtocol:'https:',latitude:48.123456});
  const json=JSON.stringify(report);assert.equal(report.format,'foama-wien-debug-v1');assert.equal(report.events[0].upstreamHttpStatus,403);
- assert.ok(!json.includes('PRIVATE_'));assert.ok(!json.includes('48.123456'));assert.equal(report.version,'0.11.22');
+ assert.ok(!json.includes('PRIVATE_'));assert.ok(!json.includes('48.123456'));assert.equal(report.version,'0.11.23');
  let bounded=[];for(let i=0;i<100;i++)bounded=appendDebugEvent(bounded,{kind:'app',outcome:'error',code:'unexpected'});assert.equal(bounded.length,60);
 });
 test('collapsed settings logger opens without requests and its actual download handler exports a valid private-data-free JSON blob',async()=>{
