@@ -28,3 +28,16 @@ test('watch honours shared monitor backoff, rejects direction substitution and a
  const wrong=await (await s.handle(new Request(request().url.replace('Siebenhirten','Unknown')))).json();assert.equal(wrong.available,false);assert.equal(s.calls(),1);
  assert.equal((await s.handle(new Request(request().url,{method:'POST'}))).status,405);
 });
+test('changing the selected stop keeps the line evidence, vehicle IDs, source age and retry deadline',async()=>{
+ const s=setup();await s.handle(request());s.snapshot(1);const original=await (await s.handle(request())).json(),other=direction.stops[11],url=new URL(request().url);url.searchParams.set('stop',other.id);
+ const changed=await (await s.handle(new Request(url))).json();assert.equal(s.calls(),2,'station switching within the gate must not fetch again');assert.equal(changed.at,original.at);assert.ok(changed.tracks.length>0);assert.ok(changed.tracks.every(t=>original.tracks.some(x=>x.id===t.id)));assert.equal(changed.stops.at(-1).id,other.id);assert.equal(changed.retryAfterMs,original.retryAfterMs);assert.equal(changed.board.foamaMonitorAt,recording[1].foamaMonitorAt);
+ s.advance(original.retryAfterMs+1);await s.handle(new Request(url));assert.equal(s.calls(),3);assert.ok(s.ids.at(-1).includes(other.rbl));assert.ok(s.ids.at(-1).length<=8,'only the selected stop excerpt is requested');
+});
+test('concurrent views of one line share one pending monitor request and retain first-source uncertainty',async()=>{
+ let release,calls=0;const now=()=>Date.parse(recording[0].foamaMonitorAt)+1000,handle=createWearApproach({assets,now,monitor:()=>{calls++;return new Promise(resolve=>release=()=>resolve(Response.json(recording[0])));}}),a=handle(request());
+ while(!release)await new Promise(setImmediate);const url=new URL(request().url);url.searchParams.set('stop',direction.stops[11].id);const b=handle(new Request(url));await new Promise(setImmediate);assert.equal(calls,1);release();const [first,other]=await Promise.all([a.then(r=>r.json()),b.then(r=>r.json())]);assert.equal(first.tracks.length,0);assert.equal(other.tracks.length,0);assert.ok(first.progress<4);assert.equal(first.at,other.at);
+});
+test('source cache expiry delays the next request and errors never refresh the retained board timestamp',async()=>{
+ let clock=Date.parse(recording[0].foamaMonitorAt)+1000,calls=0,fail=false;const source=recording[0].foamaMonitorAt,handle=createWearApproach({assets,now:()=>clock,monitor:async()=>{calls++;return fail?new Response('',{status:429,headers:{'retry-after':'120'}}):Response.json({...recording[0],foamaNextMonitorAt:new Date(Date.parse(source)+35000).toISOString()});}});
+ const first=await (await handle(request())).json();assert.ok(first.retryAfterMs>=34000);clock+=31000;await handle(request());assert.equal(calls,1);clock+=4000;fail=true;const failed=await (await handle(request())).json();assert.equal(calls,2);assert.equal(failed.problem,true);assert.equal(failed.board.foamaMonitorAt,source);assert.equal(failed.arrivalAt,null);assert.ok(failed.retryAfterMs>=120000);
+});

@@ -10,7 +10,7 @@ const fixture=JSON.parse(readFileSync(new URL('./fixtures/journey-westbahnhof-ka
 test('explicit search calls only the fixed public provider with identification and returns normalized timetable data',async()=>{
  const db=localD1();try{let call;
   const response=await journeyApi(req({...body,privateFavorites:'PRIVATE_FAVORITES',userId:'PRIVATE_USER',url:'https://other.test'}),{DB:db},{now,fetch:async(url,options)=>{call={url:String(url),options};return Response.json({...fixture,privateRaw:'PRIVATE_RAW'});}});
-  assert.equal(response.status,200);assert.equal(new URL(call.url).origin,'https://api.transitous.org');assert.equal(new URL(call.url).pathname,'/api/v6/plan');assert.equal(call.options.redirect,'manual');assert.match(call.options.headers['User-Agent'],/foama-wien\/0.11.23.*https:/);
+  assert.equal(response.status,200);assert.equal(new URL(call.url).origin,'https://api.transitous.org');assert.equal(new URL(call.url).pathname,'/api/v6/plan');assert.equal(call.options.redirect,'manual');assert.match(call.options.headers['User-Agent'],/foama-wien\/0.11.24.*https:/);
   const json=JSON.stringify(await response.json());assert.ok(!json.includes('PRIVATE'));assert.ok(!json.includes('raw'));assert.match(json,/"quality":"schedule"/);assert.equal(response.headers.get('cache-control'),'no-store');
   const counts=(await db.prepare('SELECT * FROM foama_journey_budget').all()).results;assert.ok(!JSON.stringify(counts).includes('48.'));assert.deepEqual(Object.keys(counts[0]).sort(),['count','hour','id','kind']);
  }finally{db.close();}

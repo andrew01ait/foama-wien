@@ -9,11 +9,12 @@ import org.json.*;
 
 /** A short stop sequence with bounded, explicitly estimated vehicle positions. */
 final class ApproachView extends View {
-    private final JSONObject data;private final int start,center;private final Paint paint=new Paint(3);private final TextPaint words=new TextPaint(3);
+    private final JSONObject data;private final int start,center;private final boolean unavailable;private final Paint paint=new Paint(3);private final TextPaint words=new TextPaint(3);
     private float d,sp;
-    ApproachView(Context context,JSONObject data,int before){super(context);this.data=data;center=data.optInt("center");start=Math.max(0,center-before);d=getResources().getDisplayMetrics().density;sp=getResources().getDisplayMetrics().scaledDensity;
+    ApproachView(Context context,JSONObject data,int before,boolean unavailable){super(context);this.data=data;this.unavailable=unavailable;center=data.optInt("center");start=Math.max(0,center-before);d=getResources().getDisplayMetrics().density;sp=getResources().getDisplayMetrics().scaledDensity;
         StringBuilder description=new StringBuilder("Fahrzeuge im Anflug. Positionen geschätzt. ");JSONArray stops=data.optJSONArray("stops");if(stops!=null)for(int i=start;i<=center&&i<stops.length();i++)description.append(stops.optJSONObject(i).optString("name")).append(i==center?", deine Station. ":", ");JSONArray tracks=data.optJSONArray("tracks");if(tracks!=null)for(int i=0;i<tracks.length();i++)description.append(tracks.optJSONObject(i).optString("id")).append(" geschätzt. ");setContentDescription(description);setFocusable(true);setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
+    static boolean hasVisibleTracks(JSONObject data,int before,long now){JSONArray tracks=data.optJSONArray("tracks");int center=data.optInt("center"),start=Math.max(0,center-before);for(int i=0;tracks!=null&&i<tracks.length();i++){JSONObject t=tracks.optJSONObject(i);if(t==null)continue;double p=t.optDouble("progress",Double.NaN);long age=now-t.optLong("lastSeen");if(Double.isFinite(p)&&p>=start&&p<=center&&age>=-30000&&age<=90000)return true;}return false;}
     @Override protected void onMeasure(int w,int h){setMeasuredDimension(MeasureSpec.getSize(w),Math.round((center-start+1)*40*d+12*d));}
     @Override protected void onDraw(Canvas canvas){
         super.onDraw(canvas);JSONArray stops=data.optJSONArray("stops"),tracks=data.optJSONArray("tracks");if(stops==null)return;
@@ -27,7 +28,7 @@ final class ApproachView extends View {
         long now=System.currentTimeMillis();
         for(int i=0;tracks!=null&&i<tracks.length();i++){
             JSONObject track=tracks.optJSONObject(i);double progress=track.optDouble("progress",Double.NaN);long age=now-track.optLong("lastSeen");if(!Double.isFinite(progress)||progress<start||progress>center||age>90000||age< -30000)continue;
-            float y=top+(float)(progress-start)*step;boolean stale=track.optBoolean("stale")||track.optBoolean("uncertain")||age>60000;paint.setColor(stale?0xff4b5563:WearPolicy.lineColor(data.optString("route"),data.optString("mode")));canvas.drawRoundRect(x-11*d,y-11*d,x+11*d,y+11*d,5*d,5*d,paint);
+            float y=top+(float)(progress-start)*step;boolean stale=unavailable||track.optBoolean("stale")||track.optBoolean("uncertain")||age>60000;paint.setColor(stale?0xff4b5563:WearPolicy.lineColor(data.optString("route"),data.optString("mode")));canvas.drawRoundRect(x-11*d,y-11*d,x+11*d,y+11*d,5*d,5*d,paint);
             TransportIcon icon=new TransportIcon(data.optString("mode"),Color.WHITE);icon.setBounds(Math.round(x-8*d),Math.round(y-8*d),Math.round(x+8*d),Math.round(y+8*d));icon.draw(canvas);
         }
     }

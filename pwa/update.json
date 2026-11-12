@@ -1,23 +1,23 @@
 {
-  "version": "0.11.23",
-  "wearVersionCode": 27,
-  "wearApkUrl": "/apk/foama-wien-wear-0.8.0.apk",
-  "wearApkSha256": "3b814dfed160470a470733ce795f7ead082ecaf0abb908d4304de4d0ac1fb1ba",
-  "changelog": "Einheitliche Warnmeldungen ohne doppelte Symbole und Linienkennzeichen. Gespeicherte A-nach-B-Wege übernehmen vorhandene Warnungen sofort. Fahrzeugpositionen haben genau einen aktiven Besitzer: Eine neue Linie stoppt den bisherigen Abruf; andere Liniendaten bleiben passiv gespeichert.",
-  "wearVersion": "0.8.0",
+  "version": "0.11.24",
+  "wearVersionCode": 28,
+  "wearApkUrl": "/apk/foama-wien-wear-0.8.1.apk",
+  "wearApkSha256": "eb2d70ab908c034b4c763e4e4bbae6921f572df9144c202eff6d37f67e9638a8",
+  "changelog": "Uhr: Fahrzeugdaten und Fahrtkennungen beim Wechsel erhalten. Kompakter Fahrzeugstart mit gemeinsamem Linienstand und Vorrang für die gewählte Station. Standortknopf mit sichtbarer Rückmeldung; Symbol bleibt erhalten.",
+  "wearVersion": "0.8.1",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 5213642,
+  "wearApkBytes": 5217738,
   "wearMinSdk": 30,
-  "wearChangelog": "Lesbare Abfahrten und Navigation auf kleinen und großen Uhren; Rückkehr an dieselbe Stelle. Neue Stationskarte mit Standort, Zoom und Wiener Linienverläufen. Fahrzeuge im Anflug mit Prognose, kurzem Schema und klar geschätzten Positionen. Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen.",
+  "wearChangelog": "Fahrzeuge im Anflug behalten vorhandene Daten und Fahrtkennungen beim Wiederöffnen und Stationswechsel. Kompakter Ladebalken, Schema erst bei sichtbaren Fahrzeugen und Vorrang für die gewählte Station. Ein aktiver Fahrzeugabruf; Quellenalter und Aktualisierungspause bleiben beim Wechsel erhalten. Standortknopf bleibt ein Symbol und meldet Suche, Zentrierung und Ortungsprobleme.",
   "wearReleaseNotes": [
-    "Lesbare Abfahrten und Navigation auf kleinen und großen Uhren; Rückkehr an dieselbe Stelle.",
-    "Neue Stationskarte mit Standort, Zoom und Wiener Linienverläufen.",
-    "Fahrzeuge im Anflug mit Prognose, kurzem Schema und klar geschätzten Positionen.",
-    "Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen."
+    "Fahrzeuge im Anflug behalten vorhandene Daten und Fahrtkennungen beim Wiederöffnen und Stationswechsel.",
+    "Kompakter Ladebalken, Schema erst bei sichtbaren Fahrzeugen und Vorrang für die gewählte Station.",
+    "Ein aktiver Fahrzeugabruf; Quellenalter und Aktualisierungspause bleiben beim Wechsel erhalten.",
+    "Standortknopf bleibt ein Symbol und meldet Suche, Zentrierung und Ortungsprobleme."
   ],
   "releaseNotes": [
-    "Einheitliche Warnmeldungen in Übersicht, Details und A nach B.",
-    "Warnungen auch bei gespeicherten Wegen; keine doppelten Kennzeichen.",
-    "Nur eine Linie lädt Fahrzeugpositionen; beim Wechsel wird die vorige beendet."
+    "Uhr: Fahrzeugdaten und Fahrtkennungen beim Wechsel erhalten.",
+    "Kompakter Fahrzeugstart mit gemeinsamem Linienstand und Vorrang für die gewählte Station.",
+    "Standortknopf mit sichtbarer Rückmeldung; Symbol bleibt erhalten."
   ]
 }

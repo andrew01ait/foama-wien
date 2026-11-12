@@ -1,14 +1,14 @@
 {
   "applicationId": "at.andrew.foamawien",
-  "versionName": "0.8.0",
-  "versionCode": 27,
+  "versionName": "0.8.1",
+  "versionCode": 28,
   "minSdk": 30,
   "targetSdk": 34,
   "compileSdk": 34,
   "releaseNotes": [
-    "Lesbare Abfahrten und Navigation auf kleinen und großen Uhren; Rückkehr an dieselbe Stelle.",
-    "Neue Stationskarte mit Standort, Zoom und Wiener Linienverläufen.",
-    "Fahrzeuge im Anflug mit Prognose, kurzem Schema und klar geschätzten Positionen.",
-    "Fokussierte Routenschritte und Schnellzugriff-Tile ohne Hintergrundabfragen."
+    "Fahrzeuge im Anflug behalten vorhandene Daten und Fahrtkennungen beim Wiederöffnen und Stationswechsel.",
+    "Kompakter Ladebalken, Schema erst bei sichtbaren Fahrzeugen und Vorrang für die gewählte Station.",
+    "Ein aktiver Fahrzeugabruf; Quellenalter und Aktualisierungspause bleiben beim Wechsel erhalten.",
+    "Standortknopf bleibt ein Symbol und meldet Suche, Zentrierung und Ortungsprobleme."
   ]
 }

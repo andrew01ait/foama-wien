@@ -1,3 +1,13 @@
+## Wear 0.8.1 / Code 28 · Fahrzeuge fortsetzen · 12.11.2026
+
+Nutzerauftrag: Fahrzeuge-im-Anflug-Optimierungen auch auf der Uhr; linkes Karten-Zentriersymbol auf ausdrücklichen Wunsch ohne sichtbares Standort-Label belassen. Tippen bestätigt Zentrierung und erklärt Suche, Freigabe, deaktivierte Ortung, ungenauen Empfang und Timeout; Hintergrund/Display aus verwirft Feedback und laufende Ortung.
+
+Die Uhr hält vier passive Antworten für fünf Minuten im RAM, höchstens 65.536 Zeichen pro Antwort. Detail/Zurück, Wiederöffnen und Kartenbesuch behalten Quellenstand, Fahrtkennungen und gemeinsame Abrufsperre. Neue Linie/Verbindung storniert die vorherige aktive Anfrage vor Übernahme; verspätete Antworten ändern die neue Ansicht nicht. Keine Gerätepositionen oder neue Persistenz, keine Hintergrundabfragen. Leeres Schema durch schmalen sechs-dp-Fortschrittsbalken, normalen Status und nächsten Abgleich ersetzen. Erst tatsächlich sichtbare Fahrzeuglagen zeichnen; grau bei Fehler/Alter, spätestens nach 90 s ausblenden.
+
+Der Endpunkt verwendet eine kanonische Ganzrichtungs-Sitzung pro Fahrplanbasis/Linie/Richtung, statt pro Station. Überlappende Stops erhalten denselben Tracker und laufenden Request. Nur der gewählte Stationsausschnitt lädt maximal acht RBLs; andere gespeicherte Linien bleiben passiv. Quellenablauf plus Reserve und 30 s ab Requestbeginn erhalten; keine zusätzlichen Ganzlinienscans. Native Monitorboards behalten echte Quellenzeit; ältere Antworten können neuere leere Boards nicht rückgängig machen. Nicht unterstützte Fahrzeugverbindungen aktualisieren normale Abfahrten weiter. PWA-Begleitstand 0.11.24.
+
+183 native Tests, 496 Web-/Server-Tests, 18 Python-Prüfungen und 93 Syntaxprüfungen bestanden. Originalsignatur, Metadaten und zipalign geprüft. Bedienwege und Grenzen: docs/wear-experience.md. Physische OnePlus-Abnahme getrennt; ursprünglichen Schlüssel, Paket, Favoriten und Updateübergabe erhalten.
+
 ## PWA 0.11.23 · Nur eine aktive Fahrzeuglinie · 12.11.2026
 
 Nutzerregel: Fahrzeugpositionen nur für eine aktive Linie gleichzeitig laden. `vehicle-position-owner.mjs` teilt eine exklusive aktive Zuständigkeit zwischen Ganzlinien-Poller und eingebetteten Stations-/A-nach-B-Panels. Übernahme beendet den vorigen Abruf synchron, entfernt dessen Timer und Fahrzeug-Abfrageumfang und verwirft verspätete Antworten. Verborgene Ansichten übernehmen keine Zuständigkeit. Geschlossene, entfernte und unsichtbare Panels geben sie frei. Ein alter Besitzer kann seinen Nachfolger nicht freigeben. Bereits gespeicherte Linienstände bleiben passiv und erzeugen keine Requests. Bestehende Seitensichtbarkeit, globale Monitor-Startsperre und 30-s-/Cache-/Backoff-Grenzen bleiben erhalten.

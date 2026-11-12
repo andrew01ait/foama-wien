@@ -2,6 +2,8 @@ import {decodeVehiclePilot,validateVehiclePilot,createVehicleTracker,normalizePi
 import {preferredVehicleDirection,stationVehicleRange,vehicleDisplayId} from '../pwa/src/vehicle-data.mjs';
 import {nextVehicleArrival,vehicleArrival} from '../pwa/src/vehicle-arrival.mjs';
 import {timetableDate} from '../pwa/src/timetable.mjs';
+import {recordMonitorSource} from '../pwa/src/monitor-timing.mjs';
+import {vehicleReadiness} from '../pwa/src/vehicle-readiness.mjs';
 
 // Public transit state only. No device identity, location or persisted history.
 // Reuse the PWA's conservative two-source tracker rather than another estimator.
@@ -33,10 +35,13 @@ export function createWearApproach({assets,monitor,now=()=>Date.now()}){
   // Never silently substitute a different direction for the requested connection.
   const normalize=s=>s.replace(/^Wien\s+/i,'').trim().toLocaleLowerCase('de-AT');
   if(!direction||![direction.towards,...Object.values(direction.targetAliases||{}).flat()].some(s=>normalize(s)===normalize(towards)))return reply({available:false,status:'Diese Richtung kann noch nicht sicher zugeordnet werden.'});
-  const range=stationVehicleRange(direction,stopId),key=route+'|'+mode+'|'+direction.id+'|'+stopId,time=now();
+  const range=stationVehicleRange(direction,stopId),key=manifest.sourceSha256+'|'+route+'|'+mode+'|'+direction.id,time=now();
   for(const [k,s] of sessions)if(time-s.used>300000&&!s.pending)sessions.delete(k);
   let session=sessions.get(key);
-  if(!session){session={tracker:createVehicleTracker(direction,manifest),used:time,attempt:0,retry:0,raw:null};sessions.set(key,session);while(sessions.size>24)sessions.delete(sessions.keys().next().value);}
+  if(!session){
+   while(sessions.size>=24){const idle=[...sessions].find(([,s])=>!s.pending);if(!idle)return reply({available:false,status:'Stationsdaten werden gerade aktualisiert.',retryable:true},503);sessions.delete(idle[0]);}
+   session={tracker:createVehicleTracker(direction,manifest,{fullLine:true}),used:time,attempt:0,retry:0,boards:new Map()};sessions.set(key,session);
+  }
   session.used=time;
   if(session.pending)await session.pending;
   else if(time>=session.retry&&time-session.attempt>=30000){
@@ -44,9 +49,12 @@ export function createWearApproach({assets,monitor,now=()=>Date.now()}){
    session.pending=(async()=>{
     try{
      const url=new URL('/api/monitor',request.url);for(const id of range.ids)url.searchParams.append('stopId',id);
-     const response=await (monitorOverride||monitor)(new Request(url,{headers:request.headers}));
+     const response=await (monitorOverride||monitor)(new Request(url,{headers:request.headers,signal:request.signal}));
      if(!response.ok){session.retry=Math.max(session.retry,now()+Math.min(300,Math.max(30,Number(response.headers.get('retry-after'))||60))*1000);throw Error('source');}
-     const raw=await response.json();session.tracker.ingest(normalizePilotSnapshot(raw,direction,now(),range.ids));session.raw=raw;
+     const raw=await response.json();session.tracker.ingest(normalizePilotSnapshot(raw,direction,now(),range.ids));
+     session.retry=Math.max(session.retry,recordMonitorSource(raw,range.ids,{storage:null,now:now()}));
+     for(const id of range.ids){const previous=session.boards.get(String(id));if(previous&&Date.parse(previous.foamaMonitorAt)>Date.parse(raw.foamaMonitorAt))continue;session.boards.delete(String(id));session.boards.set(String(id),{...raw,data:{...raw.data,monitors:raw.data.monitors.filter(m=>String(m.locationStop?.properties?.attributes?.rbl)===String(id))}});}
+     while(session.boards.size>24)session.boards.delete(session.boards.keys().next().value);
     }catch{session.retry=Math.max(session.retry,now()+60000);session.tracker.fail('Stationsdaten vorübergehend nicht verfügbar.');}
     finally{session.pending=null;}
    })();await session.pending;
@@ -54,11 +62,11 @@ export function createWearApproach({assets,monitor,now=()=>Date.now()}){
   const state=session.tracker.view(now()),arrival=nextVehicleArrival(state,direction,stopId,now());
   const visible=state.tracks.filter(t=>t.position&&t.position.progress>=range.start&&t.position.progress<=range.center+.01).sort((a,b)=>b.position.progress-a.position.progress).slice(0,2);
   const tracks=visible.map(t=>({id:vehicleDisplayId(t.id,route),progress:t.position.progress-range.start,stale:!!t.position.stale,uncertain:!!t.position.uncertain,lastSeen:t.lastSeen,arrivalAt:vehicleArrival(t,direction,stopId,now())?.at||null}));
-  const candidates=state.tracks.some(t=>t.hits===1),status=state.problem||(!state.at?'Stationsdaten werden geladen.':tracks.length?'Position geschätzt':state.stale?'Älterer Stand · warte auf Stationsdaten.':candidates?'Erster Stand da · Bestätigung folgt.':'Noch keine eindeutige Fahrzeuglage.');
-  const target=direction.stops[range.center],raw=session.raw;
+  const readiness=vehicleReadiness({state,range:{start:range.start,end:range.center},waitingUntil:session.retry,now:now()}),status=readiness.title;
+  const target=direction.stops[range.center];
   // Return the same target board so opening this screen replaces the ordinary
   // monitor call; it never adds a second Wiener Linien request on the watch.
-  const board=raw?{...raw,data:{...raw.data,monitors:raw.data.monitors.filter(m=>String(m.locationStop?.properties?.attributes?.rbl)===String(target.rbl))}}:null;
-  return reply({available:true,route,mode,towards:direction.towards,at:state.at,generatedAt:now(),retryAfterMs:Math.max(1000,session.retry-now()),status,arrivalAt:arrival?.at||null,arrivalKind:arrival?.kind||null,center:range.center-range.start,boardIds:target.rbl?[target.rbl]:[],stops:direction.stops.slice(range.start,range.center+1).map(s=>({id:s.id,name:s.name,lat:s.lat,lon:s.lon})),tracks,board});
+  const board=session.boards.get(String(target.rbl))||null;
+  return reply({available:true,route,mode,towards:direction.towards,at:state.at,generatedAt:now(),retryAfterMs:Math.max(1000,session.retry-now()),status,problem:!!state.problem,progress:readiness.complete,arrivalAt:arrival?.at||null,arrivalKind:arrival?.kind||null,center:range.center-range.start,boardIds:board&&target.rbl?[target.rbl]:[],stops:direction.stops.slice(range.start,range.center+1).map(s=>({id:s.id,name:s.name,lat:s.lat,lon:s.lon})),tracks,board});
  };
 }

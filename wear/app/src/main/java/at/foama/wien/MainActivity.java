@@ -60,6 +60,7 @@ public final class MainActivity extends Activity {
     private int pendingReadingPosition;
     private JSONObject approach;
     private String approachMessage="";
+    private final ApproachCache approachCache=new ApproachCache();
 
     private int scrollRevision,scrollRestoreY=-1;
     private boolean openingPage;
@@ -249,7 +250,7 @@ public final class MainActivity extends Activity {
         restoreScroll(pendingReadingPosition);
     }
     private String pageKey(){return screen+"|"+(screen.equals("home")?view+"|"+favoriteView:screen.equals("detail")||screen.equals("approach")?(detailStop==null?"":detailStop.id)+"|"+detailRoute+"|"+detailTowards:screen.equals("journey")?journeyId+"|"+journeyVariant+"|"+journeyBoarding:screen.equals("more")?settingsSection:"");}
-    void changeView(String name){boolean fromRoutes=screen.equals("routes");if(fromRoutes||!view.equals(name))resetDepartureScope();view=name;screen="home";repo.prefs.edit().putString("view",name).apply();renderLayout();if(fromRoutes&&active)startLocation(false);refresh();}
+    void changeView(String name){boolean fromRoutes=screen.equals("routes");if(!screen.equals("home")||!view.equals(name))resetDepartureScope();view=name;screen="home";repo.prefs.edit().putString("view",name).apply();renderLayout();if(fromRoutes&&active)startLocation(false);refresh();}
     private boolean favoriteRoutes(){return favoriteView.equals("routes")||favoriteView.isEmpty()&&repo.cityJourneys().length()>0;}
     private void changeFavoriteView(String name){
         if((!name.equals("routes")&&!name.equals("stations"))||name.equals(favoriteView))return;
@@ -275,7 +276,7 @@ public final class MainActivity extends Activity {
         content.addView(row,compact);space(content,1);
     }
     void openConnection(Repo.Stop stop,String route,String towards){openConnection(stop,route,towards,"");}
-    void openConnection(Repo.Stop stop,String route,String towards,String mode){detailMode=mode;if(screen.equals("journey")){detailFromJourney=true;resetDepartureScope();}else if(screen.equals("home"))detailFromJourney=false;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
+    void openConnection(Repo.Stop stop,String route,String towards,String mode){boolean changed=detailStop!=stop||!detailRoute.equals(route)||!detailTowards.equals(towards)||!detailMode.equals(mode);if(screen.equals("journey"))detailFromJourney=true;else if(screen.equals("home"))detailFromJourney=false;if(changed||screen.equals("journey")||screen.equals("approach"))resetDepartureScope();detailMode=mode;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
     private void resetDepartureScope(){handler.removeCallbacks(gatedRefresh);requests.cancel();if(departureRequest!=null)departureRequest.cancel(true);requests=new RequestScope();fetching=false;}
     void openJourney(String id){if(repo.journeys.get(id)==null)return;if(screen.equals("home")||screen.equals("routes"))journeyFromRoutes=screen.equals("routes");resetDepartureScope();journeyId=id;journeyBoarding=0;journeyVariant=0;screen="journey";renderLayout();refresh();}
     void openRoutes(){stopLocation();resetDepartureScope();screen="routes";operationMessage="";renderLayout();refresh();}
@@ -298,7 +299,7 @@ public final class MainActivity extends Activity {
         repo.syncDepartureCity();long readyAt=repo.nextFetchElapsed;
         if(powerSaver.active&&lastDepartureAttempt>=0)readyAt=Math.max(readyAt,lastDepartureAttempt+powerSaver.departureInterval());
         long wait=readyAt-SystemClock.elapsedRealtime();if(wait>0){handler.postDelayed(gatedRefresh,wait);return;}
-        if(screen.equals("approach")){refreshApproach();return;}
+        if(screen.equals("approach")&&(approach==null||approach.optBoolean("available")||approach.optBoolean("retryable"))){refreshApproach();return;}
         List<Repo.Stop> stops=new ArrayList<>(targets());Set<String> visible=StationViewport.visible(content,scroll,dp(8));List<Repo.Stop> regional=repo.regionalRequestStops(stops,visible);List<String> ids=repo.requestIds(stops,view.equals("fav")||screen.equals("routes")||screen.equals("detail")||screen.equals("journey")||screen.equals("journey-options"),visible);if(ids.isEmpty()&&regional.isEmpty())return;
         RequestScope session=requests;fetching=true;lastDepartureAttempt=SystemClock.elapsedRealtime();renderContent();departureRequest=network.submit(()->{
             try{if(!session.isCancelled())repo.fetchDepartures(stops,ids,regional,session);}catch(Exception ignored){}finally{runOnUiThread(()->{if(requests==session&&!session.isCancelled()){fetching=false;if(active&&!isFinishing())renderContent();}});}
@@ -376,31 +377,34 @@ public final class MainActivity extends Activity {
     }
     void openApproach(String mode){
         if(detailStop==null||detailRoute.isEmpty()||detailTowards.isEmpty())return;
-        resetDepartureScope();detailMode=mode;approach=null;approachMessage="";screen="approach";renderLayout();refresh();
+        resetDepartureScope();detailMode=mode;ApproachCache.Entry cached=approachCache.get(approachKey(),System.currentTimeMillis());approach=cached==null?null:cached.data;approachMessage=cached==null?"":cached.message;screen="approach";renderLayout();refresh();
     }
+    private String approachKey(){return ApproachCache.key(detailStop.id,detailRoute,detailTowards,detailMode);}
     private void refreshApproach(){
-        if(detailStop==null||approach!=null&&!approach.optBoolean("available"))return;
+        if(detailStop==null)return;
         RequestScope session=requests;Repo.Stop stop=detailStop;String route=detailRoute,towards=detailTowards,mode=detailMode;
+        String cacheKey=approachKey();
         fetching=true;lastDepartureAttempt=SystemClock.elapsedRealtime();renderContent();
         departureRequest=network.submit(()->{
             JSONObject result=null;String message="";
             try{result=repo.fetchApproach(stop,route,towards,mode,session);}catch(Exception e){if(!session.isCancelled())message="Stationsdaten nicht erreichbar. Abfahrten bleiben verfügbar.";}
             final JSONObject response=result;final String problem=message;
-            runOnUiThread(()->{if(requests!=session||session.isCancelled()||!active||!screen.equals("approach"))return;fetching=false;if(response!=null)approach=response;approachMessage=problem;renderContent();handler.removeCallbacks(gatedRefresh);handler.postDelayed(gatedRefresh,Math.max(1000,repo.nextFetchElapsed-SystemClock.elapsedRealtime()));});
+            runOnUiThread(()->{if(requests!=session||session.isCancelled()||!active||!screen.equals("approach")||!cacheKey.equals(approachKey()))return;fetching=false;if(response!=null)approach=response;approachMessage=problem;approachCache.put(cacheKey,approach,problem,System.currentTimeMillis());renderContent();handler.removeCallbacks(gatedRefresh);handler.postDelayed(gatedRefresh,Math.max(1000,repo.nextFetchElapsed-SystemClock.elapsedRealtime()));});
         });
     }
     private void renderApproach(){
         if(detailStop==null)return;
         centered(content,detailRoute+" · "+detailTowards,15,WHITE,true);space(content,4);centered(content,detailStop.name,13,MUTED,false);
         long now=System.currentTimeMillis(),source=approach==null?0:approach.optLong("at"),arrival=approach==null?0:approach.optLong("arrivalAt");
-        boolean fresh=source>0&&now-source<=60000&&source<=now+30000&&approachMessage.isEmpty();
+        boolean fresh=source>0&&now-source<=60000&&source<=now+30000&&approachMessage.isEmpty()&&!approach.optBoolean("problem");
         List<List<Repo.Departure>> groups=repo.connections(detailStop,detailRoute,detailTowards,true,detailMode);Repo.Departure first=groups.isEmpty()?null:groups.get(0).get(0);
         String minutes=fresh&&arrival>0?Math.max(0,(int)Math.ceil((arrival-now)/60000.0))+"′":first==null?"—":(repo.fresh(first)?"":"~")+repo.countdown(first)+"′";
         centered(content,minutes,48,WHITE,true);centered(content,fresh&&arrival>0?"Ankunft · ca.":first==null?"Keine aktuelle Prognose":"Abfahrt · "+repo.quality(first),12,MUTED,false);space(content,8);
-        if(approach!=null&&approach.optBoolean("available")){ApproachView diagram=new ApproachView(this,approach,WatchLayout.of(getResources()).stopsBefore);content.addView(diagram,new LinearLayout.LayoutParams(-1,dp(108)));space(content,7);}
-        String message=!approachMessage.isEmpty()?approachMessage:approach==null?"Stationsdaten laden …":!fresh&&source>0?"Älterer Stand · warte auf Stationsdaten.":approach.optString("status");centered(content,message,12,message.contains("Älter")?AMBER:MINT,false);
-        if(approach==null||approach.optBoolean("available")&&approach.optJSONArray("tracks").length()==0){
-            space(content,5);ProgressBar progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(false);progress.setMax(2);progress.setProgress(source>0?1:0);progress.setProgressTintList(ColorStateList.valueOf(MINT));content.addView(progress,new LinearLayout.LayoutParams(-1,dp(8)));
+        int before=WatchLayout.of(getResources()).stopsBefore;boolean visible=approach!=null&&approach.optBoolean("available")&&ApproachView.hasVisibleTracks(approach,before,now);
+        if(visible){ApproachView diagram=new ApproachView(this,approach,before,!fresh);content.addView(diagram,new LinearLayout.LayoutParams(-1,dp(108)));space(content,7);}
+        String message=!approachMessage.isEmpty()?approachMessage:approach==null?"Stationsdaten laden …":approach.optBoolean("problem")?approach.optString("status"):!fresh&&source>0?"Älterer Stand · warte auf Stationsdaten.":!visible&&approach.optJSONArray("tracks")!=null&&approach.optJSONArray("tracks").length()>0?"Nächstes Fahrzeug noch weiter entfernt.":approach.optString("status");centered(content,message,12,message.contains("Älter")||!approachMessage.isEmpty()||approach!=null&&approach.optBoolean("problem")?AMBER:MINT,false);
+        if(!visible&&(approach==null||approach.optBoolean("available"))){
+            space(content,5);ProgressBar progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(false);progress.setMax(4);progress.setProgress(approach==null?0:!fresh?1:Math.max(1,Math.min(4,approach.optInt("progress",2))));progress.setProgressTintList(ColorStateList.valueOf(MINT));progress.setContentDescription(message);content.addView(progress,new LinearLayout.LayoutParams(-1,dp(6)));
             long next=Math.max(0,(repo.nextFetchElapsed-SystemClock.elapsedRealtime()+999)/1000);space(content,5);centered(content,fetching?"Stationsabgleich läuft …":"Nächster Abgleich in "+next+" s",12,MUTED,false);
         }
         space(content,7);centered(content,"Position geschätzt · keine GPS-Ortung der Fahrzeuge",12,MUTED,false);space(content,8);fullButton(content,"Zurück zu Abfahrten","quiet",this::navigateBack);
@@ -662,7 +666,7 @@ public final class MainActivity extends Activity {
     }
     private void stopLocation(){if(watchLocation!=null)watchLocation.stop();}
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==WatchPush.PERMISSION){push.permissionResult();return;}if(code==11&&active){locationDenied=!hasLocationPermission();if(!locationDenied)startLocation(false);else{locationMessage="Standort nicht erlaubt. Freigabe in den App-Einstellungen der Uhr ändern.";updateLocationUi();}}}
-    void returnHome(){boolean resumeData=dataPausedForAlerts||screen.equals("routes")||screen.equals("file-import");if(screen.equals("journey")||detailFromJourney)resetDepartureScope();detailFromJourney=false;dataPausedForAlerts=false;alertsFromPush=false;modesFromHome=false;screen="home";renderLayout();if(active){if(resumeData)startLocation(false);refresh();}}
+    void returnHome(){boolean resumeData=dataPausedForAlerts||screen.equals("routes")||screen.equals("file-import");if(screen.equals("journey")||screen.equals("approach")||detailFromJourney)resetDepartureScope();detailFromJourney=false;dataPausedForAlerts=false;alertsFromPush=false;modesFromHome=false;screen="home";renderLayout();if(active){if(resumeData)startLocation(false);refresh();}}
     void navigateBack(){if(screen.equals("approach")){resetDepartureScope();screen="detail";renderLayout();refresh();return;}if(screen.equals("file-import")){pendingFile=null;cancelFileRead();filePreview=null;returnFromFileImport();return;}if(screen.equals("journey-options")){resetDepartureScope();screen="journey";renderLayout();refresh();return;}if(screen.equals("detail")&&detailFromJourney){detailFromJourney=false;resetDepartureScope();screen="journey";renderLayout();refresh();return;}if(screen.equals("journey")){if(journeyFromRoutes)openRoutes();else{returnHome();refresh();}return;}if(screen.equals("alerts")&&alertsFromPush){alertsFromPush=false;screen="more";settingsSection="push";renderLayout();return;}if(screen.equals("transfer")){boolean routes=transferFromRoutes;closeTransfer();if(routes){openRoutes();return;}screen="more";settingsSection=transferParentSection;renderLayout();if(active){requests=new RequestScope();fetching=false;startLocation(false);}return;}if(screen.equals("more")&&settingsSection.equals("modes")&&modesFromHome){returnHome();refresh();return;}if(screen.equals("more")&&settingsSection.isEmpty()&&moreFromRoutes){moreFromRoutes=false;openRoutes();return;}if(screen.equals("more")&&!settingsSection.isEmpty()){section(settingsSection.startsWith("push-")?"push":settingsSection.equals("radius")||settingsSection.equals("modes")?"location":(settingsSection.equals("transfer")||settingsSection.equals("import"))?"favorites":"");return;}if(!screen.equals("home")){returnHome();return;}stopForegroundWork();finish();}
     @Override public void onBackPressed(){navigateBack();}
     @Override public boolean onGenericMotionEvent(android.view.MotionEvent event){if(event.getAction()==MotionEvent.ACTION_SCROLL&&event.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)){scroll.smoothScrollBy(0,Math.round(-event.getAxisValue(MotionEvent.AXIS_SCROLL)*dp(72)));return true;}return super.onGenericMotionEvent(event);}

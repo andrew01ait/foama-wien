@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseWlMonitors} from '../pwa/src/core.mjs';
-import {retainDepartures,departureCorrection} from '../pwa/src/departure-cache.mjs?v=0.11.23';
+import {retainDepartures,departureCorrection} from '../pwa/src/departure-cache.mjs?v=0.11.24';
 import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from '../pwa/src/departure-indicators.mjs';
 import {journeyStationMarkup} from '../pwa/src/journey-station.mjs';
 

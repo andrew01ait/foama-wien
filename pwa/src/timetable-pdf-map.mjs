@@ -1,4 +1,4 @@
-import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.11.23';
+import {decodeJourneyPolyline} from './journey-geometry.mjs?v=0.11.24';
 
 export function pdfRoutePatterns({manifest,line,routeMap,day,stopId,towards='',wholeLine=false}){
  if(routeMap.version!==manifest.version||routeMap.sourceSha256!==manifest.sourceSha256||routeMap.route!==line.route||routeMap.mode!==line.mode)throw Error('Linienverlauf und Fahrplan passen nicht zusammen.');

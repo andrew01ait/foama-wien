@@ -11,6 +11,7 @@ def package():
             if not file.is_file():continue
             relative=file.relative_to(ROOT)
             if any(part in ('.local','build','dist','.git','node_modules','__pycache__','apk') for part in relative.parts):continue
+            if relative.parts[:6]==('wear','app','src','main','assets','line-maps'):continue
             if file.suffix in allowed or file.name in ('Dockerfile','LICENSE'):files.add(file)
     destination=ROOT/'pwa/foama-wien-source.zip'
     with zipfile.ZipFile(destination,'w',zipfile.ZIP_DEFLATED) as archive:

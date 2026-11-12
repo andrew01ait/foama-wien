@@ -28,6 +28,7 @@ final class Repo {
     private long requestSpacingUntil;
     private String departureCity="";
     private final Map<String,DepartureCooldown> cityCooldowns=new HashMap<>();
+    private final LinkedHashMap<String,Long> monitorSourceAt=new LinkedHashMap<>();
     private static final class DepartureCooldown {long until;int failures;String error;DepartureCooldown(long until,int failures,String error){this.until=until;this.failures=failures;this.error=error;}}
     int failures=0,cycle=0;
     Location currentLocation;
@@ -269,17 +270,19 @@ final class Repo {
         try{
             String url=BuildConfig.FOAMA_BASE_URL+"/api/wear/approach?route="+URLEncoder.encode(route,"UTF-8")+"&mode="+URLEncoder.encode(mode,"UTF-8")+"&stop="+URLEncoder.encode(stop.id,"UTF-8")+"&towards="+URLEncoder.encode(towards,"UTF-8");
             JSONObject payload=new JSONObject(jsonHttp(url,"GET",null,scope));
-            scope.commit(()->{JSONObject board=payload.optJSONObject("board");List<String> ids=strings(payload.optJSONArray("boardIds"));if(board!=null&&!ids.isEmpty())mergeMonitor(board,Collections.singletonList(stop),ids,System.currentTimeMillis());nextFetchElapsed=Math.max(nextFetchElapsed,SystemClock.elapsedRealtime()+Math.min(300000,Math.max(30000,payload.optLong("retryAfterMs",30000))));failures=0;lastError="";saveCache();});return payload;
+            scope.commit(()->{JSONObject board=payload.optJSONObject("board");List<String> ids=strings(payload.optJSONArray("boardIds"));if(board!=null&&!ids.isEmpty())mergeMonitor(board,Collections.singletonList(stop),ids,System.currentTimeMillis());nextFetchElapsed=Math.max(nextFetchElapsed,SystemClock.elapsedRealtime()+Math.min(300000,Math.max(1000,payload.optLong("retryAfterMs",30000))));failures=0;lastError=payload.optBoolean("problem")?"Livedaten nicht erreichbar":"";saveCache();});return payload;
         }catch(Exception e){if(!scope.isCancelled())scope.commit(()->{failures++;lastError="Livedaten nicht erreichbar";nextFetchElapsed=SystemClock.elapsedRealtime()+WearPolicy.retryDelay(failures);});throw e;}
     }
     void mergeMonitor(JSONObject payload,List<Stop> selected,List<String> ids,long now)throws Exception{
         JSONObject data=payload.optJSONObject("data");JSONArray monitors=data==null?null:data.optJSONArray("monitors");
         JSONObject message=payload.optJSONObject("message");if(monitors==null||(message!=null&&message.optInt("value",1)!=1))throw new IOException("Ungültige API-Antwort");
-        mergeLineEvidence(payload,now);
+        long source=payload.has("foamaMonitorAt")?parseDate(payload.optString("foamaMonitorAt")):now;long server=message==null?-1:parseDate(message.optString("serverTime"));if(server>0)source=Math.min(source,server);if(source<=0||source>now+30000||now-source>WearPolicy.CACHE_MS)throw new IOException("Ungültiger Quellenstand");
+        final List<String> acceptedIds=new ArrayList<>();for(String id:ids)if(source>=monitorSourceAt.getOrDefault(id,0L)){acceptedIds.add(id);monitorSourceAt.remove(id);monitorSourceAt.put(id,source);}while(monitorSourceAt.size()>256)monitorSourceAt.remove(monitorSourceAt.keySet().iterator().next());if(acceptedIds.isEmpty())return;
+        mergeLineEvidence(payload,source);
         ArrayList<Departure> additions=new ArrayList<>();
         for(int i=0;i<monitors.length();i++){
             JSONObject m=monitors.getJSONObject(i),location=m.optJSONObject("locationStop"),p=location==null?null:location.optJSONObject("properties"),attrs=p==null?null:p.optJSONObject("attributes");if(attrs==null)continue;
-            String rbl=attrs.optString("rbl");if(!ids.contains(rbl))continue;
+            String rbl=attrs.optString("rbl");if(!acceptedIds.contains(rbl))continue;
             Stop s=null;for(Stop candidate:selected)if(candidate.rbl.contains(rbl)){s=candidate;break;}if(s==null)continue;
             boolean notice=hasCurrentServiceNotice(data,m,now);
             JSONArray lines=m.optJSONArray("lines");if(lines==null)continue;
@@ -287,14 +290,14 @@ final class Repo {
                 JSONObject l=lines.getJSONObject(j),ds=l.optJSONObject("departures");JSONArray times=ds==null?null:ds.optJSONArray("departure");if(times==null)continue;
                 for(int k=0;k<times.length();k++){
                     JSONObject entry=times.getJSONObject(k),t=entry.optJSONObject("departureTime"),v=entry.optJSONObject("vehicle");if(t==null)continue;
-                    String real=t.optString("timeReal"),plan=t.optString("timePlanned");long when=parseDate(real.isEmpty()?plan:real);if(!WearPolicy.usableDeparture(now,when,now))continue;
+                    String real=t.optString("timeReal"),plan=t.optString("timePlanned");long when=parseDate(real.isEmpty()?plan:real);if(!WearPolicy.usableDeparture(now,when,source))continue;
                     Departure d=new Departure();d.stopKey=s.id;d.rbl=rbl;d.route=v==null?l.optString("name"):v.optString("name",l.optString("name"));d.towards=v==null?l.optString("towards"):v.optString("towards",l.optString("towards"));
-                    d.mode=inferMode(v==null?l.optString("type"):v.optString("type",l.optString("type")),d.route);d.quality=real.isEmpty()?"Fahrplan":"Live";d.when=when;d.fetchedAt=now;d.platform=l.optString("platform");d.notice=notice;additions.add(d);
+                    d.mode=inferMode(v==null?l.optString("type"):v.optString("type",l.optString("type")),d.route);d.quality=real.isEmpty()?"Fahrplan":"Live";d.when=when;d.fetchedAt=source;d.platform=l.optString("platform");d.notice=notice;additions.add(d);
                 }
             }
         }
         synchronized(departures){
-            departures.removeIf(d->ids.contains(d.rbl)||!WearPolicy.usableDeparture(now,d.when,d.fetchedAt));
+            departures.removeIf(d->acceptedIds.contains(d.rbl)||!WearPolicy.usableDeparture(now,d.when,d.fetchedAt));
             departures.addAll(additions);LinkedHashMap<String,Departure> unique=new LinkedHashMap<>();for(Departure d:departures)unique.put(d.key(),d);
             departures.clear();departures.addAll(unique.values());departures.sort(Comparator.comparingLong(d->d.when));while(departures.size()>MAX_CACHE_ROWS)departures.remove(departures.size()-1);
         }

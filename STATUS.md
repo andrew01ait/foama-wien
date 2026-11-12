@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.23, Wear 0.8.0 / Code 27.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.24, Wear 0.8.1 / Code 28.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -62,3 +62,5 @@ Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das näc
 0.11.22: Einheitliche Warnmeldungen mit einmaligem Symbol/Linienkennzeichen und zentraler Übersicht statt wiederholter Kartenwarnungen. A nach B übernimmt den vorhandenen Meldungscache einschließlich Alter und leerer Bestätigungen; gespeicherte Wege berücksichtigen zusätzliche Fahrtabschnitte im gemeinsamen begrenzten Abruf. [Darstellung und Datenvertrag](docs/warning-panel.md).
 
 0.11.23: Genau eine aktive Zuständigkeit für Fahrzeugpositionen in der PWA. Neue Linie beendet den vorherigen Poller bzw. Panels-Abfrageumfang vor Übernahme; verborgene und gespeicherte Linien bleiben passiv. Warnungsfix und Darstellung aus 0.11.22 enthalten.
+
+Wear 0.8.1: Fahrzeugdaten über Ansichts- und Stationswechsel behalten, geteilte Liniensitzung, acht priorisierte Stations-RBLs, kompakter Fortschritt statt leerem Schema. Karten-Zentrierung weiterhin als Symbol, jetzt mit Such-/Ergebnis-/Fehlerrückmeldung. [Bedienwege und Grenzen](docs/wear-experience.md).

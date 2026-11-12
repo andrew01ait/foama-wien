@@ -1,6 +1,6 @@
-import {JOURNEY_PLACES_KEY,sanitizeJourneyPlaces,saveJourneyPlace,journeyPlacePoint,matchingJourneyPlace,journeyEndpointLabel} from './journey-places.mjs?v=0.11.23';
-import {uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.23';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.23';
+import {JOURNEY_PLACES_KEY,sanitizeJourneyPlaces,saveJourneyPlace,journeyPlacePoint,matchingJourneyPlace,journeyEndpointLabel} from './journey-places.mjs?v=0.11.24';
+import {uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.24';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.24';
 
 export function mountJourneyPlaces({doc=document,storage=localStorage,client,escape,getPoint,onChoose,onOpen=()=>{},onChange=()=>{},confirm=message=>window.confirm(message)}={}){
  const $=id=>doc.getElementById(id),dialog=$('journeyPlacesDialog');let places=[],editingId=null,candidate=null,matches=[],revision=0;

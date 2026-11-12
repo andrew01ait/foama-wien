@@ -1,5 +1,5 @@
-import {journeyPathKey} from './journey-variants.mjs?v=0.11.23';
-import {coordinate} from './journey-geometry.mjs?v=0.11.23';
+import {journeyPathKey} from './journey-variants.mjs?v=0.11.24';
+import {coordinate} from './journey-geometry.mjs?v=0.11.24';
 
 export function mergeJourneyResults(results){
  const journeys=[],seen=new Set();
