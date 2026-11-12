@@ -8,7 +8,12 @@ export function isNewerVersion(candidate,current){
 export function createAppUpdates({version,document=globalThis.document,window=globalThis.window,navigator=globalThis.navigator,fetch=globalThis.fetch,now=Date.now,schedule=globalThis.setTimeout,unschedule=globalThis.clearTimeout}={}){
  const $=id=>document.getElementById(id),banner=$('appUpdate'),button=$('appUpdateNow'),status=$('appUpdateStatus');
  let registration=null,started=false,timer=null,request=null,lastCheck=-Infinity,busy=false,latestVersion=null;
- const offer=latest=>{if(isNewerVersion(latest,version))latestVersion=latest;banner.hidden=false;$('appUpdateText').textContent=latestVersion?`Neue Version ${latestVersion} verfügbar · aktuell ${version}`:`Offline-/Push-Komponenten aktualisieren · App ${version}`;};
+ const offer=latest=>{
+  if(isNewerVersion(latest,version))latestVersion=latest;
+  $('appUpdateText').textContent=latestVersion?`Neue Version ${latestVersion} verfügbar`:'Offline und Push aktualisieren';
+  const detail=$('appUpdateVersion');if(detail)detail.textContent=latestVersion?`Installiert: ${version}`:`App ${version}`;
+  banner.hidden=false;
+ };
  const clearTimer=()=>{if(timer!==null)unschedule(timer);timer=null;};
  const plan=()=>{clearTimer();if(started&&!document.hidden)timer=schedule(()=>{timer=null;void check().finally(plan);},CHECK_INTERVAL);};
  async function check(){

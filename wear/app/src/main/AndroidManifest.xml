@@ -3,11 +3,12 @@
     <uses-feature android:name="android.hardware.type.watch" android:required="true"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <application android:name="at.foama.wien.FoamaApplication" android:label="foama-wien" android:icon="@drawable/app_icon" android:allowBackup="false" android:theme="@style/FoamaTheme" android:usesCleartextTraffic="false" android:enableOnBackInvokedCallback="true">
+    <application android:name="at.foama.wien.FoamaApplication" android:label="foama-wien" android:icon="@drawable/app_icon" android:roundIcon="@drawable/app_icon" android:allowBackup="false" android:theme="@style/FoamaTheme" android:usesCleartextTraffic="false" android:enableOnBackInvokedCallback="true">
         <meta-data android:name="com.google.android.wearable.standalone" android:value="true"/>
         <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false"/>
         <meta-data android:name="firebase_data_collection_default_enabled" android:value="false"/>
@@ -20,6 +21,10 @@
         <activity android:name="at.foama.wien.MainActivity" android:exported="true" android:screenOrientation="unspecified">
             <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity>
+        <activity android:name="at.foama.wien.MapActivity" android:exported="false"/>
+        <service android:name="at.foama.wien.FoamaTileService" android:label="foama · Schnellzugriff" android:exported="true" android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter><action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER"/></intent-filter>
+        </service>
         <receiver android:name="at.foama.wien.UpdateReceiver" android:exported="false" />
     </application>
 </manifest>

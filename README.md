@@ -6,20 +6,26 @@
 
 ## Funktionen
 
+- Uhr-App 0.9.1: vollständiger Wiener Offline-Fahrplan mit festem Gültigkeitsdatum und robusterer GPS-Suche ohne Internet; adaptive Abfahrten, Stationskarte, geschätzte Fahrzeuge im Anflug, fokussierte Routenschritte und Schnellzugriff-Tile. [Bedienung und Grenzen](docs/wear-experience.md).
+
+- Standortkarte mit sichtbaren Haltepunkten, verbundenen Linienlabels und Plattformkoordinaten aus dem vorhandenen Wiener Fahrplan. [Details](docs/station-map-points.md).
+- Aktueller Standort als blauer Punkt mit Genauigkeitskreis auf allen interaktiven Karten, soweit freigegeben und frisch verfügbar; eigener Knopf zum Zentrieren.
+- Fahrzeuge im Anflug erhalten Prognosen und Fahrtkennungen beim Wechsel zwischen Verbindungsdetail, A nach B und ganzer Linie. Ein kleiner Ladebalken mit verständlichem Status und nächster Aktualisierung wechselt automatisch zur Fahrzeugansicht.
+- Einheitliche Warnmeldungen in Übersicht, Verbindungsdetail und A nach B, mit Quellenstand und aufklappbaren Details ohne doppelte Symbole. Gespeicherte Wege übernehmen vorhandene Warnungen sofort beim Öffnen.
 - Live-Abfahrten in der Nähe mit Gehzeit, Erreichbarkeit und zwei nächsten Abfahrten.
 - Lokale Favoriten für ganze Haltestellen, einzelne Linien/Richtungen und A-nach-B-Wege.
-- Routenplanung mit Adressen, eigenen Orten, Karten, Alternativen und Vergleich von Fahrzeit und Umstiegen.
+- Routenplanung mit vollständigen Adressangaben, eigenen Orten als Start/Ziel, Karten, Alternativen und Vergleich von Fahrzeit und Umstiegen.
 - Import gespeicherter Wege auf die Uhr per Datei oder kurzlebiger verschlüsselter QR-Übertragung.
 - Dezente spätere Live-Zeitkorrekturen und Rollstuhl-Symbol bei ausdrücklich gemeldeter Fahrzeug-Barrierefreiheit in der PWA.
 - Optionale PWA-Störungshinweise für Favoriten einschließlich Routen und Alternativen; ohne Aufzüge/Fahrtreppen.
 - Tagesfahrpläne für 173 Wiener Linien mit Heute-Auswahl, farbiger aktueller Stunde und bewusster Offline-Sicherung ganzer Linien sowie PDF-Download für Tagesfahrplan oder ganze Linie.
 - Geografische OpenStreetMap-Linienkarte für 173 Wiener Linien, mit Richtungen, 965 echten Varianten und antippbaren Haltestellen in Fahrtfolge.
-- Experimentelle U6-Fahrzeugschätzung auf der ganzen U6 mit 24 Stationen: echte Karte und Schema, vorläufige Fahrt-IDs und Stationsübergaben aus Live-Prognosen.
+- Fahrzeuge im Anflug: Fahrzeugschätzung für 165 Wiener Linien: Karte, Schema und horizontaler Stationsausschnitt mit temporären IDs. „Fahrzeuge im Anflug“ in Stations- und A-nach-B-Einstiegsdetails mit umschaltbarem Schema/Kartenausschnitt und lesbaren Kennungen wie U6 · 01.
 - Teilbarer Städtevergleich mit grünen Haken, roten Kreuzen und aufklappbaren FAQ.
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.10.2 und Wear 0.7.4**, nativer Versionscode **26**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.11.31 und Wear 0.9.1**, nativer Versionscode **32**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

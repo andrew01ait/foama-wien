@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.9.0 / Wear 0.7.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.31 / Wear 0.9.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -9,6 +9,7 @@ Aktueller Stand: PWA 0.9.0 / Wear 0.7.1. Die Clients verwalten ihre Favoriten un
 | PWA `pwa/src/app.mjs` | Nähe/Favoriten, Browser-Standort, sichtbare Aktualisierung und lokaler Speicher |
 | PWA `journey-*` | A-nach-B-Suche, Adressen, Karten, Varianten und lokale zeitlose Routenfavoriten |
 | PWA `line-map-*`, `line-maps` | Geografische Wiener Shapes/Varianten, Version-/Quellprüfung, lokaler Cache; OSM-Kacheln nur für sichtbare Karte |
+| PWA `vehicle-data`, `vehicle-tracker`, `vehicle-strip` | Fahrzeuge im Anflug: quellgebundene Linienbasis, kurzlebige Schätzlagen, horizontale Stationsausschnitte; gemeinsame Monitorabfrage ohne eigenen Stations-Poller |
 | PWA `timetable-pdf` | Echte lokale PDF-Dateien aus denselben Tages-/Stationsfahrplandaten, ohne externe PDF-Dienste |
 | Wear `MainActivity`, `Repo`, `JourneyStore` | Native Navigation, lokale Favoriten, importierte Routen und Vordergrund-Abfahrten |
 | Gemeinsamer Monitor-Relay | Feste Wiener-Linien-Zieladresse, begrenzte RBL-Batches, Cache und Fehlerbehandlung |
@@ -44,6 +45,8 @@ Der öffentliche Katalog verbindet offizielle Haltepunkte mit nachgewiesenen Lin
 
 Vollständige Reiseplanung erfolgt nur auf bewusste Suche in der PWA. Zwei begrenzte Profilabfragen erlauben den Vergleich schnellster Wege und weniger Umstiege; beide zählen im gemeinsamen Budget von höchstens 700 Planungs-/Fußwegabrufen je konservativen 25 Stunden. Karten- und Variantenwechsel lösen keine neue Vollplanung aus. Favoriten speichern Linienwege und Umstiege, keine alten Fahrtzeiten oder Trip-IDs. Ein GPS-Endpunkt bleibt dynamisch, ohne gespeicherten Fix. Die Uhr zeigt aktuelle passende Etappenzeiten; ein gleicher Linienname ist keine garantierte konkrete Fahrt oder Anschlusszusage.
 
+Gewählte Adressen behalten den vom Geocoder gelieferten Ortskontext als optionales begrenztes `detail`-Feld. Eigene Orte zeigen ihren lokalen Namen und die physische Adresse getrennt. Der Kontext beeinflusst die Endpunktidentität nicht, bleibt in gespeicherten Routen erhalten und wird bei dynamischen GPS-Endpunkten entfernt. Die Ortsauswahl verwendet vorhandene lokale Koordinaten ohne erneuten Geocoding-Aufruf. [Bedienung und Datenvertrag](journey-planning.md).
+
 ## Favoritenübertragung
 
 QR-Sitzungen verwenden AES-GCM, zufällige getrennte Lese-/Schreibfreigaben und zehn Minuten Ablaufzeit. Der Schlüssel bleibt im QR-Fragment und im Client-Arbeitsspeicher. D1 erhält Ciphertext und gehashte Freigaben; nach bestätigter Übernahme wird der Inhalt entfernt. Importvorschau und bewusste Bestätigung bleiben erforderlich. Beide Geräte behalten eigene Listen. Dateiimport ist lokal. Adresslabels eigener Orte und alte GPS-/Fahrtinformationen werden nicht als dauerhafte Bewegungsdaten übertragen. [QR-Vertrag](qr-transfer.md).
@@ -59,3 +62,37 @@ Die Favoritenauswahl umfasst Stationen, Linien sowie alle bekannten Ein-, Umstie
 Interne Site-Quelle und öffentliches GitHub werden bewusst abgeglichen. Build-Ausgaben, produktive Secrets, private Signierschlüssel und reale Nutzerexporte gehören nicht in Git. Das Quell-ZIP enthält auch SQL-Migrationen, Drizzle-Konfiguration, CI und Bibliothekslizenzen. Die laufende Site, ein GitHub-Commit und eine signierte APK sind getrennte Veröffentlichungen mit jeweils eigener Prüfung. [Ablauf](../DEPLOYMENT.md), [Quellabgleich](github.md).
 
 Frühere Architekturentscheidungen stehen im [Archiv](history/architecture-before-github.md); insbesondere alte Durable-Object- und Versionsangaben sind keine aktuelle Betriebsanleitung.
+
+Fahrzeugkontinuität: Auswahl ist umschaltbar; entfernte gehaltene Marker benötigen bei Rückkehr erneut zwei Quellenstände. Bestätigte Folgefahrten können überholte alte Lagen anhand zweier gemeinsamer frischer Sollzeitanker ausblenden. Bus-/Tram-Profile dürfen bei fehlenden nahen Slots vom aktuellen gültigen Betriebstag derselben Variante stammen. Die strengere Live-Stationskette bleibt erforderlich. Vollständig identische öffentliche Fahrwegfolgen haben im Import Vorrang vor historischen Umleitungsteilfolgen; keine unscharfe Plattformzuordnung.
+
+Fahrzeugstart ab 0.11.10: unabhängige Katalog-/Paketdownloads parallel, maximal vier geprüfte Linienpakete im Seitenspeicher und gemeinsame laufende Downloads je Linie. Monitorzyklus ab Requestbeginn, weiterhin gemeinsame 30-s-Sperre und zwei verschiedene Quellenstände. Endstationsalias für den belegten Parlament/Volkstheater-Endpunkt wird in Monitor, Fallback, Favoriten und Detailauswahl konsistent verwendet.
+
+Die gemeinsame Kartenschicht in `map-position.mjs` wird über die beiden Leaflet-Lader einmalig in alle Karten eingebunden. Der Monitor veröffentlicht ausschließlich echte GPS-Fixes aus seinem vorhandenen Controller; manuelle Auswahl ist kein Gerätefix. Andere Kartenseiten teilen einen nur bei erteilter Freigabe aktiven Vordergrund-Watch. `vehicle-readiness.mjs` berechnet rein lokal aus Trackerzustand und tatsächlichem Abrufplan die vier grafischen Stufen; es hat keinen eigenen Netzwerklauf. [Kartenposition](map-position.md).
+
+Seit 0.11.15 startet die Karten-Standortschicht nach Leaflet whenReady. Der Meldungscache verwendet Monitor-/Feed-Zeitstempel; eine unvollständige Zusatzquelle darf vorhandene Warnungen nicht löschen oder verjüngen. Diagnose und umgesetzte Fahrzeugverbesserungen: [Untersuchung 12.11.2026](vehicle-audit-20261112.md).
+
+0.11.16: monitor-timing.mjs verbindet globale Startsperre, cachebezogene Quellengrenze und kurze Web-Locks-Zeitstempelvergabe für Monitor, A nach B und Fahrzeugseite. Worker-In-Flight-Maps sind auf je 64 laufende Batches/Origins begrenzt; keine Fahrzeughistorie. ETA-Änderungen mit identischen Ankern verändern Lageunsicherheit statt Identität. walking-map.mjs besitzt Karte, Routing-AbortController und Sitzung; Rendering beginnt unabhängig vom Routing. station-map-marker.mjs zeigt alle gefilterten Linien mit maximal vier Spalten.
+
+0.11.17: Die ganze Fahrzeugansicht startet automatisch nach der geprüften Linienbasis, ohne Start-/Pause-Steuerung. Unsichtbar stoppen, bei Rückkehr automatisch fortsetzen; bestehende Abrufgrenzen und geschlossene eingebettete Stationspanels erhalten.
+
+Bei gewählter Station zeigt die Fahrzeugseite den Countdown für genau das nächste Fahrzeug: groß in Minuten als Kartenüberlagerung, sonst als kompakte Zeile. Er nutzt vorhandene frische Prognosen; ein Ersatz aus dem Fahrzeitprofil bleibt als Fahrplan-Schätzung erkennbar. Keine neuen Abfragen oder behaupteten Fahrzeugpositionen allein durch den Countdown.
+
+0.11.18: Der gemeinsame Standort-Hook wartet nach `whenReady` zusätzlich bis nach dem gesamten ersten Ladeereignis, damit zuvor eingereihte SVG-Renderer bereit sind. Frühes Entfernen verwirft die Anmeldung. Stationskarten initialisieren ihre Ansicht vor Vektoren und entsorgen einen unvollständigen Aufbau vor einem erneuten Versuch. [Diagnose und Abnahme](map-overlays-20261112.md).
+
+0.11.19: Eine gemeinsame Liniensitzung für Karte, Schema und Dein Halt. Stationswahl erhält Prognosen, IDs, Bestätigung und Abruf-Countdown; der Stationsbereich erhält Vorrang. Ganze lange Linien werden fair in maximal 24 RBL großen Abschnitten innerhalb derselben Abrufgrenzen aktualisiert. Schmale Ansichten verwenden einen kompakten Fortschrittsbalken.
+
+0.11.21: `vehicle-session.mjs` verbindet kanonische Tracker mit einem begrenzten tablokalen `sessionStorage`-Checkpoint. Identität bindet an Fahrplanversion, Quellhash, Linie, Modus, Richtung und genaue Variante. Trackerzustand umfasst ID-Zähler, Anker, Boardzeiten, Quellen-Deduplizierung und Korrektur-/Ablaufzustand; kein Replay als neuer Quellenstand. Wiederaufnahme aus dem Browser-Zurückcache liest vor der Fortsetzung den neueren Zustand. Höchstens vier Sitzungen/1,5 Mio. Zeichen, höchstens fünf Minuten seit letzter Nutzung; Fahrzeugbelege laufen unabhängig weiterhin nach 60/90 Sekunden aus. Keine Standort-/Favoritendaten, keine Hintergrundarbeit und kein eigener Panel-Poller. Paneldarstellung filtert die kanonischen Fahrten auf das gewählte Ziel. `notBefore` erhält den nächsten Termin einschließlich Fehlerpause über den Seitenwechsel hinweg.
+
+0.11.22: `warning-panel.mjs` erzeugt denselben Disclosure-Baustein für Übersicht und Stations-/Reisedetails. `traffic-info.mjs` liest, validiert, vereinigt und speichert den gemeinsamen öffentlichen Meldungscache. A nach B übernimmt ihn beim Initialisieren und Fortsetzen; Storage-Ereignisse aktualisieren die andere Ansicht. Cachefusion entscheidet nach Originalquellzeit und erhält auch erfolgreiche leere Records. Keine neue Persistenzkategorie, Nutzerpositionen oder zusätzliche Warnungsabfrage. [Vertrag](warning-panel.md).
+
+0.11.23: Der aktive Positionseigentümer ist von den passiven Liniensitzungen getrennt. Ganzlinien-Poller und Stationspanel teilen die Zuständigkeit; Übernahme stoppt den bisherigen Request/Umfang vor neuem Start. Zusätzliche Warnungsanker lösen keine zusätzliche Fahrzeugberechnung aus. [Einzelne Fahrzeuglinie](vehicle-line-session.md).
+
+Wear 0.8.2: Stationswechsel teilt einen kanonischen Ganzrichtungs-Tracker pro Linie/Richtung/Quelldigest im Worker. Nur der bewusst ausgewählte Ausschnitt fragt höchstens acht RBLs ab. Die Uhr hält vier passive Antworten fünf Minuten im RAM; Quellenalter und Abrufsperre werden nie durch Lesen erneuert. Wechsel storniert die vorige Zuständigkeit; ein Quellenfehler lässt gehaltene Lagen grau altern. [Bedienung und Grenzen](wear-experience.md).
+
+0.11.26: `station-map-marker.mjs` verankert den sichtbaren Punkt statt eines unsichtbaren Abstands unter dem Label. Ein rein öffentlicher Index aus den bereits importierten GTFS-Linienpaketen wählt einen tatsächlich bedienten Plattformpunkt anhand exakter Stations-/Linien-/Modusidentität und Kalender. Er ändert weder Katalog-/Gehzeitkoordinaten noch Monitor-/Fahrzeugbudgets. [Vertrag](station-map-points.md).
+
+## Native Offline-Daten ab 0.9.0
+
+`OfflineTimetable` liest das vollständige gebündelte ZIP und bis zu zwei spätere, geprüfte Pakete. Kalendergrenzen werden bei jeder Abfrage neu geprüft. Aktualisierung läuft ausschließlich mit aktiver Activity und Verbindung, auf einem getrennten cancellierbaren Worker; API-/Fahrzeugbudgets bleiben erhalten. Die manuelle Erneuerung hält nur das sichtbare Display an. Keine Favoriten/GPS im Download. [Vollständiger Datenvertrag](wear-offline.md).
+
+Kartenfilter ab Wear 0.9.1: Die dargestellte Liniengeometrie und die Menge ihrer echten Stations-IDs werden gemeinsam übernommen. Zeichnen, Trefferprüfung und Liste verwenden dieselbe sichtbare Stationsmenge; eine gescheiterte Linienwahl verändert den vorhandenen Stand nicht. Es entsteht kein neuer Netzwerkabruf. Der Listenzugang ist von der ausgewählten Station unabhängig.

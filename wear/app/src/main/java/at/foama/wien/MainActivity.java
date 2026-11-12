@@ -35,6 +35,8 @@ public final class MainActivity extends Activity {
 
     private final Handler handler=new Handler(Looper.getMainLooper());
     private final ExecutorService network=Executors.newSingleThreadExecutor();
+    private final ExecutorService timetableNetwork=Executors.newSingleThreadExecutor();
+    private RequestScope timetableScope;private Future<?> timetableRequest;private boolean timetableManual;
     private RequestScope requests=new RequestScope();
     private Future<?> departureRequest,updateRequest;
     private RequestScope updateScope,fileScope;RequestScope.ConnectionFactory updateConnectionFactory;
@@ -55,7 +57,14 @@ public final class MainActivity extends Activity {
     private Object backRegistration;
     private WatchLocation watchLocation;
     private ScrollView scroll;
-    private int scrollRevision;
+    private final Map<String,Integer> readingPositions=new HashMap<>();
+    private String renderedPage="";
+    private int pendingReadingPosition;
+    private JSONObject approach;
+    private String approachMessage="";
+    private final ApproachCache approachCache=new ApproachCache();
+
+    private int scrollRevision,scrollRestoreY=-1;
     private boolean openingPage;
     private LinearLayout root,content;
     private TextView status;
@@ -76,7 +85,7 @@ public final class MainActivity extends Activity {
     private final Runnable viewportRefresh=()->refresh();
     private final Runnable gatedRefresh=()->refresh();
     private final BroadcastReceiver screenState=new BroadcastReceiver(){public void onReceive(Context c,Intent intent){if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction()))stopForegroundWork();else if(Intent.ACTION_SCREEN_ON.equals(intent.getAction()))startForegroundWork();}};
-    private final Runnable departureTicker=new Runnable(){public void run(){if(!active)return;if(powerSaver.active&&locationScreen())startLocation(false);refresh();handler.postDelayed(this,powerSaver.departureInterval());}};
+    private final Runnable departureTicker=new Runnable(){public void run(){if(!active)return;maybeUpdateTimetable(false);if(powerSaver.active&&locationScreen())startLocation(false);refresh();handler.postDelayed(this,powerSaver.departureInterval());}};
     private final Runnable renderTicker=new Runnable(){public void run(){if(!active)return;if(!screen.equals("more")&&!screen.equals("file-import")&&!screen.equals("transfer"))renderContent();handler.postDelayed(this,powerSaver.renderInterval());}};
     @Override public void onCreate(Bundle state){
         super.onCreate(state);getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);
@@ -86,7 +95,7 @@ public final class MainActivity extends Activity {
         powerSaver=new WatchPowerSaver(repo.prefs.getBoolean("ultraBattery",false),repo.prefs.getBoolean("ultraBatteryActive",false));
         push=new WatchPush(this,repo,network,handler,()->{if(content!=null&&screen.equals("more")&&settingsSection.startsWith("push"))refreshMore();});repo.onFavoritesChanged=push::favoritesChanged;
         if(getIntent().getBooleanExtra("foama_alerts",false)){screen="alerts";dataPausedForAlerts=true;getIntent().removeExtra("foama_alerts");}
-        Updater.clearDownloadCache(this);
+        Updater.clearDownloadCache(this);applyShortcut(getIntent());
         IntentFilter screenFilter=new IntentFilter();screenFilter.addAction(Intent.ACTION_SCREEN_OFF);screenFilter.addAction(Intent.ACTION_SCREEN_ON);
         if(Build.VERSION.SDK_INT>=33)registerReceiver(screenState,screenFilter,Context.RECEIVER_NOT_EXPORTED);else registerReceiver(screenState,screenFilter);
         Updater.observeInstallStatus(installStatus);
@@ -99,7 +108,7 @@ public final class MainActivity extends Activity {
             }
             public void onStatus(String message){if(!active)return;locationMessage=message;updateLocationUi();}
         });
-        scroll=new ScrollView(this);scroll.setBackgroundColor(BG);scroll.setFillViewport(true);scroll.setScrollbarFadingEnabled(true);scroll.setFocusable(true);
+        scroll=new ScrollView(this){@Override protected void onLayout(boolean changed,int l,int t,int r,int b){super.onLayout(changed,l,t,r,b);if(scrollRestoreY>=0){super.scrollTo(0,scrollRestoreY);scrollRestoreY=-1;openingPage=false;}}};scroll.setBackgroundColor(BG);scroll.setFillViewport(true);scroll.setScrollbarFadingEnabled(true);scroll.setFocusable(true);
         scroll.setOnScrollChangeListener((v,x,y,oldX,oldY)->{handler.removeCallbacks(viewportRefresh);if(active)handler.postDelayed(viewportRefresh,120);});
         boolean small=getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density<210;
         root=vertical();root.setPadding(dp(small?16:20),dp(small?20:24),dp(small?16:20),dp(34));scroll.addView(root);setContentView(scroll);renderLayout();scroll.requestFocus();
@@ -114,6 +123,7 @@ public final class MainActivity extends Activity {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if(batteryRegistered){unregisterReceiver(batteryReceiver);batteryRegistered=false;}
         boolean wasActive=active;active=false;handler.removeCallbacks(departureTicker);handler.removeCallbacks(renderTicker);handler.removeCallbacks(viewportRefresh);handler.removeCallbacks(gatedRefresh);stopLocation();requests.cancel();if(push!=null)push.pause();
+        if(timetableScope!=null)timetableScope.cancel();if(timetableRequest!=null)timetableRequest.cancel(true);timetableRequest=null;timetableScope=null;timetableManual=false;
         if(departureRequest!=null)departureRequest.cancel(true);fetching=false;
         if(stopUpdate)cancelUpdate(updateHandedToInstaller?"Update an Android übergeben.":"Update angehalten. Bei Bedarf erneut prüfen.");cancelFileRead();filePreview=null;
         if(wasActive)repo.pause();if(transfer!=null){closeTransfer();screen=transferFromRoutes?"routes":"more";settingsSection=transferParentSection;}
@@ -121,7 +131,7 @@ public final class MainActivity extends Activity {
     }
     @Override protected void onPause(){resumed=false;PowerManager power=(PowerManager)getSystemService(POWER_SERVICE);boolean visibleUpdate=updateDownloading&&!isFinishing()&&!isChangingConfigurations()&&(power==null||power.isInteractive());stopForegroundWork(!visibleUpdate);super.onPause();}
     @Override protected void onStop(){stopForegroundWork();super.onStop();}
-    @Override protected void onDestroy(){resumed=false;stopForegroundWork();handler.removeCallbacksAndMessages(null);unregisterReceiver(screenState);Updater.removeInstallObserver(installStatus);if(Build.VERSION.SDK_INT>=33&&backRegistration!=null)Api33Back.unregister(this,backRegistration);network.shutdownNow();super.onDestroy();}
+    @Override protected void onDestroy(){resumed=false;stopForegroundWork();handler.removeCallbacksAndMessages(null);unregisterReceiver(screenState);Updater.removeInstallObserver(installStatus);if(Build.VERSION.SDK_INT>=33&&backRegistration!=null)Api33Back.unregister(this,backRegistration);network.shutdownNow();timetableNetwork.shutdownNow();super.onDestroy();}
     private static final class Api33Back {
         static Object register(MainActivity app){android.window.OnBackInvokedCallback callback=app::navigateBack;app.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,callback);return callback;}
         static void unregister(MainActivity app,Object callback){app.getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback((android.window.OnBackInvokedCallback)callback);}
@@ -136,6 +146,7 @@ public final class MainActivity extends Activity {
     private Button button(String label,String style){
         Button b=new Button(this);b.setAllCaps(false);b.setText(label);b.setTextSize(12);b.setTypeface(android.graphics.Typeface.create("sans-serif-medium",0));
         if(label.equals("A nach B")){NavigationIcon icon=NavigationIcon.route(MINT);icon.setBounds(0,0,dp(17),dp(17));b.setCompoundDrawables(icon,null,null,null);b.setCompoundDrawablePadding(dp(5));}
+        if(label.equals("Einstellungen")){SettingsIcon icon=new SettingsIcon(MINT);icon.setBounds(0,0,dp(17),dp(17));b.setCompoundDrawables(icon,null,null,null);b.setCompoundDrawablePadding(dp(5));}
         b.setGravity(Gravity.CENTER);b.setMinWidth(dp(48));b.setMinimumWidth(dp(48));b.setMinHeight(dp(48));b.setMinimumHeight(dp(48));b.setPadding(dp(9),dp(9),dp(9),dp(9));
         // Material's default tint/elevation must not replace our native mockup colours.
         b.setBackgroundTintList(null);b.setStateListAnimator(null);b.setElevation(0);
@@ -169,9 +180,9 @@ public final class MainActivity extends Activity {
         boolean selected=name.equals("routes")?screen.equals("routes"):screen.equals("home")&&view.equals(name);LinearLayout tab=vertical();tab.setGravity(Gravity.CENTER);tab.setPadding(0,0,0,0);tab.setSelected(selected);
         tab.setBackground(new InsetDrawable(new RippleDrawable(ColorStateList.valueOf(0x4873e0b7),surface(selected?0xff20443b:Color.TRANSPARENT,selected?0xff427e68:Color.TRANSPARENT,18),null),0,dp(6),0,dp(6)));
         ImageView icon=new ImageView(this);icon.setImageDrawable(name.equals("routes")?NavigationIcon.route(selected?MINT:MUTED):new NavigationIcon(star,selected,selected?MINT:MUTED));icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);tab.addView(icon,new LinearLayout.LayoutParams(dp(14),dp(14)));
-        TextView title=text(label,12,selected?0xffb8f3d6:MUTED,true);title.setGravity(Gravity.CENTER);title.setSingleLine(true);title.setHorizontallyScrolling(false);title.setEllipsize(TextUtils.TruncateAt.END);
-        float available=(getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight())/3f-dp(2);
-        float labelWidth=title.getPaint().measureText(label);if(labelWidth>available)title.setTextScaleX(Math.max(.78f,available/labelWidth));
+        WatchLayout layout=WatchLayout.of(getResources());
+        String visibleLabel=name.equals("fav")&&layout.largeText?"Favor.":name.equals("routes")&&(layout.largeText||layout.width<210)?"A → B":label;
+        TextView title=text(visibleLabel,12,selected?0xffb8f3d6:MUTED,true);title.setGravity(Gravity.CENTER);title.setMaxLines(2);title.setHorizontallyScrolling(false);
         LinearLayout.LayoutParams words=new LinearLayout.LayoutParams(-1,-2);words.topMargin=dp(2);tab.addView(title,words);
         actionable(tab,name.equals("near")?"In der Nähe":label,()->{if(name.equals("routes"))openRoutes();else changeView(name);});
         tab.setAccessibilityDelegate(new View.AccessibilityDelegate(){public void onInitializeAccessibilityNodeInfo(View host,android.view.accessibility.AccessibilityNodeInfo info){super.onInitializeAccessibilityNodeInfo(host,info);info.setClassName(Button.class.getName());info.setSelected(host.isSelected());}});
@@ -182,7 +193,7 @@ public final class MainActivity extends Activity {
         // The non-interactive heading can use the filter's empty lower padding.
         // Station and route actions still start below its full 48dp touch area.
         if(!compactFavoriteControls())return;
-        LinearLayout.LayoutParams params=(LinearLayout.LayoutParams)heading.getLayoutParams();params.topMargin=-dp(10);heading.setLayoutParams(params);
+        LinearLayout.LayoutParams params=(LinearLayout.LayoutParams)heading.getLayoutParams();params.topMargin=0;heading.setLayoutParams(params);
     }
     private LinearLayout transportShortcut(){
         LinearLayout target=vertical();target.setGravity(compactFavoriteControls()?Gravity.TOP|Gravity.CENTER_HORIZONTAL:Gravity.CENTER);target.setPadding(dp(4),dp(3),dp(4),dp(3));
@@ -191,7 +202,8 @@ public final class MainActivity extends Activity {
         ArrayList<String> enabled=new ArrayList<>();
         for(int i=0;i<WearPolicy.MODES.length;i++)if(repo.modeAllowed(WearPolicy.MODES[i]))enabled.add(WearPolicy.MODE_LABELS[i]);
         int available=getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight()-dp(34);
-        int iconSize=Math.min(dp(18),Math.max(dp(12),available/Math.max(1,enabled.size())-dp(3)));
+        if(screen.equals("home")&&view.equals("near"))available-=dp(48);
+        int iconSize=Math.min(dp(18),Math.max(dp(10),available/Math.max(1,enabled.size())-dp(3)));
         for(int i=0;i<WearPolicy.MODES.length;i++)if(repo.modeAllowed(WearPolicy.MODES[i])){
             ImageView icon=new ImageView(this);icon.setImageDrawable(new TransportIcon(WearPolicy.MODES[i],MINT));icon.setContentDescription(WearPolicy.MODE_LABELS[i]);icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             LinearLayout.LayoutParams item=new LinearLayout.LayoutParams(iconSize,iconSize);item.setMarginEnd(dp(3));row.addView(icon,item);
@@ -200,13 +212,13 @@ public final class MainActivity extends Activity {
         row.addView(text("›",18,MUTED,false),new LinearLayout.LayoutParams(dp(10),-2));target.addView(row,new LinearLayout.LayoutParams(-1,-2));
         actionable(target,"Verkehrsmittel für In der Nähe: "+(enabled.isEmpty()?"keine aktiviert":String.join(", ",enabled))+". Einstellungen öffnen",()->{modesFromHome=true;screen="more";settingsSection="modes";renderLayout();});
         target.setTag("transport-shortcut");target.setAccessibilityDelegate(new View.AccessibilityDelegate(){public void onInitializeAccessibilityNodeInfo(View host,android.view.accessibility.AccessibilityNodeInfo info){super.onInitializeAccessibilityNodeInfo(host,info);info.setClassName(Button.class.getName());}});
-        content.addView(target,new LinearLayout.LayoutParams(-1,-2));space(content,1);return target;
+        if(screen.equals("home")&&view.equals("near")){LinearLayout tools=horizontal();tools.addView(target,new LinearLayout.LayoutParams(0,-2,1));Button mapButton=button("Karte","quiet");tools.addView(mapButton,new LinearLayout.LayoutParams(dp(48),-2));mapButton.setOnClickListener(v->openMap(null));content.addView(tools,new LinearLayout.LayoutParams(-1,-2));}else content.addView(target,new LinearLayout.LayoutParams(-1,-2));space(content,1);return target;
     }
     private void stationHeading(LinearLayout parent,Repo.Stop stop){
         LinearLayout row=horizontal();row.setPadding(dp(6),0,dp(6),0);row.setTag(at.andrew.foamawien.R.id.station_id,stop.id);
         TextView name=text(stop.name,14,WHITE,true);row.addView(name,new LinearLayout.LayoutParams(0,-2,1));
         String walking=repo.reliableLocation()?Math.max(1,(int)Math.ceil(repo.walkMinutes(stop)))+"′":"?";
-        TextView walk=text("↗ "+walking,12,MUTED,false);LinearLayout.LayoutParams right=new LinearLayout.LayoutParams(-2,-2);right.setMarginStart(dp(4));row.addView(walk,right);
+        TextView walk=text("↗ "+walking,12,MUTED,false);LinearLayout.LayoutParams right=new LinearLayout.LayoutParams(-2,-2);right.setMarginStart(dp(4));if(!WatchLayout.of(getResources()).stacked)row.addView(walk,right);
         walk.setContentDescription(repo.reliableLocation()?"Geschätzter Fußweg: "+Math.max(1,(int)Math.ceil(repo.walkMinutes(stop)))+" Minuten":"Gehzeit ungewiss");
         parent.addView(row,new LinearLayout.LayoutParams(-1,-2));space(parent,2);
     }
@@ -215,11 +227,15 @@ public final class MainActivity extends Activity {
         stationHeading(panel,stop);return panel;
     }
     private void renderLayout(){
+        String next=pageKey();
+        if(scroll!=null&&!renderedPage.isEmpty())readingPositions.put(renderedPage,scroll.getScrollY());
+        pendingReadingPosition=readingPositions.getOrDefault(next,0);renderedPage=next;
         openingPage=true;scrollRevision++;
         root.removeAllViews();
         int width=Math.round(getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density);
         boolean mainScreen=screen.equals("home")||screen.equals("routes");
-        root.setPadding(dp(width<210?16:20),dp(mainScreen?10:screen.equals("transfer")?Math.round((width-Math.min(156,Math.round(width*.69f)))/2f):width<210?16:24),dp(width<210?16:20),dp(34));
+        WatchLayout layout=WatchLayout.of(getResources());
+        root.setPadding(dp(layout.padding),dp(mainScreen?10:screen.equals("transfer")?Math.round((width-Math.min(156,Math.round(width*.69f)))/2f):width<210?16:24),dp(layout.padding),dp(34));
         if(mainScreen){
             // The title uses the round cap and the navigation's empty upper
             // inset, so its text does not add another full row above departures.
@@ -227,17 +243,18 @@ public final class MainActivity extends Activity {
             TextView brand=text(CityProfiles.name(repo.cities.current()),12,MUTED,true);brand.setGravity(Gravity.CENTER);brand.setTag("main-title");brand.setSingleLine(true);brand.setHorizontallyScrolling(false);brand.setAccessibilityHeading(true);
             header.addView(brand,new FrameLayout.LayoutParams(-1,-2,Gravity.TOP|Gravity.CENTER_HORIZONTAL));
             LinearLayout tabs=horizontal();tabs.setTag("main-navigation");tabs.setBackground(new InsetDrawable(surface(0xff09141d,BORDER,19),0,dp(6),0,dp(6)));
-            for(String name:new String[]{"near","fav","routes"})tabs.addView(homeTab(name,name.equals("near")?"Nähe":name.equals("fav")?"Favoriten":"A nach B",name.equals("fav")),new LinearLayout.LayoutParams(0,dp(48),1));
-            header.addView(tabs,new FrameLayout.LayoutParams(Math.min(dp(190),getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight()),dp(48),Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL));
+            for(String name:new String[]{"near","fav","routes"})tabs.addView(homeTab(name,name.equals("near")?"Nähe":name.equals("fav")?"Favoriten":"A nach B",name.equals("fav")),new LinearLayout.LayoutParams(0,dp(layout.tabHeight),1));
+            header.addView(tabs,new FrameLayout.LayoutParams(Math.min(dp(210),getResources().getDisplayMetrics().widthPixels-root.getPaddingLeft()-root.getPaddingRight()),dp(layout.tabHeight),Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL));
             float extraTitleSpace=Math.max(0,getResources().getConfiguration().fontScale-1)*14;
-            root.addView(header,new LinearLayout.LayoutParams(-1,dp(56+extraTitleSpace)));
+            root.addView(header,new LinearLayout.LayoutParams(-1,dp(layout.tabHeight+8+extraTitleSpace)));
         }
         status=text("",12,AMBER,false);status.setGravity(Gravity.CENTER);status.setPadding(0,0,0,dp(7));root.addView(status);
         content=vertical();root.addView(content);renderContent();
-        if(screen.equals("home")||screen.equals("routes")){space(root,5);fullButton(root,"Mehr",()->openMore());}
-        scroll.scrollTo(0,0);
+        if(screen.equals("home")||screen.equals("routes")){space(root,5);fullButton(root,"Einstellungen",()->openMore());}
+        restoreScroll(pendingReadingPosition);
     }
-    void changeView(String name){boolean fromRoutes=screen.equals("routes");if(fromRoutes||!view.equals(name))resetDepartureScope();view=name;screen="home";repo.prefs.edit().putString("view",name).apply();renderLayout();if(fromRoutes&&active)startLocation(false);refresh();}
+    private String pageKey(){return screen+"|"+(screen.equals("home")?view+"|"+favoriteView:screen.equals("detail")||screen.equals("approach")?(detailStop==null?"":detailStop.id)+"|"+detailRoute+"|"+detailTowards:screen.equals("journey")?journeyId+"|"+journeyVariant+"|"+journeyBoarding:screen.equals("more")?settingsSection:"");}
+    void changeView(String name){boolean fromRoutes=screen.equals("routes");if(!screen.equals("home")||!view.equals(name))resetDepartureScope();view=name;screen="home";repo.prefs.edit().putString("view",name).apply();renderLayout();if(fromRoutes&&active)startLocation(false);refresh();}
     private boolean favoriteRoutes(){return favoriteView.equals("routes")||favoriteView.isEmpty()&&repo.cityJourneys().length()>0;}
     private void changeFavoriteView(String name){
         if((!name.equals("routes")&&!name.equals("stations"))||name.equals(favoriteView))return;
@@ -263,32 +280,40 @@ public final class MainActivity extends Activity {
         content.addView(row,compact);space(content,1);
     }
     void openConnection(Repo.Stop stop,String route,String towards){openConnection(stop,route,towards,"");}
-    void openConnection(Repo.Stop stop,String route,String towards,String mode){detailMode=mode;if(screen.equals("journey")){detailFromJourney=true;resetDepartureScope();}else if(screen.equals("home"))detailFromJourney=false;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
+    void openConnection(Repo.Stop stop,String route,String towards,String mode){boolean changed=detailStop!=stop||!detailRoute.equals(route)||!detailTowards.equals(towards)||!detailMode.equals(mode);if(screen.equals("journey"))detailFromJourney=true;else if(screen.equals("home"))detailFromJourney=false;if(changed||screen.equals("journey")||screen.equals("approach"))resetDepartureScope();detailMode=mode;detailStop=stop;detailRoute=route;detailTowards=towards;screen="detail";renderLayout();refresh();}
     private void resetDepartureScope(){handler.removeCallbacks(gatedRefresh);requests.cancel();if(departureRequest!=null)departureRequest.cancel(true);requests=new RequestScope();fetching=false;}
     void openJourney(String id){if(repo.journeys.get(id)==null)return;if(screen.equals("home")||screen.equals("routes"))journeyFromRoutes=screen.equals("routes");resetDepartureScope();journeyId=id;journeyBoarding=0;journeyVariant=0;screen="journey";renderLayout();refresh();}
     void openRoutes(){stopLocation();resetDepartureScope();screen="routes";operationMessage="";renderLayout();refresh();}
-    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);if(intent.getBooleanExtra("foama_alerts",false)){alertsFromPush=false;getIntent().removeExtra("foama_alerts");openAlerts();}}
+    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);if(intent.getBooleanExtra("foama_alerts",false)){alertsFromPush=false;getIntent().removeExtra("foama_alerts");openAlerts();}else{applyShortcut(intent);renderLayout();refresh();}}
+    private void applyShortcut(Intent intent){
+        String shortcut=intent.getStringExtra("foama_shortcut");if(shortcut!=null){screen="home";view=shortcut.equals("fav")?"fav":"near";intent.removeExtra("foama_shortcut");}
+        Repo.Stop stop=repo.findStop(intent.getStringExtra("foama_stop"));if(stop!=null){screen="detail";detailStop=stop;detailRoute=intent.getStringExtra("foama_route");if(detailRoute==null)detailRoute="";detailTowards="";detailMode="";intent.removeExtra("foama_stop");}
+    }
     private void openAlerts(){dataPausedForAlerts=true;if(transfer!=null)closeTransfer();stopLocation();requests.cancel();if(departureRequest!=null)departureRequest.cancel(true);fetching=false;requests=new RequestScope();screen="alerts";renderLayout();}
     private void openMore(){moreFromRoutes=screen.equals("routes");modesFromHome=false;screen="more";settingsSection="";renderLayout();}
     private List<Repo.Stop> targets(){
         if(screen.equals("journey-options"))return journeyOptionTargets();if(screen.equals("journey"))return journeyTargets();
-        if(screen.equals("detail")&&detailStop!=null)return Collections.singletonList(detailStop);
+        if((screen.equals("detail")||screen.equals("approach"))&&detailStop!=null)return Collections.singletonList(detailStop);
         if(screen.equals("home")&&view.equals("fav")&&!favoriteRoutes())return new ArrayList<>(repo.favoriteStops());
         if(screen.equals("routes")||view.equals("fav")){ArrayList<Repo.Stop> out=new ArrayList<>();JSONArray journeys=repo.cityJourneys();for(int i=0;i<journeys.length();i++){List<JSONObject> legs=JourneyStore.boardings(journeys.optJSONObject(i));if(!legs.isEmpty()){Repo.Stop stop=repo.findStop(legs.get(0).optJSONObject("from").optString("stopId"));if(stop!=null&&!out.contains(stop))out.add(stop);}}return out;}ArrayList<Repo.Stop> near=repo.nearby();return new ArrayList<>(near.subList(0,Math.min(12,near.size())));
     }
     private void refresh(){
         handler.removeCallbacks(gatedRefresh);
         if(!active||fetching||screen.equals("more")||screen.equals("transfer")||screen.equals("file-import")||screen.equals("alerts"))return;
+        if(!OfflineTimetable.online(this)){renderContent();return;}
         repo.syncDepartureCity();long readyAt=repo.nextFetchElapsed;
         if(powerSaver.active&&lastDepartureAttempt>=0)readyAt=Math.max(readyAt,lastDepartureAttempt+powerSaver.departureInterval());
         long wait=readyAt-SystemClock.elapsedRealtime();if(wait>0){handler.postDelayed(gatedRefresh,wait);return;}
+        if(screen.equals("approach")&&(approach==null||approach.optBoolean("available")||approach.optBoolean("retryable"))){refreshApproach();return;}
         List<Repo.Stop> stops=new ArrayList<>(targets());Set<String> visible=StationViewport.visible(content,scroll,dp(8));List<Repo.Stop> regional=repo.regionalRequestStops(stops,visible);List<String> ids=repo.requestIds(stops,view.equals("fav")||screen.equals("routes")||screen.equals("detail")||screen.equals("journey")||screen.equals("journey-options"),visible);if(ids.isEmpty()&&regional.isEmpty())return;
         RequestScope session=requests;fetching=true;lastDepartureAttempt=SystemClock.elapsedRealtime();renderContent();departureRequest=network.submit(()->{
             try{if(!session.isCancelled())repo.fetchDepartures(stops,ids,regional,session);}catch(Exception ignored){}finally{runOnUiThread(()->{if(requests==session&&!session.isCancelled()){fetching=false;if(active&&!isFinishing())renderContent();}});}
         });
     }
     void renderContent(){
-        TextView cityTitle=root==null?null:root.findViewWithTag("main-title");if(cityTitle!=null)cityTitle.setText(CityProfiles.name(repo.cities.current()));
+        repo.expireMemoryLocation();
+        boolean offline=!OfflineTimetable.online(this);
+        TextView cityTitle=root==null?null:root.findViewWithTag("main-title");if(cityTitle!=null)cityTitle.setText(CityProfiles.name(repo.cities.current())+(offline?" · offline":""));
         if(screen.equals("transfer")){content.removeAllViews();renderTransfer();return;}
         if(content==null)return;
         if(screen.equals("file-import")){content.removeAllViews();renderFileImport();return;}
@@ -296,20 +321,21 @@ public final class MainActivity extends Activity {
         int y=scroll.getScrollY();content.removeAllViews();
         String currentError=repo.currentError(targets());
         if(!currentError.isEmpty())status.setText(currentError+" · gespeicherter Stand");
-        else if(repo.currentLocation!=null&&!repo.reliableLocation())status.setText(locationMessage.isEmpty()?repo.locationStatus()+(repo.manualLocation?"":" · Gehzeit ungewiss"):locationMessage);
+        else if(repo.currentLocation!=null&&!repo.reliableLocation())status.setText(locationMessage.isEmpty()?screen.equals("home")&&view.equals("fav")?"":repo.manualLocation?"Stadtmitte · Gehzeit ungewiss":repo.locationStatus()+" · Gehzeit ungewiss":locationMessage);
         else status.setText("");
+        if(repo.cities.current().equals("wien")&&offline&&repo.timetable.current(System.currentTimeMillis())==null)status.setText(repo.timetable.status(System.currentTimeMillis()));
         status.setVisibility(status.getText().length()==0?View.GONE:View.VISIBLE);
         if(!batteryMessage.isEmpty()){status.setText(status.getText().length()==0?batteryMessage:status.getText()+"\n"+batteryMessage);status.setVisibility(View.VISIBLE);}
-        if(screen.equals("home")){if(view.equals("fav"))favoriteSwitcher();transportShortcut();if(powerSaver.percent>=0&&powerSaver.percent<20&&!powerSaver.enabled)fullButton(content,"Akku sparen?",()->{screen="more";section("battery");renderLayout();});}
-        if(screen.equals("routes"))renderRoutes();else if(screen.equals("alerts"))renderAlerts();else if(screen.equals("journey-options"))renderJourneyOptions();else if(screen.equals("journey"))renderJourney();else if(screen.equals("detail"))renderDetail();else if(view.equals("fav"))renderFavorites();else renderNear();
-        restoreScroll(openingPage?0:y);
+        if(screen.equals("home")){if(view.equals("fav"))favoriteSwitcher();else transportShortcut();if(powerSaver.percent>=0&&powerSaver.percent<20&&!powerSaver.enabled)fullButton(content,"Akku sparen?",()->{screen="more";section("battery");renderLayout();});}
+        if(screen.equals("approach"))renderApproach();else if(screen.equals("routes"))renderRoutes();else if(screen.equals("alerts"))renderAlerts();else if(screen.equals("journey-options"))renderJourneyOptions();else if(screen.equals("journey"))renderJourney();else if(screen.equals("detail"))renderDetail();else if(view.equals("fav"))renderFavorites();else renderNear();
+        restoreScroll(openingPage?pendingReadingPosition:y);
     }
-    private void restoreScroll(int y){int revision=++scrollRevision;scroll.post(()->{if(revision!=scrollRevision)return;scroll.scrollTo(0,y);openingPage=false;});}
+    private void restoreScroll(int y){int revision=++scrollRevision;scrollRestoreY=y;scroll.requestLayout();scroll.post(()->{if(revision!=scrollRevision||scroll.isLayoutRequested())return;scroll.scrollTo(0,y);scrollRestoreY=-1;openingPage=false;});}
     private LinearLayout placeholder(String heading,String explanation){LinearLayout c=card(content);c.addView(text(heading,16,WHITE,true));space(c,6);c.addView(text(explanation,12,MUTED,false));return c;}
     private void renderNear(){
-        if(repo.currentLocation==null){
+        if(!repo.hasUsableLocation()){
             space(content,5);centered(content,"Was fährt in der Nähe?",17,WHITE,true);space(content,8);
-            centered(content,locationMessage.isEmpty()?"Erlaube den Standort auf deiner Uhr. Favoriten funktionieren auch ohne Ortung.":locationMessage,12,MUTED,false);space(content,13);
+            centered(content,locationMessage.isEmpty()?hasLocationPermission()?"Noch kein GPS-Standort. Offline kann die Suche im Freien länger dauern. Favoriten funktionieren ohne Ortung.":"Erlaube den Standort auf deiner Uhr. Favoriten funktionieren auch ohne Ortung.":locationMessage,12,MUTED,false);space(content,13);
             fullButton(content,hasLocationPermission()?"Erneut versuchen":"Standort aktivieren","primary",()->startLocation(true));
             if(hasLocationPermission()||locationDenied)fullButton(content,hasLocationPermission()?"Standorteinstellungen":"App-Freigabe öffnen","quiet",()->openLocationSettings());return;
         }
@@ -326,6 +352,7 @@ public final class MainActivity extends Activity {
         connectionCard(content,s,group,false,null);
     }
     private void connectionCard(LinearLayout parent,Repo.Stop s,List<Repo.Departure> group,boolean grouped,Repo.Favorite favorite){
+        if(WatchLayout.of(getResources()).stacked){stackedConnection(parent,s,group,grouped,favorite);return;}
         Repo.Departure d=group.get(0);LinearLayout row=horizontal();row.setTag(at.andrew.foamawien.R.id.station_id,s.id);row.setPadding(dp(6),dp(8),dp(6),dp(8));
         row.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4073e0b7),bg(CARD,18),null));
         TextView route=badge(d.route,d.mode,repo.fresh(d));route.setTextSize(12);route.setMinWidth(dp(26));route.setPadding(dp(3),dp(5),dp(3),dp(5));row.addView(route,new LinearLayout.LayoutParams(dp(d.route.length()>3?36:26),-2));
@@ -335,7 +362,7 @@ public final class MainActivity extends Activity {
         if(d.notice){space(words,3);words.addView(text("⚠ Hinweis",12,AMBER,false));}
         LinearLayout.LayoutParams middle=new LinearLayout.LayoutParams(0,-2,1);middle.setMarginStart(dp(4));middle.setMarginEnd(dp(4));row.addView(words,middle);
         String mainTime=(repo.fresh(d)?"":"~")+repo.countdown(d)+"′";
-        boolean smallRound=getResources().getDisplayMetrics().widthPixels/getResources().getDisplayMetrics().density<210;
+        boolean smallRound=false;
         int timeGravity=smallRound?Gravity.CENTER_HORIZONTAL:Gravity.END;
         LinearLayout times=vertical();if(smallRound)times.setPadding(0,0,dp(16),0);TextView first=text(mainTime,mainTime.length()>4?20:mainTime.length()>3?24:28,WHITE,true);first.setGravity(timeGravity);times.addView(first,new LinearLayout.LayoutParams(-1,-2));
         if(group.size()>1){TextView second=text("→ "+repo.countdown(group.get(1))+"′",12,MUTED,false);second.setGravity(timeGravity);times.addView(second,new LinearLayout.LayoutParams(-1,-2));}
@@ -343,14 +370,61 @@ public final class MainActivity extends Activity {
         parent.addView(row,new LinearLayout.LayoutParams(-1,-2));space(parent,grouped?2:7);
         actionable(row,s.name+", "+d.route+" Richtung "+d.towards+", "+repo.countdown(d)+" Minuten, "+repo.quality(d)+", "+reach+(group.size()>1?", danach "+repo.countdown(group.get(1))+" Minuten":""),()->openConnection(s,favorite==null?d.route:favorite.route,favorite==null?d.towards:favorite.towards,d.mode));
     }
+    private void stackedConnection(LinearLayout parent,Repo.Stop stop,List<Repo.Departure> group,boolean grouped,Repo.Favorite favorite){
+        Repo.Departure d=group.get(0);LinearLayout panel=vertical();panel.setPadding(dp(8),dp(7),dp(8),dp(8));panel.setTag(at.andrew.foamawien.R.id.station_id,stop.id);panel.setBackground(new RippleDrawable(ColorStateList.valueOf(0x4073e0b7),bg(CARD,18),null));
+        LinearLayout heading=horizontal();heading.addView(badge(d.route,d.mode,repo.fresh(d)));TextView minutes=text((repo.fresh(d)?"":"~")+repo.countdown(d)+"′",30,WHITE,true);minutes.setGravity(Gravity.CENTER);minutes.setPadding(0,0,dp(12),0);heading.addView(minutes,new LinearLayout.LayoutParams(0,-2,1));panel.addView(heading);
+        space(panel,3);TextView direction=text(d.towards,14,WHITE,true);direction.setMaxLines(3);direction.setEllipsize(TextUtils.TruncateAt.END);panel.addView(direction);
+        space(panel,4);String reach=repo.feasibility(stop,d);panel.addView(text((repo.reliableLocation()?"↗ "+Math.max(1,(int)Math.ceil(repo.walkMinutes(stop)))+"′ · ":"")+reach,12,reach.contains("Knapp")?AMBER:reach.contains("Kaum")?0xffffa39f:reach.contains("Ungewiss")?MUTED:MINT,false));
+        space(panel,3);panel.addView(text(repo.quality(d)+(group.size()>1?" · danach "+repo.countdown(group.get(1))+"′":"")+(d.notice?" · ⚠ Hinweis":""),12,d.notice?AMBER:MUTED,false));
+        parent.addView(panel,new LinearLayout.LayoutParams(-1,-2));space(parent,grouped?3:7);
+        actionable(panel,stop.name+", "+d.route+" Richtung "+d.towards+", "+repo.countdown(d)+" Minuten, "+reach+", "+repo.quality(d),()->openConnection(stop,favorite==null?d.route:favorite.route,favorite==null?d.towards:favorite.towards,d.mode));
+    }
+    private void openMap(Repo.Stop stop){
+        Intent intent=new Intent(this,MapActivity.class);if(stop!=null)intent.putExtra("stop",stop.id);
+        if(repo.currentLocation!=null&&!repo.manualLocation)intent.putExtra("fix",new Location(repo.currentLocation));startActivity(intent);
+    }
+    void openApproach(String mode){
+        if(detailStop==null||detailRoute.isEmpty()||detailTowards.isEmpty())return;
+        resetDepartureScope();detailMode=mode;ApproachCache.Entry cached=approachCache.get(approachKey(),System.currentTimeMillis());approach=cached==null?null:cached.data;approachMessage=cached==null?"":cached.message;screen="approach";renderLayout();refresh();
+    }
+    private String approachKey(){return ApproachCache.key(detailStop.id,detailRoute,detailTowards,detailMode);}
+    private void refreshApproach(){
+        if(detailStop==null)return;
+        RequestScope session=requests;Repo.Stop stop=detailStop;String route=detailRoute,towards=detailTowards,mode=detailMode;
+        String cacheKey=approachKey();
+        fetching=true;lastDepartureAttempt=SystemClock.elapsedRealtime();renderContent();
+        departureRequest=network.submit(()->{
+            JSONObject result=null;String message="";
+            try{result=repo.fetchApproach(stop,route,towards,mode,session);}catch(Exception e){if(!session.isCancelled())message="Stationsdaten nicht erreichbar. Abfahrten bleiben verfügbar.";}
+            final JSONObject response=result;final String problem=message;
+            runOnUiThread(()->{if(requests!=session||session.isCancelled()||!active||!screen.equals("approach")||!cacheKey.equals(approachKey()))return;fetching=false;if(response!=null)approach=response;approachMessage=problem;approachCache.put(cacheKey,approach,problem,System.currentTimeMillis());renderContent();handler.removeCallbacks(gatedRefresh);handler.postDelayed(gatedRefresh,Math.max(1000,repo.nextFetchElapsed-SystemClock.elapsedRealtime()));});
+        });
+    }
+    private void renderApproach(){
+        if(detailStop==null)return;
+        centered(content,detailRoute+" · "+detailTowards,15,WHITE,true);space(content,4);centered(content,detailStop.name,13,MUTED,false);
+        long now=System.currentTimeMillis(),source=approach==null?0:approach.optLong("at"),arrival=approach==null?0:approach.optLong("arrivalAt");
+        boolean fresh=source>0&&now-source<=60000&&source<=now+30000&&approachMessage.isEmpty()&&!approach.optBoolean("problem");
+        List<List<Repo.Departure>> groups=repo.connections(detailStop,detailRoute,detailTowards,true,detailMode);Repo.Departure first=groups.isEmpty()?null:groups.get(0).get(0);
+        String minutes=fresh&&arrival>0?Math.max(0,(int)Math.ceil((arrival-now)/60000.0))+"′":first==null?"—":(repo.fresh(first)?"":"~")+repo.countdown(first)+"′";
+        centered(content,minutes,48,WHITE,true);centered(content,fresh&&arrival>0?"Ankunft · ca.":first==null?"Keine aktuelle Prognose":"Abfahrt · "+repo.quality(first),12,MUTED,false);space(content,8);
+        int before=WatchLayout.of(getResources()).stopsBefore;boolean visible=approach!=null&&approach.optBoolean("available")&&ApproachView.hasVisibleTracks(approach,before,now);
+        if(visible){ApproachView diagram=new ApproachView(this,approach,before,!fresh);content.addView(diagram,new LinearLayout.LayoutParams(-1,dp(108)));space(content,7);}
+        String message=!approachMessage.isEmpty()?approachMessage:approach==null?"Stationsdaten laden …":approach.optBoolean("problem")?approach.optString("status"):!fresh&&source>0?"Älterer Stand · warte auf Stationsdaten.":!visible&&approach.optJSONArray("tracks")!=null&&approach.optJSONArray("tracks").length()>0?"Nächstes Fahrzeug noch weiter entfernt.":approach.optString("status");centered(content,message,12,message.contains("Älter")||!approachMessage.isEmpty()||approach!=null&&approach.optBoolean("problem")?AMBER:MINT,false);
+        if(!visible&&(approach==null||approach.optBoolean("available"))){
+            space(content,5);ProgressBar progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(false);progress.setMax(4);progress.setProgress(approach==null?0:!fresh?1:Math.max(1,Math.min(4,approach.optInt("progress",2))));progress.setProgressTintList(ColorStateList.valueOf(MINT));progress.setContentDescription(message);content.addView(progress,new LinearLayout.LayoutParams(-1,dp(6)));
+            long next=Math.max(0,(repo.nextFetchElapsed-SystemClock.elapsedRealtime()+999)/1000);space(content,5);centered(content,fetching?"Stationsabgleich läuft …":"Nächster Abgleich in "+next+" s",12,MUTED,false);
+        }
+        space(content,7);centered(content,"Position geschätzt · keine GPS-Ortung der Fahrzeuge",12,MUTED,false);space(content,8);fullButton(content,"Zurück zu Abfahrten","quiet",this::navigateBack);
+    }
     private void renderFavorites(){
         if(favoriteRoutes()){
-            if(repo.cityJourneys().length()==0)tightenFavoriteHeading(placeholder(repo.journeys.all().length()==0?"Noch keine Routen":"Noch keine Routen in "+CityProfiles.name(repo.cities.current()),"Am Handy planen und als Routenfavorit speichern. Unter Mehr → Favoriten → Aus PWA importieren auf diese Uhr übernehmen."));
+            if(repo.cityJourneys().length()==0)tightenFavoriteHeading(placeholder(repo.journeys.all().length()==0?"Noch keine Routen":"Noch keine Routen in "+CityProfiles.name(repo.cities.current()),"Am Handy planen und als Routenfavorit speichern. Unter Einstellungen → Favoriten → Aus PWA importieren auf diese Uhr übernehmen."));
             else renderJourneyCards();
             return;
         }
-        tightenFavoriteHeading(centered(content,"Haltestellen & Linien",14,MINT,true));space(content,7);
-        if(repo.orderedFavorites().isEmpty()){placeholder(repo.favorites.isEmpty()?"Deine wichtigsten Wege":"Noch keine Favoriten in "+CityProfiles.name(repo.cities.current()),"Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Mehr → Favoriten → Aus PWA importieren übernehmen.");return;}
+        TextView stationSection=centered(content,"Haltestellen & Linien",14,MINT,true);if(!repo.orderedFavorites().isEmpty())stationSection.setVisibility(View.GONE);else space(content,7);
+        if(repo.orderedFavorites().isEmpty()){placeholder(repo.favorites.isEmpty()?"Deine wichtigsten Wege":"Noch keine Favoriten in "+CityProfiles.name(repo.cities.current()),"Verbindung in der Nähe öffnen und im Detail als Favorit speichern. Haltestellen und Linien kannst du auch unter Einstellungen → Favoriten → Aus PWA importieren übernehmen.");return;}
         for(Map.Entry<String,List<Repo.Favorite>> entry:repo.favoriteGroups().entrySet()){
             Repo.Stop s=repo.findStop(entry.getKey());if(s==null)continue;
             LinearLayout panel=stationPanel(s,true);
@@ -407,10 +481,10 @@ public final class MainActivity extends Activity {
     private void changeJourneyBoarding(int index){journeyBoarding=Math.max(0,index);resetDepartureScope();renderLayout();refresh();}
     private void renderJourney(){
         JSONObject journey=currentJourney();if(journey==null){placeholder("Route nicht mehr gespeichert","Die Route wurde entfernt. Weitere Wege kannst du aus der PWA per QR übertragen.");fullButton(content,"Zurück","quiet",this::navigateBack);return;}
-        List<JSONObject> legs=JourneyStore.boardings(journey);TextView title=text(journey.optString("name"),17,WHITE,true);title.setMaxLines(1);title.setEllipsize(TextUtils.TruncateAt.END);title.setGravity(Gravity.CENTER);title.setContentDescription(journey.optString("name"));content.addView(title);space(content,6);centered(content,"Route · aktuelle Linienzeiten",12,MINT,false);space(content,8);
+        List<JSONObject> legs=JourneyStore.boardings(journey);TextView title=text(journey.optString("name"),17,WHITE,true);title.setMaxLines(3);title.setEllipsize(TextUtils.TruncateAt.END);title.setGravity(Gravity.CENTER);title.setContentDescription(journey.optString("name"));content.addView(title);space(content,6);centered(content,"Route · aktuelle Linienzeiten",12,MINT,false);space(content,8);
         if(legs.isEmpty()){placeholder("Keine Linienabschnitte","Dieser gespeicherte Weg führt zu Fuß ans Ziel.");}
         journeyBoarding=Math.min(Math.max(0,journeyBoarding),Math.max(0,legs.size()-1));
-        for(int i=journeyBoarding;i<Math.min(legs.size(),journeyBoarding+2);i++){
+        for(int i=journeyBoarding;i<Math.min(legs.size(),journeyBoarding+1);i++){
             JSONObject leg=legs.get(i),from=leg.optJSONObject("from"),to=leg.optJSONObject("to");Repo.Stop stop=repo.findStop(from.optString("stopId"));LinearLayout panel=card(content);if(stop!=null)panel.setTag(at.andrew.foamawien.R.id.station_id,stop.id);
             panel.addView(text(i==journeyBoarding?"Einstieg "+(i+1)+" von "+legs.size():"Danach umsteigen",12,MINT,true));space(panel,6);panel.addView(text(from.optString("name"),15,WHITE,true));space(panel,8);
             List<Repo.Departure> departures=JourneyStore.departures(leg,repo);LinearLayout row=horizontal();row.addView(badge(leg.optString("route"),leg.optString("mode"),!departures.isEmpty()));TextView time=text(departures.isEmpty()?"—":repo.countdown(departures.get(0))+"′",i==journeyBoarding?38:28,WHITE,true);time.setGravity(Gravity.END);row.addView(time,new LinearLayout.LayoutParams(0,-2,1));panel.addView(row);space(panel,6);panel.addView(text("→ "+leg.optString("towards",to.optString("name")),12,WHITE,false));space(panel,5);
@@ -419,6 +493,7 @@ public final class MainActivity extends Activity {
             if(stop!=null){space(panel,6);fullButton(panel,"Alle Abfahrten",()->openConnection(stop,"",""));}
             if(i==journeyBoarding&&stop!=null&&journey.optJSONObject("from").optString("kind").equals("current")&&repo.reliableLocation()){space(panel,5);panel.addView(text("ca. "+Math.max(1,(int)Math.ceil(repo.walkMinutes(stop)))+" Min. bis zur Station · geschätzt",12,MUTED,false));}
         }
+        if(journeyBoarding+1<legs.size()){JSONObject next=legs.get(journeyBoarding+1);LinearLayout after=card(content);after.addView(text("Danach umsteigen",12,MINT,true));space(after,4);after.addView(text(next.optString("route")+" · "+next.optJSONObject("from").optString("name"),14,WHITE,true));space(after,4);after.addView(text("→ "+next.optJSONObject("to").optString("name"),12,MUTED,false));List<Repo.Departure> nextTimes=JourneyStore.departures(next,repo);if(!nextTimes.isEmpty()){space(after,4);after.addView(text(repo.countdown(nextTimes.get(0))+"′",24,WHITE,true));after.addView(text(repo.quality(nextTimes.get(0))+" · aktuelle Linienzeit",12,MUTED,false));}final int nextIndex=journeyBoarding+1;Repo.Stop nextStop=repo.findStop(next.optJSONObject("from").optString("stopId"));actionable(after,"Nächsten Einstieg anzeigen",()->{journeyBoarding=nextIndex;if(nextStop!=null)openConnection(nextStop,next.optString("route"),nextTimes.isEmpty()?next.optString("towards"):nextTimes.get(0).towards,next.optString("mode"));else changeJourneyBoarding(nextIndex);});}
         if(journeyBoarding+1<legs.size())fullButton(content,"Weiter zum Umstieg","primary",()->changeJourneyBoarding(journeyBoarding+1));if(journeyBoarding>0)fullButton(content,"Vorheriger Einstieg","quiet",()->changeJourneyBoarding(journeyBoarding-1));
         if(legs.size()>2){space(content,4);centered(content,"Weitere Einstiege",12,MUTED,false);for(int i=0;i<legs.size();i++){final int index=i;JSONObject leg=legs.get(i);fullButton(content,(i+1)+" · "+leg.optString("route")+" · "+leg.optJSONObject("from").optString("name"),()->changeJourneyBoarding(index));}}
         if(JourneyStore.variantCount(repo.journeys.get(journeyId))>1){space(content,6);fullButton(content,"Alternative Wege ("+(JourneyStore.variantCount(repo.journeys.get(journeyId))-1)+")",()->{resetDepartureScope();screen="journey-options";renderLayout();refresh();});}space(content,8);centered(content,"Ziel: "+journey.optJSONObject("to").optString("name"),12,WHITE,true);space(content,7);centered(content,"Linienzeiten sind keine bestätigte Fahrt oder Anschlusszusage. Route bei Änderungen in der PWA neu planen.",12,MUTED,false);space(content,8);
@@ -429,14 +504,14 @@ public final class MainActivity extends Activity {
         Repo.Stop s=detailStop;List<List<Repo.Departure>> groups=repo.connections(s,detailRoute,detailFromJourney?"":detailTowards,true,detailMode);
         if(detailFromJourney&&!detailTowards.isEmpty())groups.removeIf(group->group.isEmpty()||!JourneyStore.directionMatches(detailTowards,group.get(0).towards));
         if(detailFromJourney&&!detailTowards.isEmpty()&&!groups.isEmpty())detailTowards=groups.get(0).get(0).towards;
-        if(detailRoute.isEmpty()){
+        if(detailRoute.isEmpty()||detailTowards.isEmpty()){
             centered(content,s.name,17,WHITE,true);space(content,7);centered(content,"Linien: "+String.join(" · ",s.routes),12,MUTED,false);space(content,8);
             for(List<Repo.Departure> g:groups)connectionCard(s,g,false);
             if(groups.isEmpty())placeholder("Keine aktuellen Abfahrten","Offline oder gerade keine Abfahrt verfügbar.");
-            favoriteAction(s,"","");
+            favoriteAction(s,"","");fullButton(content,"Station auf Karte",()->openMap(s));
         }else{
             centered(content,s.name,17,WHITE,true);space(content,7);
-            String mode=groups.isEmpty()?Repo.inferMode("",detailRoute):groups.get(0).get(0).mode;
+            String mode=groups.isEmpty()?(detailMode.isEmpty()?s.routeModes.getOrDefault(detailRoute,Repo.inferMode("",detailRoute)):detailMode):groups.get(0).get(0).mode;
             LinearLayout heading=horizontal();heading.setGravity(Gravity.CENTER);heading.addView(badge(detailRoute,mode,!groups.isEmpty()&&repo.fresh(groups.get(0).get(0))));content.addView(heading);space(content,6);
             List<Repo.Departure> g=groups.isEmpty()?Collections.emptyList():groups.get(0);Repo.Departure d=g.isEmpty()?null:g.get(0);
             centered(content,detailTowards,17,WHITE,true);space(content,3);
@@ -448,7 +523,7 @@ public final class MainActivity extends Activity {
             }
             space(content,5);centered(content,d==null?"Keine aktuelle Abfahrt":repo.quality(d),12,d==null?MUTED:repo.fresh(d)?MUTED:AMBER,false);
             if(repo.currentLocation!=null){space(content,7);centered(content,"ca. "+Math.max(1,(int)Math.ceil(repo.walkMinutes(s)))+" Min. Fußweg · Schätzung",12,MUTED,false);centered(content,repo.prefs.getInt("buffer",1)+" Min. Reserve berücksichtigt",12,MUTED,false);}
-            space(content,14);favoriteAction(s,detailRoute,detailTowards);fullButton(content,"Alle Abfahrten der Station",()->openConnection(s,"",""));
+            space(content,12);if(s.provider.equals("wl")&&Arrays.asList("metro","tram","bus").contains(mode))fullButton(content,"Fahrzeuge im Anflug",()->openApproach(mode));fullButton(content,"Station auf Karte",()->openMap(s));favoriteAction(s,detailRoute,detailTowards);fullButton(content,"Alle Abfahrten der Station",()->openConnection(s,"",""));
         }
         fullButton(content,"Zurück","quiet",this::navigateBack);
     }
@@ -494,7 +569,7 @@ public final class MainActivity extends Activity {
     private void renderAlerts(){
         status.setVisibility(View.GONE);centered(content,"Letzte Hinweise",17,WHITE,true);space(content,10);
         org.json.JSONArray rows=WatchPush.inbox(this,System.currentTimeMillis());
-        if(rows.length()==0)placeholder("Noch keine Hinweise","Push unter Mehr → Störungen aktivieren. Fehlende Hinweise sind keine Entwarnung.");
+        if(rows.length()==0)placeholder("Noch keine Hinweise","Push unter Einstellungen → Störungen aktivieren. Fehlende Hinweise sind keine Entwarnung.");
         for(int i=0;i<rows.length();i++){org.json.JSONObject row=rows.optJSONObject(i);LinearLayout panel=card(content);panel.addView(text(row.optString("title"),14,WHITE,true));space(panel,5);panel.addView(text(row.optString("body"),12,MUTED,false));space(panel,5);
             String at=java.time.Instant.ofEpochMilli(row.optLong("at")).atZone(java.time.ZoneId.of("Europe/Vienna")).format(java.time.format.DateTimeFormatter.ofPattern("dd.MM. HH:mm"));panel.addView(text(at+" · Wiener Linien",12,MINT,false));}
         if(rows.length()>0){space(content,6);centered(content,"Gespeicherte Hinweise können inzwischen erledigt sein. Neueste Details in der Smartphone-PWA.",12,MUTED,false);}
@@ -502,9 +577,15 @@ public final class MainActivity extends Activity {
     }
     private void renderMore(){
         status.setVisibility(View.GONE);
-        String title=settingsSection.isEmpty()?"Mehr":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
+        String title=settingsSection.isEmpty()?"Einstellungen":settingsSection.equals("timetable")?"Offline-Fahrplan":settingsSection.equals("push")?"Störungen":settingsSection.equals("push-delivery")?"Push-Hinweise":settingsSection.equals("push-filters")?"Auswahl":settingsSection.equals("push-info")?"Infos":settingsSection.equals("city")?"Stadtprofil":settingsSection.equals("modes")?"Verkehrsmittel":settingsSection.equals("radius")?"Suchradius":settingsSection.equals("location")?"Standort & Nähe":settingsSection.equals("favorites")?"Favoriten":settingsSection.equals("about")?"App & Updates":settingsSection.equals("transfer")?"Mit Handy übertragen":"Gehen & Reserve";
         centered(content,title,17,WHITE,true);space(content,14);
-        if(settingsSection.equals("push")){renderPush();
+        if(settingsSection.equals("timetable")){
+            centered(content,repo.timetable.status(System.currentTimeMillis()),13,MINT,true);space(content,9);
+            centered(content,repo.timetable.details(System.currentTimeMillis()),12,MUTED,false);space(content,12);
+            fullButton(content,timetableRequest!=null&&!timetableRequest.isDone()?"Wird aktualisiert …":"Fahrplan aktualisieren","primary",()->maybeUpdateTimetable(true));
+            if(!repo.timetable.updateMessage.isEmpty()){centered(content,repo.timetable.updateMessage,12,AMBER,false);space(content,9);}
+            centered(content,"Alle Wiener-Linien-Abfahrten auf der Uhr. Mit Internet täglich nach Änderungen suchen; vor Ablauf erneuern. Ohne neue gültige Daten bleibt nur Live mit Verbindung verfügbar. Keine Live-Verspätungen oder aktuellen Störungen im Offline-Fahrplan.",12,MUTED,false);
+        }else if(settingsSection.equals("push")){renderPush();
         }else if(settingsSection.equals("push-delivery")){renderPushDelivery();
         }else if(settingsSection.equals("push-filters")){renderPushFilters();
         }else if(settingsSection.equals("push-info")){renderPushInfo();
@@ -563,6 +644,7 @@ public final class MainActivity extends Activity {
             menuRow("Standort & Nähe",repo.prefs.getInt("radius",300)+" m · Verkehrsmittel","⌖",()->section("location"));
             menuRow("Gehen & Reserve",String.valueOf(repo.prefs.getFloat("speed",4.5f)).replace('.',',')+" km/h · "+repo.prefs.getInt("buffer",1)+" Min.","↗",()->section("walking"));
             menuRow("Favoriten",repo.favorites.size()+" Station/Linie · "+repo.journeys.all().length()+" Routen","☆",()->section("favorites"));
+            menuRow("Offline-Fahrplan",repo.timetable.status(System.currentTimeMillis()),"↓",()->section("timetable"));
             menuRow("Störungen",push.enabled()?"Direkt auf dieser Uhr":"Optional · Push-Hinweise","⚠︎",()->section("push"));
             menuRow("App & Updates","v"+BuildConfig.VERSION_NAME,"↻",()->section("about"));
         }
@@ -571,7 +653,7 @@ public final class MainActivity extends Activity {
     private void refreshMore(){int y=openingPage?0:scroll.getScrollY();content.removeAllViews();renderMore();restoreScroll(y);}
     private boolean hasLocationPermission(){return checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED||checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED;}
     private void chooseCity(String city){stopLocation();resetDepartureScope();repo.selectCity(city);locationMessage="";detailStop=null;refreshMore();if(active&&hasLocationPermission())startLocation(false);}
-    private boolean locationScreen(){return screen.equals("home")||screen.equals("detail")||screen.equals("journey")&&currentJourney()!=null&&currentJourney().optJSONObject("from").optString("kind").equals("current")||screen.equals("more")&&settingsSection.equals("location");}
+    private boolean locationScreen(){return screen.equals("home")||screen.equals("detail")||screen.equals("approach")||screen.equals("journey")&&currentJourney()!=null&&currentJourney().optJSONObject("from").optString("kind").equals("current")||screen.equals("more")&&settingsSection.equals("location");}
     private void readBattery(Intent intent){if(intent==null)return;int level=intent.getIntExtra(BatteryManager.EXTRA_LEVEL,-1),scale=intent.getIntExtra(BatteryManager.EXTRA_SCALE,-1);if(level<0||scale<=0)return;applyBattery(Math.min(100,Math.round(level*100f/scale)));}
     void applyBattery(int percent){
         boolean changed=powerSaver.update(percent);repo.prefs.edit().putBoolean("ultraBatteryActive",powerSaver.active).apply();
@@ -595,12 +677,23 @@ public final class MainActivity extends Activity {
             if(fromUser)requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION},11);
             return;
         }
-        lastLocationAttempt=SystemClock.elapsedRealtime();watchLocation.start(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED,powerSaver.active);
+        lastLocationAttempt=SystemClock.elapsedRealtime();watchLocation.start(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED,powerSaver.active,!OfflineTimetable.online(this));
+    }
+    private void maybeUpdateTimetable(boolean force){
+        if(!active||timetableRequest!=null&&!timetableRequest.isDone()||!force&&!repo.timetable.due(System.currentTimeMillis()))return;
+        if(!OfflineTimetable.online(this)){if(force){repo.timetable.updateMessage="Kein Internet. Zum Aktualisieren verbinden.";if(screen.equals("more"))refreshMore();}return;}
+        RequestScope scope=new RequestScope();timetableScope=scope;
+        if(force){timetableManual=true;getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);repo.timetable.updateMessage="Fahrplan wird geprüft …";}
+        timetableRequest=timetableNetwork.submit(()->{
+            try{repo.timetable.update(scope,force);}catch(Exception ignored){}
+            handler.post(()->{if(active&&timetableScope==scope&&!scope.isCancelled()){if(timetableManual){timetableManual=false;if(!updateDownloading&&transfer==null)getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}if(screen.equals("more")&&settingsSection.equals("timetable"))refreshMore();else if(!screen.equals("more"))renderContent();}});
+        });
+        if(force&&screen.equals("more"))refreshMore();
     }
     private void stopLocation(){if(watchLocation!=null)watchLocation.stop();}
     @Override public void onRequestPermissionsResult(int code,String[] permissions,int[] results){super.onRequestPermissionsResult(code,permissions,results);if(code==WatchPush.PERMISSION){push.permissionResult();return;}if(code==11&&active){locationDenied=!hasLocationPermission();if(!locationDenied)startLocation(false);else{locationMessage="Standort nicht erlaubt. Freigabe in den App-Einstellungen der Uhr ändern.";updateLocationUi();}}}
-    void returnHome(){boolean resumeData=dataPausedForAlerts||screen.equals("routes")||screen.equals("file-import");if(screen.equals("journey")||detailFromJourney)resetDepartureScope();detailFromJourney=false;dataPausedForAlerts=false;alertsFromPush=false;modesFromHome=false;screen="home";renderLayout();if(active){if(resumeData)startLocation(false);refresh();}}
-    void navigateBack(){if(screen.equals("file-import")){pendingFile=null;cancelFileRead();filePreview=null;returnFromFileImport();return;}if(screen.equals("journey-options")){resetDepartureScope();screen="journey";renderLayout();refresh();return;}if(screen.equals("detail")&&detailFromJourney){detailFromJourney=false;resetDepartureScope();screen="journey";renderLayout();refresh();return;}if(screen.equals("journey")){if(journeyFromRoutes)openRoutes();else{returnHome();refresh();}return;}if(screen.equals("alerts")&&alertsFromPush){alertsFromPush=false;screen="more";settingsSection="push";renderLayout();return;}if(screen.equals("transfer")){boolean routes=transferFromRoutes;closeTransfer();if(routes){openRoutes();return;}screen="more";settingsSection=transferParentSection;renderLayout();if(active){requests=new RequestScope();fetching=false;startLocation(false);}return;}if(screen.equals("more")&&settingsSection.equals("modes")&&modesFromHome){returnHome();refresh();return;}if(screen.equals("more")&&settingsSection.isEmpty()&&moreFromRoutes){moreFromRoutes=false;openRoutes();return;}if(screen.equals("more")&&!settingsSection.isEmpty()){section(settingsSection.startsWith("push-")?"push":settingsSection.equals("radius")||settingsSection.equals("modes")?"location":(settingsSection.equals("transfer")||settingsSection.equals("import"))?"favorites":"");return;}if(!screen.equals("home")){returnHome();return;}stopForegroundWork();finish();}
+    void returnHome(){boolean resumeData=dataPausedForAlerts||screen.equals("routes")||screen.equals("file-import");if(screen.equals("journey")||screen.equals("approach")||detailFromJourney)resetDepartureScope();detailFromJourney=false;dataPausedForAlerts=false;alertsFromPush=false;modesFromHome=false;screen="home";renderLayout();if(active){if(resumeData)startLocation(false);refresh();}}
+    void navigateBack(){if(screen.equals("approach")){resetDepartureScope();screen="detail";renderLayout();refresh();return;}if(screen.equals("file-import")){pendingFile=null;cancelFileRead();filePreview=null;returnFromFileImport();return;}if(screen.equals("journey-options")){resetDepartureScope();screen="journey";renderLayout();refresh();return;}if(screen.equals("detail")&&detailFromJourney){detailFromJourney=false;resetDepartureScope();screen="journey";renderLayout();refresh();return;}if(screen.equals("journey")){if(journeyFromRoutes)openRoutes();else{returnHome();refresh();}return;}if(screen.equals("alerts")&&alertsFromPush){alertsFromPush=false;screen="more";settingsSection="push";renderLayout();return;}if(screen.equals("transfer")){boolean routes=transferFromRoutes;closeTransfer();if(routes){openRoutes();return;}screen="more";settingsSection=transferParentSection;renderLayout();if(active){requests=new RequestScope();fetching=false;startLocation(false);}return;}if(screen.equals("more")&&settingsSection.equals("modes")&&modesFromHome){returnHome();refresh();return;}if(screen.equals("more")&&settingsSection.isEmpty()&&moreFromRoutes){moreFromRoutes=false;openRoutes();return;}if(screen.equals("more")&&!settingsSection.isEmpty()){section(settingsSection.startsWith("push-")?"push":settingsSection.equals("radius")||settingsSection.equals("modes")?"location":(settingsSection.equals("transfer")||settingsSection.equals("import"))?"favorites":"");return;}if(!screen.equals("home")){returnHome();return;}stopForegroundWork();finish();}
     @Override public void onBackPressed(){navigateBack();}
     @Override public boolean onGenericMotionEvent(android.view.MotionEvent event){if(event.getAction()==MotionEvent.ACTION_SCROLL&&event.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)){scroll.smoothScrollBy(0,Math.round(-event.getAxisValue(MotionEvent.AXIS_SCROLL)*dp(72)));return true;}return super.onGenericMotionEvent(event);}
     @Override public boolean dispatchTouchEvent(MotionEvent event){

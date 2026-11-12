@@ -1,3 +1,29 @@
+## PWA 0.11.29 / Wear 0.9.1 · Update-Hinweis und Kartenliste · 12.11.2026
+
+Update-Hinweise zeigen Titel und aktuelle App-Version getrennt. Auf Handybreiten bis 600 px steht der mindestens 44 px hohe Button unter dem Text; Desktop behält die seitliche Anordnung. Schrumpfbare Textspalte, natürliche Zeilenumbrüche und kürzerer Offline-/Push-Hinweis erhalten die unterscheidbaren App-/Komponentenfälle. Aktivierung, Fehlerwiederholung und Nutzerbestätigung unverändert. Neuer PWA-Cache.
+
+Die Uhr-Karte bietet oben einen dauerhaften Liste-Knopf, unabhängig von der Stationsauswahl. Linie zeigen filtert gezeichnete und antippbare Stationspunkte sowie die Liste auf dieselbe angezeigte Strecke. Alle Stationen zeigen entfernt die Linienebene und stellt den allgemeinen Katalogfilter wieder her. Auswahl bleibt erhalten; keine neue Standort-/API-/Kachelabfrage. Karte verwendet dieselbe Offline-GPS-Akquisition wie die Hauptansicht. Originalpaket und Signatur erhalten, Wear 0.9.1 / Code 32.
+
+210 native Tests bestanden, Kartenbilder bei 192 und 240 dp visuell geprüft. Die lokale Browserroute war durch die Browser-Zugriffspolicy gesperrt; responsive PWA-Darstellung deshalb nicht visuell abgenommen. Native physische OnePlus-Abnahme bleibt offen. Details: docs/wear-os-release-0.9.1.md.
+
+## Uhr 0.9.0 · Offline und Erneuerung
+
+App öffnen → lokaler Kalender prüfen → Nähe mit echtem/kurz behaltenem Fix oder Favoriten/Routen ohne GPS → geplante Zeiten mit FAHRPLAN. Mit Verbindung haben frische passende API-Zeiten Vorrang. Einstellungen → Offline-Fahrplan → Datum/Status → Fahrplan aktualisieren. Nach Ablauf nur klare Aktualisierungsaufforderung bzw. echte Live-Zeiten mit Verbindung. Ein Download verlängert keine Kalenderdaten. Offline-GPS sofort bis zu 90 Sekunden, Hintergrund stoppt die Suche. [Grenzen und Betriebsworkflow](wear-offline.md).
+
+## PWA 0.11.17 · automatischer Start und Ankunft am gewählten Halt · 12.11.2026
+
+Die ganze Fahrzeugseite beginnt den Live-Abgleich unmittelbar nach erfolgreich geladener und geprüfter Linienbasis. Start-/Pause-Button und Hinweise auf einen nötigen Klick entfernt. Linien-, Richtungs-, Varianten- und Abschnittwechsel starten den gewählten gültigen Umfang automatisch neu, innerhalb derselben globalen 30-s-/Quellencache-/Backoff-Grenzen. Hintergrund und Pagehide stoppen Requests und Bewegung; Rückkehr setzt automatisch fort. Während fehlender oder fehlerhafter Linienbasis keine Monitorabfrage. Die eingebetteten Stationsbereiche bleiben bewusst geschlossen und laden erst beim Öffnen. Wear 0.7.4/26 unverändert.
+
+Für die gewählte Station gibt es genau einen Countdown für das nächste Fahrzeug in Minuten. Auf der Karte steht er als kompakte obere rechte Überlagerung; im Schema und während des Positionsaufbaus als schmale Zeile davor. Eine frische Stationsprognose darf den Countdown bereits vor abgeschlossener Fahrzeug-ID-Zuordnung liefern, ohne dadurch eine Kartenposition zu behaupten. Abfahrtsprognose als Grundlage offenlegen; bekannte Haltezeit bei eindeutigem bestätigtem Anker abziehen. Nur aktuelle anfahrende zugeordnete Fahrzeuge dürfen bei fehlendem Zielmonitor eine ausdrücklich benannte Fahrplan-Schätzung liefern. Bereits passierte Halte, veraltete Quellen/Zeilen, Fehler und ausgelassene Ziele liefern keinen Countdown. Keine zusätzlichen Requests.
+
+461 Web-/Server-Tests, 18 Python-Prüfungen und 86 JavaScript-Syntaxprüfungen.
+
+## PWA 0.11.16 · Standort und Fußweg
+
+Standort → Karte → alle aktivierten Linien pro Stationsmarker → Station → Fußweg & Navigation. Stationstitel/Fußwegaktion → sofortige Stationskarte → Gehweg nach erfolgreicher Berechnung. Schließen/Back/Hintergrund baut die Karte ab und bricht Routing ab. Erneutes Öffnen besitzt eine neue Sitzung. Routingfehler lassen Station und externe Kartenaktionen sichtbar. Manuelle Teststation ist kein GPS-Fix.
+
+Fahrzeuge → eine Richtung → gemeinsamer Monitorabruf → nächste Abfrage nach Startsperre UND Quellencacheablauf → zwei unterschiedliche Quellenstände → Position oder tatsächlicher Wartegrund. ETA-Korrekturen mit identischen Ankern halten die letzte Lage begrenzt grau; Filter-/Ansichtswechsel lösen keinen schnellen Zusatzabruf aus.
+
 ## Uhr 0.7.1 · Stadtbezogene Routen und Laden
 
 Nähe/Favoriten/A nach B bleiben als Hauptleiste erreichbar. A nach B und Favoriten → Routen zeigen dasselbe Stadtprofil. Mehr → Stadtprofil → Stadt wählen → zweimal Zurück führt zur aufrufenden Routenliste. Keine Route wird durch den Filter gelöscht; Wien wählen macht vorhandene Wien-Routen wieder sichtbar. Fällige Abfahrten starten bei Rückkehr sofort, eine laufende Sperre genau nach ihrer verbleibenden Dauer. Pause/Display aus/Einstellungen/Transfer führen zu keinen Hintergrundabfragen.
@@ -221,3 +247,11 @@ Start → Nähe/Favoriten (letzte Auswahl). Kein automatischer erster Standortdi
 Im Favoriten-Tab trennt ein direkt sichtbarer Umschalter **Routen** und **Stationen**. Die Stationsansicht trägt die Überschrift **Haltestellen & Linien**. Die ausdrücklich gewählte Ansicht bleibt lokal über Aktualisierung, Detailnavigation und App-Neustart erhalten. Ohne bisherige Auswahl erscheinen bei vorhandenen Routen zuerst Routen, sonst Stationen; beide Bereiche bleiben auch leer erreichbar. Nur Stationen der gewählten Ansicht sind Monitorziele, laufende alte Anfragen werden beim Wechsel verworfen. Gemeinsame Abrufgrenzen, lokale Favoriten und Push-Auswahl bleiben erhalten.
 
 Nach bewusst bestätigtem QR-Import und erfolgreichem Transferabschluss öffnet die Uhr direkt Favoriten: Routen bei mitübernommenen Routen, sonst Stationen. Der Transfer wird beendet, Schlüssel und Wachhalteflag werden freigegeben. Abbruch, Fehler und Ablauf bleiben im bisherigen Fehler-/Zurück-Pfad; bei fehlender Abschlussquittung bleibt die Übernahme gespeichert und die bestehende Wiederholung erreichbar. Dateiimport und Senden ans Handy behalten ihren bisherigen Rückweg. Originalpaket und Release-Key bleiben erhalten; PWA 0.6.1 korrigiert auf Nutzerwunsch die Routenbeschriftung zu **Alternativen nach …**; Alternativen und Planung selbst bleiben erhalten.
+
+## Reparaturen 0.11.15
+
+Standortkarte öffnen: zuerst Leaflet-Ansicht initialisieren, dann vorhandenen freigegebenen GPS-Fix und Genauigkeitskreis einblenden. Meldungsaktualisierung: Quellzeit bewahren; bei unvollständiger Zusatzquelle vorhandene Warnung mit ihrem alten Stand erhalten, bei vollständiger erfolgreicher Leerantwort entfernen.
+
+## Kartenreparatur 0.11.18
+
+Karte öffnen → erste Ansicht setzen → alle Vektoren aufbauen → Standortschicht nach vollständigem Leaflet-Ladeereignis anmelden. Bereits bekannte Positionen dürfen die Rendererinitialisierung nicht unterbrechen. Fehlerhaften Stationsaufbau verwerfen; zurück auf Karte versucht eine neue vollständige Initialisierung.

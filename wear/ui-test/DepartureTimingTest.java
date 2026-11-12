@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.*;
 
 @RunWith(RobolectricTestRunner.class) @Config(sdk=34) @LooperMode(LooperMode.Mode.PAUSED)
 public class DepartureTimingTest {
-    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();}
+    @Before public void setup(){RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();WatchTestEnvironment.online();}
     Repo.Stop station(Repo repo,String city){for(Repo.Stop s:repo.stops)if(s.city.equals(city))return s;throw new AssertionError(city);}
     static final class Connection extends HttpURLConnection {final int status;Connection(URL url,int status){super(url);this.status=status;}public void disconnect(){}public boolean usingProxy(){return false;}public void connect(){}public int getResponseCode(){return status;}public InputStream getInputStream(){return new ByteArrayInputStream("{\"stations\":[],\"departures\":[]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));}}
     @Test public void retryBelongsToFailedCityWhileThirtySecondSpacingAppliesToEveryCity()throws Exception{
@@ -37,12 +37,12 @@ public class DepartureTimingTest {
             app.repo.selectCity("graz");app.repo.prefs.edit().putInt("radius",2000).commit();app.active=true;app.repo.nextFetchElapsed=SystemClock.elapsedRealtime()+5000;AtomicInteger calls=new AtomicInteger();CountDownLatch opened=new CountDownLatch(1);
             app.changeView("near");set(app,"requests",new RequestScope(url->{calls.incrementAndGet();opened.countDown();return new Connection(url,200);}));
             Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(4999));assertEquals(0,calls.get());Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(2));assertTrue(opened.await(3,TimeUnit.SECONDS));((Future<?>)get(app,"departureRequest")).get(3,TimeUnit.SECONDS);Shadows.shadowOf(Looper.getMainLooper()).idle();assertEquals(1,calls.get());
-            click(app,"Mehr");app.repo.nextFetchElapsed=0;set(app,"requests",new RequestScope(url->{calls.incrementAndGet();return new Connection(url,200);}));app.navigateBack();((Future<?>)get(app,"departureRequest")).get(3,TimeUnit.SECONDS);Shadows.shadowOf(Looper.getMainLooper()).idle();assertEquals(2,calls.get());
+            click(app,"Einstellungen");app.repo.nextFetchElapsed=0;set(app,"requests",new RequestScope(url->{calls.incrementAndGet();return new Connection(url,200);}));app.navigateBack();((Future<?>)get(app,"departureRequest")).get(3,TimeUnit.SECONDS);Shadows.shadowOf(Looper.getMainLooper()).idle();assertEquals(2,calls.get());
         }finally{app.active=false;c.stop().destroy();}
     }
     @Test public void pendingGateCannotFetchInSettingsOrAfterPause()throws Exception{
         ActivityController<MainActivity> c=Robolectric.buildActivity(MainActivity.class).create().start();MainActivity app=c.get();try{
-            app.repo.selectCity("graz");app.active=true;app.repo.nextFetchElapsed=SystemClock.elapsedRealtime()+1000;AtomicInteger calls=new AtomicInteger();app.changeView("near");set(app,"requests",new RequestScope(url->{calls.incrementAndGet();return new Connection(url,200);}));click(app,"Mehr");Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));assertEquals(0,calls.get());
+            app.repo.selectCity("graz");app.active=true;app.repo.nextFetchElapsed=SystemClock.elapsedRealtime()+1000;AtomicInteger calls=new AtomicInteger();app.changeView("near");set(app,"requests",new RequestScope(url->{calls.incrementAndGet();return new Connection(url,200);}));click(app,"Einstellungen");Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));assertEquals(0,calls.get());
             app.repo.nextFetchElapsed=SystemClock.elapsedRealtime()+1000;app.navigateBack();c.resume();c.pause();Shadows.shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2));assertEquals(0,calls.get());
         }finally{app.active=false;c.stop().destroy();}
     }

@@ -38,6 +38,26 @@ test('successful empty notice refresh clears only queried records; explicit reso
  const resolved=updateTrafficCache(refreshed,response([{...construction,status:'resolved'}]),['101'],t+60_000);
  assert.equal(trafficAtStation(resolved,station,{now:t+60_000}).length,0);
 });
+
+test('cached monitor and supplementary-feed timestamps retain their real source age',()=>{
+ const old=t-120_000,raw={...response([construction]),foamaMonitorAt:new Date(t-30_000).toISOString(),foamaTraffic:{status:'available',checkedAt:new Date(old).toISOString()}};
+ const cache=updateTrafficCache({},raw,['101'],t),notice=trafficAtStation(cache,station,{now:t})[0];
+ assert.equal(notice.checkedAt,old);assert.equal(notice.stale,true);
+ const repeated=updateTrafficCache(cache,raw,['101'],t+30_000);
+ assert.equal(trafficAtStation(repeated,station,{now:t+30_000})[0].checkedAt,old);
+});
+
+test('supplementary-feed failure preserves previous alerts without renewing them until a successful empty refresh',()=>{
+ const initial=updateTrafficCache({},response([construction]),['101'],t);
+ const partial={...response([]),foamaMonitorAt:new Date(t+60_000).toISOString(),foamaTraffic:{status:'unavailable',checkedAt:new Date(t+60_000).toISOString()}};
+ const failed=updateTrafficCache(initial,partial,['101'],t+60_000);
+ assert.equal(trafficAtStation(failed,station,{now:t+91_000}).length,1);
+ assert.equal(trafficAtStation(failed,station,{now:t+91_000})[0].stale,true);
+ assert.equal(failed['101'].checkedAt,t);
+ const success={...partial,foamaTraffic:{status:'available',checkedAt:new Date(t+120_000).toISOString()},foamaMonitorAt:new Date(t+120_000).toISOString()};
+ assert.equal(trafficAtStation(updateTrafficCache(failed,success,['101'],t+120_000),station,{now:t+120_000}).length,0);
+ assert.equal(trafficAtStation(updateTrafficCache(failed,partial,['101'],t+16*60_000),station,{now:t+16*60_000}).length,0);
+});
 test('notice parsing bounds content, strips markup and rejects unreadable notice collections',()=>{
  const result=parseTrafficInfos(response([{...construction,title:'<img src=x onerror=alert(1)>Gleisbau',descriptionHTML:'<p>Info</p>',description:'<script>unsafe</script> '+ 'x'.repeat(5000)}]),t)[0];
  assert.equal(result.title,'Gleisbau');assert.ok(result.description.length<=2200);assert.ok(!result.description.includes('<script>'));
@@ -55,7 +75,7 @@ test('error export admits only technical fields and bounded counts, never locati
   lat:48.123456,lon:16.123456,stopId:'PRIVATE_STOP',favorites:['PRIVATE_FAVORITE'],url:'PRIVATE_URL',message:'PRIVATE_MESSAGE',summary:{position:'PRIVATE_POSITION'},stack:'PRIVATE_STACK',qrKey:'PRIVATE_KEY'});
  const report=debugReport(events,{secureContext:true,online:true,serviceWorkerControlled:true,pageProtocol:'https:',latitude:48.123456});
  const json=JSON.stringify(report);assert.equal(report.format,'foama-wien-debug-v1');assert.equal(report.events[0].upstreamHttpStatus,403);
- assert.ok(!json.includes('PRIVATE_'));assert.ok(!json.includes('48.123456'));assert.equal(report.version,'0.10.2');
+ assert.ok(!json.includes('PRIVATE_'));assert.ok(!json.includes('48.123456'));assert.equal(report.version,'0.11.31');
  let bounded=[];for(let i=0;i<100;i++)bounded=appendDebugEvent(bounded,{kind:'app',outcome:'error',code:'unexpected'});assert.equal(bounded.length,60);
 });
 test('collapsed settings logger opens without requests and its actual download handler exports a valid private-data-free JSON blob',async()=>{

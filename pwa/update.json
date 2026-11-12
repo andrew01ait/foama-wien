@@ -1,18 +1,21 @@
 {
-  "version": "0.10.2",
-  "wearVersionCode": 26,
-  "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
-  "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Kompakter Footer: gleichmäßige Linkabstände, Daten & Lizenzen in derselben Linkgruppe und weniger Leerraum unten in der installierten PWA.",
-  "wearVersion": "0.7.4",
+  "version": "0.11.31",
+  "wearVersionCode": 32,
+  "wearApkUrl": "/apk/foama-wien-wear-0.9.1.apk",
+  "wearApkSha256": "ec1a9223256a41cc00d3eeab4470c1343617afc93bef031bb188104ad4b4323c",
+  "changelog": "A nach B behält vollständige Adressangaben. Meine Orte zeigt den eigenen Namen mit Adresse und Ort darunter.",
+  "wearVersion": "0.9.1",
   "wearPackage": "at.andrew.foamawien",
-  "wearApkBytes": 3842666,
+  "wearApkBytes": 7196177,
   "wearMinSdk": 30,
-  "wearChangelog": "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach. Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab. Android-Installation wird ohne Blockieren der Oberfläche vorbereitet. Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich.",
+  "wearChangelog": "Stationsliste auf der Karte bleibt auch nach einer Stationsauswahl erreichbar. Linienansicht zeigt nur Haltestellen der gewählten Strecke; alle Stationen lassen sich wieder einblenden. Offline-GPS und der vollständige Wiener Fahrplan mit festem Ablaufdatum bleiben verfügbar.",
   "wearReleaseNotes": [
-    "Update-Dialog bleibt während Download und Vorbereitung sichtbar wach.",
-    "Kurze sichtbare Unterbrechungen brechen bestätigte Downloads nicht mehr ab.",
-    "Android-Installation wird ohne Blockieren der Oberfläche vorbereitet.",
-    "Installer-Fehler werden angezeigt; Abbruch und Bildschirm-Aus bleiben möglich."
+    "Stationsliste auf der Karte bleibt auch nach einer Stationsauswahl erreichbar.",
+    "Linienansicht zeigt nur Haltestellen der gewählten Strecke; alle Stationen lassen sich wieder einblenden.",
+    "Offline-GPS und der vollständige Wiener Fahrplan mit festem Ablaufdatum bleiben verfügbar."
+  ],
+  "releaseNotes": [
+    "Ausgewählte Adressen behalten Postleitzahl, Ort und vorhandene Bezirksangaben, auch in gespeicherten Routen.",
+    "Meine Orte zeigt den eigenen Namen im Start-/Zielfeld und die vollständige Adresse darunter."
   ]
 }

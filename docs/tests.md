@@ -1,3 +1,190 @@
+## PWA 0.11.31 · vollständige Adressen und Meine Orte · 12.11.2026
+
+Die Auswahl übernimmt jetzt die bereits vom Geocoder gelieferten Zusatzangaben wie Postleitzahl, Ort und Bezirk. Unter dem Start-/Zielfeld steht eine kompakte umbrechende Kontextzeile, die auch per Screenreader zugeordnet ist. Eigene Orte zeigen ihren Namen im Feld und die vollständige Adresse darunter; die Reiseübersicht und neu gespeicherte Routen erhalten denselben Kontext. Beim Bearbeiten oder Wechsel zu GPS wird alter Adresskontext entfernt. Keine neue Orts-/GPS-Abfrage und keine erfundenen fehlenden Bezirksangaben.
+
+„☆ Meine Orte“ öffnet die lokale Liste; „Als Start“ bzw. „Als Ziel“ übernimmt den Ort. Die ersten vier Orte sind außerdem direkt unter den jeweiligen Feldern auswählbar, weitere über „Weitere Orte“. Der eigene Anzeigename ersetzt keine physischen Endpunkte. Das optionale begrenzte `detail`-Feld bleibt bei JSON-/QR-Übertragung erhalten; Routenidentität ignoriert es, sodass vorhandene Favoriten beim erneuten Speichern ihren Namen und ihre ID behalten. Alte gespeicherte Routen ohne Kontext bleiben lesbar und werden ohne erneute bewusste Auswahl nicht nachgeocodiert. Kompakte Stationskarten aus 0.11.30 enthalten; Wear 0.9.1 / Code 32 unverändert.
+
+505 Web-/Server- und 22 Python-Tests bestanden. Sieben neue Regressionen prüfen tatsächliche Formularauswahl, Ortsname und Adresse, Umbenennen, Bearbeiten/GPS, Speicherung/Rückfahrt und direkte Ortsauswahl ohne Netzaufruf. Browser-Vorschau weiterhin durch die Zugriffspolicy gesperrt; responsive Darstellung nicht visuell abgenommen.
+
+## PWA 0.11.29 / Wear 0.9.1 · Update-Hinweis und Kartenliste · 12.11.2026
+
+Update-Hinweise zeigen Titel und aktuelle App-Version getrennt. Auf Handybreiten bis 600 px steht der mindestens 44 px hohe Button unter dem Text; Desktop behält die seitliche Anordnung. Schrumpfbare Textspalte, natürliche Zeilenumbrüche und kürzerer Offline-/Push-Hinweis erhalten die unterscheidbaren App-/Komponentenfälle. Aktivierung, Fehlerwiederholung und Nutzerbestätigung unverändert. Neuer PWA-Cache.
+
+Die Uhr-Karte bietet oben einen dauerhaften Liste-Knopf, unabhängig von der Stationsauswahl. Linie zeigen filtert gezeichnete und antippbare Stationspunkte sowie die Liste auf dieselbe angezeigte Strecke. Alle Stationen zeigen entfernt die Linienebene und stellt den allgemeinen Katalogfilter wieder her. Auswahl bleibt erhalten; keine neue Standort-/API-/Kachelabfrage. Karte verwendet dieselbe Offline-GPS-Akquisition wie die Hauptansicht. Originalpaket und Signatur erhalten, Wear 0.9.1 / Code 32.
+
+210 native Tests bestanden, Kartenbilder bei 192 und 240 dp visuell geprüft. Die lokale Browserroute war durch die Browser-Zugriffspolicy gesperrt; responsive PWA-Darstellung deshalb nicht visuell abgenommen. Native physische OnePlus-Abnahme bleibt offen. Details: docs/wear-os-release-0.9.1.md.
+
+## Wear 0.9.0 / PWA 0.11.28 · Offline-Fahrplan und GPS · 12.11.2026
+
+Vollständiger vorhandener Wiener-Linien-Fahrplan direkt in der APK; rund 1,97 MB, 1.695 Stationen, gültig 09.11.–12.12.2026. Jede Berechnung prüft Wiener Kalendergrenzen; danach keine alten Offline-Abfahrten. Nähe, Stations-/Linienfavoriten und gespeicherte Routen verwenden dieselbe lokale Basis, frische passende API-Gruppen haben Vorrang. Eindeutige Zielnormalisierung einschließlich S/U-Suffixen erhalten. Keine Offline-Zeilen als frische API-Belege oder sichere Geh-Ampel ausgeben.
+
+Einstellungen → Offline-Fahrplan zeigt Datum und Erneuerung. Sichtbar mit Internet höchstens täglich feste öffentliche Metadaten prüfen; Archiv nur bei Änderungen laden, Größe/SHA/Vollständigkeit/Kalender prüfen und erst danach übernehmen. Künftiges Paket erst zum Anfangsdatum aktivieren; kaputte, abgebrochene oder weiterhin abgelaufene Quellen verlängern keine Frist. Keine neue Hintergrundarbeit oder automatischer Server-GTFS-Neuimport. Generator wird im nativen und Site-Build ausgeführt; generierte ZIPs aus Source/Git ausschließen.
+
+Offline-GPS sofort starten und bis zu 90 s begrenzt suchen. Letzten echten Fix höchstens zehn Minuten ausschließlich im RAM halten, nach 90 s unsicher; keine GPS-Persistenz, verspätete Antworten nach Pause verwerfen. Normale ACCESS_NETWORK_STATE-Berechtigung für lokale Netzerkennung. Originalpaket/Schlüssel und bestehende Nutzerfavoriten erhalten.
+
+205 native, 498 Web-/Server-, 22 Python- und 94 JavaScript-Syntaxprüfungen bestanden; physische OnePlus-Abnahme offen. Details: docs/wear-offline.md und docs/wear-os-release-0.9.0.md.
+
+## Wear 0.8.3 / PWA 0.11.27 · Einheitliches lächelndes Logo · 12.11.2026
+
+Nutzer meldet altes Logo in nativer App und installierter PWA. Native app_icon.xml enthielt tatsächlich die alte gefüllte Bahn. Die Uhr übernimmt jetzt die bestätigte mintfarbene Bahnkontur mit Augen, Lächeln und Gleis aus pwa/icons/foama-mark.svg. scripts/sync_branding.py erzeugt die native Vektorgrafik vor jedem CLI-Build; icon und roundIcon zeigen denselben Master.
+
+PWA-PNGs enthielten bereits das neue Logo; neue inhaltsgebundene Symboladressen in Manifest, Apple-Touch-Icon, Offline-Shell und Push lösen erneut die Symbolprüfung aus. Manifest-Verknüpfungen verwenden eine stabile URL ohne Releasequery. Manifest-ID, Start, Scope, Paket, ursprünglicher Signierschlüssel und Favoriten bleiben erhalten. Chrome 144+ behandelt größere Symboländerungen als bestätigbares Identitätsupdate; keinen sofortigen Launcherwechsel oder eine erledigte Geräteabnahme behaupten. Anleitung unter App & Installation; Quelle und Buildvertrag in docs/branding.md. Stationspunkt-Korrektur aus 0.11.26 erhalten. 183 native Tests, 498 Web-/Server-Tests, 19 Python-Prüfungen und 93 Syntaxprüfungen bestanden.
+
+## PWA 0.11.26 · Stationspunkte · 12.11.2026
+
+498 Web-/Server-Tests, 19 Python-Prüfungen und 89 JavaScript-Syntaxprüfungen bestanden. Reale Plattformkoordinaten für Giefinggasse/Paukerwerkstraße, Kalender-/Modus-/Stationsidentität und Katalogfallback geprüft. Alle Linien, mindestens 44-Pixel-Tippfläche und bisherige Favoritenaktionen erhalten. [Befund, Daten und Prüfgrenzen](station-map-points.md).
+
+## Wear 0.8.2 / Code 29 · Einstellungen klar benennen · 12.11.2026
+
+Nutzer beanstandet die unter Mehr verborgenen Einstellungen. Bestehenden Zugang am Listenende mit Zahnrad und sichtbarem Namen Einstellungen versehen; Menütitel und aktuelle Bedienhinweise einheitlich anpassen. Keine zusätzliche Kopfzeile vor den priorisierten Abfahrten. Bestehende 48-dp-Ziele, Elternpfade, Favoriten, Abrufbudgets und Fahrzeuge-im-Anflug-Optimierungen aus 0.8.1 erhalten. Karten-Zentrierknopf bleibt auf ausdrücklichen Wunsch ein Symbol ohne Standort-Label. Wear 0.8.2 / Code 29 mit ursprünglichem Paket/Schlüssel, PWA-Begleitstand 0.11.25. 183 native Tests, 496 Web-/Server-Tests, 18 Python-Prüfungen und 93 Syntaxprüfungen bestanden.
+
+## Wear 0.8.1 / Code 28 · Fahrzeuge fortsetzen · 12.11.2026
+
+Nutzerauftrag: Fahrzeuge-im-Anflug-Optimierungen auch auf der Uhr; linkes Karten-Zentriersymbol auf ausdrücklichen Wunsch ohne sichtbares Standort-Label belassen. Tippen bestätigt Zentrierung und erklärt Suche, Freigabe, deaktivierte Ortung, ungenauen Empfang und Timeout; Hintergrund/Display aus verwirft Feedback und laufende Ortung.
+
+Die Uhr hält vier passive Antworten für fünf Minuten im RAM, höchstens 65.536 Zeichen pro Antwort. Detail/Zurück, Wiederöffnen und Kartenbesuch behalten Quellenstand, Fahrtkennungen und gemeinsame Abrufsperre. Neue Linie/Verbindung storniert die vorherige aktive Anfrage vor Übernahme; verspätete Antworten ändern die neue Ansicht nicht. Keine Gerätepositionen oder neue Persistenz, keine Hintergrundabfragen. Leeres Schema durch schmalen sechs-dp-Fortschrittsbalken, normalen Status und nächsten Abgleich ersetzen. Erst tatsächlich sichtbare Fahrzeuglagen zeichnen; grau bei Fehler/Alter, spätestens nach 90 s ausblenden.
+
+Der Endpunkt verwendet eine kanonische Ganzrichtungs-Sitzung pro Fahrplanbasis/Linie/Richtung, statt pro Station. Überlappende Stops erhalten denselben Tracker und laufenden Request. Nur der gewählte Stationsausschnitt lädt maximal acht RBLs; andere gespeicherte Linien bleiben passiv. Quellenablauf plus Reserve und 30 s ab Requestbeginn erhalten; keine zusätzlichen Ganzlinienscans. Native Monitorboards behalten echte Quellenzeit; ältere Antworten können neuere leere Boards nicht rückgängig machen. Nicht unterstützte Fahrzeugverbindungen aktualisieren normale Abfahrten weiter. PWA-Begleitstand 0.11.24.
+
+183 native Tests, 496 Web-/Server-Tests, 18 Python-Prüfungen und 93 Syntaxprüfungen bestanden. Originalsignatur, Metadaten und zipalign geprüft. Bedienwege und Grenzen: docs/wear-experience.md. Physische OnePlus-Abnahme getrennt; ursprünglichen Schlüssel, Paket, Favoriten und Updateübergabe erhalten.
+
+## PWA 0.11.23 · Nur eine aktive Fahrzeuglinie · 12.11.2026
+
+Nutzerregel: Fahrzeugpositionen nur für eine aktive Linie gleichzeitig laden. `vehicle-position-owner.mjs` teilt eine exklusive aktive Zuständigkeit zwischen Ganzlinien-Poller und eingebetteten Stations-/A-nach-B-Panels. Übernahme beendet den vorigen Abruf synchron, entfernt dessen Timer und Fahrzeug-Abfrageumfang und verwirft verspätete Antworten. Verborgene Ansichten übernehmen keine Zuständigkeit. Geschlossene, entfernte und unsichtbare Panels geben sie frei. Ein alter Besitzer kann seinen Nachfolger nicht freigeben. Bereits gespeicherte Linienstände bleiben passiv und erzeugen keine Requests. Bestehende Seitensichtbarkeit, globale Monitor-Startsperre und 30-s-/Cache-/Backoff-Grenzen bleiben erhalten.
+
+Die zusätzlichen Warnungsanker aus 0.11.22 werden nur als Meldungs-/Abfahrtsdaten verarbeitet. Der einzige aktive Fahrzeugtracker normalisiert ausschließlich seine gewählte Linie und Richtung. Keine parallele Fahrzeugberechnung für andere Warnungslinien. Warnungsvereinheitlichung und Cacheübernahme gespeicherter Wege aus 0.11.22 enthalten; Wear 0.8.0/27 unverändert.
+
+493 Web-/Server-Tests bestanden, einschließlich zweier konkurrierender Poller mit maximal einem aktiven Request, Abbruch vor Übernahme, verworfener alter Antwort, verborgenem Start, altem Freigabeversuch und tatsächlichem Panel-/Pollerwechsel. Details: docs/vehicle-line-session.md.
+
+## PWA 0.11.22 · Einheitliche Warnmeldungen und gespeicherte Wege · 12.11.2026
+
+Monitorübersicht, Stations-/Verbindungsdetails und A nach B verwenden denselben Warnungsbaustein. Ein ruhiger Kopf mit Warnsymbol, Titel, Anzahl und Aufklappen; betroffene Linien und Vorschau nur geschlossen, im offenen Inhalt einmal pro Meldung. Der Titel wiederholt den direkt daneben stehenden Linienpräfix nicht. Kategorie-/Scope-Doppelzeilen und wiederholte Warnungen unter den Übersichtskarten entfallen. Aufzüge/Fahrtreppen und zukünftige Hinweise bleiben getrennt neutral zugänglich. Quellenstand, Gültigkeit, Alterskennzeichnung und Betreiberlink bleiben erhalten. Helles und dunkles Farbschema sowie schmale Ansichten berücksichtigt.
+
+A nach B initialisierte den Meldungscache leer, während der Monitor bereits gültige Meldungen in `foama.traffic.v1` hielt. Beide Seiten lesen und schreiben jetzt denselben geprüften Cache; Wiederaufnahme und andere Tabs übernehmen dessen neuen Stand. Echte Quellzeiten und erfolgreiche leere Datensätze bleiben erhalten. Kein Verjüngen durch Lesen oder Wiederöffnen, keine Entwarnung bei Quellfehlern. 128 öffentliche RBL-Datensätze, höchstens 1 MB JSON; 15-Minuten-Ablauf und Älter-Markierung ab 90 Sekunden unverändert. Keine Nutzerpositionen oder Favoriten im Meldungscache.
+
+Die vorhandene gemeinsame A-nach-B-Monitorabfrage nimmt zusätzlich passende Ein-/Ausstiegsanker aller gewählten Fahrtabschnitte auf. Die aktuellen fokussierten Einstiege und ein offener Fahrzeugbereich haben Vorrang. Höchstens 24 RBLs, derselbe 30-s-/Quellcache-/Backoff-Rhythmus, keine zusätzlichen parallelen Requests oder Neuplanung. Fremde Linien/Halte, Aufzüge und zukünftige Hinweise werden weiterhin nicht zu aktuellen Routenwarnungen.
+
+489 Web-/Server-, 18 Python- und 88 Syntaxprüfungen bestanden. Neue Regressionen: Warnung bei gespeichertem Weg vor dem ersten eigenen Abruf, Quellalter/Expiry, leere Bestätigung über Seitenwechsel, fehlerhafter/blockierter Speicher, Warnungsanker späterer Abschnitte und einmalige Artikelkennzeichnung. Aktueller Wear-Release 0.8.0/27 unverändert. Details: docs/warning-panel.md.
+
+## PWA 0.11.21 · Fahrzeugdaten über Seitengrenzen · 12.11.2026
+
+484 Web-/Server-Tests, 18 Python-Prüfungen und 88 JavaScript-Syntaxprüfungen bestanden. Neue Tests verwenden aufgezeichnete echte 48A-Monitorantworten: derselbe bestätigte Stand, Fahrtkennungen und nächster Termin beim Wechsel Stationspanel → ganze Linie → neu aufgebautes Panel; Erhalt eines einzelnen noch unbestätigten Standes ohne falsche Cachebestätigung; aktualisierter Browser-Zurückcache; unabhängiges Quellalter, graue Übergangsphase und Ablauf; Varianten-/Quell-/Tabtrennung; beschädigter und nicht verfügbarer Speicher; unveränderter Checkpoint samt Korrektur-/Fehlerzustand; kein Request vor der übernommenen Retry-Frist. UI-Prüfungen sichern die kurze verständliche Ladeanzeige ohne nummerierte Karten oder technische Zähler ab.
+
+Browserprobe im lokalen Worker mit realen aktuellen 29B-Daten: Paukerwerkstraße → Verbindungsdetail → geöffnetes Fahrzeugpanel → Ganze Linie. Das Panel erkannte bereits bestätigte Fahrzeuge außerhalb seines Ausschnitts. Die ganze Linie stellte vorhandene Kennungen 29B · 06 und 29B · 08 ohne neuen Initialisierungsdurchlauf dar; aufgrund des tatsächlichen Alters waren sie grau. Browserprobe ist keine physische Fahrzeugzählung. [Datenübernahme und Grenzen](vehicle-line-session.md).
+## Wear 0.8.0 / PWA 0.11.20 · Abfahrten zuerst · 12.11.2026
+
+168 native Tests im signierten Release-Build erfolgreich. Runde Größen 192–240 dp und Schrift bis 1,5-fach, Leseposition/Navigation, Tile, Kartenprojektion und Offline-Linien sowie Fahrzeuge mit echten U6-Quellenständen geprüft. 476 Web-/Server- und 18 Python-Tests erfolgreich. [Release-Metadaten und physische Grenzen](wear-os-release-0.8.0.md), [Bedienung und Architektur](wear-experience.md).
+
+## PWA 0.11.19 · Ganzliniensitzung und kompakter Fortschritt · 12.11.2026
+
+473 Web-/Server-Tests, 18 Python-Prüfungen und 87 JavaScript-Syntaxprüfungen erfolgreich. Neue Regressionen prüfen erhaltene Tracker-/Pollerobjekte, Auswahl und Countdown bei wiederholten Karten-/Schema-/Stationswechseln; ganze kurze Linien in jeder Ansicht; Priorität ohne Verhungern anderer Abschnitte; erhaltene andere Fahrzeuge und tatsächliche Zeitstempel; Cache-/Überlappungsantworten ohne falsche Bestätigung; gültige ältere neue Abschnitte; eigenes Altern und tatsächliche fehlende Monitore; Antwortbindung an tatsächlich gesendete IDs bei laufender Prioritätsänderung. Kompakter Balken rückt bei alten Quellen zurück und liefert lesbare Fortschrittswerte. [Sitzung und Abrufplanung](vehicle-line-session.md).
+
+## PWA 0.11.18 · Kartenebenen bei vorhandenem Standort · 12.11.2026
+
+464 Web-/Server-Tests, 18 Python-Prüfungen und 86 JavaScript-Syntaxprüfungen erfolgreich. Regressionen für vollständiges erstes Leaflet-Ladeereignis, abgebrochene verzögerte Positionsanmeldung, Ansicht vor Vektoren sowie Entsorgen/Neuversuch eines teilweise aufgebauten Stationsausschnitts. Die vier zugehörigen Fälle schlugen vor der Reparatur fehl. Echter Leaflet-Browsertest mit realer 29B-Geometrie und ausdrücklich synthetischem Fix: vorher null Vektoren/Fahrzeug/Standort und `intersects`-Fehler, nachher Linie, acht Halte, Fahrzeug, Standort und Genauigkeitskreis; Verbergen/Wiederöffnen und absichtlich vor der Ansicht eingereihte Vektoren erfolgreich. [Genaue Diagnose](map-overlays-20261112.md). Keine physische GPS-/Fahrzeugabnahme behaupten.
+
+## PWA 0.11.17 · automatischer Start und Ankunft am gewählten Halt · 12.11.2026
+
+Die ganze Fahrzeugseite beginnt den Live-Abgleich unmittelbar nach erfolgreich geladener und geprüfter Linienbasis. Start-/Pause-Button und Hinweise auf einen nötigen Klick entfernt. Linien-, Richtungs-, Varianten- und Abschnittwechsel starten den gewählten gültigen Umfang automatisch neu, innerhalb derselben globalen 30-s-/Quellencache-/Backoff-Grenzen. Hintergrund und Pagehide stoppen Requests und Bewegung; Rückkehr setzt automatisch fort. Während fehlender oder fehlerhafter Linienbasis keine Monitorabfrage. Die eingebetteten Stationsbereiche bleiben bewusst geschlossen und laden erst beim Öffnen. Vorhandener Wear-Release 0.8.0/27 unverändert.
+
+Für die gewählte Station gibt es genau einen Countdown für das nächste Fahrzeug in Minuten. Auf der Karte steht er als kompakte obere rechte Überlagerung; im Schema und während des Positionsaufbaus als schmale Zeile davor. Eine frische Stationsprognose darf den Countdown bereits vor abgeschlossener Fahrzeug-ID-Zuordnung liefern, ohne dadurch eine Kartenposition zu behaupten. Abfahrtsprognose als Grundlage offenlegen; bekannte Haltezeit bei eindeutigem bestätigtem Anker abziehen. Nur aktuelle anfahrende zugeordnete Fahrzeuge dürfen bei fehlendem Zielmonitor eine ausdrücklich benannte Fahrplan-Schätzung liefern. Bereits passierte Halte, veraltete Quellen/Zeilen, Fehler und ausgelassene Ziele liefern keinen Countdown. Keine zusätzlichen Requests.
+
+461 Web-/Server-Tests, 18 Python-Prüfungen und 86 JavaScript-Syntaxprüfungen.
+
+## PWA 0.11.16 · vollständigere Karten und stabilere Fahrzeuglagen · 12.11.2026
+
+Standortmarker zeigen alle aktivierten Stationslinien in einem Raster mit höchstens vier Spalten. Floridsdorf S U zeigt damit 14 statt zwei Linien. Fußwegkarten zeichnen die Station sofort und laden den Gehweg parallel. Eigene Sitzung mit Routingabbruch und Kartenabbau bei Schließen/Hintergrund verhindert verspätete Antworten auf einer erneut geöffneten Karte. Ohne Startposition oder Routing bleibt die Stationskarte nutzbar; erste Kartenansicht vor Vektor-/Standortschichten.
+
+Monitor, A nach B und Fahrzeugseite beachten neben der 30-s-Startsperre den validierten Ablauf des Quellencaches plus eine Sekunde Reserve. Web Locks machen die kurze Zeitstempelvergabe zwischen Tabs atomar, soweit unterstützt. Identische gleichzeitige Serverbatches und Zusatzmeldungsabrufe teilen Requests je Worker-Instanz. Quellfehler 316 wird auch bei HTTP 200 als Begrenzung mit 60-s-Pause über geänderte Stoplisten behandelt. Maximal 24 RBLs, sichtbare Nutzung und zwei unterschiedliche Quellenstände bleiben verbindlich.
+
+ETA-Korrekturen mit mindestens zwei identischen geplanten Stationsankern erhalten ID und Bestätigung. Die letzte Lage nur begrenzt grau halten, bis die Prognose aufschließt; keine Rückwärtsanimation. Tatsächlich umgekehrte Stationsanker bleiben gesperrt. Eine etablierte Bus-/Tram-ID darf am Rand mit zwei exakt gemeinsamen Live-Schlüsseln fortgesetzt werden; neue Oberflächen-IDs benötigen weiter drei Stationen. Zwei frische Folgeanker erlauben nach Zweiquellenbestätigung eine einzelne angrenzende, ausdrücklich unsichere Anfahrtsprojektion. Spätere Fahrten, fehlende Lagen und wirklich außerhalb liegende Fahrzeuge erhalten unterschiedliche Texte. Panels erhalten die tatsächlich abgesendete Teilmenge und nennen wegen des 24-RBL-Limits ausgelassene Nachbarhalte.
+
+453 Web-/Server-Tests, 18 Python-Prüfungen und 85 JavaScript-Syntaxprüfungen. Begrenzter Vergleich mit denselben Audit-Mitschnitten: 46 erstmals nach 41,3 statt 75,3 s sichtbar; Zeitanteil mit mindestens einer gehaltenen U6-Südlage 38,6 statt 57,4 %. Replay, keine physische Fahrzeugzählung. Unterschiedlich überlappende Batches über mehrere Worker-Instanzen besitzen weiterhin keinen globalen Koordinator. Wear 0.7.4/26 samt Original-APK unverändert.
+
+## PWA 0.11.15 · GPS-Kartenstart und ehrlicher Meldungscache · 12.11.2026
+
+Ein bereits vorhandener frischer GPS-Fix wurde im Leaflet-Init-Hook synchron ausgeliefert, bevor die ersten Vektorpfade existierten. bringToBack löste dadurch einen parentNode-Fehler aus und die Standortkarte blieb leer. Die gemeinsame Standortschicht startet jetzt erst in whenReady nach der ersten Kartenansicht. Reale Leaflet-Browserprobe mit einem ausdrücklich synthetischen öffentlichen Wiener Testpunkt reproduziert den Fehler vorher und prüft GPS-Fix, Genauigkeitskreis sowie erneutes Öffnen ohne GPS nachher. Standort-/Fußwegkacheln senden denselben ausschließlich auf die Origin beschränkten Referer wie die anderen Karten.
+
+Störungsdaten behalten das Alter der Monitor-/Zusatzquelle statt des lokalen Empfangszeitpunkts; wiederholte Cacheantworten erneuern es nicht. Bei explizit fehlender Zusatzquelle bleiben vorhandene Meldungen mit ihrem alten Zeitstempel bis zur bisherigen Ablaufgrenze erhalten. Erst eine vollständige erfolgreiche leere Antwort oder explizite Auflösung entfernt sie. Keine zusätzlichen Abfragen, keine Änderung der Push- oder Fahrzeug-Zuordnungsregeln. 435 Web-/Server-Tests, 18 Python-Prüfungen und 82 JavaScript-Syntaxprüfungen erfolgreich. Neuer PWA-Cache; Wear 0.7.4/26 unverändert.
+
+Die Fahrzeuguntersuchung vom 12.11. ist unter docs/vehicle-audit-20261112.md dokumentiert. Sie unterscheidet API-Erreichbarkeit, doppelte Quellenstände, Schätzlagen, Meldelücken und tatsächliche Fahrzeugidentität. Die vorgeschlagenen Änderungen an Poller/Tracker sind noch nicht Teil dieses Releases.
+
+## PWA 0.11.14 · A-nach-B-Störungsmeldungen · 11.11.2026
+
+432 Web-/Server-Tests, 18 Python-Prüfungen und 84 JavaScript-Syntaxprüfungen bestanden. Sieben neue Regressionen prüfen Hinweise mehrerer ausgewählter Etappen und anderer Varianten, Ausschluss fremder Linien/Stationen und regionaler Quellen, Deduplizierung, Quellenalter/Ablauf/Auflösung, frische leere Meldungslisten, fokussierte Stationsdarstellung vor Abfahrten, getrennte neutrale Informationen, Escaping und Quelltexte. Reale Monitorfunktion übernimmt Meldungen ohne Zusatzrequest und ignoriert verspätete Antworten; fehlerhafte Meldungen lassen bestehende Abfahrts-/Meldungscaches unverändert. Laufende Warnungsupdates und Variantenwechsel erhalten bereits montierte Fußwegkarten. 0.11.13 mit echten U6-Meldungen öffentlich geprüft: Kopf → Störung → Abfahrten → Fahrzeuge.
+
+## PWA 0.11.13 · sichtbare Störungen im Verbindungsdetail · 11.11.2026
+
+425 Web-/Server-Tests, 18 Python-Prüfungen und 84 JavaScript-Syntaxprüfungen bestanden. Bestehende Layout-Regression an den eigenen Kopfcontainer angepasst: Countdown-/Monitorupdates erhalten weiterhin den geöffneten Fahrzeugbereich, Variante und Fokus. Warnungsfilter, Deduplizierung, Ablauf und aufklappbare Details über vorhandene Tests geprüft. Keine zusätzlichen Datenabfragen oder nativen Änderungen. Gray-/Stale-Stile beider Schemata verwenden deckendes Grau mit hellem Symbol und dunklen Labels mit heller Schrift.
+
+## PWA 0.11.12 · exklusiver Fortschrittsplatzhalter · 11.11.2026
+
+425 Web-/Server-Tests, 18 Python-Prüfungen und 84 JavaScript-Syntaxprüfungen bestanden. Drei neue Regressionen zusätzlich zur vorhandenen Suite: echter aufgezeichneter 48A-Lauf mit Start/erster Quelle, bestätigten Positionen, gehaltenen Lagen und Ablauf; ganze Fahrzeugseite mit gegenseitig exklusivem Fortschritt/Visualisierung/Stationsdetails und erhaltener Auswahl; Stationsausschnitt gegen außerhalb liegende Fahrzeuge und Karteninitialisierung nur beim sichtbaren Übergang. Bestehende Karten-/Schemawechsel mit realen IDs einschließlich Schließen/Wiederöffnen erhalten. Keine zusätzlichen Live-Abfragen oder geänderten Trackerregeln.
+
+## PWA 0.11.11 · Kartenposition und grafischer Datenstand · 11.11.2026
+
+422 Web-/Server-Tests, 18 Python-Prüfungen und 83 JavaScript-Syntaxprüfungen bestanden. 14 neue Tests prüfen gültige/frische/grobe Kartenfixes, einen geteilten freigegebenen Watch, keinen Aufruf bei prompt/denied/fehlender Permissions-API, Nutzung des Monitor-Controllers und Wechsel zu einem eigenständigen Kartenfix bei inaktivem Controller, Alter/Fehler/Widerruf, Hintergrund/Schließen/Dispose und verspätete Antworten. Reale Leaflet-Adapterverträge mit Positionswechsel, Genauigkeitskreis, eigenem Zentrierknopf und unverändertem Ausschnitt geprüft. Keine tatsächlichen Gerätekoordinaten in Fixtures.
+
+Readiness-Tests prüfen Basis-/Live-/Kandidaten-/Bestätigungsstufen, tatsächlichen Abruf-Countdown, Teilabdeckung, leere Prognosen, wiederholte oder alte Quellenstände, mehrdeutige/alte gehaltene Fahrten, Fahrzeuge außerhalb des Ausschnitts, Pause und Backoff. Bestehende Monitor-/Tracker-/Schema-/Kartenprüfungen bleiben grün. Alle 179 Offline-Shell-Pfade vorhanden. Original-Wear-APK 0.7.4/26 aus Feedgröße und SHA-256 verifiziert.
+
+Browserprobe: echte Fahrzeugseite mit geografischer Karte, vier grafischen Stufen, Freigabe-fremdem deaktivierten Standortknopf und gestarteter Live-Abfrage geprüft. Der gemeinsame Preview-Port wechselte anschließend auf ein anderes Projekt; keine weitere fremde Vorschau beendet. Eine vorbereitete lokale Seite mit simuliertem Standort wird nicht veröffentlicht. Visuelle Telefon-/öffentliche Abnahme anschließend, physische GPS-/Fahrtenabnahme separat.
+
+## PWA 0.11.10 · doppelte Linie 46 und Fahrzeugstart · 11.11.2026
+
+408 Web-/Server-Tests und 18 Python-Prüfungen bestanden. Vier zusätzliche Regressionen prüfen den belegten Tram-46-Endstationsalias einschließlich Fallback, Favorit/Detail/Monitorseite und abweichenden Zielen/Modi/Stationen; parallele Katalog-/Paketdownloads und Vereinigung derselben Linienanfrage; 30-s-Startabstand trotz achtsekündiger Antwort; fremde gemeinsame Abfragesperre. Bestehende Tests erhalten Zwei-Quellen-Bestätigung, Hash-/Kalenderbindung, Backoff und Hintergrundabbruch.
+
+Browserabnahme im verwalteten Preview: reale Tram-46-LIVE-Abfahrten erscheinen auch aus dem GTFS-beschrifteten Detailverweis. Offener Stationsbereich, erste Quellenbestätigung und korrekter Link auf Linie 46 / Parlament-Volkstheater / Thaliastraße U / Variante 672c055cb3fc2a2e geprüft. Desktop und 337 px verfügbare Telefonbreite: Stationsausschnitt und Ganze-Linie-Button passen nebeneinander, Tippfläche 44 px hoch, kein horizontaler Überlauf. Startstatus zählt sichtbar bis zum nächsten Abruf herunter. Keine physische Uhr-/Fahrtenabnahme.
+
+## PWA 0.11.9 · Slogan-Konsistenz · 11.11.2026
+
+404 Web-/Server-Tests, 18 Python-Prüfungen und 82 JavaScript-Syntaxprüfungen bestanden. Wortlaut und brand-tagline-Kennzeichnung in allen 13 HTML-Seitenköpfen sowie im fokussierten Verbindungskopf geprüft; Manifest-ID unverändert, Beschreibung mit demselben Slogan. Alle 174 Offline-Shell-Pfade vorhanden. Keine neuen Tests für die reversible Text-/Layoutänderung. Lokale verwaltete Vorschau ist durch ein anderes Projekt belegt; öffentliche visuelle Prüfung nach Veröffentlichung. Native Wear-APK bleibt unverändert.
+
+## PWA 0.11.8 · Karte bei geänderter Breite wieder anzeigen · 11.11.2026
+
+404 Web-/Server-Tests, 18 Python-Prüfungen und 82 Syntaxprüfungen bestanden. Der bestehende Kartentest prüft zusätzlich, dass Größenabgleich die geografische Mitte erhält und nicht animiert; Datenupdates/Schemawechsel passen weiterhin nicht neu ein. Öffentliche 0.11.7-Browserprobe: echte 48A-Daten, Linie in Marker/Status/Schema, Auswahl gleicher interner ID beim Schema-/Kartenwechsel. Telefonbreite: 337 px Inhalt, Schema clientWidth=scrollWidth=281 px, Karte 283 px; kein horizontaler Überlauf. Sichtbare OSM-Kacheln, hervorgehobener Zielhalt und ganze Linie mit gleicher Variante bestätigt. Die dabei beobachtete Zentrierungsverschiebung nach Rückkehr auf Desktopbreite ist in 0.11.8 korrigiert. Keine physische Geräte-/Fahrtenabnahme.
+
+## PWA 0.11.7 · eingebettete Karte und lesbare Kennungen · 11.11.2026
+
+404 Web-/Server-Tests, 18 Python-Prüfungen und 82 JavaScript-Syntaxprüfungen bestanden. Sieben zusätzliche Regressionen: lesbare Linienkennungen ohne interne Präfixe, Zuschnitt auf echten Formpunkten/Stationsankern samt übersprungenen Halten, lazy Darstellung ohne zusätzliche Daten-/Monitoranforderung, Zustand bei Schließen/Öffnen, echte aufgezeichnete 48A-Daten mit unveränderter Tracker-ID/Auswahl beim Wechsel und Abwählen beim zweiten Tippen, Kartenrahmen ohne erneutes Einpassen bei Updates/Wechseln, spätes Kartenmodul nach Schließen/Hintergrund/Dispose sowie Kartenfehler mit Schema-Ausweichmöglichkeit. Alle 174 Shellpfade vorhanden; neues Kartenmodul bare/versioniert enthalten. PWA-/Feedversion 0.11.7 und unveränderte Wear-APK 0.7.4 gegen SHA-256 geprüft. Die lokale verwaltete Vorschau ist durch ein anderes Projekt belegt; öffentliche Browserabnahme erfolgt nach Veröffentlichung.
+
+## PWA 0.11.6 · neues Konturlogo mit Lächeln · 11.11.2026
+
+397 Web-/Server-Tests, 18 Python-Prüfungen und 81 JavaScript-Syntaxprüfungen bestanden. Bestehende Release-Testreferenzen und gemeinsame versionierte Modulimporte auf 0.11.6 angeglichen; keine neuen Tests für die reine Logoänderung. SVG/XML gültig; 192-/512-Pixel-Icons deckend, Alias- und Versionskopien bytegleich. Alle sichtbaren Logo-Pixel liegen im zentralen kreisförmigen Maskable-Sicherheitsbereich mit Radius 40 Prozent. Alle 172 Offline-Shell-Pfade vorhanden, neue Manifest-Icons ausdrücklich enthalten. Manifest-ID und Startadresse erhalten; unveränderte Wear-APK 0.7.4/26 gegen den bisherigen SHA-256 geprüft. Gerenderte SVG/PNG-Fassung betrachtet. Die verwaltete lokale Vorschau ist durch ein anderes Projekt belegt; öffentliche Browserabnahme nach Veröffentlichung. Kein sofortiges Android-Launcher-Update behaupten.
+
+## PWA 0.11.5 · Adressfelder, Markengröße und öffentliche Erklärung · 11.11.2026
+
+397 bestehende Web-/Server-Tests und 18 Python-Prüfungen bestanden. Visuelle Browserprüfung der tatsächlichen A-nach-B-Seite am Desktop und bei 337 px CSS-Breite: Start, Ziel und beide Suchbuttons jeweils exakt 48 px hoch; mobil je Eingabe 227 px plus 48 px Suchbutton, kein Seitenüberlauf. Desktop-Suchtext bleibt einzeilig. Monitor bei 337 px: bestehendes Logo 48 px, Schriftzug rund 25,2 px; 8 px freier Abstand zu den Aktionsbuttons, kein Überlauf.
+
+Willkommen-Bereich mit klar als Beispiel gekennzeichnetem Stationsausschnitt, direktem Fahrzeuglink und FAQ-Link in Desktop-/Telefonansicht geprüft. Der FAQ-Link öffnet die entsprechende Erklärung im Städtevergleich. Wien-Einzelvergleich auf 337 px: Tabelle 303 px, Seite ohne Überlauf; Panorama vollständig geladen. Keine experimentelle Kennzeichnung mehr, geschätzte Genauigkeit/Wien-Abdeckung weiterhin erklärt. Drei neue Logoentwürfe nur zur separaten Bewertung; bestehende App-Marke bleibt erhalten. Keine zusätzlichen Tests für die Layout-/Textkorrekturen.
+
+## PWA 0.11.4 · Kontrast grauer Stadtmarker · 11.11.2026
+
+Bestehende 397 Web-/Server-Tests bestanden. Visuelle Browserprüfung einer lokalen Darstellungsprobe über echten OpenStreetMap-Kacheln: Zug, Tram und Bus, Zuordnungslücke und veralteter Stand, ungewählt und ausgewählt, jeweils in hellem und dunklem App-Farbschema. Tatsächliche Markergröße 36 × 36 px, volle Deckkraft, transparenter Außenrahmen, deckende graue Fläche rgb(75,85,99), Symbol rgb(249,250,251); berechneter Symbol-/Flächenkontrast 7,23:1. Die beiden App-Farbschemata ändern diesen Kartenkontrast nicht. Keine neuen Tests für die reine CSS-Korrektur; Modell-/Abrufverhalten unverändert. Die lokale QA-Seite wird weder veröffentlicht noch dem Quellpaket beigefügt.
+
+## PWA 0.11.3 · Toggle, verlorene Marker und beide Tram-46-Richtungen · 11.11.2026
+
+397 Web-/Server-Tests, 18 Python-Prüfungen, 82 JavaScript-Syntaxprüfungen. Neue Regressionen prüfen echtes Abwählen, Folgenende, Entfernen überholter gehaltener Lagen, ausbleibendes Entfernen bei Überlappung/Quellenausfall/einem einzelnen Anker und erneute Zwei-Quellen-Bestätigung. Alle 165 Pakete/617 Varianten bleiben quell-, kalender-, geometrie- und plattformgebunden. Importprüfung: vollständige reguläre Stationsfolge schlägt historische Umleitungsteilfolge, vollständiger Richtungskonflikt bleibt offen.
+
+Neue minimale öffentliche Mitschnitte für Tram 46: H-Richtung 12:23:45/12:24:40 Wiener Zeit bestätigt Schätzlage trotz fehlender naher GTFS-Abfahrt; R-Richtung 12:39:09/12:40:06 bestätigt zwei Schätzlagen aus acht getrennten Rückrichtungs-RBLs. Keine Standort- oder offiziellen Fahrzeugidentitätsdaten. Frische GTFS-/CSV-Downloads am 11.11. stimmen per Digest mit der bestehenden Referenz überein. Die Fixture-Dateien enthalten nur die benötigten öffentlichen Monitorfelder; Rohproben sind kein Releasebestandteil.
+
+Visuelle Erstprüfung der Fahrzeugseite im verwalteten Browser bei Desktop- und 337 px CSS-Breite: beide Richtungen sichtbar, redundante Einzelvariante und gequetschte Ansichtsschalter erkannt. Daraufhin Layout, Platznutzung und Auswahlstatus optimiert. Vorschau-Refresh beim Worker-Neubau durch Browser-URL-Richtlinie blockiert; weitere veröffentlichte Sichtprüfung separat. Physische Fahrten-/Android-Abnahme bleibt offen.
+
+## PWA 0.11.2 · stabile und bildschirmbreite Stationsansicht · 11.11.2026
+
+386 Web-/Server-Tests einschließlich zweier zusätzlicher Regressionen gegen Remount/Fokuswechsel im tatsächlichen Stations- und A-nach-B-Renderer. Horizontale Bewegung bleibt relativ und nutzt dieselbe Skala wie die Halte. Browser: acht vollständige Halte bei 337 px CSS-Breite per Zoom, Diagramm-clientWidth und scrollWidth beide 281 px, Seite jeweils 337 px; offener Bereich, gewählte Richtung und Fokus bleiben über Routineupdates erhalten. Helle und dunkle Palette kontrolliert. Dies ersetzt keine physische Android-Abnahme.
+
+## PWA 0.11.1 · Benennung und Stationslebenszyklus · 11.11.2026
+
+384 Web-/Server-Tests, 15 Python-Prüfungen und 79 JavaScript-Syntaxprüfungen. Zwei zusätzliche Lebenszyklusfälle prüfen Schließen während des Katalogabrufs und Hintergrund/erneutes Öffnen während eines Paketabrufs. Name, horizontaler Ausschnitt und direkter Karten-/Stations-Einstieg in der verwalteten Vorschau geprüft; 337 px CSS-Breite per Browser-Zoom ohne Seitenüberlauf. Physische Fahrtenabnahme bleibt separat. Nach dem abschließenden Worker-Neubau blockierte die Browser-URL-Richtlinie weitere Vorschauaufrufe; A-nach-B-Ende-zu-Ende-Abnahme daher offen.
+
+## PWA 0.11.0 · weitere Linien und Fahrzeuge im Anflug · 11.11.2026
+
+Rollout auf 165 Wiener Linien und 616 eindeutig zugeordnete Varianten: 5 U-Bahn, 30 Tram, 130 Bus. Auswahl in echter Karte und Schema, mit expliziten begrenzten Abschnitten für lange Linien. Horizontale Stationsausschnitte in Verbindungs-/Stationsdetails und A-nach-B-Einstiegsdetails, bis zu fünf Halte davor und zwei danach, gewählte Station hervorgehoben. Anfangs geschlossen; Nachbar-RBLs teilen die bestehende Abfrage statt eines eigenen Pollers. Passende Zug-/Tram-/Bus-Symbole und temporäre IDs.
+
+U-Bahn behält den begrenzten GTFS-Sollslotabgleich. Bus/Tram benötigen drei eindeutig zusammenpassende Live-Sollanker und zwei Quellenstände; GTFS dient als Fahrzeitprofil, nicht als nächster Zug. Wiederaufnahme über gemeinsame echte Stations-/Sollzeit-Schlüssel, konkurrierende Folgen und enge mehrdeutige Takte bleiben offen. Versionierte öffentliche RBL-Referenz und Gzip-Pakete ermöglichen Reproduktion; acht unklare Linien bleiben ausgeschlossen. Wear 0.7.4/26 unverändert.
+
+384 Web-/Server-Tests, 15 Python-Prüfungen, 79 JavaScript-Syntaxprüfungen. Alle veröffentlichten Datenpakete, horizontale Darstellung, Lebenszyklus, Stations- und A-nach-B-Abrufgrenzen geprüft. Zusätzliche Regressionen stoppen nachträgliche Paketabrufe geschlossener Bereiche und verwerfen Antworten im Hintergrund; Rückkehr lädt den Bereich erneut. Fünf neue reale U3-/49-/48A-Proben bestätigen fortschreitende Schätzlagen und stabile IDs; U3 mit fünf modellbasierten Stationsübergaben. Kein Nachweis physischer Wagenidentität. Verwaltete Vorschau wieder erreichbar: Name, U6-Stationswahl, Schema und direkter Karten-/Stations-Einstieg geprüft; bei 337 px CSS-Breite kein Seitenüberlauf. Vorübergehender Relayfehler wird ohne erfundene Marker behandelt. Physische Fahrtenabnahme bleibt separat. [Datenmodell und Grenzen](vehicle-pilot.md).
+
 ## PWA 0.10.2 · kompakter Footer · 11.11.2026
 
 Monitor-Footer trennt Metadaten und gemeinsame Linknavigation. Lizenzen stehen bei den übrigen Links; alleinstehender Trennpunkt und zusätzliche Abstände zwischen umgebrochenen Linkzeilen entfallen. 44-px-Tippflächen bleiben erhalten. Installierte Monitor-PWA nutzt unten nur 20 px plus Safe Area; Browser-Editor-Abstand und andere Seiten behalten ihre bisherigen Regeln. Wear 0.7.4/26 unverändert.

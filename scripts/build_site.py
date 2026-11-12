@@ -2,8 +2,10 @@
 """Embed the existing PWA assets and existing API relay in a Sites ESM Worker."""
 from pathlib import Path
 import base64,hashlib,json,mimetypes,shutil,subprocess
+from prepare_watch_timetable import prepare
 
 ROOT=Path(__file__).resolve().parents[1]
+prepare(ROOT)
 out=ROOT/'dist'
 manifest=json.loads((ROOT/'.openai/hosting.json').read_text())
 assert manifest.get('project_id') and 'static' not in manifest

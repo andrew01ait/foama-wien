@@ -1,4 +1,5 @@
-import {getCatalogue,putCatalogue} from './storage.mjs?v=0.10.2';
+import {getCatalogue,putCatalogue} from './storage.mjs?v=0.11.31';
+import {directionKey} from './core.mjs?v=0.11.31';
 
 const zone='Europe/Vienna', dayMs=86400_000;
 const dateParts=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
@@ -34,7 +35,7 @@ export function timetableDepartures(manifest,stationRows,now=Date.now()){
  }
  return out.sort((a,b)=>Date.parse(a.actual)-Date.parse(b.actual));
 }
-const direction=value=>String(value||'').replace(/^Wien\s+/i,'').replace(/\s+\((?:über|üb\.?|via)\s+.+\)$/iu,'').replace(/\s+(?:S\s+U|U\s+S|S|U)$/iu,'').trim().toLocaleLowerCase('de-AT');
+const direction=value=>directionKey(String(value||'').replace(/\s+\((?:über|üb\.?|via)\s+.+\)$/iu,''));
 export function mergeTimetableDepartures(current=[],planned=[],stops=[],now=Date.now()){
  const byRbl=new Map(stops.filter(s=>s.provider==='wl').flatMap(s=>(s.rbl||[]).map(id=>[String(id),s.id])));
  const group=d=>JSON.stringify([d.stopId||byRbl.get(String(d.rbl)),d.route,d.mode,direction(d.towards)]);

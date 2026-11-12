@@ -1,12 +1,12 @@
 # Veröffentlichung und Betrieb
 
-Aktueller App-Stand: PWA 0.10.2 / Wear 0.7.4, nativer Code 26. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+Aktueller App-Stand: PWA 0.11.31 / Wear 0.9.1, nativer Code 32. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
 
 ## Drei getrennte Ergebnisse
 
 | Ergebnis | Maßgebliche Daten und Nachweis |
 | --- | --- |
-| Öffentliches GitHub | Vollständiger geprüfter Quellstand, Commit auf `main`, passende Dokumentation und CI |
+| Öffentliches GitHub | Vollständiger geprüfter Quellstand im freigegebenen Branch/PR bzw. auf main, passende Dokumentation und CI |
 | Laufende Site | Gepushter interner Source-Commit, daraus gebautes Archiv, gespeicherte Version und erfolgreicher Deploy |
 | Native Uhr-App | APK mit Originalpaket/-signatur, Version, Code, Größe und SHA-256 im Updatefeed |
 
@@ -82,3 +82,11 @@ python3 scripts/prepare_line_maps.py fahrplan.zip
 Quelldigest und aufgelöste Kalender müssen zum ausgelieferten Fahrplan passen; andernfalls bricht der Import ab. Geordnete Halte einschließlich tatsächlicher Steige, Shapes und Streckenentfernungen verwenden; Kurzführungen anhand der Distanz auf den genutzten Abschnitt beschränken. Geometrie auf 3 m vereinfachen und als Polyline mit Präzision 6 speichern. Identische physische Varianten über Kalender-Shapes zusammenfassen, unterschiedliche Modi/Äste erhalten. pwa/data/line-maps/wien/index.json und alle 173 Pakete gehören in GitHub, Quell-ZIP und Site. Aktueller Umfang: 965 Varianten, 2.736.758 Bytes. Keine Roh-GTFS-ZIP veröffentlichen.
 
 PDF entsteht lokal im Browser aus denselben Kalenderdaten; kein neuer Server, keine Migration, kein externer PDF-Dienst. Nach Änderungen echte Tages-/Linien-PDFs erzeugen, mit Poppler prüfen und Seiten rendern. Kartenhintergründe niemals als Offlinepakete vorab laden; OSM-Referer und Attribution erhalten.
+
+Ab 0.11.16 teilen identische Monitorbatches und Zusatzmeldungsabrufe laufende Requests je Worker-Instanz. Der 30-s-Cache liefert einen begrenzten nächsten Abrufzeitpunkt mit 1 s Reserve. Quellcode 316 aktiviert eine cachebasierte 60-s-Pause über geänderte Stoplisten. Dies vereinigt keine unterschiedlich überlappenden Stoplisten oder getrennten Worker-Instanzen.
+
+Ab 0.11.26 erzeugt der Linienkartenimport auch `pwa/data/station-map-points.json`. Ein vorhandener unveränderter Linienkartenstand lässt sich mit `python3 scripts/prepare_station_map_points.py` ableiten; Digest und Quellbindung werden geprüft. Den Index zusammen mit den Kartenpaketen, dem Quell-ZIP und dem Service-Worker-Cache veröffentlichen.
+
+## Native Fahrplanerneuerung ab Wear 0.9.1
+
+Nach einem echten neuen GTFS-Import `python3 scripts/prepare_watch_timetable.py` ausführen. Der Site-Build erzeugt denselben kompletten Download und dessen Metadaten; beide zusammen veröffentlichen. Die bereits installierte Uhr kann die neue Periode ohne APK-Update laden. Alte Kalender niemals verlängern. App-Prüfung ersetzt keinen Server-Neuimport. [Vollständiger Ablauf](docs/wear-offline.md).

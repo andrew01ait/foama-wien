@@ -1,4 +1,4 @@
-import {coordinate} from './journey-geometry.mjs?v=0.10.2';
+import {coordinate} from './journey-geometry.mjs?v=0.11.31';
 const clean=(value,n)=>typeof value==='string'?value.trim().slice(0,n):'';
 const labelKey=value=>value.normalize('NFKC').toLocaleLowerCase('de-AT');
 export const JOURNEY_PLACES_KEY='foama.journeyPlaces.v1';
@@ -20,7 +20,7 @@ export function saveJourneyPlace(existing,input,{id=globalThis.crypto.randomUUID
  if(!editing&&places.length>=30)throw Error('Du kannst höchstens 30 Orte speichern.');
  return {place,places:editing?places.map(p=>p.id===place.id?place:p):[place,...places]};
 }
-export function journeyPlacePoint(place){return {kind:'point',name:place.address,lat:place.lat,lon:place.lon,placeId:place.id};}
+export function journeyPlacePoint(place){return {kind:'point',name:place.address,lat:place.lat,lon:place.lon,placeId:place.id,...(place.detail?{detail:place.detail}:{})};}
 export function matchingJourneyPlace(places,point){
  if(point?.kind==='current'||!coordinate(point))return null;
  const same=p=>Math.abs(p.lat-point.lat)<.000001&&Math.abs(p.lon-point.lon)<.000001;
@@ -28,5 +28,5 @@ export function matchingJourneyPlace(places,point){
 }
 export function journeyEndpointLabel(places,point){
  const place=matchingJourneyPlace(places,point);
- return place?{name:place.label,detail:place.label===place.address?'':place.address}:{name:point?.name||'',detail:''};
+ return place?{name:place.label,detail:[place.label===place.address?'':place.address,place.detail].filter(Boolean).join(', ')}:{name:point?.name||'',detail:typeof point?.detail==='string'?point.detail:''};
 }

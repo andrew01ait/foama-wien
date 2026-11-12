@@ -1,11 +1,11 @@
-import {journeyPathKey,journeyFamily} from './journey-variants.mjs?v=0.10.2';
-import {coordinate} from './journey-geometry.mjs?v=0.10.2';
+import {journeyPathKey,journeyFamily} from './journey-variants.mjs?v=0.11.31';
+import {coordinate} from './journey-geometry.mjs?v=0.11.31';
 const MODES=new Set(['metro','tram','bus','sbahn','regional','long','walk']);
 const text=(s,n=160)=>String(s??'').trim().slice(0,n);
 function endpoint(p){
  if(p?.kind==='current'||p?.fixedAt)return {kind:'current',name:'Dein Standort'};
  if(!Number.isFinite(p?.lat)||!Number.isFinite(p?.lon)||Math.abs(p.lat)>90||Math.abs(p.lon)>180)return null;
- return {kind:'point',name:text(p.name),lat:p.lat,lon:p.lon};
+ return {kind:'point',name:text(p.name),lat:p.lat,lon:p.lon,...(typeof p.detail==='string'&&text(p.detail)?{detail:text(p.detail)}:{})};
 }
 function place(p){return {name:text(p?.name),stopId:/^(wl|rail|graz|linz|salzburg):[\w:-]{1,100}$/.test(p?.stopId)?p.stopId:null,platform:text(p?.platform,30),...(coordinate(p)||{})};}
 export function sanitizeJourneyFavorites(input){
@@ -24,7 +24,8 @@ export function sanitizeJourneyFavorites(input){
   return [{id:text(row.id,80),name:text(row.name)||from.name+' → '+to.name,savedAt:row.savedAt,from,to,legs,...(alternatives.length?{alternatives}:{})}];
  });
 }
-const endpointKey=f=>JSON.stringify([f.from,f.to]);
+// Display context must not split an existing physical endpoint into duplicate favourites.
+const endpointKey=f=>JSON.stringify([f.from,f.to].map(({detail,...point})=>point));
 const paths=f=>[f,...(f.alternatives||[])];
 const sharesPath=(a,b)=>endpointKey(a)===endpointKey(b)&&paths(a).some(x=>paths(b).some(y=>journeyPathKey(x)===journeyPathKey(y)));
 function combined(base,others){const choices=journeyFamily(others.flatMap(paths),base,{limit:17});if(choices.length>16)throw Error('Höchstens 16 unterschiedliche Wege pro Route.');return {...base,...(choices.length>1?{alternatives:choices.slice(1).map(row=>({legs:row.legs}))}:{})};}

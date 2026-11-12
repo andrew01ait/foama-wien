@@ -44,7 +44,7 @@ test('station detail keeps lift and planned information in a neutral disclosure 
  for(const id of ['lift','planned-lift','future-service'])assert.match(onlyInformation,new RegExp('<article>'+id+'</article>'));
  assert.doesNotMatch(onlyInformation,/ open>/);
  const mixed=render(notices);assert.equal((mixed.match(/<details /g)||[]).length,2);
- assert.match(mixed,/⚠ Betriebsstörung: 46: Unterbrechung/);assert.match(mixed,/aria-label="Betroffene Linien">46</);
+ assert.match(mixed,/warning-title">Warnmeldungen/);assert.match(mixed,/aria-label="Betroffene Linien">46</);
  assert.doesNotMatch(mixed,/aria-label="Betroffene Linien">[^<]*49/);
 });
 
@@ -75,7 +75,7 @@ test('warning panel retains an opened disclosure on refresh and fully disappears
  const ui={panel:{hidden:true},count:{textContent:''},preview:{textContent:''},list:{innerHTML:''},details:{open:false}};
  const warnings=warningsForTargets(cache,[{stop:station,routes:['46']}],{now});
  const renderNotice=n=>'<article>'+n.title+'</article>';
- updateWarningPanel(ui,warnings,renderNotice);assert.equal(ui.panel.hidden,false);assert.equal(ui.count.textContent,'1');assert.equal(ui.preview.textContent,'46: Umleitung');
+ updateWarningPanel(ui,warnings,renderNotice);assert.equal(ui.panel.hidden,false);assert.equal(ui.count.textContent,'1');assert.equal(ui.preview.textContent,'Umleitung');
  ui.details.open=true;updateWarningPanel(ui,warnings,renderNotice);assert.equal(ui.details.open,true);
  updateWarningPanel(ui,[],renderNotice);assert.equal(ui.panel.hidden,true);assert.equal(ui.list.innerHTML,'');assert.equal(ui.details.open,false);
 });
