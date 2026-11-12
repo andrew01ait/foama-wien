@@ -1,6 +1,6 @@
 # Aktueller Projektstand
 
-Stand: 11. November 2026. **PWA 0.11.13, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 12. November 2026. **PWA 0.11.16, Wear 0.7.4 / Code 26.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
 
 ## Was funktioniert?
 
@@ -17,7 +17,7 @@ Stand: 11. November 2026. **PWA 0.11.13, Wear 0.7.4 / Code 26.** Verbindlich sin
 | Fahrzeugschätzung | Kompakter Start: Fortschrittsplatzhalter wechselt automatisch zu darstellbaren Positionen und Haltefolge;  [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Linien, 617 eindeutig zugeordnete Varianten, Karte/Schema sowie horizontale Ausschnitte in Stations- und A-nach-B-Einstiegsdetails; Prognoseschätzung, keine GPS-Positionen |
 | Städtebild | Proportionale Collage Wien/Graz/Linz/Salzburg mit Bahn, Tram und Obus; Salzburg-Einschränkung im FAQ statt separatem Banner |
 | Öffentliche Hilfe | [Städte & Funktionen](https://foama-wien.endruuu.chatgpt.site/staedte.html), mit Verfügbarkeitssymbolen und aufklappbaren FAQ; verlinkt in App-Einstellungen, Footer und Uhr-Webseite |
-| Störungen | Verbindungsdetails zeigen relevante Hinweise direkt vor der nächsten Abfahrt; Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
+| Störungen | Verbindungsdetails und A-nach-B-Stationen zeigen relevante Hinweise vor den Abfahrten; gewählte Reisen vor den Etappen; Wiener Daten; PWA Web Push nach Opt-in, keine Aufzug-/Fahrtreppen-Pushs; keine regionalen Störungsfeeds und kein aktiver nativer Push |
 | Veröffentlichung | Öffentliches GitHub, Source-ZIP und Site getrennt abgleichen; Originalsignatur, Paket und lokale Daten erhalten |
 
 ## Fahrplanstand und Aktualität
@@ -44,3 +44,7 @@ Ab 0.11.11 teilen alle interaktiven Karten dieselbe blaue Standortanzeige samt G
 - Regionale Störungsfeeds und unabhängige regionale Offlinepakete gesondert anbinden; nötige MVO-Registrierung/Lizenzannahme erfolgt nicht automatisch.
 
 Neue Arbeiten starten über die [Dokumentationsübersicht](docs/README.md).
+
+0.11.15 behebt den GPS-abhängigen Kartenstart und die Alter-/Fehlerbehandlung des Störungscaches. Die Fahrzeuganalyse bestätigt 18 erfolgreiche begrenzte Monitorproben, aber doppelte Quellenstände und häufige Korrekturpausen. Die abgeleiteten Verbesserungen sind in 0.11.16 umgesetzt; Ergebnisse und Grenzen: [Befunde und Prioritäten](docs/vehicle-audit-20261112.md).
+
+0.11.16: alle aktivierten Linien auf Stationsmarkern, sofortige Fußwegkarte, Quellencache-Planung, atomare Tab-Sperre, Requestvereinigung, Fehler 316, ETA-Kontinuität und begrenzte Randprojektion. Zwei unabhängige Quellenstände bleiben nötig. Physische Android-/Stationsbeobachtung und global verteilte Koordination bleiben gesondert.

@@ -1,5 +1,5 @@
 /* AES-GCM for short-lived, end-to-end-encrypted favourites transfer. Key stays in fragment. */
-import {transferableJourneys,mergeJourneyFavorites} from './journey-favorites.mjs?v=0.11.13';
+import {transferableJourneys,mergeJourneyFavorites} from './journey-favorites.mjs?v=0.11.16';
 const enc=new TextEncoder(), dec=new TextDecoder();
 export function b64urlEncode(bytes){let bin='';for(const b of bytes)bin+=String.fromCharCode(b);return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
 export function b64urlDecode(s){if(!/^[A-Za-z0-9_-]+$/.test(s))throw Error('Ungültiger QR-Schlüssel');const str=atob(s.replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(str,c=>c.charCodeAt(0));}

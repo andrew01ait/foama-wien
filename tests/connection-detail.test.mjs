@@ -1,3 +1,5 @@
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from '../pwa/src/monitor-timing.mjs';
+const tick=()=>new Promise(setImmediate);
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -77,25 +79,26 @@ function refreshHarness(){
  });
  const refresh=app.slice(app.indexOf('async function refreshDepartures('),app.indexOf('async function walkingMatrix('));
  const cancel=app.slice(app.indexOf('function cancelMonitor('),app.indexOf('function showConnection('));
+ ctx.monitorAllowedAt=(ids,options)=>monitorAllowedAt(ids,{...options,now:ctx.Date.now(),storage:ctx.localStorage});ctx.claimMonitorAttempt=(ids,options)=>claimMonitorAttempt(ids,{...options,now:()=>ctx.Date.now(),storage:ctx.localStorage,locks:null});ctx.recordMonitorSource=(raw,ids)=>recordMonitorSource(raw,ids,{now:ctx.Date.now(),storage:ctx.localStorage});
  vm.runInContext(cancel+refresh,ctx);
  return {state,document,calls,timers,refresh:ctx.refreshDepartures,cancel:ctx.cancelMonitor,advance(ms){clock+=ms;},runTimer(){const [id,timer]=[...timers][0]||[];if(timer){timers.delete(id);timer.fn();}}};
 }
 test('actual app polling focuses on the connection platforms and preserves other cached station data',async()=>{
- const h=refreshHarness();h.state.departures=[departure({id:'other',rbl:'99'})];const pending=h.refresh();
+ const h=refreshHarness();h.state.departures=[departure({id:'other',rbl:'99'})];const pending=h.refresh();await tick();await tick();
  assert.deepEqual(Array.from(h.calls[0].ids),['2']);assert.equal(h.calls[0].stops[0].id,stop.id);
  h.calls[0].resolve([departure()]);await pending;
  assert.equal(h.state.departures.length,2);assert.equal(h.state.apiFailures,0);
  await h.refresh(true);assert.equal(h.calls.length,1);assert.equal(h.timers.size,1);assert.ok([...h.timers.values()][0].ms>=30000);
 });
 test('the open vehicle strip joins the existing connection request and closing it removes neighbouring RBLs',async()=>{
- const h=refreshHarness();h.state.vehicleStrip={ids:()=>['1','2','3','4','5','6','7','8']};let pending=h.refresh();assert.deepEqual(Array.from(h.calls[0].ids),['2','1','3','4','5','6','7','8']);h.calls[0].resolve([departure()]);await pending;assert.equal(h.calls.length,1);
- h.state.vehicleStrip.ids=()=>[];h.advance(30100);pending=h.refresh();assert.deepEqual(Array.from(h.calls[1].ids),['2']);h.calls[1].resolve([departure()]);await pending;
+ const h=refreshHarness();h.state.vehicleStrip={ids:()=>['1','2','3','4','5','6','7','8']};let pending=h.refresh();await tick();await tick();assert.deepEqual(Array.from(h.calls[0].ids),['2','1','3','4','5','6','7','8']);h.calls[0].resolve([departure()]);await pending;assert.equal(h.calls.length,1);
+ h.state.vehicleStrip.ids=()=>[];h.advance(30100);pending=h.refresh();await tick();assert.deepEqual(Array.from(h.calls[1].ids),['2']);h.calls[1].resolve([departure()]);await pending;
 });
 test('station departures keep priority and the expanded strip never exceeds the shared 24-RBL ceiling',async()=>{
- const h=refreshHarness();h.state.focusedConnection.ids=Array.from({length:20},(_,i)=>String(i+1));h.state.vehicleStrip={ids:()=>Array.from({length:8},(_,i)=>String(i+21))};const pending=h.refresh();assert.equal(h.calls[0].ids.length,24);assert.deepEqual(Array.from(h.calls[0].ids.slice(0,20)),h.state.focusedConnection.ids);h.calls[0].resolve([]);await pending;
+ const h=refreshHarness();h.state.focusedConnection.ids=Array.from({length:20},(_,i)=>String(i+1));h.state.vehicleStrip={ids:()=>Array.from({length:8},(_,i)=>String(i+21))};const pending=h.refresh();await tick();await tick();assert.equal(h.calls[0].ids.length,24);assert.deepEqual(Array.from(h.calls[0].ids.slice(0,20)),h.state.focusedConnection.ids);h.calls[0].resolve([]);await pending;
 });
 test('actual app manual refresh and repeated requests preserve the global 30-second wait and backoff',async()=>{
- const h=refreshHarness();const pending=h.refresh();h.calls[0].reject(Object.assign(Error('429'),{status:429}));await pending;
+ const h=refreshHarness();const pending=h.refresh();await tick();await tick();h.calls[0].reject(Object.assign(Error('429'),{status:429}));await pending;
  assert.equal(h.state.apiFailures,1);assert.equal(h.state.retryAt,now+60000);
  await h.refresh(true);await h.refresh(true);assert.equal(h.calls.length,1);assert.equal(h.timers.size,1);assert.ok([...h.timers.values()][0].ms>=60000);
 });
@@ -103,14 +106,14 @@ test('actual app skips polling in the background and while another dialog covers
  const h=refreshHarness();h.document.hidden=true;await h.refresh();h.document.hidden=false;h.document.querySelector=()=>({open:true});await h.refresh();assert.equal(h.calls.length,0);
 });
 test('changing view cancels an in-flight broad request, ignores late data and queues the new target without bypassing the interval',async()=>{
- const h=refreshHarness();h.state.focusedConnection=null;const pending=h.refresh();assert.deepEqual(h.calls[0].ids,['99']);
+ const h=refreshHarness();h.state.focusedConnection=null;const pending=h.refresh();await tick();await tick();assert.deepEqual(h.calls[0].ids,['99']);
  h.cancel();h.state.focusedConnection={...target,ids:['2']};await h.refresh();assert.equal(h.calls[0].signal.aborted,true);
  h.calls[0].resolve([departure({rbl:'99'})]);await pending;await new Promise(resolve=>setImmediate(resolve));
  assert.equal(h.state.departures.length,0);assert.equal(h.state.apiFailures,0);assert.equal(h.calls.length,1);assert.equal(h.timers.size,1);
- h.advance(30100);h.runTimer();assert.deepEqual(Array.from(h.calls[1].ids),['2']);h.calls[1].resolve([departure()]);await new Promise(resolve=>setImmediate(resolve));assert.equal(h.state.departures[0].rbl,'2');
+ h.advance(30100);h.runTimer();await tick();assert.deepEqual(Array.from(h.calls[1].ids),['2']);h.calls[1].resolve([departure()]);await new Promise(resolve=>setImmediate(resolve));assert.equal(h.state.departures[0].rbl,'2');
 });
 test('background cancellation does not turn into a network error or a retry',async()=>{
- const h=refreshHarness(),pending=h.refresh();h.document.hidden=true;h.cancel();h.calls[0].reject(new DOMException('cancelled','AbortError'));await pending;
+ const h=refreshHarness(),pending=h.refresh();await tick();await tick();h.document.hidden=true;h.cancel();h.calls[0].reject(new DOMException('cancelled','AbortError'));await pending;
  assert.equal(h.state.apiFailures,0);assert.equal(h.state.fetchError,'');assert.equal(h.timers.size,0);assert.equal(h.state.fetchLock,false);
 });
 test('opening and closing the real connection page retains overview scroll, selection and favorite values',()=>{

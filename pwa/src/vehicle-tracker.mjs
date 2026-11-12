@@ -1,4 +1,4 @@
-import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.13';
+import {serviceDayStart,timetableDate} from './timetable.mjs?v=0.11.16';
 
 export const VEHICLE_FRESH_MS=60_000,VEHICLE_EXPIRE_MS=90_000;
 export const PILOT_SCHEDULE_MATCH_MS=60_000;
@@ -40,7 +40,7 @@ export function pilotSchedules(direction,manifest,at,{profiles=false}={}){
   out.push({key:day+'|'+direction.id+'|'+t.ref,ref:t.ref,day,towards:t.towards||direction.towards,times,...r});
  }}return out;
 }
-export function normalizePilotSnapshot(raw,direction,now=Date.now(),requestedIds=direction.stops.map(s=>s.rbl).filter(Boolean)){
+export function normalizePilotSnapshot(raw,direction,now=Date.now(),requestedIds=direction.stops.map(s=>s.rbl).filter(Boolean),desiredIds=requestedIds){
  const source=time(raw?.foamaMonitorAt),server=time(raw?.message?.serverTime),at=Math.min(source,server);
  if(!Number.isFinite(at)||Math.max(source,server)>now+30_000||now-at>VEHICLE_FRESH_MS||!Array.isArray(raw?.data?.monitors))throw Error('Live-Daten fehlen oder sind zu alt.');
  if(Number(raw.message?.messageCode||0)>1)throw Error('Die Quelle meldet einen Fehler.');
@@ -56,8 +56,8 @@ export function normalizePilotSnapshot(raw,direction,now=Date.now(),requestedIds
    }
   }
  }
- const expected=requested.size;
- return {at,rows,coverage:[...coverage],expected,complete:coverage.size===expected};
+ const expected=requested.size,budgetLimited=[...new Set(desiredIds)].filter(id=>!requested.has(id)).length;
+ return {at,rows,coverage:[...coverage],expected,budgetLimited,complete:expected>0&&coverage.size===expected};
 }
 function consistent(anchors,schedule){
  const entries=[...anchors].sort((a,b)=>a[0]-b[0]),latest=Math.max(...entries.map(([,v])=>v.at));if(entries.filter(([,v])=>v.onStop&&v.at===latest).length>1)return false;
@@ -75,6 +75,14 @@ export function vehiclePosition(track,now){
   if(arrival-start<Math.max(15_000,expected*.25)||arrival-start>expected*3+60_000)continue;
   if(at>=start&&at<=arrival){const fraction=(at-start)/(arrival-start);return {progress:i+(j-i)*fraction,from:i,to:j,fraction,station:null,next:j,stale,basis:'interpolated'};}
   if(at>=arrival&&at<=b.actual)return {progress:j,station:j,next:j,stale,basis:'scheduled-dwell'};
+ }
+ // An excerpt edge may lack the preceding board. Estimate only its adjacent
+ // served segment from two fresh downstream anchors of a confirmed identity.
+ const fresh=served.filter(i=>anchors.has(i)&&at-anchors.get(i).at<=VEHICLE_FRESH_MS);
+ if(fresh.length>=2){const j=fresh[0],k=served.indexOf(j),i=served[k-1],b=anchors.get(j);
+  if(i!=null&&!anchors.has(i)&&!b.onStop){const arrival=b.actual-(times[j][1]-times[j][0]),duration=times[j][0]-times[i][1],start=arrival-duration;
+   if(duration>=15000&&at>=start&&at<=arrival){const fraction=(at-start)/duration;return {progress:i+(j-i)*fraction,from:i,to:j,fraction,station:null,next:j,stale,basis:'approach-estimate',uncertain:true};}
+  }
  }
  // One missing next-stop forecast can use a distinctly marked schedule projection.
  for(let k=served.length-2;k>=0;k--){
@@ -116,7 +124,21 @@ function stationChainBundles(direction,snapshot,schedules,tracks){
  const bundles=new Map();
  for(const c of candidates){if(c.matches.length>1||c.matches.length===1&&claimed.get(c.matches[0])!==1||!c.matches.length&&c.weak.length)continue;
   const key=c.matches[0]||'live|'+[...c.keys].sort().join(';'),schedule={...c.schedule,key};const options=new Map();for(const [index,row] of c.anchors){row.candidates=[key];options.set(index,[row]);}bundles.set(key,{schedule,options});
- }return bundles;
+ }
+ // Two exact shared keys can continue an established surface identity at an
+ // excerpt edge. They still cannot create a new surface identity.
+ const claimedRows=new Set([...bundles.values()].flatMap(b=>[...b.options.values()].flat().map(r=>r.key)));
+ for(const [key,t] of tracks){
+  if(bundles.has(key)||t.retired||snapshot.at-t.lastSeen>VEHICLE_EXPIRE_MS)continue;
+  const previous=new Set([...t.anchors.values()].map(r=>r.key)),anchors=new Map();
+  for(const row of rows){if(!previous.has(row.key)||ambiguousKeys.has(row.key)||claimedRows.has(row.key)||rows.filter(r=>r.key===row.key).length!==1)continue;
+   if([...tracks.values()].some(other=>other!==t&&snapshot.at-other.lastSeen<=VEHICLE_EXPIRE_MS&&[...other.anchors.values()].some(r=>r.key===row.key)))continue;
+   anchors.set(row.index,row);
+  }
+  if(anchors.size<2||!consistent(anchors,t.schedule))continue;
+  const options=new Map();for(const [index,row] of anchors){row.candidates=[key];options.set(index,[row]);claimedRows.add(row.key);}bundles.set(key,{schedule:t.schedule,options});
+ }
+ return bundles;
 }
 export function createVehicleTracker(direction,manifest,{prefix=(direction.route||'U6')+'-'+direction.monitorDirection}={}){
  let lastAt=0,serial=0,latest=null,problem='',partial=false;const tracks=new Map(),events=[];
@@ -135,11 +157,16 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
    let t=tracks.get(key);if(!t){if(anchors.size<(chain?3:2))continue;t={id:prefix+'-T'+String(++serial).padStart(3,'0'),schedule:b.schedule,hits:0,anchors:new Map(),lastSeen:0,lastReported:null,blocked:'',awaiting:false};tracks.set(key,t);}
    if(t.retired&&anchors.size<(chain?3:2))continue;
    if(!anchors.size){t.awaitingReason='Mehrdeutige Stationsmeldung';continue;}
-   const before=t.awaiting?t.lastPosition:vehiclePosition(t,snapshot.at);if(!t.awaiting)remember(t,before,Math.min(snapshot.at,t.lastSeen+VEHICLE_FRESH_MS));
+   const before=t.awaiting||t.correction?t.lastPosition:vehiclePosition(t,snapshot.at);if(!t.awaiting&&!t.correction)remember(t,before,Math.min(snapshot.at,t.lastSeen+VEHICLE_FRESH_MS));
    if(!consistent(anchors,b.schedule)){t.blocked='Widersprüchliche Stationsprognosen';t.hits=0;t.awaitingReason=t.blocked;continue;}
+   const shared=[...anchors].filter(([i,o])=>t.anchors.get(i)?.key===o.key).length;
    const nextAnchors=new Map([...t.anchors].filter(([i,o])=>snapshot.at-o.at<300_000&&b.schedule.times[i]));for(const [i,o] of anchors)nextAnchors.set(i,o);
    t.hits=snapshot.at-t.lastSeen<=VEHICLE_EXPIRE_MS?t.hits+1:1;t.schedule=b.schedule;t.anchors=nextAnchors;t.lastSeen=snapshot.at;t.blocked='';t.awaiting=false;t.awaitingReason='';t.expiryLogged=false;t.completed=false;t.retired=false;updated.add(key);
-   const next=vehiclePosition(t,snapshot.at);if(before&&next&&next.progress<before.progress-.15){t.hits=1;t.blocked='Prognosekorrektur · Zuordnung wird erneut geprüft';event(t,'correction',null,null,snapshot.at);}else remember(t,next,snapshot.at);
+   const next=vehiclePosition(t,snapshot.at);
+   if(before&&next&&next.progress<before.progress-.15){
+    if(shared>=2){if(!t.correction){t.correction={progress:before.progress};event(t,'correction',null,null,snapshot.at);}}
+    else{t.hits=1;t.blocked='Prognosekorrektur · Zuordnung wird erneut geprüft';event(t,'correction',null,null,snapshot.at);}
+   }else if(!t.correction)remember(t,next,snapshot.at);
    const reported=[...anchors].filter(([,o])=>o.onStop).map(([i])=>i);
    if(reported.length===1){const stop=reported[0];if(t.lastReported!=null&&stop<t.lastReported){t.hits=0;t.blocked='Stationsanker in falscher Reihenfolge';}else{if(t.lastReported!=null&&stop>t.lastReported)event(t,'handover',t.lastReported,stop,snapshot.at);t.lastReported=stop;}}
    if(t.hits===1&&!t.blocked)event(t,'candidate',null,null,snapshot.at);
@@ -154,9 +181,10 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
    const expired=now-t.lastSeen>VEHICLE_EXPIRE_MS;
    if(expired&&t.hadPosition&&!t.expiryLogged){event(t,'expired',null,null,now);t.expiryLogged=true;}
    let position=!problem&&t.lastSeen===lastAt&&!expired?vehiclePosition(t,now):null;
+   if(t.correction){if(position&&position.progress>=t.correction.progress-.01){t.correction=null;}else position=null;}
    if(position&&!position.stale)remember(t,position,now);
    let status=t.blocked||(t.lastSeen!==lastAt?t.awaitingReason||'Stationsmeldung fehlt':t.hits<2?'Zuordnung wird geprüft':stale?'Daten veraltet':'Plausibel zugeordnet');
-   if((!position||position.stale||problem)&&t.lastPosition&&!expired&&now-t.lastPositionAt<=VEHICLE_EXPIRE_MS){position={...t.lastPosition,stale:true,uncertain:true,basis:'held'};status=problem||t.blocked||t.awaitingReason||'Warte auf nächste Stationsmeldung';}
+   if((!position||position.stale||problem)&&t.lastPosition&&!expired&&now-t.lastPositionAt<=VEHICLE_EXPIRE_MS){position={...t.lastPosition,stale:true,uncertain:true,basis:'held'};status=problem||t.blocked||t.awaitingReason||(t.correction?'Prognosekorrektur · letzte Lage kurz gehalten':'Warte auf nächste Stationsmeldung');}
    const holding=position?.basis==='held';if(holding&&!t.holding&&!t.awaiting)event(t,'gap',null,null,now);if(position&&!holding&&t.holding)event(t,'reacquired',null,null,now);t.holding=holding;
    if(!position&&t.hadPosition&&!expired)status=t.blocked||t.awaitingReason||'Keine aktuelle Lage aus den Stationsmeldungen ableitbar';
    if(t.lastPosition?.basis==='terminal-estimate'&&now>t.lastPosition.until&&!t.completed){t.completed=true;event(t,'end',null,Math.round(t.lastPosition.progress),now);}
@@ -166,7 +194,7 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
    if(!expired||t.hadPosition&&now-t.lastSeen<300_000)out.push({...t,position,status});
   }
   if(!stale&&!problem)for(const lost of out){
-   if(lost.position?.basis!=='held'||lost.retired)continue;
+   if(lost.position?.basis!=='held'||lost.retired||lost.correction)continue;
    const following=out.find(fresh=>{
     if(fresh.id===lost.id||fresh.lastSeen!==lastAt||fresh.hits<2||fresh.blocked||!fresh.position||fresh.position.stale||fresh.position.uncertain||fresh.position.progress<lost.position.progress+.35||!vehicleTargetMatches(direction,lost.schedule.towards,fresh.schedule.towards))return false;
     const shared=[...fresh.anchors].filter(([index,row])=>row.at===lastAt&&lost.anchors.has(index));
@@ -174,7 +202,7 @@ export function createVehicleTracker(direction,manifest,{prefix=(direction.route
    });
    if(following){const t=tracks.get(lost.schedule.key);t.retired=true;t.hits=0;t.lastPosition=null;t.lastPositionAt=0;t.holding=false;t.awaiting=true;t.awaitingReason='Letzte Lage durch bestätigte Folgefahrt überholt';event(t,'superseded',null,null,lastAt);Object.assign(lost,{retired:true,position:null,status:t.awaitingReason});}
   }
-  return {at:lastAt,problem,partial,stale,rows:latest?.rows||[],coverage:latest?.coverage||[],expected:latest?.expected??direction.stops.filter(s=>s.rbl).length,events:events.slice(),tracks:out};
+  return {at:lastAt,problem,partial,stale,rows:latest?.rows||[],coverage:latest?.coverage||[],expected:latest?.expected??direction.stops.filter(s=>s.rbl).length,budgetLimited:latest?.budgetLimited||0,events:events.slice(),tracks:out};
  }
  return {ingest,view,fail(message){problem=message;for(const t of tracks.values())if(t.hadPosition&&!t.awaiting){t.awaiting=true;t.awaitingReason=message;event(t,'gap',null,null,lastAt);}},clear(){tracks.clear();events.length=0;lastAt=0;latest=null;problem='';partial=false;}};
 }

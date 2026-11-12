@@ -1,3 +1,9 @@
+## Störungen ab PWA 0.11.14
+
+Die ausgewählte Reise zeigt aktuelle Betriebsmeldungen ihrer Wiener Linien direkt unter Start/Ziel. Varianten und importierte Favoriten verwenden nur ihre jeweils gewählten Fahrtabschnitte. Aufklappen zeigt Beschreibung, Linienbezug, Gültigkeit, Abrufstand und amtlichen Link. In Stationsdetails stehen passende Hinweise vor den Abfahrten; eine gewählte Verbindung filtert auf ihre Linie. Aufzüge/Fahrtreppen und geplante Meldungen bleiben dort eigene neutrale Informationen.
+
+Die Daten kommen aus den vorhandenen Monitorantworten, mit denselben Relevanz-/Ablaufregeln wie im Hauptmonitor. Unbekannte bzw. noch nicht abgefragte Linien werden nicht als störungsfrei ausgegeben. Keine zusätzliche Planung oder Monitorabfrage, kein GPS im Meldungs-Cache, kein neuer regionaler Feed. Späte Antworten einer verlassenen Route/Station ändern weder Abfahrten noch Meldungen. Bei fehlender Aktualisierung bleiben noch gültige Hinweise mit ihrem ursprünglichen Quellenalter sichtbar.
+
 # Aktuell: PWA 0.4.2 / Wear 0.4.2
 Live-Abnahme: Bei 29B nach Großfeldsiedlung nennt der Planer das Ziel ohne U-Bahn-Suffix, der Monitor mit „U (über Leopoldau S U)“. PWA und Uhr vergleichen vollständige Zielnamen nach Entfernen reiner S/U-Suffixe. Zusätzliche Monitor-via-Angaben sind bei allgemeinem Planerziel erlaubt; eine ausdrücklich geplante via-Angabe muss übereinstimmen. Keine Teilwort-/Gegenrichtungszuordnung. Gespeicherte Variantenidentitäten bleiben davon getrennt. Zwei Web- und ein nativer Regressionsfall sichern echte Schreibweisen, zweite Etappe und verspätete Detaildaten ab.
 

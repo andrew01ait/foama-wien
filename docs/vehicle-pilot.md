@@ -1,6 +1,6 @@
 # Fahrzeuge im Anflug · Karte, Schema und Stationsausschnitt
 
-PWA 0.11.13, 11. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
+PWA 0.11.16, 12. November 2026. [Fahrzeuge im Anflug](https://foama-wien.endruuu.chatgpt.site/fahrzeuge.html): 165 Wiener Linien, davon fünf U-Bahn-, 30 Tram- und 130 Buslinien, mit 617 eindeutig zugeordneten Streckenvarianten. Die Funktion ist regulär verfügbar. Das sind aus Stationsprognosen abgeleitete Lagen, keine GPS-Positionen und keine bestätigten physischen Fahrzeugidentitäten.
 
 ## Grafischer Datenstand
 
@@ -69,7 +69,15 @@ Konkurrierende Live-Folgen, doppelte Anker, widersprüchliche Zeiten und mehrdeu
 
 Fahrplanmanifest und Fahrzeugkatalog laden parallel. Anschließend werden das Fahrzeugpaket und die Linienkartendaten gleichzeitig geladen, weiterhin mit Kalender-, Hash-, Plattform- und Geometrieprüfung vor Nutzung. Bis zu vier geprüfte Linienpakete werden pro Seite wiederverwendet; gleichzeitige Anfragen derselben Linie teilen einen Download. Gespeicherte Pakete bleiben an dieselbe Datenversion gebunden. Fehler dürfen erneut geladen werden.
 
-Die eigenständige Fahrzeugseite plant die nächste Monitorabfrage 30 Sekunden nach **Beginn** der vorherigen Anfrage, nicht 30 Sekunden nach deren Antwort. Beispiel: Eine achtsekündige Antwort verlängert das Intervall nicht mehr auf 38 Sekunden. Die gemeinsame Sperre, Backoff, maximal 24 RBLs und Sichtbarkeitsregeln bleiben erhalten. Der Status erklärt den ersten zugeordneten Quellenstand und zählt bis zur nächsten Abfrage herunter. Zwei unterschiedliche frische Quellenstände sind weiterhin erforderlich; eine neu geöffnete Anzeige benötigt daher unter normalen Bedingungen noch mindestens ungefähr 30 Sekunden plus Quellenlaufzeit. Es werden keine alten Live-Daten gespeichert oder sofortige Fahrzeugpositionen versprochen.
+Alle Monitorpfade beachten den späteren Zeitpunkt aus Requestbeginn + 30 Sekunden, Backoff und validiertem Quellencacheablauf + 1 Sekunde Reserve. Damit liest die Bestätigung nicht erneut denselben noch gültigen Cache. Die gemeinsame Sperre, Backoff, maximal 24 RBLs und Sichtbarkeitsregeln bleiben erhalten. Der Status erklärt den ersten zugeordneten Quellenstand und zählt bis zur nächsten Abfrage herunter. Zwei unterschiedliche frische Quellenstände sind weiterhin erforderlich; eine neu geöffnete Anzeige benötigt daher unter normalen Bedingungen noch mindestens ungefähr 30 Sekunden plus Quellenlaufzeit. Es werden keine alten Live-Daten gespeichert oder sofortige Fahrzeugpositionen versprochen.
+
+## Optimierungen ab 0.11.16
+
+ETA-Rückkorrekturen mit mindestens zwei identischen Stations-/Sollschlüsseln behalten die bestätigte Hypothese. Der Marker steht mit unverjüngtem Alter begrenzt grau, bis die Prognose aufschließt. Tatsächliche On-Stop-Anker in umgekehrter Reihenfolge bleiben ein Konflikt. Neue Bus-/Tram-IDs erfordern drei Stationen; bestehende IDs dürfen mit zwei exakt gemeinsamen Schlüsseln fortbestehen, wenn kein anderer Kandidat sie beansprucht.
+
+Zwei frische Folgeanker dürfen nach zwei Quellenständen den direkt davorliegenden bedienten Abschnitt anhand des passenden Fahrzeitprofils schätzen. Die Projektion ist grau/unsicher und auf genau diesen Abschnitt begrenzt. Spätere Fahrten und bestätigte Fahrten ohne Lage werden nicht mehr als außerhalb des Ausschnitts liegende Fahrzeuge bezeichnet. Panels werten die tatsächlich abgesendete Richtungsteilmenge aus und nennen wegen des Budgets ausgelassene Halte.
+
+Identische laufende Batches und Zusatzmeldungen werden je Worker-Instanz vereinigt. Code 316 erzeugt 60 s Pause. Web Locks schützen die Zeitstempelvergabe zwischen Tabs, sonst bleibt localStorage-Fallback. Unterschiedlich überlappende Batches/Instanzen haben keinen globalen Koordinator. [Befunde und Vergleich](vehicle-audit-20261112.md).
 
 ## Kontinuität und Abrufbudget
 

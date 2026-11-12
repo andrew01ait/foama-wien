@@ -10,6 +10,8 @@ Der 44-px-Knopf unten rechts zentriert ausdrücklich auf den Standort. Normale F
 
 Der Monitor veröffentlicht seine bestehenden Vordergrundfixes und markiert die Standortsteuerung während seines aktivierten Controllers (einschließlich Bewegungspause) als extern verwaltet: Die Kartenschicht startet dann keinen zweiten Watch und umgeht die Bewegungshilfe nicht. Ist der Monitor-Controller inaktiv, etwa beim direkten Öffnen einer Verbindung oder bei manuellem Ausgangspunkt, darf allein die geöffnete Karte einen bereits freigegebenen Gerätefix beziehen; die manuelle Stationsauswahl bleibt erhalten. Andere Kartenseiten prüfen zunächst die bestehende Browserfreigabe. Nur `granted` darf einen gemeinsamen Watch starten. Karten allein lösen keine neue Berechtigungsfrage aus; ohne Permissions-API gibt es keinen stillen Abfrageversuch. Eine bewusste GPS-Aktion im Reiseplaner kann ihren geprüften Fix sofort an die Kartenschicht übergeben.
 
+Der Init-Hook wartet seit 0.11.15 mit whenReady auf die erste vollständig initialisierte Kartenansicht. Erst danach darf ein synchron gelieferter bestehender GPS-Fix Vektorpfade sortieren. Eine reale Leaflet-Probe mit synthetischem Fix prüft diesen Unterschied zur bisherigen reinen Adapterprüfung.
+
 Ein Watch versorgt alle geöffneten Karten derselben Seite. Unsichtbare/geschlossene Karten melden sich ab, der letzte Abnehmer beendet den Watch und den Alterstimer. Hintergrund beendet beide; verspätete Berechtigungs-/GPS-Antworten sind generationsgebunden. Unload entfernt Layer, Beobachter und Bedienknopf. Positionsupdates ändern keine Haltestellenauswahl, Fahrtrichtung, geschätzte Fahrt-ID oder Routenendpunkte. Karte und Schema behalten ihren bisherigen Tracker.
 
 ## Abnahme

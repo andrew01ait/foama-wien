@@ -55,5 +55,10 @@ export function attachMapPosition(L,map,{positionSource=source(),doc=globalThis.
 }
 const installed=new WeakSet();
 export function installMapPositions(L){
- if(L?.Map?.addInitHook&&!installed.has(L)){installed.add(L);L.Map.addInitHook(function(){attachMapPosition(L,this);});}return L;
+ if(L?.Map?.addInitHook&&!installed.has(L)){
+  installed.add(L);
+  // A cached GPS fix is delivered synchronously on subscription. Leaflet's
+  // vector paths do not exist until the initial view has finished loading.
+  L.Map.addInitHook(function(){this.whenReady(()=>attachMapPosition(L,this));});
+ }return L;
 }

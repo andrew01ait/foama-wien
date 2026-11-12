@@ -1,9 +1,9 @@
 {
-  "version": "0.11.13",
+  "version": "0.11.16",
   "wearVersionCode": 26,
   "wearApkUrl": "/apk/foama-wien-wear-0.7.4.apk",
   "wearApkSha256": "1f31df225182e95b6c46979c09b8b180f12a8df0abb44aac10ce6550dcaa833a",
-  "changelog": "Störungen deiner Verbindung stehen direkt unter Haltestelle, Linie und Richtung, vor der nächsten Abfahrt. Graue Fahrzeuge und Linienlabels bleiben in beiden schematischen Ansichten mit deckendem Hintergrund und hellem Symbol gut sichtbar.",
+  "changelog": "Stationskarten zeigen alle aktivierten Linien. Fußwegkarte erscheint sofort und bleibt auch bei Routingfehlern nutzbar. Fahrzeuge im Anflug nutzen frische Quellenstände besser, behalten ihre Zuordnung bei ETA-Korrekturen und erklären fehlende Positionen genauer.",
   "wearVersion": "0.7.4",
   "wearPackage": "at.andrew.foamawien",
   "wearApkBytes": 3842666,

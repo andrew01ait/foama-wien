@@ -54,3 +54,15 @@ test('closing a map unsubscribes and removes its location layers, and unload rem
 test('all Leaflet map instances receive the location hook exactly once',()=>{
  let hooks=0;const L={Map:{addInitHook(){hooks++;}}};assert.equal(installMapPositions(L),L);installMapPositions(L);assert.equal(hooks,1);assert.equal(installMapPositions({}).Map,undefined);
 });
+
+test('the installed overlay waits for Leaflet to finish loading its first view',()=>{
+ let hook,ready,reads=0;
+ const L={Map:{addInitHook(callback){hook=callback;}}};
+ installMapPositions(L);
+ const map={whenReady(callback){ready=callback;},getContainer(){reads++;throw Error('overlay attached');}};
+ hook.call(map);
+ assert.equal(reads,0,'a synchronous cached GPS fix must not touch uninitialized vector paths');
+ assert.equal(typeof ready,'function');
+ assert.throws(()=>ready(),/overlay attached/);
+ assert.equal(reads,1,'overlay starts only after the first view is ready');
+});

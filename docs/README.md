@@ -1,11 +1,12 @@
 # Dokumentation
 
-Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 11. November 2026, PWA 0.11.13 / Wear 0.7.4.
+Diese Übersicht gilt für interne Quellen und das öffentliche [GitHub-Repository](https://github.com/andrew01ait/foama-wien). Stand: 12. November 2026, PWA 0.11.15 / Wear 0.7.4.
 
 | Frage | Maßgebliche Anleitung |
 | --- | --- |
 | Wo finden neue Nutzer einen Einstieg? | [Willkommen](https://foama-wien.endruuu.chatgpt.site/willkommen.html), [Seitenaufbau und Installation](landing-page.md) |
 | Wie sehe ich Tagesfahrpläne und den Datenstand? | [Linienfahrpläne](https://foama-wien.endruuu.chatgpt.site/fahrplan.html), [Import und Aktualitätsprüfung](timetable-fallback.md), [PDF-Download](timetable-pdf.md) |
+| Warum erscheinen Fahrzeuge verzögert oder verschwinden? | [Untersuchung vom 12.11.2026](vehicle-audit-20261112.md) |
 | Wie sehe ich geschätzte Fahrzeuge und horizontale Stationsausschnitte? | [Wiener Fahrzeugschätzung](vehicle-pilot.md) |
 | Wo erscheint mein aktueller Standort? | [Gemeinsame Kartenposition](map-position.md) |
 | Wie zeigt die Karte Linien und was folgt für Fahrzeugschätzungen? | [Geografische Linienkarte und B-Konzept](line-maps.md) |

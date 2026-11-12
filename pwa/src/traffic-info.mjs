@@ -1,4 +1,4 @@
-import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.11.13';
+import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.11.16';
 
 export const TRAFFIC_CACHE_MS=15*60_000;
 const list=value=>[...new Set((Array.isArray(value)?value:String(value??'').split(',')).map(x=>String(x).trim()).filter(Boolean))];
@@ -94,6 +94,11 @@ export function parseTrafficInfos(raw,now=Date.now()){
 }
 export function updateTrafficCache(previous={},raw,requestedIds,now=Date.now()){
  const parsed=parseTrafficInfos(raw,now),resolved=new Set(parsed.filter(n=>n.resolved).flatMap(n=>[n.id,n.parent]));
+ const timestamp=value=>{const at=Date.parse(value);return Number.isFinite(at)&&at<=now+30_000?Math.min(now,at):null;};
+ const monitorAt=timestamp(raw?.foamaMonitorAt)||timestamp(raw?.message?.serverTime)||now;
+ const feedAt=timestamp(raw?.foamaTraffic?.checkedAt);
+ const incomplete=!!raw?.foamaTraffic&&(raw.foamaTraffic.status!=='available'||feedAt===null);
+ const checkedAt=Math.min(monitorAt,raw?.foamaTraffic?.status==='available'&&feedAt!==null?feedAt:monitorAt);
  const records={};
  for(const [id,record] of Object.entries(previous||{}))if(Number.isFinite(record?.checkedAt)&&now-record.checkedAt<TRAFFIC_CACHE_MS){
   records[id]={checkedAt:record.checkedAt,notices:(record.notices||[]).filter(n=>!resolved.has(n.id)&&!resolved.has(n.parent)&&(!n.end||Date.parse(n.end)>=now))};
@@ -101,10 +106,17 @@ export function updateTrafficCache(previous={},raw,requestedIds,now=Date.now()){
  const requested=new Set(requestedIds.map(String));
  for(const monitor of raw?.data?.monitors||[]){
   const id=String(monitor.locationStop?.properties?.attributes?.rbl??'');if(!requested.has(id))continue;
+  if(now-checkedAt>=TRAFFIC_CACHE_MS)continue;
   const lines=new Set((monitor.lines||[]).map(line=>String(line.name)));
   const notices=dedupeTrafficInfos(parsed.filter(n=>!n.resolved&&!n.expired&&appliesToStop(n,id,lines))
    .map(n=>({...n,scope:n.boundStops.includes(id)||n.stops.includes(id)?'stop':'line'}))).slice(0,20);
-  records[id]={checkedAt:now,notices};
+  // An unavailable supplementary feed is a partial response. It cannot clear
+  // existing line alerts or renew their source age merely by being received.
+  const old=records[id];
+  records[id]=incomplete&&old?{
+   checkedAt:Math.min(old.checkedAt,checkedAt),
+   notices:dedupeTrafficInfos([...new Map([...old.notices,...notices].map(n=>[n.id,n])).values()]).slice(0,20)
+  }:{checkedAt,notices};
  }
  return Object.fromEntries(Object.entries(records).sort((a,b)=>b[1].checkedAt-a[1].checkedAt).slice(0,128));
 }

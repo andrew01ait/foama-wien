@@ -1,3 +1,6 @@
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from '../pwa/src/monitor-timing.mjs';
+const tick=()=>new Promise(setImmediate);
+import {updateTrafficCache} from '../pwa/src/traffic-info.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFileSync} from 'node:fs';
 import {focusedJourneyBoardings,journeyMonitorIds} from '../pwa/src/journey-client.mjs';
 import {journeyStationMarkup} from '../pwa/src/journey-station.mjs';
@@ -6,15 +9,16 @@ const source=readFileSync(new URL('../pwa/src/journey-page.mjs',import.meta.url)
 function vehicleMonitorHarness(){
  let now=100000,release,ingested=0;const calls=[],timers=new Map();let serial=0;const station={id:'wl:s',provider:'wl',rbl:['2'],platforms:[{id:'2',modes:['bus']}]};
  const state={station,stationConnection:{route:'48A',mode:'bus',towards:'Klinik Penzing'},selected:null,stops:[station],departures:[],monitor:null,monitorRevision:0,lastAttempt:0,retryAt:0,stationCycle:0,vehicleStrip:{ids:()=>Array.from({length:28},(_,i)=>String(i+1)),ingest(){ingested++;},fail(){}}};
- const ctx=vm.createContext({state,document:{hidden:false},Date:class extends Date{static now(){return now;}},loadPlanned(){},loadRegional(){},journeyMonitorIds,selectStopIds:()=>['2'],localStorage:{getItem:()=>null,setItem(){}},AbortController,URLSearchParams,retainDepartures:()=>[],parseWlMonitors:()=>[],renderCurrent(){},setTimeout(fn,ms){const id=++serial;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),fetch(url,opts){calls.push({url,opts});return new Promise(resolve=>release=resolve);}});
+ const ctx=vm.createContext({state,document:{hidden:false},Date:class extends Date{static now(){return now;}},loadPlanned(){},loadRegional(){},journeyMonitorIds,selectStopIds:()=>['2'],localStorage:{getItem:()=>null,setItem(){}},AbortController,URLSearchParams,retainDepartures:()=>[],parseWlMonitors:()=>[],updateTrafficCache,renderCurrent(){},setTimeout(fn,ms){const id=++serial;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),fetch(url,opts){calls.push({url,opts});return new Promise(resolve=>release=resolve);}});
+ ctx.monitorAllowedAt=(ids,options)=>monitorAllowedAt(ids,{...options,now:ctx.Date.now(),storage:ctx.localStorage});ctx.claimMonitorAttempt=(ids,options)=>claimMonitorAttempt(ids,{...options,now:()=>ctx.Date.now(),storage:ctx.localStorage,locks:null});ctx.recordMonitorSource=(raw,ids)=>recordMonitorSource(raw,ids,{now:ctx.Date.now(),storage:ctx.localStorage});
  vm.runInContext(source.slice(source.indexOf('async function monitor('),source.indexOf('function resumeMonitor(')),ctx);return {state,calls,timers,monitor:ctx.monitor,release(){release(new Response(JSON.stringify({data:{monitors:[]}})));},get ingested(){return ingested;},advance(ms){now+=ms;}};
 }
 test('A-to-B station vehicles reuse one bounded boarding-monitor request and closing drops the extra scope',async()=>{
- const h=vehicleMonitorHarness();let pending=h.monitor();assert.equal(h.calls.length,1);let ids=new URL(h.calls[0].url,'https://example.test').searchParams.getAll('stopId');assert.equal(ids.length,24);assert.equal(ids[0],'2');h.release();await pending;assert.equal(h.ingested,1);await h.monitor();assert.equal(h.calls.length,1);
- h.state.vehicleStrip.ids=()=>[];h.advance(30100);pending=h.monitor();ids=new URL(h.calls[1].url,'https://example.test').searchParams.getAll('stopId');assert.deepEqual(ids,['2']);h.release();await pending;
+ const h=vehicleMonitorHarness();let pending=h.monitor();await tick();await tick();assert.equal(h.calls.length,1);let ids=new URL(h.calls[0].url,'https://example.test').searchParams.getAll('stopId');assert.equal(ids.length,24);assert.equal(ids[0],'2');h.release();await pending;assert.equal(h.ingested,1);await h.monitor();assert.equal(h.calls.length,1);
+ h.state.vehicleStrip.ids=()=>[];h.advance(30100);pending=h.monitor();await tick();ids=new URL(h.calls[1].url,'https://example.test').searchParams.getAll('stopId');assert.deepEqual(ids,['2']);h.release();await pending;
 });
 test('a late A-to-B boarding response cannot feed a vehicle strip after the station changes',async()=>{
- const h=vehicleMonitorHarness(),pending=h.monitor();h.state.monitorRevision++;h.state.monitor.abort();h.release();await pending;assert.equal(h.ingested,0);assert.equal(h.state.departures.length,0);
+ const h=vehicleMonitorHarness(),pending=h.monitor();await tick();await tick();h.state.monitorRevision++;h.state.monitor.abort();h.release();await pending;assert.equal(h.ingested,0);assert.equal(h.state.departures.length,0);
 });
 const walk={mode:'walk',from:{name:'A'},to:{name:'B'},durationSeconds:480,geometry:'selected-walk'};
 const ride=(stopId,route,towards)=>({mode:'metro',route,towards,from:{stopId,name:stopId},to:{name:'Exit'},endTime:'2099-01-01T00:00:00Z'});
@@ -54,5 +58,5 @@ test('a walking map draws exactly its selected section and does not plan or requ
 test('routine departure updates preserve expanded walking maps and update only the current time slots',()=>{
  const journey={legs:[walk,ride('wl:1','U1','A')]},state={selected:journey,station:null,favorites:[],renderedJourney:journey,renderedWalk:null,walk:null,renderedName:'Gespeicherte Route',from:{},walkMaps:new Map([[0,{map:{}}]])},slot={dataset:{liveLeg:'1'},innerHTML:'old'};let rebuilt=0,cleared=0;
  const ui=new Map(),steps={querySelectorAll:()=>[slot],set innerHTML(value){rebuilt++;}};const $=id=>{if(id==='journeySteps')return steps;if(!ui.has(id))ui.set(id,{setAttribute(){}});return ui.get(id);};
- const ctx=vm.createContext({state,$,clearWalkMaps:()=>cleared++,liveMarkup:()=>'<span>new LIVE</span>'});vm.runInContext(source.slice(source.indexOf('function showSteps('),source.indexOf('function renderCurrent(')),ctx);ctx.showSteps();assert.equal(rebuilt,0);assert.equal(cleared,0);assert.equal(state.walkMaps.size,1);assert.ok(slot.innerHTML.includes('new LIVE'));
+ const ctx=vm.createContext({state,$,clearWalkMaps:()=>cleared++,journeyTrafficNotices:()=>[],journeyNoticeMarkup:()=>'',journeyPathKey:()=>'',escape:String,badge:()=>'',liveMarkup:()=>'<span>new LIVE</span>'});vm.runInContext(source.slice(source.indexOf('function showSteps('),source.indexOf('function renderCurrent(')),ctx);ctx.showSteps();assert.equal(rebuilt,0);assert.equal(cleared,0);assert.equal(state.walkMaps.size,1);assert.ok(slot.innerHTML.includes('new LIVE'));
 });

@@ -43,3 +43,9 @@ test('real tram 46 return-direction boards confirm live estimates on the separat
  for(let i=0;i<c.snapshots.length;i++){const raw=c.snapshots[i],at=Math.max(Date.parse(raw.foamaMonitorAt),Date.parse(raw.message.serverTime)),snapshot=normalizePilotSnapshot(raw,direction,at,c.ids);assert.equal(snapshot.coverage.length,8);assert.ok(snapshot.rows.length>20);tracker.ingest(snapshot);view=tracker.view(at);if(!i)assert.equal(view.tracks.filter(t=>t.position).length,0);}
  const positioned=view.tracks.filter(t=>t.position);assert.ok(positioned.length>=2);assert.ok(positioned.every(t=>t.hits>=2&&t.schedule.inferred&&t.anchors.size>=3));assert.ok(positioned.some(t=>t.position.progress>7&&t.position.progress<8));
 });
+
+test('established surface identity continues at an excerpt edge using two exact shared anchors',()=>{
+ const s=surface(),tracker=createVehicleTracker(s.d,s.m);tracker.ingest(s.snapshot(120000));tracker.ingest(s.snapshot(150000));const first=tracker.view(s.start+150000).tracks.find(t=>t.position);assert.ok(first);
+ const edge=s.snapshot(180000);edge.rows=edge.rows.filter(r=>r.index>=3);tracker.ingest(edge);const next=tracker.view(edge.at).tracks.find(t=>t.id===first.id);assert.equal(next.lastSeen,edge.at);assert.ok(next.hits>=3);assert.equal(next.awaiting,false);
+ const conflicting=s.snapshot(210000);conflicting.rows=conflicting.rows.filter(r=>r.index>=3).map(r=>({...r,scheduled:r.scheduled+5000,key:r.key+'changed'}));tracker.ingest(conflicting);assert.equal(tracker.view(conflicting.at).tracks.find(t=>t.id===first.id).lastSeen,edge.at);
+});

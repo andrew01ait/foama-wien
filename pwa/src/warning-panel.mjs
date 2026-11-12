@@ -1,4 +1,12 @@
-import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice} from './traffic-info.mjs?v=0.11.13';
+import {trafficAtStation,dedupeTrafficInfos,noticePriorityGroups,isEquipmentNotice,isPlannedNotice,noticeLines,affectedNoticeLines} from './traffic-info.mjs?v=0.11.16';
+
+const noticeDate=iso=>iso?new Date(iso).toLocaleString('de-AT',{timeZone:'Europe/Vienna',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+export function trafficNoticeMarkup(notice,{escape,renderBadge,hasError=false}={}){
+ return `<article class="traffic-notice"><div class="notice-topline"><span>${escape(notice.label)} · ${notice.scope==='stop'?'Haltestellenhinweis':'Linienhinweis'}</span>${notice.planned?'<span>Geplant</span>':''}</div><strong>${escape(notice.title)}</strong><div class="station-badges">${noticeLines(notice).map(route=>renderBadge(route,notice.lineModes?.[route]||'bus')).join('')}</div>${notice.scope==='stop'&&notice.stationNames?.length?`<p class="notice-stations">${escape(notice.stationNames.join(' · '))}</p>`:''}${notice.description&&notice.description!==notice.title?`<p>${escape(notice.description)}</p>`:''}<p class="notice-validity">${notice.start?'Ab '+escape(noticeDate(notice.start)):''}${notice.end?' · Bis '+escape(noticeDate(notice.end)):''}</p><small>${notice.scope==='line'?'Betrifft die Linie, nicht zwingend diese Haltestelle. ':''}${notice.stale||hasError?'Letzter Stand – nicht aktuell bestätigt. ':''}Abruf ${escape(noticeDate(new Date(notice.checkedAt).toISOString()))} · Wiener Linien</small></article>`;
+}
+export function trafficNoticeBadges(notices,{renderBadge}={}){
+ return affectedNoticeLines(notices).map(line=>renderBadge(line.route,line.mode)).join('');
+}
 
 // Use the same stop/route relevance and expiry rules as the station cards.
 export function warningsForTargets(cache,targets,{now=Date.now()}={}){

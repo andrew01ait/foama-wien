@@ -1,3 +1,9 @@
+## PWA 0.11.16 · Standort und Fußweg
+
+Standort → Karte → alle aktivierten Linien pro Stationsmarker → Station → Fußweg & Navigation. Stationstitel/Fußwegaktion → sofortige Stationskarte → Gehweg nach erfolgreicher Berechnung. Schließen/Back/Hintergrund baut die Karte ab und bricht Routing ab. Erneutes Öffnen besitzt eine neue Sitzung. Routingfehler lassen Station und externe Kartenaktionen sichtbar. Manuelle Teststation ist kein GPS-Fix.
+
+Fahrzeuge → eine Richtung → gemeinsamer Monitorabruf → nächste Abfrage nach Startsperre UND Quellencacheablauf → zwei unterschiedliche Quellenstände → Position oder tatsächlicher Wartegrund. ETA-Korrekturen mit identischen Ankern halten die letzte Lage begrenzt grau; Filter-/Ansichtswechsel lösen keinen schnellen Zusatzabruf aus.
+
 ## Uhr 0.7.1 · Stadtbezogene Routen und Laden
 
 Nähe/Favoriten/A nach B bleiben als Hauptleiste erreichbar. A nach B und Favoriten → Routen zeigen dasselbe Stadtprofil. Mehr → Stadtprofil → Stadt wählen → zweimal Zurück führt zur aufrufenden Routenliste. Keine Route wird durch den Filter gelöscht; Wien wählen macht vorhandene Wien-Routen wieder sichtbar. Fällige Abfahrten starten bei Rückkehr sofort, eine laufende Sperre genau nach ihrer verbleibenden Dauer. Pause/Display aus/Einstellungen/Transfer führen zu keinen Hintergrundabfragen.
@@ -221,3 +227,7 @@ Start → Nähe/Favoriten (letzte Auswahl). Kein automatischer erster Standortdi
 Im Favoriten-Tab trennt ein direkt sichtbarer Umschalter **Routen** und **Stationen**. Die Stationsansicht trägt die Überschrift **Haltestellen & Linien**. Die ausdrücklich gewählte Ansicht bleibt lokal über Aktualisierung, Detailnavigation und App-Neustart erhalten. Ohne bisherige Auswahl erscheinen bei vorhandenen Routen zuerst Routen, sonst Stationen; beide Bereiche bleiben auch leer erreichbar. Nur Stationen der gewählten Ansicht sind Monitorziele, laufende alte Anfragen werden beim Wechsel verworfen. Gemeinsame Abrufgrenzen, lokale Favoriten und Push-Auswahl bleiben erhalten.
 
 Nach bewusst bestätigtem QR-Import und erfolgreichem Transferabschluss öffnet die Uhr direkt Favoriten: Routen bei mitübernommenen Routen, sonst Stationen. Der Transfer wird beendet, Schlüssel und Wachhalteflag werden freigegeben. Abbruch, Fehler und Ablauf bleiben im bisherigen Fehler-/Zurück-Pfad; bei fehlender Abschlussquittung bleibt die Übernahme gespeichert und die bestehende Wiederholung erreichbar. Dateiimport und Senden ans Handy behalten ihren bisherigen Rückweg. Originalpaket und Release-Key bleiben erhalten; PWA 0.6.1 korrigiert auf Nutzerwunsch die Routenbeschriftung zu **Alternativen nach …**; Alternativen und Planung selbst bleiben erhalten.
+
+## Reparaturen 0.11.15
+
+Standortkarte öffnen: zuerst Leaflet-Ansicht initialisieren, dann vorhandenen freigegebenen GPS-Fix und Genauigkeitskreis einblenden. Meldungsaktualisierung: Quellzeit bewahren; bei unvollständiger Zusatzquelle vorhandene Warnung mit ihrem alten Stand erhalten, bei vollständiger erfolgreicher Leerantwort entfernen.

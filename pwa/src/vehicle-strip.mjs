@@ -1,9 +1,10 @@
-import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.13';
-import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.13';
-import {routeColor} from './journey-geometry.mjs?v=0.11.13';
-import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.13';
-import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.13';
-import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.13';
+import {recordMonitorSource} from './monitor-timing.mjs?v=0.11.16';
+import {createVehicleReadiness} from './vehicle-readiness.mjs?v=0.11.16';
+import {vehicleSymbolMarkup} from './transport-controls.mjs?v=0.11.16';
+import {routeColor} from './journey-geometry.mjs?v=0.11.16';
+import {createVehicleTracker,normalizePilotSnapshot,vehicleTargetMatches} from './vehicle-tracker.mjs?v=0.11.16';
+import {createVehicleData,stationVehicleRange,preferredVehicleDirection,vehicleUrl,stationVehicleTracks,stationVehicleStatus,vehicleDisplayId} from './vehicle-data.mjs?v=0.11.16';
+import {createStationVehicleMap} from './vehicle-map.mjs?v=0.11.16';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const source=createVehicleData();let session=0;
 
@@ -66,5 +67,5 @@ export function createStationVehiclePanel({target,onIdsChanged=()=>{},dataSource
  element.addEventListener('toggle',()=>{if(disposed)return;if(element.open){if(packageData&&direction){onIdsChanged();syncView();resume();}else void load();}else{generation++;cancelAnimationFrame(animation);mapShown=false;mapView?.hide();onIdsChanged();}});
  select.addEventListener('change',()=>choose(select.value));schemaButton.addEventListener('click',()=>setView('schema'));mapButton.addEventListener('click',()=>setView('map'));
  const visibility=()=>{if(document.hidden){generation++;cancelAnimationFrame(animation);mapShown=false;mapView?.hide();}else if(element.open){if(packageData&&direction){syncView();resume();}else void load();}};document.addEventListener('visibilitychange',visibility);
- return {element,ids,waiting(ms){requesting=false;waitingUntil=Date.now()+ms;draw();},requesting(at=Date.now()){lastAttempt=at;requesting=true;draw();},ingest(raw){if(!ids().length||!tracker)return;try{requesting=false;waitingUntil=lastAttempt?lastAttempt+30000:0;repeated=tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),ids()))?.ignored===true;message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){requesting=false;tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
+ return {element,ids,waiting(ms){requesting=false;waitingUntil=Date.now()+ms;draw();},requesting(at=Date.now()){lastAttempt=at;requesting=true;draw();},ingest(raw,submittedIds=ids()){if(!ids().length||!tracker)return;try{requesting=false;waitingUntil=Math.max(lastAttempt?lastAttempt+30000:0,recordMonitorSource(raw,submittedIds));const submitted=new Set(submittedIds.map(String)),scope=ids().filter(id=>submitted.has(id));repeated=tracker.ingest(normalizePilotSnapshot({...raw,foamaMonitorAt:raw.foamaMonitorAt||raw.message?.serverTime},direction,Date.now(),scope,ids()))?.ignored===true;message.textContent='Stand '+new Date(tracker.view().at).toLocaleTimeString('de-AT',{timeZone:'Europe/Vienna'});draw();}catch(error){this.fail(error.message);}},fail(reason){requesting=false;tracker?.fail(reason);message.textContent=reason;draw();},dispose(){disposed=true;generation++;cancelAnimationFrame(animation);mapView?.dispose();document.removeEventListener('visibilitychange',visibility);element.remove();}};
 }

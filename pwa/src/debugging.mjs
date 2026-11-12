@@ -1,7 +1,7 @@
-import {jsonExportName} from './export-file.mjs?v=0.11.13';
-import {DEBUG_KEY,appendDebugEvent,debugReport} from './debug-core.mjs?v=0.11.13';
+import {jsonExportName} from './export-file.mjs?v=0.11.16';
+import {DEBUG_KEY,appendDebugEvent,debugReport} from './debug-core.mjs?v=0.11.16';
 
-export function createDebugging({doc=document,storage=null,nav=navigator,win=window,version=()=> '0.11.13',schedule=setTimeout}={}){
+export function createDebugging({doc=document,storage=null,nav=navigator,win=window,version=()=> '0.11.16',schedule=setTimeout}={}){
  try{storage=storage||win.localStorage;}catch{}storage=storage||{getItem:()=>null,setItem(){},removeItem(){}};
  const $=id=>doc.getElementById(id);let events=[];
  try{events=JSON.parse(storage.getItem(DEBUG_KEY)||'[]');if(!Array.isArray(events))events=[];}catch{}

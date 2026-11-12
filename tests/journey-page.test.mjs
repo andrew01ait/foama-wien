@@ -1,3 +1,6 @@
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from '../pwa/src/monitor-timing.mjs';
+const tick=()=>new Promise(setImmediate);
+import {updateTrafficCache} from '../pwa/src/traffic-info.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -17,17 +20,28 @@ function harness(){
   localStorage:{getItem:key=>storage.get(key),setItem:(key,value)=>storage.set(key,value)},
   setTimeout:(fn,ms)=>{const id=++nextId;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>++nextId,clearInterval(){},
   selectStopIds:(stops,modes,limit)=>stops.flatMap(s=>s.rbl).slice(0,limit),retainDepartures:(old,rows,ids)=>retainDepartures(old,rows,ids,clock),
-  fetch:(url,options)=>new Promise(resolve=>calls.push({url,options,resolve})),parseWlMonitors,renderCurrent:()=>renders++});
+  fetch:(url,options)=>new Promise(resolve=>calls.push({url,options,resolve})),parseWlMonitors,updateTrafficCache,renderCurrent:()=>renders++});
+ ctx.monitorAllowedAt=(ids,options)=>monitorAllowedAt(ids,{...options,now:ctx.Date.now(),storage:ctx.localStorage});ctx.claimMonitorAttempt=(ids,options)=>claimMonitorAttempt(ids,{...options,now:()=>ctx.Date.now(),storage:ctx.localStorage,locks:null});ctx.recordMonitorSource=(raw,ids)=>recordMonitorSource(raw,ids,{now:ctx.Date.now(),storage:ctx.localStorage});
  vm.runInContext(monitorCode,ctx);return {state,document,calls,timers,storage,monitor:ctx.monitor,pause:ctx.pauseMonitor,advance:ms=>clock+=ms,response:()=>Response.json({data:{monitors:[{locationStop:{properties:{title:'Test station',attributes:{rbl:'1'}}},lines:[{name:'U6',type:'ptMetro',towards:'Floridsdorf',departures:{departure:[{departureTime:{timeReal:new Date(clock+240000).toISOString()}}]}}]}]}}),get renders(){return renders;}};
 }
 test('actual journey page monitor respects the shared app 30-second budget and updates only known boarding platforms',async()=>{
  const h=harness();h.storage.set('foama.wl.lastApiAttempt.v1',String(Date.parse('2026-11-08T22:00:00Z')));await h.monitor();assert.equal(h.calls.length,0);assert.ok([...h.timers.values()].some(timer=>timer.ms>=30000));
- h.pause();h.advance(30100);const pending=h.monitor();assert.match(h.calls[0].url,/stopId=1/);assert.match(h.calls[0].url,/stopId=2/);h.calls[0].resolve(h.response());await pending;assert.equal(h.state.departures.length,1);assert.equal(typeof h.state.departures[0].fetchedAt,'string');assert.equal(h.renders,1);
+ h.pause();h.advance(30100);const pending=h.monitor();await tick();await tick();assert.match(h.calls[0].url,/stopId=1/);assert.match(h.calls[0].url,/stopId=2/);h.calls[0].resolve(h.response());await pending;assert.equal(h.state.departures.length,1);assert.equal(typeof h.state.departures[0].fetchedAt,'string');assert.equal(h.renders,1);
 });
 test('actual journey page cancels on pause or navigation and ignores a late response without cache or render changes',async()=>{
  const h=harness();h.document.hidden=true;await h.monitor();assert.equal(h.calls.length,0);h.document.hidden=false;
- const pending=h.monitor();h.document.hidden=true;h.pause();assert.equal(h.calls[0].options.signal.aborted,true);h.calls[0].resolve(h.response());await pending;assert.equal(h.state.departures.length,0);assert.equal(h.renders,0);assert.equal(h.timers.size,0);
- h.document.hidden=false;h.advance(30100);const second=h.monitor();h.state.selected=null;h.pause();h.calls[1].resolve(h.response());await second;assert.equal(h.state.departures.length,0);assert.equal(h.renders,0);
+ const pending=h.monitor();await tick();await tick();h.document.hidden=true;h.pause();assert.equal(h.calls[0].options.signal.aborted,true);h.calls[0].resolve(h.response());await pending;assert.equal(h.state.departures.length,0);assert.equal(h.renders,0);assert.equal(h.timers.size,0);
+ h.document.hidden=false;h.advance(30100);const second=h.monitor();await tick();h.state.selected=null;h.pause();h.calls[1].resolve(h.response());await second;assert.equal(h.state.departures.length,0);assert.equal(h.renders,0);
+});
+test('the existing A-to-B monitor retains disruptions without extra requests and ignores late notice responses',async()=>{
+ const h=harness(),raw=await h.response().json();raw.data.trafficInfoCategories=[{id:1,name:'stoerunglang'}];raw.data.trafficInfos=[{name:'signal',title:'U6: Stellwerkstörung',description:'Unregelmäßige Intervalle',relatedLines:['U6'],refTrafficInfoCategoryId:1}];
+ const pending=h.monitor();await tick();await tick();h.calls[0].resolve(Response.json(raw));await pending;assert.equal(h.state.trafficCache['1'].notices[0].id,'signal');assert.equal(h.calls.length,1);await h.monitor();assert.equal(h.calls.length,1,'notices share the existing 30-second request');
+ const previous=h.state.trafficCache;h.advance(30100);const late=h.monitor();await tick();h.pause();h.calls[1].resolve(Response.json({...raw,data:{...raw.data,trafficInfos:[]}}));await late;assert.equal(h.state.trafficCache,previous,'late responses cannot clear the selected connection warnings');
+ h.advance(30100);const fresh=h.monitor();await tick();h.calls[2].resolve(Response.json({...raw,data:{...raw.data,trafficInfos:[]}}));await fresh;assert.deepEqual(h.state.trafficCache['1'].notices,[]);
+});
+test('invalid disruption data preserves the previous departure and notice caches instead of showing a false clear',async()=>{
+ const h=harness(),raw=await h.response().json(),oldTraffic={'1':{checkedAt:1,notices:[{id:'old-warning'}]}},oldDepartures=[{id:'old-departure'}];h.state.trafficCache=oldTraffic;h.state.departures=oldDepartures;
+ const pending=h.monitor();await tick();await tick();h.calls[0].resolve(Response.json({...raw,data:{...raw.data,trafficInfos:{invalid:true}}}));await pending;assert.equal(h.state.trafficCache,oldTraffic);assert.equal(h.state.departures,oldDepartures);assert.ok(h.state.error);
 });
 test('editing a route endpoint discards earlier alternatives before they can be saved under different endpoints',()=>{
  const state={from:{name:'Old start'},journeys:[{old:true}],stops:[{name:'New station'}]},input={value:'New',dataset:{chosen:'true'},setAttribute(){}};let cleared=0,rows=[];
@@ -36,8 +50,8 @@ test('editing a route endpoint discards earlier alternatives before they can be 
  ctx.localChoices('from');assert.equal(state.from,null);assert.equal(state.journeys.length,0);assert.equal(cleared,1);assert.equal(rows[0].name,'New station');assert.equal(input.dataset.chosen,undefined);
 });
 test('switching from a route to its station cancels the narrower request even while the selected route remains the same',async()=>{
- const h=harness(),selected=h.state.selected,pending=h.monitor();h.pause();h.state.station=h.state.stops[0];h.calls[0].resolve(h.response());await pending;assert.equal(h.renders,0);assert.equal(h.state.departures.length,0);assert.equal(h.state.selected,selected);
- h.advance(30100);const station=h.monitor();assert.match(h.calls[1].url,/stopId=1/);assert.match(h.calls[1].url,/stopId=2/);h.calls[1].resolve(h.response());await station;assert.equal(h.renders,1);
+ const h=harness(),selected=h.state.selected,pending=h.monitor();await tick();await tick();h.pause();h.state.station=h.state.stops[0];h.calls[0].resolve(h.response());await pending;assert.equal(h.renders,0);assert.equal(h.state.departures.length,0);assert.equal(h.state.selected,selected);
+ h.advance(30100);const station=h.monitor();await tick();assert.match(h.calls[1].url,/stopId=1/);assert.match(h.calls[1].url,/stopId=2/);h.calls[1].resolve(h.response());await station;assert.equal(h.renders,1);
 });
 test('ambiguous typed destinations never trigger GPS or routing before explicit selection',async()=>{
  const state={revision:0,from:{kind:'current'},to:null};let gps=0,plans=0,busy=false;const ctx=vm.createContext({state,document:{hidden:false},cancelSearch:()=>state.revision++,busy:value=>busy=value,status(){},lookupPlace:async()=>false,getLocation:async()=>gps++,client:{plan:async()=>plans++}});

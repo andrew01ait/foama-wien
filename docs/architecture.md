@@ -1,6 +1,6 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.11.13 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.11.16 / Wear 0.7.4. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
@@ -66,3 +66,7 @@ Fahrzeugkontinuität: Auswahl ist umschaltbar; entfernte gehaltene Marker benöt
 Fahrzeugstart ab 0.11.10: unabhängige Katalog-/Paketdownloads parallel, maximal vier geprüfte Linienpakete im Seitenspeicher und gemeinsame laufende Downloads je Linie. Monitorzyklus ab Requestbeginn, weiterhin gemeinsame 30-s-Sperre und zwei verschiedene Quellenstände. Endstationsalias für den belegten Parlament/Volkstheater-Endpunkt wird in Monitor, Fallback, Favoriten und Detailauswahl konsistent verwendet.
 
 Die gemeinsame Kartenschicht in `map-position.mjs` wird über die beiden Leaflet-Lader einmalig in alle Karten eingebunden. Der Monitor veröffentlicht ausschließlich echte GPS-Fixes aus seinem vorhandenen Controller; manuelle Auswahl ist kein Gerätefix. Andere Kartenseiten teilen einen nur bei erteilter Freigabe aktiven Vordergrund-Watch. `vehicle-readiness.mjs` berechnet rein lokal aus Trackerzustand und tatsächlichem Abrufplan die vier grafischen Stufen; es hat keinen eigenen Netzwerklauf. [Kartenposition](map-position.md).
+
+Seit 0.11.15 startet die Karten-Standortschicht nach Leaflet whenReady. Der Meldungscache verwendet Monitor-/Feed-Zeitstempel; eine unvollständige Zusatzquelle darf vorhandene Warnungen nicht löschen oder verjüngen. Diagnose und umgesetzte Fahrzeugverbesserungen: [Untersuchung 12.11.2026](vehicle-audit-20261112.md).
+
+0.11.16: monitor-timing.mjs verbindet globale Startsperre, cachebezogene Quellengrenze und kurze Web-Locks-Zeitstempelvergabe für Monitor, A nach B und Fahrzeugseite. Worker-In-Flight-Maps sind auf je 64 laufende Batches/Origins begrenzt; keine Fahrzeughistorie. ETA-Änderungen mit identischen Ankern verändern Lageunsicherheit statt Identität. walking-map.mjs besitzt Karte, Routing-AbortController und Sitzung; Rendering beginnt unabhängig vom Routing. station-map-marker.mjs zeigt alle gefilterten Linien mit maximal vier Spalten.

@@ -29,3 +29,9 @@ test('pause, source errors and request backoff replace the first-vehicle estimat
  const failure=vehicleReadiness({error:'Quelle nicht erreichbar',waitingUntil:now+60000,now});assert.equal(failure.problem,true);assert.match(failure.estimate,/60 s/);
  const pending=vehicleReadiness({state:{...base,tracks:[track()]},requesting:true,now});assert.match(pending.estimate,/gerade abgefragt/);
 });
+
+test('future journeys, missing positions and omitted boards receive distinct explanations',()=>{
+ const pending=vehicleReadiness({state:{...base,tracks:[track(2)]},range:{start:0,end:5},now});assert.match(pending.title,/Position noch offen/);assert.doesNotMatch(pending.detail,/außerhalb/);
+ const future=vehicleReadiness({state:{...base,tracks:[track(2,{schedule:{start:0,times:[[now+600000,now+600000]]}})]},range:{start:0,end:5},now});assert.match(future.title,/starten später/);assert.doesNotMatch(future.detail,/außerhalb/);
+ const budget=vehicleReadiness({state:{...base,expected:2,coverage:[0,1],budgetLimited:6},now});assert.match(budget.steps[1].detail,/2 \/ 2.*6 weitere Halte/);assert.equal(budget.steps[1].status,'active');
+});
