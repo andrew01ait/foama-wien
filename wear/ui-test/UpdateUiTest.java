@@ -34,7 +34,7 @@ public class UpdateUiTest {
     @Before public void setup(){
         RuntimeEnvironment.getApplication().getSharedPreferences("foama",0).edit().clear().commit();
         controller=Robolectric.buildActivity(MainActivity.class).create().start();app=controller.get();app.repo.nextFetchElapsed=Long.MAX_VALUE;
-        click("Mehr");click("App & Updates");controller.resume();
+        click("Einstellungen");click("App & Updates");controller.resume();
     }
     @After public void cleanup(){controller.pause().stop().destroy();if(apk!=null)apk.release.countDown();}
     private TextView find(View v,String label){if(v instanceof TextView&&((TextView)v).getText().toString().equals(label))return (TextView)v;if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++){TextView found=find(((ViewGroup)v).getChildAt(i),label);if(found!=null)return found;}return null;}

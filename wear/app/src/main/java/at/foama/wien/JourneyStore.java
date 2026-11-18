@@ -78,7 +78,7 @@ final class JourneyStore {
     }
     static List<Repo.Departure> departures(JSONObject leg,Repo repo){
         ArrayList<Repo.Departure> out=new ArrayList<>();JSONObject origin=leg.optJSONObject("from");Repo.Stop stop=origin==null?null:repo.findStop(origin.optString("stopId"));String towards=direction(leg.optString("towards"));if(stop==null||towards.isEmpty())return out;
-        for(Repo.Departure d:new ArrayList<>(repo.departures))if(d.stopKey.equals(stop.id)&&d.route.equals(leg.optString("route"))&&d.mode.equals(leg.optString("mode"))&&directionMatches(towards,d.towards)&&d.when>=System.currentTimeMillis()&&repo.fresh(d))out.add(d);out.sort(Comparator.comparingLong(d->d.when));return out;
+        for(List<Repo.Departure> group:repo.connections(stop,leg.optString("route"),"",true,leg.optString("mode")))for(Repo.Departure d:group)if(directionMatches(towards,d.towards)&&d.when>=System.currentTimeMillis()&&(d.offline||repo.fresh(d)))out.add(d);out.sort(Comparator.comparingLong(d->d.when));return out;
     }
     static String direction(String value){return value.replaceFirst("(?i)^Wien\\s+","").trim().toLowerCase(java.util.Locale.GERMAN);}
     static String[] directionParts(String value){String label=direction(value);java.util.regex.Matcher via=java.util.regex.Pattern.compile("\\s+\\((?:über|üb\\.?|via)\\s+(.+)\\)$").matcher(label);boolean hasVia=via.find();String name=(hasVia?label.substring(0,via.start()):label).replaceFirst("\\s+(?:s\\s+u|u\\s+s|s|u)$","").trim();return new String[]{name,hasVia?via.group(1):""};}

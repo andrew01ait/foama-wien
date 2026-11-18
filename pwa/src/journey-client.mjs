@@ -1,7 +1,7 @@
-import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.10.2';
-import {connectionRequestIds} from './connection-detail.mjs?v=0.10.2';
-import {journeyBoardingTargets} from './journey-planning.mjs?v=0.10.2';
-import {mergeJourneyResults} from './journey-options.mjs?v=0.10.2';
+import {CITY_PREFERENCE,cityPreference,recentDetectedCity} from './city-profiles.mjs?v=0.12.3';
+import {connectionRequestIds} from './connection-detail.mjs?v=0.12.3';
+import {journeyBoardingTargets} from './journey-planning.mjs?v=0.12.3';
+import {mergeJourneyResults} from './journey-options.mjs?v=0.12.3';
 
 export const viennaInput=(date=new Date())=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Vienna',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date).replace(' ','T');
 export function viennaTime(value){
@@ -24,11 +24,12 @@ export function createJourneyClient({fetch=globalThis.fetch,timeoutMs=23000}={})
    const raw=await response.text();if(raw.length>1000000)throw Error('Antwort zu groß. Bitte erneut versuchen.');
    const data=JSON.parse(raw);if(!response.ok)throw Error(data.error||'Verbindungssuche derzeit nicht verfügbar.');
    if(own.signal.aborted||revision!==current)throw new DOMException('Suche beendet','AbortError');
-   if(kind==='walk'?!Number.isFinite(data.walk?.durationSeconds):!Array.isArray(kind==='plan'?data.journeys:data.places))throw Error('Unvollständige Antwort des Planungsdienstes.');
+   const valid=kind==='map-link'?['point','query'].includes(data.destination?.kind):kind==='walk'?Number.isFinite(data.walk?.durationSeconds):Array.isArray(kind==='plan'?data.journeys:data.places);
+   if(!valid)throw Error('Unvollständige Antwort des Planungsdienstes.');
    cache.set(key,{data,at:Date.now()});while(cache.size>4)cache.delete(cache.keys().next().value);return data;
   }finally{clearTimeout(timer);if(controller===own)controller=null;}
  }
- return {abort,plan:body=>request('plan',body),places:(text,city)=>request('places',{text,city:city||(()=>{try{const manual=cityPreference(JSON.parse(localStorage.getItem(CITY_PREFERENCE)));return manual==='auto'?recentDetectedCity():manual;}catch{return 'wien';}})()}),walk:body=>request('walk',body)};
+ return {abort,mapLink:url=>request('map-link',{url}),pinAddress:({lat,lon})=>request('pin-address',{lat,lon}),plan:body=>request('plan',body),places:(text,city)=>request('places',{text,city:city||(()=>{try{const manual=cityPreference(JSON.parse(localStorage.getItem(CITY_PREFERENCE)));return manual==='auto'?recentDetectedCity():manual;}catch{return 'wien';}})()}),walk:body=>request('walk',body)};
 }
 export function createJourneyComparisonClient(options={}){
  const timetable=createJourneyClient(options),transfers=createJourneyClient(options);let revision=0;
@@ -51,6 +52,13 @@ export function upcomingBoardings(journey,now=Date.now()){
 export function focusedJourneyBoardings(journey,index,now=Date.now()){
  if(!journey)return [];
  return Number.isInteger(index)&&index>=0&&index<journey.legs.length?journeyBoardingTargets({...journey,legs:journey.legs.slice(index)},{limit:2}):upcomingBoardings(journey,now);
+}
+export function journeyWarningTargets(journey){
+ const targets=new Map();
+ for(const leg of journey?.legs||[]){if(leg.mode==='walk'||!leg.route)continue;
+  for(const point of [leg.from,leg.to])if(point?.stopId?.startsWith('wl:')){const key=point.stopId+'|'+leg.route;targets.set(key,{stopId:point.stopId,route:leg.route,mode:leg.mode,towards:leg.towards});}
+ }
+ return [...targets.values()];
 }
 export function journeyMonitorIds(targets,stops,departures=[]){
  const groups=targets.map(target=>connectionRequestIds(stops.find(stop=>stop.id===target.stopId),target,departures)),ids=[];

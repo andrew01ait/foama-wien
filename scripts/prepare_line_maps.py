@@ -155,6 +155,8 @@ def main():
         overview.append({'id':key,'route':line['route'],'mode':line['mode'],'file':name,'sha256':hashlib.sha256(raw).hexdigest(),'patterns':len(line['patterns']),'mapped':sum(bool(p['geometry']) for p in line['patterns'])})
     result={'format':1,'city':'wien','version':manifest['version'],'sourceSha256':manifest['sourceSha256'],'validFrom':manifest['validFrom'],'validThrough':manifest['validThrough'],'attribution':manifest['attribution'],'lines':overview}
     (args.out/'index.json').write_text(json.dumps(result,ensure_ascii=False,separators=(',',':')))
+    from prepare_station_map_points import station_points
+    (args.out.parent.parent/'station-map-points.json').write_text(json.dumps(station_points(lines.values(),manifest,known),ensure_ascii=False,separators=(',',':')))
     print(json.dumps({'lines':len(overview),'patterns':sum(r['patterns'] for r in overview),'mapped':sum(r['mapped'] for r in overview),'bytes':sum(p.stat().st_size for p in args.out.glob('*.json'))}))
 
 if __name__=='__main__':main()

@@ -39,6 +39,13 @@ test('saving a renamed place keeps its address, coordinates and identity, then r
 
 test('card actions choose physical endpoints; removal remains explicit and targets the selected place',async()=>{
  let approved=false;const h=harness({confirm:()=>approved});await h.open();await h.action({placeStart:'work'});await h.open();await h.action({placeGoal:'goal'});
- assert.deepEqual(h.choices,[{kind:'from',point:{kind:'point',name:work.address,lat:work.lat,lon:work.lon,placeId:'work'}},{kind:'to',point:{kind:'point',name:goal.address,lat:goal.lat,lon:goal.lon,placeId:'goal'}}]);assert.equal(h.writes.length,0);
+ assert.deepEqual(h.choices,[{kind:'from',point:{kind:'point',name:work.address,lat:work.lat,lon:work.lon,placeId:'work',detail:work.detail}},{kind:'to',point:{kind:'point',name:goal.address,lat:goal.lat,lon:goal.lon,placeId:'goal',detail:goal.detail}}]);assert.equal(h.writes.length,0);
  await h.open();await h.action({placeRemove:'work'});assert.deepEqual(h.stored(),[work,goal]);approved=true;await h.action({placeRemove:'work'});assert.deepEqual(h.stored(),[goal]);assert.equal(h.$('journeyPlacesCount').textContent,'1');assert.equal(h.$('journeyPlaceNew').hidden,false);
+});
+
+test('saved-place shortcuts choose start or destination directly without another address lookup',async()=>{
+ let lookups=0;const h=harness({lookup:async()=>{lookups++;return {places:[]};}});
+ assert.match(h.$('fromSavedPlaces').innerHTML,/Rathaus/);assert.match(h.$('toSavedPlaces').innerHTML,/Oper/);
+ await h.$('toSavedPlaces').emit('click',{target:{closest:selector=>selector==='button'?{dataset:{placeChoose:'to',placeId:'work'}}:null}});
+ assert.equal(h.choices.length,1);assert.equal(h.choices[0].kind,'to');assert.equal(h.choices[0].point.detail,'1010 Wien');assert.equal(lookups,0);assert.equal(h.writes.length,0);
 });

@@ -5,6 +5,8 @@ import {gzipSync} from 'node:zlib';
 import {timetableDepartures,serviceDayStart,createTimetable,mergeTimetableDepartures} from '../pwa/src/timetable.mjs';
 import {departureAtStation,lineHasCurrentDeparture} from '../pwa/src/connection-detail.mjs';
 import {journeyLineDepartures} from '../pwa/src/journey-planning.mjs';
+import {availableDeparts,DEFAULTS,favoriteMatches,directionEquivalent} from '../pwa/src/core.mjs';
+import {connectionDepartures,connectionRequestIds} from '../pwa/src/connection-detail.mjs';
 
 const now=Date.parse('2026-11-09T11:00:00Z'),stop={id:'wl:60201468',provider:'wl',rbl:['123']};
 const manifest={format:1,timezone:'Europe/Vienna',version:'test',validFrom:'2026-11-09',validThrough:'2026-11-10',services:[['2026-11-08','2026-11-09']],stations:{[stop.id]:0},shards:{0:'hash'}};
@@ -32,6 +34,25 @@ test('fresh operator data takes precedence per actual station, line and directio
  assert.equal(mergeTimetableDepartures([{...live,rbl:'999'}],planned,[stop],now).length,3);
  assert.equal(departureAtStation(stop,planned[0]),true);assert.equal(lineHasCurrentDeparture(stop,{route:'U6'},planned,{now,hasError:true}),true);
  assert.equal(journeyLineDepartures({stopId:stop.id,route:'U6',mode:'metro',towards:'Siebenhirten'},planned,[stop],{now,earliest:now}).length,1);
+});
+test('tram 46 endpoint aliases suppress duplicate timetable rows and preserve saved direction links and platform choice',()=>{
+ const station={id:'wl:60201372',provider:'wl',rbl:['1379','1392']};
+ const live={provider:'wl',rbl:'1392',route:'46',mode:'tram',towards:'Parlament, U Volkstheater',actual:new Date(now+180000).toISOString(),fetchedAt:new Date(now).toISOString(),quality:'live'};
+ const outward={...live,rbl:'1379',towards:'Joachimsthalerplatz'};
+ const planned={...live,stopId:station.id,rbl:undefined,source:'gtfs',towards:'Parlament/Volkstheater',quality:'schedule',fetchedAt:null};
+ const target={stopId:station.id,route:'46',mode:'tram',towards:planned.towards};
+ const merged=mergeTimetableDepartures([live,outward],[planned],[station],now);
+ assert.deepEqual(merged,[live,outward]);assert.equal(availableDeparts(merged,DEFAULTS,now).length,2);
+ assert.equal(availableDeparts([live,planned],DEFAULTS,now).length,1);
+ assert.equal(favoriteMatches(target,live),true);assert.deepEqual(connectionDepartures(station,target,merged,now),[live]);
+ assert.deepEqual(connectionRequestIds(station,target,merged),['1392']);
+ const stale={...live,fetchedAt:new Date(now-120000).toISOString()};
+ assert.deepEqual(mergeTimetableDepartures([stale],[planned],[station],now),[planned]);
+ for(const towards of ['Volkstheater','Parlament, U Karlsplatz','Parlament, U Volkstheater (via Zentrum)'])assert.equal(favoriteMatches({...target,towards},live),false);
+ assert.equal(directionEquivalent(planned.towards,live.towards),true);
+ assert.equal(directionEquivalent('Parlament/Volkstheater (via A)','Parlament, U Volkstheater (via B)'),false);
+ assert.equal(mergeTimetableDepartures([{...live,mode:'bus'}],[planned],[station],now).length,2);
+ assert.equal(mergeTimetableDepartures([{...live,rbl:'999'}],[planned],[station],now).length,2);
 });
 test('station shards persist for a cold offline load, remain bound to their calendar version, and metadata expiry prevents false departures',async()=>{
  const packed={format:1,version:manifest.version,encoding:'gzip-base64',payload:gzipSync(JSON.stringify({[stop.id]:[row([43260])]})).toString('base64')};

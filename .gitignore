@@ -25,3 +25,8 @@ pwa/foama-wien-source.zip
 !.env.example
 *.key
 *.pem
+
+# Generated from canonical PWA geometry by the native builder
+/wear/app/src/main/assets/line-maps/
+/wear/app/src/main/assets/timetable-wien.zip
+/pwa/data/timetables/wien/watch-*.zip

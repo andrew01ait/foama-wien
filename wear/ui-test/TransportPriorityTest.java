@@ -30,6 +30,7 @@ public class TransportPriorityTest {
     }
     private Repo.Stop add(String id,double offset,String mode){Repo.Stop s=new Repo.Stop();s.id=id;s.lat=48.2+offset;s.lon=16.37;s.modes.add(mode);repo.stops.add(s);return s;}
     @Test public void connectionGroupsPutAllMetroDirectionsBeforeEarlierTramAndBus(){
+        WatchTestEnvironment.withoutTimetable(repo);
         Repo.Stop s=repo.findStop("wl:60200657");long now=System.currentTimeMillis();
         String[] modes={"bus","tram","metro","metro","metro","metro"},routes={"4A","1","U1","U1","U2","U4"};
         for(int i=0;i<modes.length;i++){Repo.Departure d=new Repo.Departure();d.stopKey=s.id;d.route=routes[i];d.towards="Direction "+i;d.mode=modes[i];d.when=now+(i+1)*60000;d.fetchedAt=now;repo.departures.add(d);}

@@ -17,6 +17,7 @@ final class Repo {
     final SharedPreferences prefs;
     final JourneyStore journeys;
     final CityProfiles cities;
+    final OfflineTimetable timetable;
     boolean manualLocation=false;
     volatile String regionalError="";
     int regionalCycle=0;
@@ -28,6 +29,7 @@ final class Repo {
     private long requestSpacingUntil;
     private String departureCity="";
     private final Map<String,DepartureCooldown> cityCooldowns=new HashMap<>();
+    private final LinkedHashMap<String,Long> monitorSourceAt=new LinkedHashMap<>();
     private static final class DepartureCooldown {long until;int failures;String error;DepartureCooldown(long until,int failures,String error){this.until=until;this.failures=failures;this.error=error;}}
     int failures=0,cycle=0;
     Location currentLocation;
@@ -35,7 +37,7 @@ final class Repo {
     JSONObject railFeed=new JSONObject();
     JSONObject lineEvidence=new JSONObject();
     Runnable onFavoritesChanged;
-    Repo(Context context){ctx=context;prefs=ctx.getSharedPreferences("foama",Context.MODE_PRIVATE);journeys=new JourneyStore(prefs);cities=new CityProfiles(prefs.getString("cityPreference","auto"));loadAssets();ensureCityPosition();try{lineEvidence=new JSONObject(prefs.getString("stationLineEvidence","{}"));}catch(Exception ignored){}for(Stop stop:stops)applyLineEvidence(stop,System.currentTimeMillis());loadFavorites();loadCache();}
+    Repo(Context context){ctx=context;prefs=ctx.getSharedPreferences("foama",Context.MODE_PRIVATE);journeys=new JourneyStore(prefs);cities=new CityProfiles(prefs.getString("cityPreference","auto"));loadAssets();timetable=new OfflineTimetable(ctx,prefs);ensureCityPosition();try{lineEvidence=new JSONObject(prefs.getString("stationLineEvidence","{}"));}catch(Exception ignored){}for(Stop stop:stops)applyLineEvidence(stop,System.currentTimeMillis());loadFavorites();loadCache();}
     static final class Stop {
         String id="",name="",provider="wl",city="wien",ifopt="";double lat,lon,meters;
         final ArrayList<String> rbl=new ArrayList<>(),platformIds=new ArrayList<>();
@@ -46,7 +48,7 @@ final class Repo {
     }
     static final class Departure {
         String stopKey="",rbl="",route="",towards="",mode="bus",quality="Fahrplan",platform="";
-        long when,fetchedAt;boolean notice;
+        long when,fetchedAt;boolean notice,offline;
         String key(){return stopKey+"|"+rbl+"|"+mode+"|"+route+"|"+towards+"|"+when;}
     }
     static final class Favorite {
@@ -117,7 +119,7 @@ final class Repo {
     boolean matchesModes(Stop stop){for(String mode:stop.modes)if(modeAllowed(mode))return true;return false;}
     int modePriority(Collection<String> modes,boolean all){int rank=WearPolicy.MODES.length;if(modes!=null)for(String mode:modes)if(all||modeAllowed(mode))rank=Math.min(rank,WearPolicy.modePriority(mode));return rank;}
     ArrayList<Stop> nearby(){
-        ArrayList<Stop> list=new ArrayList<>();if(currentLocation==null)return list;
+        ArrayList<Stop> list=new ArrayList<>();if(!hasUsableLocation())return list;
         int radius=prefs.getInt("radius",300);
         for(Stop s:stops)if(s.city.equals(cities.current())&&matchesModes(s)){
             double distance=airDistance(s);if(distance<=radius){s.meters=distance*1.3;list.add(s);}
@@ -172,6 +174,7 @@ final class Repo {
     double walkMinutes(Stop s){return airDistance(s)*1.3/1000/Math.max(1,prefs.getFloat("speed",4.5f))*60;}
     boolean moving(){return System.currentTimeMillis()<movingUntil;}
     boolean reliableLocation(){return !manualLocation&&currentLocation!=null&&WearPolicy.reliable(System.currentTimeMillis(),currentLocation.getTime(),currentLocation.hasAccuracy()?currentLocation.getAccuracy():Float.NaN,moving());}
+    boolean hasUsableLocation(){long now=System.currentTimeMillis();return currentLocation!=null&&(manualLocation||currentLocation.getTime()>0&&currentLocation.getTime()<=now+5000&&now-currentLocation.getTime()<=WearPolicy.CACHE_MS);}
     boolean acceptLocation(Location location){
         if(location==null||!Double.isFinite(location.getLatitude())||!Double.isFinite(location.getLongitude())||Math.abs(location.getLatitude())>90||Math.abs(location.getLongitude())>180)return false;
         long now=System.currentTimeMillis();if(location.getTime()>now+5000||now-location.getTime()>WearPolicy.CACHE_MS)return false;
@@ -196,10 +199,12 @@ final class Repo {
         return (moving()?"Unterwegs · ":age>90?"Letzter Standort · ":"Standort · ")+precision+(age>30?" · vor "+age+" s":"");
     }
     void ensureCityPosition(){
+        expireMemoryLocation();
         cities.expire(System.currentTimeMillis());
         if(!cities.preference.equals("auto")&&currentLocation==null){double[] region=CityProfiles.REGIONS[CityProfiles.index(cities.current())];Location center=new Location("manual-city");center.setLatitude(region[0]);center.setLongitude(region[1]);center.setTime(System.currentTimeMillis());center.setAccuracy(10000);currentLocation=center;manualLocation=true;}
         syncDepartureCity();
     }
+    void expireMemoryLocation(){if(!manualLocation&&currentLocation!=null&&!hasUsableLocation())currentLocation=null;}
     /** Keep the common request spacing across cities, but never lend one city's retry penalty to another. */
     synchronized void syncDepartureCity(){
         String city=cities.current();if(city.equals(departureCity))return;
@@ -264,14 +269,24 @@ final class Repo {
         }catch(Exception e){if(scope.isCancelled())return;failed=true;scope.commit(()->regionalError="Regionale Abfahrten nicht erreichbar");}
         final boolean hasError=failed;scope.commit(()->{if(hasError){failures++;nextFetchElapsed=SystemClock.elapsedRealtime()+WearPolicy.retryDelay(failures);}else{failures=0;lastFetch=System.currentTimeMillis();}mergeRail(selected);saveCache();});
     }
+    JSONObject fetchApproach(Stop stop,String route,String towards,String mode,RequestScope scope)throws Exception{
+        final boolean[] reserved={false};scope.commit(()->{syncDepartureCity();long elapsed=SystemClock.elapsedRealtime();if(elapsed<nextFetchElapsed)return;requestSpacingUntil=elapsed+WearPolicy.REFRESH_MS;nextFetchElapsed=requestSpacingUntil;reserved[0]=true;});if(!reserved[0])return null;
+        try{
+            String url=BuildConfig.FOAMA_BASE_URL+"/api/wear/approach?route="+URLEncoder.encode(route,"UTF-8")+"&mode="+URLEncoder.encode(mode,"UTF-8")+"&stop="+URLEncoder.encode(stop.id,"UTF-8")+"&towards="+URLEncoder.encode(towards,"UTF-8");
+            JSONObject payload=new JSONObject(jsonHttp(url,"GET",null,scope));
+            scope.commit(()->{JSONObject board=payload.optJSONObject("board");List<String> ids=strings(payload.optJSONArray("boardIds"));if(board!=null&&!ids.isEmpty())mergeMonitor(board,Collections.singletonList(stop),ids,System.currentTimeMillis());nextFetchElapsed=Math.max(nextFetchElapsed,SystemClock.elapsedRealtime()+Math.min(300000,Math.max(1000,payload.optLong("retryAfterMs",30000))));failures=0;lastError=payload.optBoolean("problem")?"Livedaten nicht erreichbar":"";saveCache();});return payload;
+        }catch(Exception e){if(!scope.isCancelled())scope.commit(()->{failures++;lastError="Livedaten nicht erreichbar";nextFetchElapsed=SystemClock.elapsedRealtime()+WearPolicy.retryDelay(failures);});throw e;}
+    }
     void mergeMonitor(JSONObject payload,List<Stop> selected,List<String> ids,long now)throws Exception{
         JSONObject data=payload.optJSONObject("data");JSONArray monitors=data==null?null:data.optJSONArray("monitors");
         JSONObject message=payload.optJSONObject("message");if(monitors==null||(message!=null&&message.optInt("value",1)!=1))throw new IOException("Ungültige API-Antwort");
-        mergeLineEvidence(payload,now);
+        long source=payload.has("foamaMonitorAt")?parseDate(payload.optString("foamaMonitorAt")):now;long server=message==null?-1:parseDate(message.optString("serverTime"));if(server>0)source=Math.min(source,server);if(source<=0||source>now+30000||now-source>WearPolicy.CACHE_MS)throw new IOException("Ungültiger Quellenstand");
+        final List<String> acceptedIds=new ArrayList<>();for(String id:ids)if(source>=monitorSourceAt.getOrDefault(id,0L)){acceptedIds.add(id);monitorSourceAt.remove(id);monitorSourceAt.put(id,source);}while(monitorSourceAt.size()>256)monitorSourceAt.remove(monitorSourceAt.keySet().iterator().next());if(acceptedIds.isEmpty())return;
+        mergeLineEvidence(payload,source);
         ArrayList<Departure> additions=new ArrayList<>();
         for(int i=0;i<monitors.length();i++){
             JSONObject m=monitors.getJSONObject(i),location=m.optJSONObject("locationStop"),p=location==null?null:location.optJSONObject("properties"),attrs=p==null?null:p.optJSONObject("attributes");if(attrs==null)continue;
-            String rbl=attrs.optString("rbl");if(!ids.contains(rbl))continue;
+            String rbl=attrs.optString("rbl");if(!acceptedIds.contains(rbl))continue;
             Stop s=null;for(Stop candidate:selected)if(candidate.rbl.contains(rbl)){s=candidate;break;}if(s==null)continue;
             boolean notice=hasCurrentServiceNotice(data,m,now);
             JSONArray lines=m.optJSONArray("lines");if(lines==null)continue;
@@ -279,14 +294,14 @@ final class Repo {
                 JSONObject l=lines.getJSONObject(j),ds=l.optJSONObject("departures");JSONArray times=ds==null?null:ds.optJSONArray("departure");if(times==null)continue;
                 for(int k=0;k<times.length();k++){
                     JSONObject entry=times.getJSONObject(k),t=entry.optJSONObject("departureTime"),v=entry.optJSONObject("vehicle");if(t==null)continue;
-                    String real=t.optString("timeReal"),plan=t.optString("timePlanned");long when=parseDate(real.isEmpty()?plan:real);if(!WearPolicy.usableDeparture(now,when,now))continue;
+                    String real=t.optString("timeReal"),plan=t.optString("timePlanned");long when=parseDate(real.isEmpty()?plan:real);if(!WearPolicy.usableDeparture(now,when,source))continue;
                     Departure d=new Departure();d.stopKey=s.id;d.rbl=rbl;d.route=v==null?l.optString("name"):v.optString("name",l.optString("name"));d.towards=v==null?l.optString("towards"):v.optString("towards",l.optString("towards"));
-                    d.mode=inferMode(v==null?l.optString("type"):v.optString("type",l.optString("type")),d.route);d.quality=real.isEmpty()?"Fahrplan":"Live";d.when=when;d.fetchedAt=now;d.platform=l.optString("platform");d.notice=notice;additions.add(d);
+                    d.mode=inferMode(v==null?l.optString("type"):v.optString("type",l.optString("type")),d.route);d.quality=real.isEmpty()?"Fahrplan":"Live";d.when=when;d.fetchedAt=source;d.platform=l.optString("platform");d.notice=notice;additions.add(d);
                 }
             }
         }
         synchronized(departures){
-            departures.removeIf(d->ids.contains(d.rbl)||!WearPolicy.usableDeparture(now,d.when,d.fetchedAt));
+            departures.removeIf(d->acceptedIds.contains(d.rbl)||!WearPolicy.usableDeparture(now,d.when,d.fetchedAt));
             departures.addAll(additions);LinkedHashMap<String,Departure> unique=new LinkedHashMap<>();for(Departure d:departures)unique.put(d.key(),d);
             departures.clear();departures.addAll(unique.values());departures.sort(Comparator.comparingLong(d->d.when));while(departures.size()>MAX_CACHE_ROWS)departures.remove(departures.size()-1);
         }
@@ -327,12 +342,27 @@ final class Repo {
     List<List<Departure>> connections(Stop s,String route,String towards,boolean favoriteView){return connections(s,route,towards,favoriteView,"");}
     List<List<Departure>> connections(Stop s,String route,String towards,boolean favoriteView,String mode){
         LinkedHashMap<String,List<Departure>> groups=new LinkedHashMap<>();long now=System.currentTimeMillis();
-        synchronized(departures){for(Departure d:departures)if(d.stopKey.equals(s.id)&&(mode.isEmpty()||mode.equals(d.mode))&&WearPolicy.usableDeparture(now,d.when,d.fetchedAt)&&(route.isEmpty()||route.equals(d.route))&&(towards.isEmpty()||towards.equals(d.towards))&&(favoriteView||modeAllowed(d.mode)))groups.computeIfAbsent(d.mode+"|"+d.route+"|"+d.towards,key->new ArrayList<>()).add(d);}
+        synchronized(departures){for(Departure d:departures)if(d.stopKey.equals(s.id)&&(mode.isEmpty()||mode.equals(d.mode))&&WearPolicy.usableDeparture(now,d.when,d.fetchedAt)&&(route.isEmpty()||route.equals(d.route))&&(towards.isEmpty()||sameDirection(towards,d.towards))&&(favoriteView||modeAllowed(d.mode)))groups.computeIfAbsent(connectionKey(d),key->new ArrayList<>()).add(d);}
+        HashSet<String> scheduled=new HashSet<>();
+        if(s.provider.equals("wl"))for(Departure d:timetable.departures(s.id,now)){
+            if(!(mode.isEmpty()||mode.equals(d.mode))||!(route.isEmpty()||route.equals(d.route))||!(towards.isEmpty()||sameDirection(towards,d.towards))||!(favoriteView||modeAllowed(d.mode)))continue;
+            String key=connectionKey(d);List<Departure> existing=groups.get(key);boolean current=false;
+            if(existing!=null&&!scheduled.contains(key))for(Departure item:existing)if(fresh(item)){current=true;break;}
+            if(current)continue;
+            if(scheduled.add(key))groups.put(key,new ArrayList<>());groups.get(key).add(d);
+        }
         ArrayList<List<Departure>> out=new ArrayList<>(groups.values());for(List<Departure> g:out)g.sort(Comparator.comparingLong(d->d.when));out.sort(Comparator.comparingInt((List<Departure> g)->WearPolicy.modePriority(g.get(0).mode)).thenComparingLong(g->g.get(0).when));return out;
     }
+    private static String directionKey(String towards){
+        String value=towards.replaceFirst("(?i)^(?:Wien|Graz|Salzburg|Linz(?:/Donau)?)\\s+","").trim().toLowerCase(Locale.GERMAN);
+        value=value.replaceFirst("^parlament, u volkstheater(?=$|\\s+\\((?:über|üb\\.?|via)\\s)","parlament/volkstheater");
+        return value.replaceFirst("\\s+(?:s\\s+u|u\\s+s|s|u)$","").trim();
+    }
+    static boolean sameDirection(String first,String second){return directionKey(first).equals(directionKey(second));}
+    private static String connectionKey(Departure d){return d.mode+"|"+d.route+"|"+directionKey(d.towards);}
     int countdown(Departure d){return WearPolicy.minutes(d.when,System.currentTimeMillis());}
-    boolean fresh(Departure d){Stop stop=findStop(d.stopKey);return WearPolicy.fresh(System.currentTimeMillis(),d.fetchedAt,!(stop!=null&&stop.provider.equals("transitous")?regionalError:lastError).isEmpty());}
-    String quality(Departure d){return fresh(d)?d.quality.toUpperCase(Locale.ROOT):"ÄLTER";}
+    boolean fresh(Departure d){if(d.offline)return false;Stop stop=findStop(d.stopKey);return WearPolicy.fresh(System.currentTimeMillis(),d.fetchedAt,!(stop!=null&&stop.provider.equals("transitous")?regionalError:lastError).isEmpty());}
+    String quality(Departure d){return d.offline?"FAHRPLAN":fresh(d)?d.quality.toUpperCase(Locale.ROOT):"ÄLTER";}
     String feasibility(Stop s,Departure d){
         if(!reliableLocation()||!fresh(d)||airDistance(s)>2000)return "○ Ungewiss";
         double reserve=(d.when-System.currentTimeMillis())/60000.0-walkMinutes(s)-prefs.getInt("buffer",1);
@@ -362,5 +392,5 @@ final class Repo {
         }catch(Exception ignored){}
         saveCache(); // Remove expired/invalid persisted rows on opening, including offline starts.
     }
-    void pause(){currentLocation=null;manualLocation=false;movingUntil=0;saveCache();}
+    void pause(){if(!hasUsableLocation()){currentLocation=null;manualLocation=false;}saveCache();}
 }

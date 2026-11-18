@@ -85,4 +85,15 @@ public class WatchLocationTest {
         shadow.simulateLocation(fix("gps",5,0));idle(0);discarded.onLocationChanged(fix("network",700,0));
         assertEquals("gps",repo.currentLocation.getProvider());assertEquals(5,repo.currentLocation.getAccuracy(),0);assertEquals("",status());
     }
+    @Test public void offlineStartsGpsImmediatelyAndAcceptsColdFixAfterThirtySeconds(){
+        location.start(true,false,true);assertFalse(shadow.getLocationUpdateListeners("gps").isEmpty());
+        idle(45);assertFalse(shadow.getLocationUpdateListeners("gps").isEmpty());assertTrue(status().contains("GPS"));
+        shadow.simulateLocation(fix("gps",5,0));idle(0);assertTrue(repo.reliableLocation());assertEquals("",status());
+    }
+    @Test public void offlineTimeoutStillStopsAllWorkAndExplainsRetry(){
+        location.start(true,false,true);idle(91);assertTrue(shadow.getLocationUpdateListeners().isEmpty());assertTrue(status().contains("erneut versuchen"));
+    }
+    @Test public void offlineWithoutFinePermissionNeverRequestsGpsAndPauseRejectsLateFix(){
+        location.start(false,false,true);assertTrue(shadow.getLocationUpdateListeners("gps").isEmpty());LocationListener late=shadow.getLocationUpdateListeners("network").get(0);location.stop();late.onLocationChanged(fix("network",5,0));idle(91);assertNull(repo.currentLocation);assertTrue(shadow.getLocationUpdateListeners().isEmpty());
+    }
 }

@@ -65,7 +65,7 @@ def run(apk, generated,manifest=None):
     cp=str(app_classes)+os.pathsep+cp
     tests=sorted((ROOT/'wear/ui-test').rglob('*Test.java'))
     if not tests:raise RuntimeError('Native tests missing')
-    command(compiler+['-classpath',cp,'-d',test_classes,*tests])
+    command(compiler+['-classpath',cp,'-d',test_classes,*sorted((ROOT/'wear/ui-test').rglob('*.java'))])
     config=test_classes/'com/android/tools/test_config.properties';config.parent.mkdir(parents=True,exist_ok=True)
     config.write_text('android_resource_apk='+str(Path(apk).resolve())+'\nandroid_merged_manifest='+str(Path(manifest).resolve() if manifest else ROOT/'wear/app/src/main/AndroidManifest.xml')+'\nandroid_custom_package=at.andrew.foamawien\n')
     result=subprocess.run(['java','-Xmx1536m','-Djava.awt.headless=true','-Drobolectric.offline=true','-Drobolectric.dependency.dir='+str(sdk),'-cp',str(test_classes)+os.pathsep+cp,

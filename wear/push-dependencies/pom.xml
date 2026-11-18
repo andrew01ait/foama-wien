@@ -2,6 +2,7 @@
   <modelVersion>4.0.0</modelVersion><groupId>at.andrew.foamawien</groupId><artifactId>push-dependencies</artifactId><version>1</version>
   <repositories><repository><id>google</id><url>https://dl.google.com/dl/android/maven2/</url></repository></repositories>
   <dependencies>
+    <dependency><groupId>androidx.wear.tiles</groupId><artifactId>tiles</artifactId><version>1.4.1</version><type>aar</type></dependency>
     <dependency><groupId>com.google.firebase</groupId><artifactId>firebase-messaging</artifactId><version>26.0.1</version><type>aar</type><exclusions><exclusion><groupId>com.google.android.gms</groupId><artifactId>play-services-tasks</artifactId></exclusion><exclusion><groupId>androidx.datastore</groupId><artifactId>datastore-core-jvm</artifactId></exclusion></exclusions></dependency>
     <dependency><groupId>com.google.android.gms</groupId><artifactId>play-services-tasks</artifactId><version>18.4.0</version><type>aar</type></dependency>
   </dependencies>
