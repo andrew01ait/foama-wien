@@ -41,3 +41,30 @@
 }
 
 .journey-point-context{margin:5px 0 0;font-size:12px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+
+.journey-shared {
+  margin: 0 0 12px; padding: 12px; border: 1px solid var(--stroke);
+  border-radius: 15px; background: var(--surface);
+}
+.journey-shared[hidden], .journey-shared [hidden] {display: none}
+.journey-shared h2 {margin: 0; color: var(--muted); font-size: .85rem}
+.shared-name {margin: 3px 0; font-size: 1.2rem; font-weight: 750; overflow-wrap: anywhere}
+.journey-shared .fineprint {margin: 4px 0 8px; overflow-wrap: anywhere}
+.shared-map {height: clamp(170px, 29dvh, 270px); border: 1px solid var(--stroke); border-radius: 10px; overflow: hidden; isolation: isolate}
+.shared-actions {display: flex; gap: 6px; flex-wrap: wrap}
+.shared-actions:not(:has(button:not([hidden]))) {display: none}
+.shared-actions button {margin-top: 8px; flex: 1 1 auto; min-height: 44px; overflow-wrap: anywhere}
+.shared-actions .primary-btn {width: auto}
+
+/* The bottom tip is the Leaflet anchor. The pin also paints without any image files. */
+.shared-destination-pin {filter: drop-shadow(0 1px 2px #173a36a6)}
+.shared-destination-pin::before {
+  content: ''; position: absolute; bottom: 0; left: 5px; width: 18px; height: 17px;
+  background: #005c4d; clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.shared-destination-pin::after {
+  content: ''; position: absolute; left: 2px; top: 1px; width: 24px; height: 24px;
+  box-sizing: border-box; border: 3px solid white; border-radius: 50%;
+  background: radial-gradient(circle, white 0 3px, #007461 4px); box-shadow: 0 0 0 1.5px #00453a;
+}
+#sharedHeading:focus-visible {width: fit-content; outline: 2px solid var(--mint); outline-offset: 2px; border-radius: 2px}

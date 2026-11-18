@@ -1,3 +1,15 @@
+## PWA 0.12.2 · Android-Teilen und Einfügen
+
+521 Web- und Servertests sowie 22 Python-Prüfungen bestanden. Die Teilentests prüfen das Manifest aller HTML-Einstiege, Text- und URI-Übergaben an Server und Offline-Service-Worker, die frühere Formularadresse, die Größenbegrenzung und das Einfügen ins Zielfeld mit gewähltem Start. Die Anzeige in der Android-App-Liste erfordert eine Prüfung auf dem Handy mit aktualisiertem WebAPK.
+
+## PWA 0.12.1 · Zielmarkierung
+
+517 Web- und Servertests sowie 22 Python-Prüfungen bestanden. Ein zusätzlicher Test prüft die gezeichnete Stecknadel, ihren Koordinatenanker und ihren zugänglichen Zielnamen. In der veröffentlichten 0.12.0 wurden Opernring 2 als geteilte Adresse und ein Google-Maps-Kurzlink zum Kunsthistorischen Museum geprüft. Die Suche ab Wagramer Straße 5 lieferte Öffi-Verbindungen zum Museum.
+
+## PWA 0.12.0 · Android-Teilen
+
+516 Web- und Servertests und 22 Python-Prüfungen bestanden. Neue Tests decken die POST-Übergabe an den Server und den Offline-Service-Worker, Stations- und Adressauswahl, Kartenlinks, Zielmarkierung, Startwahl, simulierte GPS-Freigabe und -Ablehnung, verspätete Antworten und Wiederholung ab. Im Browser lieferte die geteilte Station Stephansplatz U Verbindungen ab Karlsplatz U. Der Android-Systemdialog auf einem physischen Gerät bleibt separat zu prüfen.
+
 ## PWA 0.11.31 · vollständige Adressen und Meine Orte · 12.11.2026
 
 Die Auswahl übernimmt jetzt die bereits vom Geocoder gelieferten Zusatzangaben wie Postleitzahl, Ort und Bezirk. Unter dem Start-/Zielfeld steht eine kompakte umbrechende Kontextzeile, die auch per Screenreader zugeordnet ist. Eigene Orte zeigen ihren Namen im Feld und die vollständige Adresse darunter; die Reiseübersicht und neu gespeicherte Routen erhalten denselben Kontext. Beim Bearbeiten oder Wechsel zu GPS wird alter Adresskontext entfernt. Keine neue Orts-/GPS-Abfrage und keine erfundenen fehlenden Bezirksangaben.

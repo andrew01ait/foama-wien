@@ -1,12 +1,13 @@
+import {googleMapsShortUrl,locationFromMapUrl} from '../../pwa/src/share-location.mjs';
+import {inJourneyArea as point} from '../../pwa/src/journey-geometry.mjs';
 import {CITY_PROFILES} from '../../pwa/src/city-profiles.mjs';
 import {motisPlanUrl,normalizeJourneys} from '../../pwa/src/journey-planning.mjs';
 
 const BASE='https://api.transitous.org/';
-const UA='foama-wien/0.11.31 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
+const UA='foama-wien/0.12.2 (+https://foama-wien.endruuu.chatgpt.site; noncommercial open-source transit app)';
 const headers={'content-type':'application/json;charset=utf-8','cache-control':'no-store','referrer-policy':'no-referrer','x-content-type-options':'nosniff'};
 const answer=(body,status=200)=>new Response(JSON.stringify(body),{status,headers});
 const clean=(value,n=160)=>String(value??'').trim().slice(0,n);
-const point=value=>value&&Number.isFinite(value.lat)&&Number.isFinite(value.lon)&&value.lat>=46&&value.lat<=50&&value.lon>=9&&value.lon<=18;
 
 // Only aggregate request counts, with no query, coordinates, IP or device ID.
 // Count the current and previous 24 complete hour buckets (a conservative 25h
@@ -41,16 +42,38 @@ export function geocodePlaces(payload){
  }).filter(p=>p.name&&point(p)).slice(0,6);
 }
 
+// Only request canonical Google Maps short codes. Inspect each Location locally.
+async function resolveMapLink(first,fetch,signal){
+ const seen=new Set();
+ let url=first;
+ for(let hop=0;hop<3&&url&&!seen.has(url);hop++){
+  seen.add(url);
+  const response=await fetch(url,{redirect:'manual',signal,headers:{Accept:'text/html','User-Agent':UA}});
+  await response.body?.cancel();
+  const location=response.headers.get('location');
+  if(![301,302,303,307,308].includes(response.status)||!location||location.length>16384)break;
+  const next=new URL(location,url).href;
+  const destination=locationFromMapUrl(next);
+  if(destination)return answer({destination});
+  url=googleMapsShortUrl(next);
+ }
+ return answer({error:'Der Kartenlink enthält kein lesbares Ziel. Bitte eine Adresse oder Haltestelle wählen.'},422);
+}
+
 export async function journeyApi(request,env,{fetch=(input,options)=>globalThis.fetch(input,options),now=Date.now()}={}){
  if(request.method!=='POST')return answer({error:'Bitte die Verbindungssuche verwenden.'},405);
  const path=new URL(request.url).pathname,isPlan=path==='/api/journeys/plan',isWalk=path==='/api/journeys/walk';
- if(!isPlan&&!isWalk&&path!=='/api/journeys/places')return answer({error:'Nicht gefunden.'},404);
+ const isMapLink=path==='/api/journeys/map-link';
+ if(!isPlan&&!isWalk&&!isMapLink&&path!=='/api/journeys/places')return answer({error:'Nicht gefunden.'},404);
  if(new URL(request.url).search)return answer({error:'Suchangaben nur im Anfrageinhalt erlaubt.'},400);
  if(!request.headers.get('content-type')?.toLowerCase().startsWith('application/json'))return answer({error:'JSON erforderlich.'},415);
  let body,url;
  try{
   body=await boundedJson(request,4096);
-  if(isPlan){
+  if(isMapLink){
+   url=typeof body.url==='string'&&googleMapsShortUrl(body.url);
+   if(!url)throw Error('Bitte einen Google-Maps-Kurzlink teilen.');
+  }else if(isPlan){
    if(!point(body.from)||!point(body.to))throw Error('Start und Ziel in Österreich oder Umgebung auswählen.');
    const time=Date.parse(body.time);if(!Number.isFinite(time)||time<now-3600000||time>now+90*86400000)throw Error('Reisezeit muss zwischen jetzt und den nächsten 90 Tagen liegen.');
    url=motisPlanUrl(body,BASE);
@@ -70,6 +93,7 @@ export async function journeyApi(request,env,{fetch=(input,options)=>globalThis.
  let stage='fetch';
  try{
   if(request.signal.aborted)controller.abort();
+  if(isMapLink)return await resolveMapLink(url,fetch,controller.signal);
   // workerd supports only manual/follow. Manual rejects redirects through the
   // status check below, keeping every request on the fixed public endpoint.
   const response=await fetch(url.href,{headers:{Accept:'application/json','User-Agent':UA},redirect:'manual',signal:controller.signal});

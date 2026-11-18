@@ -1,3 +1,4 @@
+import '../../pwa/src/share-intake.js';
 import {regionalApi} from './regional-service.mjs';
 import {transferRelay,purgeTransfers} from './transfer-relay.mjs';
 import {pushApi,dispatchDisruptions,activeDisruptionCheck} from './push-service.mjs';
@@ -22,11 +23,13 @@ async function apiCache(request){
 }
 export default {
   async fetch(request,env,ctx){
-    const url=new URL(request.url);if(url.pathname==='/mcp')return pushMcp(request,env);if(!url.pathname.startsWith('/api/')){return env.ASSETS.fetch(request);}
+    const url=new URL(request.url);
+    if(['/share-location','/share-target'].includes(url.pathname)&&request.method==='POST')return globalThis.foamaShareRedirect(request);
+    if(url.pathname==='/mcp')return pushMcp(request,env);if(!url.pathname.startsWith('/api/')){return env.ASSETS.fetch(request);}
     const origin=request.headers.get('Origin');if(origin&&origin!==url.origin){return fail('Nur gleiche Website erlaubt',403);}
     if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':url.origin,'access-control-allow-methods':'GET,PUT,POST,DELETE,OPTIONS','access-control-allow-headers':'Content-Type','access-control-max-age':'300'}});
     if(env.DB&&!url.pathname.startsWith('/api/transfer/'))ctx.waitUntil(purgeTransfers(env.DB).catch(()=>{}));
-    if(url.pathname==='/api/health')return json({ok:true,service:'foama-wien',version:'0.11.31',serverTime:new Date().toISOString()});
+    if(url.pathname==='/api/health')return json({ok:true,service:'foama-wien',version:'0.12.2',serverTime:new Date().toISOString()});
     if(url.pathname.startsWith('/api/push/')||url.pathname==='/api/disruptions')return pushApi(request,env);
     if(url.pathname==='/api/regional/board')return regionalApi(request,env);
     if(url.pathname.startsWith('/api/journeys/'))return journeyApi(request,env);

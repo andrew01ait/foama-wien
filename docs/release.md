@@ -1,3 +1,15 @@
+## PWA 0.12.2 · Android-Teilen für Adressen und Kartenlinks · 18.11.2026
+
+Foama meldet einfachen Text und URI-Listen ausdrücklich als Android-Teilenziele an. Geteilte Maps-Links und markierte Adressen öffnen die Zielkarte in A nach B. Eine kopierte Adresse oder ein Kartenlink lässt sich auch direkt ins Zielfeld einfügen. Ein bereits gewählter Start bleibt dabei erhalten.
+
+## PWA 0.12.1 · Gut sichtbarer Zielpin · 18.11.2026
+
+Die Zielmarkierung wird direkt auf der Karte gezeichnet und hat eine kontrastreiche Kontur. Ihr unteres Ende liegt genau auf der geteilten Koordinate.
+
+## PWA 0.12.0 · Geteilte Ziele auf Android · 18.11.2026
+
+Adressen, Stationsnamen, Koordinaten und Kartenlinks über das Android-Teilen-Menü an foama-wien übergeben. A nach B zeigt das Ziel mit Markierung und bietet eine Route vom aktuellen Standort oder von einem gewählten Start an. Mehrdeutige Orte lassen sich auswählen.
+
 ## PWA 0.11.31 · vollständige Adressen und Meine Orte · 12.11.2026
 
 Die Auswahl übernimmt jetzt die bereits vom Geocoder gelieferten Zusatzangaben wie Postleitzahl, Ort und Bezirk. Unter dem Start-/Zielfeld steht eine kompakte umbrechende Kontextzeile, die auch per Screenreader zugeordnet ist. Eigene Orte zeigen ihren Namen im Feld und die vollständige Adresse darunter; die Reiseübersicht und neu gespeicherte Routen erhalten denselben Kontext. Beim Bearbeiten oder Wechsel zu GPS wird alter Adresskontext entfernt. Keine neue Orts-/GPS-Abfrage und keine erfundenen fehlenden Bezirksangaben.

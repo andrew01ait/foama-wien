@@ -1,6 +1,9 @@
 export function coordinate(value){
  return Number.isFinite(value?.lat)&&Number.isFinite(value?.lon)&&Math.abs(value.lat)<=90&&Math.abs(value.lon)<=180?{lat:value.lat,lon:value.lon}:null;
 }
+export function inJourneyArea(value){
+ return !!coordinate(value)&&value.lat>=46&&value.lat<=50&&value.lon>=9&&value.lon<=18;
+}
 // MOTIS v6 uses encoded polylines with precision 6. Reject malformed data
 // rather than drawing a partially decoded or invented route.
 export function decodeJourneyPolyline(encoded,{limit=10000}={}){

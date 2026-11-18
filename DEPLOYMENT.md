@@ -1,6 +1,8 @@
 # Veröffentlichung und Betrieb
 
-Aktueller App-Stand: PWA 0.11.31 / Wear 0.9.1, nativer Code 32. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+Aktueller App-Stand: PWA 0.12.2 / Wear 0.9.1, nativer Code 32. Diese Anleitung gilt für die bestehende öffentliche Site und die interne Release-Arbeit. Für einen eigenen Betrieb ergänzend [Konfiguration](docs/configuration.md) und [GitHub/Quellabgleich](docs/github.md) lesen.
+
+Chrome aktualisiert den Android-Teilen-Eintrag über das installierte WebAPK. Zur Geräteabnahme in Google Maps einen Ort teilen und im Browser eine Adresse markieren und „Teilen“ wählen. In der vollständigen App-Liste foama-wien öffnen und das Ziel prüfen. Bei einer älteren Installation den Update-Status unter `chrome://webapks` prüfen. [Geräteanleitung](https://foama-wien.endruuu.chatgpt.site/willkommen.html#android-teilen)
 
 ## Drei getrennte Ergebnisse
 

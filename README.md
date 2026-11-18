@@ -14,6 +14,7 @@
 - Einheitliche Warnmeldungen in Übersicht, Verbindungsdetail und A nach B, mit Quellenstand und aufklappbaren Details ohne doppelte Symbole. Gespeicherte Wege übernehmen vorhandene Warnungen sofort beim Öffnen.
 - Live-Abfahrten in der Nähe mit Gehzeit, Erreichbarkeit und zwei nächsten Abfahrten.
 - Lokale Favoriten für ganze Haltestellen, einzelne Linien/Richtungen und A-nach-B-Wege.
+- In Google Maps einen Ort teilen oder auf einer Webseite eine Adresse markieren und „Teilen“ wählen. Die installierte Android-PWA öffnet das Ziel in A nach B. Kopierte Adressen und Kartenlinks lassen sich direkt ins Zielfeld einfügen. [Hilfe zum Android-Teilen](https://foama-wien.endruuu.chatgpt.site/willkommen.html#android-teilen)
 - Routenplanung mit vollständigen Adressangaben, eigenen Orten als Start/Ziel, Karten, Alternativen und Vergleich von Fahrzeit und Umstiegen.
 - Import gespeicherter Wege auf die Uhr per Datei oder kurzlebiger verschlüsselter QR-Übertragung.
 - Dezente spätere Live-Zeitkorrekturen und Rollstuhl-Symbol bei ausdrücklich gemeldeter Fahrzeug-Barrierefreiheit in der PWA.
@@ -25,7 +26,7 @@
 - Kompakte Einstellungen mit aufklappbaren Themen und Erklärungen direkt bei der Option.
 - Uhr mit getrennten Routen-/Stationsfavoriten je Stadt, bleibender Hauptnavigation in A nach B, Updatevorschau, bestätigtem Download und optionalem Ultra-Sparmodus.
 
-Aktueller App-Stand: **PWA 0.11.31 und Wear 0.9.1**, nativer Versionscode **32**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
+Aktueller App-Stand: **PWA 0.12.2 und Wear 0.9.1**, nativer Versionscode **32**. Versionen stehen verbindlich in [PWA-Konfiguration](pwa/config.json), [Uhr-Konfiguration](wear/build-config.json) und [Updatefeed](pwa/update.json). [STATUS.md](STATUS.md) nennt Grenzen und offene Arbeiten.
 
 ## Entwicklung starten
 

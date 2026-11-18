@@ -8,6 +8,7 @@ export function createSiteWorker(apiWorker,assets){
   const catalogue=()=>pushCatalog??=(assets['/data/stops.json']?JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(assets['/data/stops.json'].base64),character=>character.charCodeAt(0)))).stops:[]);
   return {scheduled(controller,env,ctx){return apiWorker.scheduled?.(controller,env,ctx);},async fetch(request,env,ctx){
     const url=new URL(request.url);
+    if(['/share-location','/share-target'].includes(url.pathname)&&request.method==='POST')return apiWorker.fetch(request,env,ctx);
     if(url.pathname==='/api/wear/approach'){
       wearApproach??=createWearApproach({assets});
       return wearApproach(request,internal=>apiWorker.fetch(internal,{...env,LINE_STOPS:catalogue()},ctx));

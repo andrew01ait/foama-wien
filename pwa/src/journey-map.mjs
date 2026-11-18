@@ -1,5 +1,5 @@
-import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.11.31';
-import {installMapPositions} from './map-position.mjs?v=0.11.31';
+import {coordinate,journeyLegPath,routeColor} from './journey-geometry.mjs?v=0.12.2';
+import {installMapPositions} from './map-position.mjs?v=0.12.2';
 let pending;
 export function ensureJourneyMap(){
  if(window.L)return Promise.resolve(installMapPositions(window.L));
@@ -12,13 +12,19 @@ export function ensureJourneyMap(){
 }
 const nameNode=(name)=>{const title=document.createElement('strong');title.textContent=name;return title;};
 function action(label,callback){const button=document.createElement('button');button.type='button';button.className='small-btn';button.textContent=label;button.addEventListener('click',callback);return button;}
-export async function createJourneyMap({holder,stops,getModes=()=>({}),onStation,onPoint,picker=false,center=null,isCurrent=()=>true}){
+export async function createJourneyMap({holder,stops,getModes=()=>({}),onStation,onPoint,picker=false,center=null,destination=null,isCurrent=()=>true}){
  const L=await ensureJourneyMap();if(!isCurrent()||!holder.isConnected||!holder.getClientRects().length)throw Error('Karte geschlossen.');
- const map=L.map(holder,{scrollWheelZoom:false}).setView(coordinate(center)?[center.lat,center.lon]:[48.2082,16.3738],picker?14:13);
+ const map=L.map(holder,{scrollWheelZoom:false}).setView(coordinate(center)?[center.lat,center.lon]:[48.2082,16.3738],destination?16:picker?14:13);
  // OSM requires a genuine Referer. Override this page's privacy default only
  // for tile images and send the public app origin, never a route or fragment.
  const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,referrerPolicy:'strict-origin-when-cross-origin',attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a>'}).addTo(map);
  const lines=L.layerGroup().addTo(map),stations=L.layerGroup().addTo(map);let current=null,disposed=false;
+ if(coordinate(destination)){
+  const title='Ziel: '+destination.name;
+  const icon=L.divIcon({className:'shared-destination-pin',html:'',iconSize:[28,34],iconAnchor:[14,34],tooltipAnchor:[0,-30]});
+  const marker=L.marker([destination.lat,destination.lon],{icon,title,alt:title}).addTo(map).bindTooltip(nameNode(destination.name));
+  marker.getElement()?.setAttribute('aria-label',title);
+ }
  function stationMarker(stop){
   const marker=L.circleMarker([stop.lat,stop.lon],{radius:7,weight:2,color:'#276953',fillColor:'#fff',fillOpacity:.95,bubblingMouseEvents:false}).addTo(stations),popup=document.createElement('div');
   popup.className='journey-map-popup';popup.append(nameNode(stop.name));

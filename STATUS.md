@@ -1,6 +1,8 @@
 # Aktueller Projektstand
 
-Stand: 12. November 2026. **PWA 0.11.31, Wear 0.9.1 / Code 32.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+Stand: 18. November 2026. **PWA 0.12.2, Wear 0.9.1 / Code 32.** Verbindlich sind PWA-/Wear-Konfiguration und Updatefeed. Frühere Details: [Release-Verlauf](docs/release.md), [Tests](docs/tests.md).
+
+Der Android-Teilen-Dialog kann A nach B mit einer Adresse oder einem Kartenlink öffnen. Einfügen im Zielfeld nutzt dieselbe Zielauflösung. Der Eintrag auf einem konkreten Handy hängt vom dort installierten WebAPK ab.
 
 ## Was funktioniert?
 

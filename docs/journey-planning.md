@@ -1,3 +1,11 @@
+## Ziel von Android teilen
+
+In Google Maps einen Ort öffnen oder in einer Nachricht die Adresse markieren. Über **Teilen → foama-wien** öffnet sich die Zielkarte in **A nach B**. Ein einzelner Treffer wird übernommen. Bei mehreren Orten zuerst den passenden wählen. **Route von meinem Standort** startet die bestehende Öffi-Suche. **Anderen Start wählen** führt ins Startfeld für Adressen, Stationen, Kartenpunkte und gespeicherte Orte.
+
+Beim Markieren einer Adresse im Browser öffnet „Teilen“ die Liste der Empfänger. „Karte öffnen“ ruft die auf dem Handy registrierten Karten-Apps auf. Kopierte Adressen oder Kartenlinks lassen sich in A nach B ins Zielfeld einfügen. Ein eigener Start bleibt beim Einfügen erhalten. [Android-Installationshilfe](https://foama-wien.endruuu.chatgpt.site/willkommen.html#android-teilen)
+
+Koordinaten und eindeutig bekannte Stationsnamen lassen sich lokal übernehmen. Für eine Adresse fragt foama den vorhandenen Geocoder ab. Gängige Google-Maps-Kurzlinks werden über ihre Weiterleitung aufgelöst. Ohne lesbaren Zielpunkt lässt sich das Ziel bearbeiten. Nach der Übergabe entfernt die Seite den Inhalt aus der Adresszeile. Das Gerät speichert eine Route erst beim Tippen auf den Stern.
+
 ## Adressen und Meine Orte ab PWA 0.11.31
 
 Start und Ziel bewahren die vorhandenen Ortszusätze aus dem gewählten Suchtreffer. Die Straße bleibt im Eingabefeld, Postleitzahl/Ort/Bezirk stehen gut umbrechend darunter. Bei einem eigenen Ort steht der selbst vergebene Name, etwa Arbeit, im Feld; darunter die physische Adresse einschließlich verfügbarer Ortsangaben. Die Reiseübersicht und neu gespeicherte Routen bewahren diese Information ebenfalls. Eine alte Route ohne Ortszusatz wird nicht automatisch erneut an einen Geocoder geschickt.

@@ -1,28 +1,29 @@
-import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.11.31';
-import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.11.31';
-import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.11.31';
-import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.11.31';
-import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.11.31';
-import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.11.31';
-import {createThemeController} from './theme.mjs?v=0.11.31';
-import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.11.31';
-import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from './journey-client.mjs?v=0.11.31';
-import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.11.31';
-import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.11.31';
-import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.11.31';
-import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.11.31';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.11.31';
-import {createJourneyMap} from './journey-map.mjs?v=0.11.31';
-import {publishMapPosition} from './map-position.mjs?v=0.11.31';
-import {coordinate} from './journey-geometry.mjs?v=0.11.31';
-import {journeyStationMarkup,journeyTrafficNotices,journeyNoticeMarkup} from './journey-station.mjs?v=0.11.31';
-import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches,TRAFFIC_STORAGE_KEY} from './traffic-info.mjs?v=0.11.31';
-import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.11.31';
-import {selectStopIds} from './station-catalog.mjs?v=0.11.31';
-import {retainDepartures} from './departure-cache.mjs?v=0.11.31';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.11.31';
-import {jsonExportName} from './export-file.mjs?v=0.11.31';
-import {bindAppShare} from './app-share.mjs?v=0.11.31';
+import {mountJourneyShare,takeLocationShare} from './journey-share.mjs?v=0.12.2';
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.12.2';
+import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.12.2';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.12.2';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.12.2';
+import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.12.2';
+import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.12.2';
+import {createThemeController} from './theme.mjs?v=0.12.2';
+import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.12.2';
+import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from './journey-client.mjs?v=0.12.2';
+import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.12.2';
+import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.12.2';
+import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.12.2';
+import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.12.2';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.12.2';
+import {createJourneyMap} from './journey-map.mjs?v=0.12.2';
+import {publishMapPosition} from './map-position.mjs?v=0.12.2';
+import {coordinate,inJourneyArea} from './journey-geometry.mjs?v=0.12.2';
+import {journeyStationMarkup,journeyTrafficNotices,journeyNoticeMarkup} from './journey-station.mjs?v=0.12.2';
+import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches,TRAFFIC_STORAGE_KEY} from './traffic-info.mjs?v=0.12.2';
+import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.12.2';
+import {selectStopIds} from './station-catalog.mjs?v=0.12.2';
+import {retainDepartures} from './departure-cache.mjs?v=0.12.2';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.12.2';
+import {jsonExportName} from './export-file.mjs?v=0.12.2';
+import {bindAppShare} from './app-share.mjs?v=0.12.2';
 
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -54,7 +55,7 @@ function status(message){$('journeyStatus').textContent=message;}
 function busy(value){state.busy=value;$('journeySubmit').disabled=value;$('journeySubmit').textContent=value?'Verbindung wird gesucht …':'Verbindungen suchen →';}
 function cancelSearch(){state.revision++;client.abort();placeClient.abort();walkClient.abort();if(state.busy){busy(false);status('Suche angehalten. Bei Bedarf erneut suchen.');}}
 function invalidateResults(){state.journeys=[];state.planContext=null;$('journeyResults').replaceChildren();}
-function setOverviewMode(mode){cancelSearch();state.overviewMode=mode;$('journeyForm').hidden=mode==='saved';$('journeyFavorites').hidden=mode!=='saved';$('journeyModeSearch').setAttribute('aria-pressed',String(mode==='search'));$('journeyModeSaved').setAttribute('aria-pressed',String(mode==='saved'));$('journeyResults').hidden=mode==='saved';status('');}
+function setOverviewMode(mode){cancelSearch();state.overviewMode=mode;$('journeyForm').hidden=mode==='saved';$('journeyFavorites').hidden=mode!=='saved';$('journeyModeSearch').setAttribute('aria-pressed',String(mode==='search'));$('journeyModeSaved').setAttribute('aria-pressed',String(mode==='saved'));$('journeyResults').hidden=mode==='saved';status('');state.share?.visibility();}
 function pointControls(){
  for(const kind of ['from','to']){
   const point=state[kind],key=kind==='from'?'From':'To',input=$('journey'+key),context=$('journey'+key+'Context');
@@ -70,20 +71,35 @@ function pointControls(){
 }
 function selectPoint(kind,point){
  state[kind]={name:point.name,kind:point.kind==='current'?'current':'point',...(coordinate(point)||{}),...(point.kind!=='current'&&typeof point.detail==='string'&&point.detail.trim()?{detail:point.detail.trim().slice(0,160)}:{}),...(point.fixedAt?{fixedAt:point.fixedAt}:{}),...(point.placeId?{placeId:point.placeId}:{})};
- const input=$('journey'+(kind==='from'?'From':'To'));input.value=point.name;input.dataset.chosen='true';$(kind+'Choices').replaceChildren();$('journeyGps').setAttribute('aria-pressed',String(state.from?.kind==='current'));pointControls();status('');
+ const input=$('journey'+(kind==='from'?'From':'To'));input.value=point.name;input.dataset.chosen='true';$(kind+'Choices').replaceChildren();$('journeyGps').setAttribute('aria-pressed',String(state.from?.kind==='current'));pointControls();state.share?.pointChanged(kind,state[kind]);status('');
 }
 function localChoices(kind){
- cancelSearch();invalidateResults();state[kind]=null;const input=$('journey'+(kind==='from'?'From':'To'));delete input.dataset.chosen;pointControls();
+ cancelSearch();invalidateResults();state[kind]=null;const input=$('journey'+(kind==='from'?'From':'To'));delete input.dataset.chosen;pointControls();state.share?.pointChanged(kind,null);
  const query=input.value.trim().toLocaleLowerCase('de-AT'),rows=query.length<2?[]:state.stops.filter(stop=>stop.name.toLocaleLowerCase('de-AT').includes(query)).sort((a,b)=>Number(stopCity(b)===cityControl.current().id)-Number(stopCity(a)===cityControl.current().id)).slice(0,5);
  choices(kind,rows,'Haltestelle');
 }
 function choices(kind,rows,label,afterChoice=null){
  const box=$(kind+'Choices');box.replaceChildren();
  for(const row of rows){const button=document.createElement('button');button.type='button';button.append(document.createTextNode(row.name));const small=document.createElement('small');small.textContent=[row.kind==='address'?'Adresse':row.kind==='stop'?'Haltestelle':label,row.detail].filter(Boolean).join(' · ');button.append(small);button.addEventListener('click',()=>{selectPoint(kind,row);afterChoice?.();});box.append(button);}
- const input=$('journey'+(kind==='from'?'From':'To'));if(label==='Haltestelle'&&input.value.trim().length>=3){const button=document.createElement('button');button.type='button';button.className='journey-address-choice';button.textContent='Adresse oder Ort „'+input.value.trim()+'“ suchen';button.addEventListener('click',()=>void address(kind));box.append(button);}
+ const query=$('journey'+(kind==='from'?'From':'To')).value.trim();
+ if(label==='Haltestelle'&&query.length>=3){
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='journey-address-choice';
+  const link=kind==='to'&&/(?:https?:\/\/|geo:)/i.test(query);
+  button.textContent=link?'Kartenlink als Ziel öffnen':'Adresse oder Ort „'+query.slice(0,160)+'“ suchen';
+  button.addEventListener('click',()=>void address(kind));
+  box.append(button);
+ }
 }
 async function lookupPlace(kind,{automatic=false,revision=state.revision}={}){
  const input=$('journey'+(kind==='from'?'From':'To')),text=input.value.trim();if(text.length<3)throw Error('Bitte eine Adresse, einen Ort oder eine Haltestelle eingeben.');
+ // Android keyboards can insert a copied link as ordinary input, without a paste event.
+ if(kind==='to'&&/(?:https?:\/\/|geo:)/i.test(text)){
+  openDestination({text});
+  return false;
+ }
+ if(text.length>160)throw Error('Bitte nur die Adresse, den Stationsnamen oder den Kartenlink eingeben.');
  const exact=state.stops.filter(stop=>stop.name.toLocaleLowerCase('de-AT')===text.toLocaleLowerCase('de-AT'));if(automatic&&exact.length===1){selectPoint(kind,exact[0]);return true;}
  status((kind==='from'?'Start':'Ziel')+' wird gesucht …');const {places}=await placeClient.places(text);if(document.hidden||revision!==state.revision)throw new DOMException('Suche beendet','AbortError');
  const unique=uniqueJourneyPlaces(places);
@@ -238,14 +254,14 @@ function showJourney(index,{historyChange=true,variantIndex=0}={}){
  const favorite=typeof index==='string'?state.favorites.find(f=>f.id===index):null,base=favorite?savedJourney(favorite):Number.isInteger(index)?state.journeys[index]:null;state.openedFavorite=favorite;
  state.family=base?(favorite?[base,...(favorite.alternatives||[]).map(option=>savedJourney({...favorite,legs:option.legs,alternatives:[]}))]:journeyFamily(state.journeys,base)):[];state.currentJourneyKey=index;state.variantIndex=state.family[variantIndex]?variantIndex:0;state.familyFavoriteId=favorite?.id||keepBundle||null;const journey=state.family[state.variantIndex];if(journey&&state.familyFavoriteId)journey.favoriteId=state.familyFavoriteId;
  if(favorite){invalidateResults();setTime('now');for(const kind of ['from','to'])selectPoint(kind,favorite[kind]);}
- if(journey){$('journeyIntro').hidden=true;state.searchScroll=window.scrollY;state.selected=journey;$('journeySearch').hidden=true;$('journeyResults').hidden=true;$('journeyDetail').hidden=false;status('');showSteps();if(historyChange)history.pushState(favorite?{foamaJourneyFavorite:favorite.id,foamaJourneyVariant:state.variantIndex}:{foamaJourney:index,foamaJourneyVariant:state.variantIndex},'','#reise');setRouteView('list');top('journeyDetail');resumeMonitor();}
+ if(journey){$('journeyIntro').hidden=true;state.searchScroll=window.scrollY;state.selected=journey;$('journeySearch').hidden=true;$('journeyResults').hidden=true;$('journeyDetail').hidden=false;status('');showSteps();if(historyChange)history.pushState(favorite?{foamaJourneyFavorite:favorite.id,foamaJourneyVariant:state.variantIndex}:{foamaJourney:index,foamaJourneyVariant:state.variantIndex},'','#reise');setRouteView('list');state.share?.visibility();top('journeyDetail');resumeMonitor();}
  else{$('journeyIntro').hidden=false;state.selected=null;state.map?.destroy();state.map=null;$('journeySearch').hidden=false;$('journeyDetail').hidden=true;setOverviewMode(state.overviewMode);if(historyChange)history.replaceState(null,'',location.pathname);requestAnimationFrame(()=>window.scrollTo({top:state.searchScroll,behavior:'instant'}));}
 }
 function openStation(id,{historyChange=true,connection=null}={}){
  state.vehicleStrip?.dispose();state.vehicleStrip=null;
  const stop=state.stops.find(s=>s.id===id);if(!stop)return;pauseMonitor();cancelSearch();clearWalkMaps();if(!state.station)state.stationScroll=window.scrollY;$('journeyIntro').hidden=true;state.station=stop;state.stationConnection=connection;state.error='';$('journeyStationAll').hidden=!connection;$('journeySearch').hidden=true;$('journeyResults').hidden=true;$('journeyDetail').hidden=true;$('journeyStation').hidden=false;
  if(connection&&stop.provider==='wl'&&['metro','tram','bus'].includes(connection.mode)){const panel=createStationVehiclePanel({target:{stopId:id,...connection},onIdsChanged(){if(state.vehicleStrip===panel)resumeMonitor();}});state.vehicleStrip=panel;$('journeyStationVehicles').append(panel.element);}
- if(historyChange)history.pushState({...history.state,foamaJourneyStation:id,foamaJourneyConnection:connection},'','#station');renderCurrent();top('journeyStationTitle');resumeMonitor();
+ state.share?.visibility();if(historyChange)history.pushState({...history.state,foamaJourneyStation:id,foamaJourneyConnection:connection},'','#station');renderCurrent();top('journeyStationTitle');resumeMonitor();
 }
 function closeStation(){state.vehicleStrip?.dispose();state.vehicleStrip=null;pauseMonitor();state.station=null;state.stationConnection=null;$('journeyStation').hidden=true;if(state.selected){$('journeyDetail').hidden=false;showSteps();state.map?.invalidate();resumeMonitor();requestAnimationFrame(()=>window.scrollTo({top:state.stationScroll,behavior:'instant'}));}else showJourney(null,{historyChange:false});}
 async function setRouteView(view){
@@ -273,11 +289,13 @@ async function pickOnMap(kind){
  try{const map=await createJourneyMap({holder:$('journeyPickerMap'),stops:state.stops,getModes:()=>settings.modes,picker:kind,center:coordinate(state[kind])||coordinate(state.from)||cityControl.current().center,onStation:choose,onPoint:choose,isCurrent:()=>revision===state.pickerRevision});if(revision!==state.pickerRevision){map.destroy();return;}state.picker=map;$('journeyPickerStatus').textContent='Station wählen oder Kartenausschnitt verschieben.';}catch(error){if(revision===state.pickerRevision)$('journeyPickerStatus').textContent=error.message;}
 }
 async function search({openFirst=false}={}){
+ if(state.share?.focusUnresolved())return;
  cancelSearch();const revision=state.revision;busy(true);status('Start und Ziel werden geprüft …');
  try{
   // Resolve typed addresses before requesting GPS, so a typo never causes an
   // unnecessary permission prompt. Never silently pick an ambiguous place.
   for(const kind of ['from','to'])if(!state[kind]&&!(await lookupPlace(kind,{automatic:true,revision})))return;
+  for(const p of [state.from,state.to])if(p?.kind!=='current'&&coordinate(p)&&!inJourneyArea(p))throw Error('Bitte Start und Ziel in Österreich oder Umgebung wählen.');
   for(const kind of ['from','to'])if(state[kind]?.kind==='current'&&(!coordinate(state[kind])||Date.now()-(state[kind].fixedAt||0)>90000)){status('Standort wird ermittelt …');selectPoint(kind,await getLocation(revision));}
   if(document.hidden||revision!==state.revision)return;
   if(!coordinate(state.from)||!coordinate(state.to))throw Error('Bitte Start und Ziel auswählen.');
@@ -333,8 +351,50 @@ $('journeyWalkRefresh').addEventListener('click',async()=>{
  try{const first=selected.legs.find(leg=>leg.mode!=='walk'),stop=state.stops.find(stop=>stop.id===first?.from.stopId);if(!stop)throw Error('Für diesen Einstieg fehlt eine genaue Stationszuordnung. Bitte neu planen.');let from=state.from;if(!from||from.kind==='current')from=await getLocation(revision);if(document.hidden||revision!==state.revision||state.selected!==selected)return;const {walk}=await walkClient.walk({from:{lat:from.lat,lon:from.lon},stopId:stop.id,speed:settings.speed});if(document.hidden||revision!==state.revision||state.selected!==selected)return;state.walk=walk;showSteps();box.textContent=`Zum Einstieg ${stop.name}: ca. ${minutes(walk.durationSeconds)} Min. · ${Math.round(walk.distanceMeters)} m. Aus Weglänge und Gehtempo geschätzt; Bahnsteigwege zusätzlich.`;}catch(error){if(revision===state.revision)box.textContent=error.name==='AbortError'?'Gehwegsuche angehalten.':error.message;}finally{if(revision===state.revision)$('journeyWalkRefresh').disabled=false;}
 });
 window.addEventListener('popstate',()=>{if(history.state?.foamaJourneyStation){openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});return;}if(state.station){closeStation();return;}showJourney(history.state?.foamaJourneyFavorite??(Number.isInteger(history.state?.foamaJourney)?history.state.foamaJourney:null),{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});});
-function pause(){cancelSearch();pauseMonitor();closePicker();clearWalkMaps();placesUI?.pause();}
-document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();resumeMonitor();}});window.addEventListener('pagehide',pause);window.addEventListener('storage',event=>{if(event.key===TRAFFIC_STORAGE_KEY){state.trafficCache=readTrafficCache();if(!document.hidden)renderCurrent();}if(event.key==='foama.journeyFavorites.v1')refreshSavedJourneys();if(event.key==='foama.journeyPlaces.v1')placesUI?.refresh();});window.addEventListener('pageshow',()=>{refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();if(!document.hidden)resumeMonitor();});
+function pause(){cancelSearch();pauseMonitor();closePicker();clearWalkMaps();placesUI?.pause();state.share?.pause();}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else{state.share?.visibility();refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();resumeMonitor();}});window.addEventListener('pagehide',pause);window.addEventListener('storage',event=>{if(event.key===TRAFFIC_STORAGE_KEY){state.trafficCache=readTrafficCache();if(!document.hidden)renderCurrent();}if(event.key==='foama.journeyFavorites.v1')refreshSavedJourneys();if(event.key==='foama.journeyPlaces.v1')placesUI?.refresh();});window.addEventListener('pageshow',()=>{state.share?.visibility();refreshSavedJourneys();placesUI?.refresh();if(state.undoUntil&&Date.now()>=state.undoUntil)expireUndo();if(!document.hidden)resumeMonitor();});
 placesUI=mountJourneyPlaces({client:createJourneyClient(),escape,getPoint:kind=>state[kind],onOpen:cancelSearch,onChoose:(kind,point)=>{cancelSearch();invalidateResults();setOverviewMode('search');selectPoint(kind,point);},onChange:()=>{pointControls();if(state.selected&&!state.station)renderRouteOverview();}});
 pointControls();renderFavorites();setJourneyPreference(state.preference);setOverviewMode(location.hash==='#routen'?'saved':'search');
-try{const response=await fetch('./data/stops.json?v=0.11.31');if(!response.ok)throw Error();const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);renderFavorites();if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});}catch{status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}
+const initialShare=takeLocationShare(location,history);
+const catalogueReady=(async()=>{
+ try{
+  const response=await fetch('./data/stops.json?v=0.12.2');if(!response.ok)throw Error();
+  const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];
+  await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);
+  renderFavorites();
+  if(history.state?.foamaJourneyStation)openStation(history.state.foamaJourneyStation,{historyChange:false,connection:history.state.foamaJourneyConnection||null});
+  else if(history.state?.foamaJourneyFavorite)showJourney(history.state.foamaJourneyFavorite,{historyChange:false,variantIndex:history.state?.foamaJourneyVariant||0});
+ }catch{if(!state.share)status('Haltestellenkatalog gerade nicht verfügbar. Adressen kannst du weiterhin über „Suchen“ wählen.');}
+ return state.stops;
+})();
+function openDestination(payload,{resetStart=false}={}){
+ if(!payload)return;
+ if(state.selected||state.station)showJourney(null,{historyChange:false});
+ setOverviewMode('search');invalidateResults();
+ if(resetStart)selectPoint('from',{kind:'current',name:'Dein Standort'});
+ state.share??=mountJourneyShare({
+  document,client:createJourneyClient(),loadStops:()=>catalogueReady,createMap:createJourneyMap,
+  getStart:()=>state.from,choose:point=>selectPoint('to',point),plan:()=>search(),
+  writeQuery:text=>{
+   state.to=null;const input=$('journeyTo');input.value=text;delete input.dataset.chosen;
+   $('toChoices').replaceChildren();pointControls();
+  }
+ });
+ state.share.open(payload);
+}
+const destinationInput=$('journeyTo');
+destinationInput.addEventListener('paste',event=>{
+ // A partial selection edits the address in place, just like typing.
+ if(destinationInput.value&&(destinationInput.selectionStart!==0||destinationInput.selectionEnd!==destinationInput.value.length))return;
+ const text=event.clipboardData?.getData('text/plain')?.trim();
+ if(!text)return;
+ event.preventDefault();
+ if(text.length>destinationInput.maxLength){
+  status('Der eingefügte Text ist zu lang. Bitte nur die Adresse oder den Kartenlink einfügen.');
+  return;
+ }
+ openDestination({text});
+});
+openDestination(initialShare,{resetStart:true});
+window.addEventListener('hashchange',()=>openDestination(takeLocationShare(location,history),{resetStart:true}));
+if(location.protocol==='https:'&&'serviceWorker' in navigator)void navigator.serviceWorker.register('./sw.js').catch(()=>{});
