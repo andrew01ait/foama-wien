@@ -49,6 +49,7 @@
 .journey-shared[hidden], .journey-shared [hidden] {display: none}
 .journey-shared h2 {margin: 0; color: var(--muted); font-size: .85rem}
 .shared-name {margin: 3px 0; font-size: 1.2rem; font-weight: 750; overflow-wrap: anywhere}
+.shared-address {margin: 0 0 4px; line-height: 1.4; overflow-wrap: anywhere}
 .journey-shared .fineprint {margin: 4px 0 8px; overflow-wrap: anywhere}
 .shared-map {height: clamp(170px, 29dvh, 270px); border: 1px solid var(--stroke); border-radius: 10px; overflow: hidden; isolation: isolate}
 .shared-actions {display: flex; gap: 6px; flex-wrap: wrap}

@@ -4,7 +4,7 @@ In Google Maps einen Ort öffnen oder in einer Nachricht die Adresse markieren. 
 
 Beim Markieren einer Adresse im Browser öffnet „Teilen“ die Liste der Empfänger. „Karte öffnen“ ruft die auf dem Handy registrierten Karten-Apps auf. Kopierte Adressen oder Kartenlinks lassen sich in A nach B ins Zielfeld einfügen. Ein eigener Start bleibt beim Einfügen erhalten. [Android-Installationshilfe](https://foama-wien.endruuu.chatgpt.site/willkommen.html#android-teilen)
 
-Koordinaten und eindeutig bekannte Stationsnamen lassen sich lokal übernehmen. Für eine Adresse fragt foama den vorhandenen Geocoder ab. Gängige Google-Maps-Kurzlinks werden über ihre Weiterleitung aufgelöst. Ohne lesbaren Zielpunkt lässt sich das Ziel bearbeiten. Nach der Übergabe entfernt die Seite den Inhalt aus der Adresszeile. Das Gerät speichert eine Route erst beim Tippen auf den Stern.
+Foama übernimmt Zielkoordinaten, Ortsnamen und mitgesendete Adresszeilen aus der Freigabe. Fehlen Adressbestandteile, kann die sichtbare App für den geteilten Zielpunkt bei Transitous eine nahe Adresse abrufen. Eine so gefundene Hausnummer erscheint als „Adresse in der Nähe“. Die Routenplanung verwendet die ursprüngliche Markierung. Eindeutig bekannte Stationsnamen lassen sich lokal übernehmen. Für eine Adresse fragt foama den vorhandenen Geocoder ab. Gängige Google-Maps-Kurzlinks werden über ihre Weiterleitung aufgelöst. Ohne lesbaren Zielpunkt lässt sich das Ziel bearbeiten. Nach der Übergabe entfernt die Seite den Inhalt aus der Adresszeile. Das Gerät speichert eine Route erst beim Tippen auf den Stern.
 
 ## Adressen und Meine Orte ab PWA 0.11.31
 

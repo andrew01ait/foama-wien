@@ -1,5 +1,6 @@
-import {coordinate} from './journey-geometry.mjs?v=0.12.2';
-import {normalizedStationName} from './station-search.mjs?v=0.12.2';
+import {coordinate} from './journey-geometry.mjs?v=0.12.3';
+import {normalizedStationName} from './station-search.mjs?v=0.12.3';
+import {addressParts,compatibleAddress,describeSharedPin,postalAddress} from './shared-address.mjs?v=0.12.3';
 
 const links = /(?:https?:\/\/|geo:)[^\s<>"“”]+/gi;
 const pair = /^([+-]?\d{1,3}(?:\.\d+)?)\s*[,;]\s*([+-]?\d{1,3}(?:\.\d+)?)(?:\s*\(([^()]*)\))?$/;
@@ -67,7 +68,12 @@ function googleDestination(url, label) {
   const placeLabel = slug && !/^@|^data=/.test(slug) ? slug : '';
   const data = parts.find(part => part.startsWith('data=')) || params.get('data') || '';
   const pin = data.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)(?=!|$)/);
-  if (pin) return point(pin[1], pin[2], placeLabel || label);
+  if (pin) {
+    const target = point(pin[1], pin[2], placeLabel || label);
+    const query = name(params.get('query') || params.get('q'));
+    if (target && query && !coordinatesIn(query)) target.point = describeSharedPin(target.point, query);
+    return target;
+  }
   for (const key of ['query', 'q']) {
     const query = params.get(key);
     if (query && !/^(?:place_id:|loc:0x)/i.test(query)) return valueTarget(query.replace(/^loc:/i, ''), label);
@@ -91,7 +97,11 @@ export function locationFromMapUrl(raw, label = '') {
     const destination = p.get('daddr') || p.get('destination');
     if (destination) return valueTarget(destination, label);
     const coords = p.get('coordinate') || p.get('ll');
-    if (coords) return valueTarget(coords, p.get('name') || p.get('q') || label);
+    if (coords) {
+      const target = valueTarget(coords, p.get('name') || p.get('q') || label);
+      if (target?.kind === 'point') target.point = describeSharedPin(target.point, name(p.get('address')));
+      return target;
+    }
     return valueTarget(p.get('address') || p.get('q') || p.get('name'), label);
   }
   if (/^(?:www\.)?(?:openstreetmap\.org|osm\.org)$/.test(url.hostname)) {
@@ -106,33 +116,46 @@ export function locationFromMapUrl(raw, label = '') {
 }
 export function parseLocationShare({title = '', text = '', url = ''} = {}) {
   const lines = text.split(/\r?\n/).map(line => line.replace(links, '').trim()).filter(Boolean);
-  const label = name(lines[0]) || name(title.replace(links, ''));
-  const plain = name(lines.join(', ')) || label;
+  const heading = name(title.replace(links, ''));
+  const label = name(lines[0]) || heading;
+  const accompanying = lines.filter(line => !coordinatesIn(line)).map(name).filter(Boolean).join('\n');
+  const plain = name(lines.join(', ')) || name(postalAddress(addressParts(accompanying))) || label;
+  function withAddress(item) {
+    if (item?.kind === 'point') item.point = describeSharedPin(item.point, accompanying, heading);
+    if (item?.kind === 'query') {
+      const address = addressParts(accompanying, item.query, heading);
+      if (address.street) item.query = postalAddress(address).slice(0, 160);
+    }
+    return item;
+  }
   let shortcut = null;
   for (const source of [url, text, title]) {
     if (/^geo:/i.test(source) && !source.includes('\n')) {
       const geo = locationFromMapUrl(source.trim(), label);
-      if (geo) return geo;
+      if (geo) return withAddress(geo);
     }
     for (const token of source.match(links) || []) {
       const raw = token.replace(/[.,!]+$/, '');
       const shortUrl = googleMapsShortUrl(raw);
       if (shortUrl) { shortcut ??= shortUrl; continue; }
       const result = locationFromMapUrl(raw, label);
-      if (result) return result;
+      if (result) return withAddress(result);
     }
   }
   for (const line of lines) {
     const match = coordinatesIn(line);
-    if (match) return point(match[1], match[2], match[3] || (line === label ? name(title) : label)) || {kind: 'empty'};
+    if (match) return withAddress(point(match[1], match[2], match[3] || (line === label ? heading : label))) || {kind: 'empty'};
   }
   const embedded = lines.join(' ').match(/(?:^|[^\d.])([+-]?\d{1,2}\.\d+)\s*,\s*([+-]?\d{1,3}\.\d+)(?![\d.])/);
   if (embedded) {
     const pin = point(embedded[1], embedded[2], name(title));
-    if (pin) return pin;
+    if (pin) return withAddress(pin);
   }
-  if (shortcut) return {kind: 'short', url: shortcut, fallback: plain};
-  return valueTarget(plain) || {kind: 'empty'};
+  if (shortcut) {
+    const fallback = plain || heading;
+    return {kind: 'short', url: shortcut, fallback, ...(heading && heading !== fallback ? {title:heading} : {})};
+  }
+  return withAddress(valueTarget(plain)) || {kind: 'empty'};
 }
 export function sharedStations(stops, query) {
   const key = normalizedStationName(query);
@@ -146,6 +169,9 @@ export function sharedStations(stops, query) {
 // Geocoders often return nearby house numbers alongside an exact address.
 export function exactSharedAddresses(rows, query) {
   const wanted = normalizedStationName(query);
+  const address = addressParts(query);
   return rows.filter(row => row.kind === 'address' && /\d/.test(row.name) &&
-    [row.name, [row.name, row.detail].filter(Boolean).join(' ')].some(label => normalizedStationName(label) === wanted));
+    ([row.name, [row.name, row.detail].filter(Boolean).join(' ')].some(label => normalizedStationName(label) === wanted)
+      || (normalizedStationName(address.street) === normalizedStationName(row.name)
+        && compatibleAddress(address, addressParts([row.name,row.detail].filter(Boolean).join(', '))))));
 }

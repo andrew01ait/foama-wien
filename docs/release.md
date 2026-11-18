@@ -1,3 +1,7 @@
+## PWA 0.12.3 · Vollständige Adressen beim Teilen · 18.11.2026
+
+Geteilte Orte behalten Straße und Hausnummer sowie PLZ und Stadt aus dem Text oder Kartenlink. Bei einem Pin mit fehlenden Angaben sucht Foama im Vordergrund nach einer passenden Adresse. Eine über die Nähe ermittelte Hausnummer ist als solche gekennzeichnet. Der ursprüngliche Zielpunkt steht sofort für die Route bereit.
+
 ## PWA 0.12.2 · Android-Teilen für Adressen und Kartenlinks · 18.11.2026
 
 Foama meldet einfachen Text und URI-Listen ausdrücklich als Android-Teilenziele an. Geteilte Maps-Links und markierte Adressen öffnen die Zielkarte in A nach B. Eine kopierte Adresse oder ein Kartenlink lässt sich auch direkt ins Zielfeld einfügen. Ein bereits gewählter Start bleibt dabei erhalten.

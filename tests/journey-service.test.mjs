@@ -10,7 +10,7 @@ const fixture=JSON.parse(readFileSync(new URL('./fixtures/journey-westbahnhof-ka
 test('explicit search calls only the fixed public provider with identification and returns normalized timetable data',async()=>{
  const db=localD1();try{let call;
   const response=await journeyApi(req({...body,privateFavorites:'PRIVATE_FAVORITES',userId:'PRIVATE_USER',url:'https://other.test'}),{DB:db},{now,fetch:async(url,options)=>{call={url:String(url),options};return Response.json({...fixture,privateRaw:'PRIVATE_RAW'});}});
-  assert.equal(response.status,200);assert.equal(new URL(call.url).origin,'https://api.transitous.org');assert.equal(new URL(call.url).pathname,'/api/v6/plan');assert.equal(call.options.redirect,'manual');assert.match(call.options.headers['User-Agent'],/foama-wien\/0.12.2.*https:/);
+  assert.equal(response.status,200);assert.equal(new URL(call.url).origin,'https://api.transitous.org');assert.equal(new URL(call.url).pathname,'/api/v6/plan');assert.equal(call.options.redirect,'manual');assert.match(call.options.headers['User-Agent'],/foama-wien\/0.12.3.*https:/);
   const json=JSON.stringify(await response.json());assert.ok(!json.includes('PRIVATE'));assert.ok(!json.includes('raw'));assert.match(json,/"quality":"schedule"/);assert.equal(response.headers.get('cache-control'),'no-store');
   const counts=(await db.prepare('SELECT * FROM foama_journey_budget').all()).results;assert.ok(!JSON.stringify(counts).includes('48.'));assert.deepEqual(Object.keys(counts[0]).sort(),['count','hour','id','kind']);
  }finally{db.close();}
@@ -39,6 +39,27 @@ test('storage failure, provider throttling, malformed, oversized and cancelled r
 test('address suggestions use actual MOTIS Match shape, restrict coordinates and expose only chosen display fields',()=>{
  assert.deepEqual(geocodePlaces([{name:'Westbahnhof',lat:48.1966,lon:16.3375,privateId:'PRIVATE'},{name:'Elsewhere',lat:0,lon:0}]),[{name:'Westbahnhof',lat:48.1966,lon:16.3375,kind:'place',detail:''}]);
  assert.deepEqual(geocodePlaces([{type:'ADDRESS',name:'8',street:'Neumayrgasse',houseNumber:'8',zip:'1160',areas:[{name:'Wien',unique:true,adminLevel:4}],lat:48.21,lon:16.33}]),[{name:'Neumayrgasse 8',detail:'1160 Wien',kind:'address',lat:48.21,lon:16.33}]);
+});
+test('pin addresses use the bounded places budget, return nearby houses by distance and include their actual municipality',async()=>{
+ const db=localD1(),pin={lat:47.07,lon:15.44};
+ const row={type:'ADDRESS',lat:47.07,lon:15.4401,name:'Hauptplatz 1',street:'Hauptplatz',zip:'8010',
+  areas:[{name:'Steiermark',adminLevel:4},{name:'Graz',adminLevel:6,default:true},{name:'Innere Stadt',adminLevel:9}]};
+ try{
+  let calls=0;
+  const fetch=async(raw,options)=>{
+   calls++;const url=new URL(raw);
+   assert.equal(url.origin+url.pathname,'https://api.transitous.org/api/v1/reverse-geocode');
+   assert.deepEqual(Object.fromEntries(url.searchParams),{place:'47.070000,15.440000',type:'ADDRESS'});assert.equal(options.redirect,'manual');
+   return Response.json([{...row,lat:47.08},{...row,lat:47.0703,houseNumber:'4'},row,{...row,type:'STOP'}]);
+  };
+  for(const value of [{lat:'47.07',lon:15.44},{lat:0,lon:0}]){
+   assert.equal((await journeyApi(req(value,'pin-address'),{DB:db},{now,fetch})).status,400);
+  }
+  const result=await journeyApi(req({...pin,title:'PRIVATE'},'pin-address'),{DB:db},{now,fetch});
+  assert.equal(calls,1);assert.equal(result.headers.get('cache-control'),'no-store');
+  assert.deepEqual((await result.json()).places.map(p=>[p.name,p.detail]),[['Hauptplatz 1','8010 Graz'],['Hauptplatz 4','8010 Graz']]);
+  assert.equal((await db.prepare('SELECT kind FROM foama_journey_budget').first()).kind,'places');
+ }finally{db.close();}
 });
 test('walking-only refresh uses the known boarding station, shares the planning budget and derives an explicitly estimated time from distance and speed',async()=>{
  const db=localD1();try{let call;const response=await journeyApi(req({from:body.from,stopId:'wl:west',speed:4.5},'walk'),{DB:db,JOURNEY_STOPS:[{id:'wl:west',lat:48.1962,lon:16.338}]},{now,fetch:async(url)=>{call=new URL(url);return Response.json([{duration:65,distance:75}]);}});

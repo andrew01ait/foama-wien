@@ -1,29 +1,29 @@
-import {mountJourneyShare,takeLocationShare} from './journey-share.mjs?v=0.12.2';
-import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.12.2';
-import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.12.2';
-import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.12.2';
-import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.12.2';
-import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.12.2';
-import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.12.2';
-import {createThemeController} from './theme.mjs?v=0.12.2';
-import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.12.2';
-import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from './journey-client.mjs?v=0.12.2';
-import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.12.2';
-import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.12.2';
-import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.12.2';
-import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.12.2';
-import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.12.2';
-import {createJourneyMap} from './journey-map.mjs?v=0.12.2';
-import {publishMapPosition} from './map-position.mjs?v=0.12.2';
-import {coordinate,inJourneyArea} from './journey-geometry.mjs?v=0.12.2';
-import {journeyStationMarkup,journeyTrafficNotices,journeyNoticeMarkup} from './journey-station.mjs?v=0.12.2';
-import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches,TRAFFIC_STORAGE_KEY} from './traffic-info.mjs?v=0.12.2';
-import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.12.2';
-import {selectStopIds} from './station-catalog.mjs?v=0.12.2';
-import {retainDepartures} from './departure-cache.mjs?v=0.12.2';
-import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.12.2';
-import {jsonExportName} from './export-file.mjs?v=0.12.2';
-import {bindAppShare} from './app-share.mjs?v=0.12.2';
+import {mountJourneyShare,takeLocationShare} from './journey-share.mjs?v=0.12.3';
+import {monitorAllowedAt,claimMonitorAttempt,recordMonitorSource} from './monitor-timing.mjs?v=0.12.3';
+import {CITY_PREFERENCE,cityPreference,stopCity,createCityController,recentDetectedCity,renderCityBrand,loadCityCatalogue} from './city-profiles.mjs?v=0.12.3';
+import {regionalRequestStops,fetchRegionalBoards} from './regional-departures.mjs?v=0.12.3';
+import {createTimetable,mergeTimetableDepartures} from './timetable.mjs?v=0.12.3';
+import {journeyFamily,journeyPathKey,journeyBranch} from './journey-variants.mjs?v=0.12.3';
+import {mergeSettings,parseWlMonitors,countdownMinutes,availableDeparts} from './core.mjs?v=0.12.3';
+import {createThemeController} from './theme.mjs?v=0.12.3';
+import {MODE_CHOICES,modeButtonMarkup,bindModeToggles} from './transport-controls.mjs?v=0.12.3';
+import {createJourneyClient,createJourneyComparisonClient,viennaInput,viennaTime,upcomingBoardings,focusedJourneyBoardings,journeyWarningTargets,journeyMonitorIds} from './journey-client.mjs?v=0.12.3';
+import {rankedJourneyIndices,compareJourneyOptions,reverseJourneyEndpoints} from './journey-options.mjs?v=0.12.3';
+import {mountJourneyPlaces} from './journey-places-ui.mjs?v=0.12.3';
+import {journeyLineDepartures,uniqueJourneyPlaces} from './journey-planning.mjs?v=0.12.3';
+import {sanitizeJourneyFavorites,saveJourneyFavorite,savedJourney,transferableJourneys} from './journey-favorites.mjs?v=0.12.3';
+import {createFavoriteMenuController} from './favorite-menu.mjs?v=0.12.3';
+import {createJourneyMap} from './journey-map.mjs?v=0.12.3';
+import {publishMapPosition} from './map-position.mjs?v=0.12.3';
+import {coordinate,inJourneyArea} from './journey-geometry.mjs?v=0.12.3';
+import {journeyStationMarkup,journeyTrafficNotices,journeyNoticeMarkup} from './journey-station.mjs?v=0.12.3';
+import {updateTrafficCache,readTrafficCache,saveTrafficCache,mergeTrafficCaches,TRAFFIC_STORAGE_KEY} from './traffic-info.mjs?v=0.12.3';
+import {createStationVehiclePanel} from './vehicle-strip.mjs?v=0.12.3';
+import {selectStopIds} from './station-catalog.mjs?v=0.12.3';
+import {retainDepartures} from './departure-cache.mjs?v=0.12.3';
+import {vehicleAccessibilityMarkup,departureCorrectionMarkup} from './departure-indicators.mjs?v=0.12.3';
+import {jsonExportName} from './export-file.mjs?v=0.12.3';
+import {bindAppShare} from './app-share.mjs?v=0.12.3';
 
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const get=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
@@ -358,7 +358,7 @@ pointControls();renderFavorites();setJourneyPreference(state.preference);setOver
 const initialShare=takeLocationShare(location,history);
 const catalogueReady=(async()=>{
  try{
-  const response=await fetch('./data/stops.json?v=0.12.2');if(!response.ok)throw Error();
+  const response=await fetch('./data/stops.json?v=0.12.3');if(!response.ok)throw Error();
   const data=await response.json();state.stops=Array.isArray(data.stops)?data.stops:[];
   await ensureJourneyCities([cityControl.current().id,...journeyCities(state.favorites)]);
   renderFavorites();
@@ -374,7 +374,7 @@ function openDestination(payload,{resetStart=false}={}){
  if(resetStart)selectPoint('from',{kind:'current',name:'Dein Standort'});
  state.share??=mountJourneyShare({
   document,client:createJourneyClient(),loadStops:()=>catalogueReady,createMap:createJourneyMap,
-  getStart:()=>state.from,choose:point=>selectPoint('to',point),plan:()=>search(),
+  getStart:()=>state.from,choose:point=>selectPoint('to',point),refreshFields:pointControls,plan:()=>search(),
   writeQuery:text=>{
    state.to=null;const input=$('journeyTo');input.value=text;delete input.dataset.chosen;
    $('toChoices').replaceChildren();pointControls();

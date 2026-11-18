@@ -1,6 +1,7 @@
-import {parseLocationShare,sharedStations,exactSharedAddresses} from './share-location.mjs?v=0.12.2';
-import {coordinate,inJourneyArea} from './journey-geometry.mjs?v=0.12.2';
-import {uniqueJourneyPlaces} from './journey-planning.mjs?v=0.12.2';
+import {parseLocationShare,sharedStations,exactSharedAddresses} from './share-location.mjs?v=0.12.3';
+import {coordinate,inJourneyArea} from './journey-geometry.mjs?v=0.12.3';
+import {uniqueJourneyPlaces} from './journey-planning.mjs?v=0.12.3';
+import {addressParts,addressNearPin,completeAddress,describeSharedPin,hasHouseNumber,keepSearchAddress,postalAddress} from './shared-address.mjs?v=0.12.3';
 
 export function takeLocationShare(location, history) {
   if (!location.hash.startsWith('#share?')) return null;
@@ -9,17 +10,22 @@ export function takeLocationShare(location, history) {
   return {title: fields.get('title') || '', text: fields.get('text') || '', url: fields.get('url') || ''};
 }
 
-export function mountJourneyShare({document: doc, client, loadStops, choose, writeQuery, getStart, plan, createMap}) {
+export function mountJourneyShare({document: doc, client, loadStops, choose, refreshFields, writeQuery, getStart, plan, createMap}) {
   const el = id => doc.getElementById(id);
   const panel = el('sharedDestination'), holder = el('sharedMap'), message = el('sharedStatus');
   const label = el('sharedName'), options = el('sharedChoices'), route = el('sharedRoute');
+  const addressLine = el('sharedAddress');
   const start = el('sharedStart'), edit = el('sharedEdit'), retry = el('sharedRetry');
   const visible = () => !doc.hidden && !el('journeyForm').hidden && !el('journeySearch').hidden;
-  let original, pending, selected, requestId = 0, loading = false;
+  let original, pending, selected, pinToCheck, requestId = 0, loading = false;
   let map, mapId = 0, openingMap = false;
 
   function description(point) {
-    return [point.detail, point.lat.toFixed(5) + ', ' + point.lon.toFixed(5)].filter(Boolean).join(' · ');
+    return point.lat.toFixed(5) + ', ' + point.lon.toFixed(5);
+  }
+  function renderAddress() {
+    addressLine.textContent = selected?.detail || '';
+    addressLine.hidden = !addressLine.textContent;
   }
   function stopLookup() {
     requestId++;
@@ -61,6 +67,7 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
     retry.hidden = true;
     options.replaceChildren();
     label.textContent = selected?.name || '';
+    renderAddress();
     message.textContent = selected ? [description(selected),
       !inJourneyArea(selected) ? 'Das Ziel liegt außerhalb des österreichischen Planungsgebiets.' : ''].filter(Boolean).join(' · ') : '';
     routeLabel();
@@ -69,9 +76,40 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
   function pointChanged(kind, point) {
     if (kind === 'from') { routeLabel(); if (inJourneyArea(selected)) message.textContent = description(selected); return; }
     stopLookup();
-    pending = null;
+    pending = pinToCheck = null;
     display(point);
     if (!selected) message.textContent = 'Adresse oder Haltestelle im Zielfeld auswählen.';
+  }
+  async function resolveAddress() {
+    if (!pinToCheck || loading || !visible()) return;
+    const pin = pinToCheck, id = ++requestId;
+    const current = () => id === requestId && visible() && selected === pin;
+    loading = true;
+    try {
+      const {places} = await client.pinAddress(pin);
+      if (!current()) return;
+      const detail = addressNearPin(pin, places);
+      if (detail) {
+        // The selected endpoint belongs to the form. Change its display data
+        // in place so the map, start and an ongoing route keep the same pin.
+        pin.detail = detail.slice(0, 160);
+        refreshFields?.();
+        renderAddress();
+      } else if (!pin.detail && message.textContent === description(pin)) {
+        message.textContent += ' · Keine nähere Adresse verfügbar.';
+      }
+    } catch {
+      if (current() && !pin.detail && message.textContent === description(pin)) message.textContent += ' · Adresse derzeit nicht verfügbar.';
+    } finally {
+      if (id === requestId) { loading = false; pinToCheck = null; }
+    }
+  }
+  function usePoint(point, lookup) {
+    choose(point);
+    if (lookup && inJourneyArea(selected) && !completeAddress(addressParts(selected.detail, selected.name))) {
+      pinToCheck = selected;
+      void resolveAddress();
+    }
   }
   function offer(rows) {
     options.replaceChildren();
@@ -81,11 +119,14 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
       button.textContent = row.name;
       detail.textContent = row.detail || [row.provider ? 'Haltestelle' : '', row.lat.toFixed(5) + ', ' + row.lon.toFixed(5)].filter(Boolean).join(' · ');
       button.append(detail);
-      button.addEventListener('click', () => choose(row));
+      button.addEventListener('click', () => useSearchResult(row));
       options.append(button);
     }
     message.textContent = 'Welches Ziel meinst du?';
     edit.hidden = false;
+  }
+  function useSearchResult(row) {
+    usePoint(row, row.kind === 'place' || (row.kind === 'address' && hasHouseNumber(row.name)));
   }
   async function resolve() {
     if (!pending || loading || !visible()) return;
@@ -96,6 +137,7 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
     retry.hidden = true;
     try {
       if (item.kind === 'short') {
+        const {fallback,title} = item;
         message.textContent = 'Kartenlink wird geöffnet …';
         try { item = (await client.mapLink(item.url)).destination; }
         catch (error) {
@@ -104,9 +146,15 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
           item = {kind: 'query', query: item.fallback};
         }
         if (!current()) return;
-        if (item.kind === 'point' && item.point.name === 'Geteilter Kartenpunkt' && pending.fallback) item.point = {...item.point, name: pending.fallback};
+        if (item.kind === 'point') {
+          if (item.point.name === 'Geteilter Kartenpunkt' && fallback) item.point = {...item.point, name: fallback};
+          item.point = describeSharedPin(item.point, fallback, title);
+        } else if (item.kind === 'query') {
+          const address = addressParts(fallback, item.query, title);
+          if (address.street) item = {kind:'query', query:postalAddress(address)};
+        }
       }
-      if (item.kind === 'point') { choose(item.point); return; }
+      if (item.kind === 'point') { usePoint(item.point, true); return; }
       if (item.kind !== 'query') {
         message.textContent = 'Kein Ziel erkannt. Gib eine Adresse oder Haltestelle ein oder wähle einen Punkt auf der Karte.';
         pending = null;
@@ -121,11 +169,12 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
         const {places} = await client.places(item.query);
         if (!current()) return;
         const exact = exactSharedAddresses(places, item.query);
-        matches = exact.length ? exact : places;
+        const wanted = addressParts(item.query);
+        matches = (exact.length ? exact : places).map(row => keepSearchAddress(row, wanted));
       }
       const rows = uniqueJourneyPlaces(matches);
       pending = null;
-      if (rows.length === 1) choose(rows[0]);
+      if (rows.length === 1) useSearchResult(rows[0]);
       else if (rows.length) offer(rows);
       else {
         message.textContent = 'Kein passendes Ziel gefunden. Ergänze Straße, Hausnummer oder Stadt.';
@@ -147,7 +196,7 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
   function visibility() {
     if (!visible()) { pause(); return; }
     if (pending) void resolve();
-    else if (selected) void showMap();
+    else if (selected) { void showMap(); if (pinToCheck) void resolveAddress(); }
   }
   function focusPanel() {
     el('sharedHeading').focus({preventScroll: true});
@@ -160,6 +209,7 @@ export function mountJourneyShare({document: doc, client, loadStops, choose, wri
   }
   function open(payload) {
     stopLookup();
+    pinToCheck = null;
     original = parseLocationShare(payload);
     pending = original;
     panel.hidden = false;

@@ -181,17 +181,19 @@ test('only fixed Google Maps short codes trigger outbound resolution, within the
   }finally{db.close();}
 });
 
-function harness({stops=[],places=async()=>({places:[]}),mapLink=async()=>{throw Error();}}={}){
-  const nodes=new Map(),maps=[],queries=[],plans=[];
+function harness({stops=[],places=async()=>({places:[]}),pinAddress=async()=>({places:[]}),mapLink=async()=>{throw Error();}}={}){
+  const nodes=new Map(),maps=[],queries=[],plans=[],pinQueries=[];
   const node=()=>({textContent:'',hidden:false,handlers:{},children:[],addEventListener(type,fn){this.handlers[type]=fn;},
     append(child){this.children.push(child);},replaceChildren(){this.children=[];},focus(){this.focused=true;},select(){},scrollIntoView(){this.scrolled=true;}});
   const el=id=>{if(!nodes.has(id))nodes.set(id,node());return nodes.get(id);};
   const document={hidden:false,getElementById:el,createElement:node};
   let selected=null,from={kind:'current',name:'Dein Standort'};
-  const controller=mountJourneyShare({document,client:{abort(){},places:query=>{queries.push(query);return places(query);},mapLink},
+  const controller=mountJourneyShare({document,client:{abort(){},places:query=>{queries.push(query);return places(query);},mapLink,
+    pinAddress:pin=>{pinQueries.push([pin.lat,pin.lon]);return pinAddress(pin);}},
     loadStops:async()=>stops,choose:point=>{selected=point;controller.pointChanged('to',point);},writeQuery:value=>{el('journeyTo').value=value;selected=null;},
+    refreshFields:()=>{el('journeyToContext').textContent=selected.detail;},
     getStart:()=>from,plan:async()=>plans.push({from,to:selected}),createMap:async({destination,center})=>{assert.deepEqual(center,destination);const map={destination,destroy(){this.destroyed=true;}};maps.push(map);return map;}});
-  return {controller,el,maps,queries,plans,document,get selected(){return selected;},setStart(point){from=point;controller.pointChanged('from',point);}};
+  return {controller,el,maps,queries,plans,pinQueries,document,get selected(){return selected;},setStart(point){from=point;controller.pointChanged('from',point);}};
 }
 test('a shared station opens its own marked map locally and uses either selected start without launching a plan on receipt',async()=>{
   const h=harness({stops:[stop]});h.controller.open({text:'Stephansplatz'});await tick();
@@ -207,7 +209,7 @@ test('ambiguous address matches wait for selection, preserve full locality and d
   const h=harness({places:async()=>({places:rows})});h.controller.open({text:'Hauptplatz 1'});await tick();
   assert.deepEqual(h.queries,['Hauptplatz 1']);assert.equal(h.selected,null);assert.equal(h.maps.length,0);assert.equal(h.plans.length,0);
   assert.equal(h.el('sharedChoices').children.length,2);h.el('sharedChoices').children[1].handlers.click();
-  assert.deepEqual(h.selected,rows[1]);assert.match(h.el('sharedStatus').textContent,/Graz/);
+  assert.deepEqual(h.selected,rows[1]);assert.equal(h.el('sharedAddress').textContent,'Graz');
 });
 test('new shares and manual edits invalidate late results; a suspended lookup resumes while visible',async()=>{
   const waits=[];const h=harness({places:()=>new Promise(resolve=>waits.push(resolve))});
@@ -233,6 +235,62 @@ test('a matching house number and locality win over fuzzy neighbours; two exact 
   const h=harness({places:async()=>({places:[neighbour,row,other]})});
   h.controller.open({text:'Opernring 2, 1010 Wien'});await tick();assert.deepEqual(h.selected,row);assert.equal(h.maps.length,1);
   h.controller.open({text:'Opernring 2'});await tick();assert.equal(h.selected,null);assert.equal(h.el('sharedChoices').children.length,2);
+});
+
+test('full Google links, short redirects, geo and Apple pins retain the supplied postal address and never need a nearby lookup',async()=>{
+  const detail='Opernring 2A/3, 1010 Wien',text='Opernring 2A/3\n1010 Wien';
+  const payloads=[
+    {url:full,title:'Museum',text},
+    {url:short,title:'Museum',text},
+    {url:'geo:48.21,16.37',text:'Museum\n'+text},
+    {url:'https://maps.apple.com/?ll=48.21,16.37&name=Museum&address='+encodeURIComponent(detail)},
+    {url:full.replace('Museum','Opernring+2A%2F3,+1010+Wien,+Austria'),title:'Museum'},
+    {url:full.replace('Museum','Opernring'),text:'Museum\n'+text},
+  ];
+  for(const payload of payloads){
+    const h=harness({mapLink:async()=>({destination:{kind:'point',point:{...coords,name:'Museum'}}})});
+    h.controller.open(payload);await tick();
+    assert.equal(h.selected.name,'Museum');assert.equal(h.selected.detail,detail);
+    assert.equal(h.el('sharedAddress').textContent,detail);assert.deepEqual(h.pinQueries,[]);
+    assert.deepEqual(h.maps.map(map=>[map.destination.lat,map.destination.lon]),[[coords.lat,coords.lon]]);
+  }
+  const plain=harness();plain.controller.open({url:full.replace('Museum','Opernring+2-4,+1010+Wien,+Austria')});await tick();
+  assert.equal(plain.selected.name,'Opernring 2-4');assert.equal(plain.selected.detail,'1010 Wien');assert.deepEqual(plain.pinQueries,[]);
+});
+
+test('a coordinate-only pin opens immediately, receives a visibly approximate address and keeps its routing coordinates',async()=>{
+  let finish;const h=harness({pinAddress:()=>new Promise(resolve=>{finish=resolve;})});
+  h.controller.open({url:'geo:48.21,16.37'});await tick();
+  assert.deepEqual(h.pinQueries,[[coords.lat,coords.lon]]);assert.equal(h.maps.length,1);assert.equal(h.el('sharedRoute').hidden,false);
+  const nearby={kind:'address',name:'Opernring 2',detail:'1010 Wien',lat:48.2102,lon:16.3702};
+  finish({places:[nearby]});await tick();
+  assert.equal(h.el('sharedAddress').textContent,'Adresse in der Nähe: Opernring 2, 1010 Wien');
+  assert.equal(h.el('journeyToContext').textContent,h.el('sharedAddress').textContent);
+  assert.equal(h.maps.length,1);assert.equal(h.plans.length,0);
+  await h.el('sharedRoute').handlers.click();assert.equal(h.plans[0].to.lat,coords.lat);assert.equal(h.plans[0].to.lon,coords.lon);
+});
+
+test('only a compatible address can fill missing information, and a lookup failure or stale result cannot displace a pin',async()=>{
+  const other={name:'Opernring 21',detail:'1010 Wien'}, right={name:'Opernring 2',detail:'1010 Wien'};
+  const h=harness({pinAddress:async()=>({places:[other,right]})});
+  h.controller.open({url:full,text:'Opernring 2'});await tick();assert.equal(h.selected.detail,'Opernring 2, 1010 Wien');
+  const missing=harness({pinAddress:async()=>({places:[other]})});
+  missing.controller.open({url:full,text:'Opernring 2'});await tick();assert.equal(missing.selected.detail,'Opernring 2');
+  const offline=harness({pinAddress:async()=>{throw Error('offline');}});
+  offline.controller.open({url:full});await tick();assert.equal(offline.selected.name,'Museum');assert.equal(offline.el('sharedRoute').hidden,false);
+  const replies=[];const delayed=harness({pinAddress:()=>new Promise(resolve=>replies.push(resolve))});
+  delayed.controller.open({url:full});await tick();delayed.document.hidden=true;delayed.controller.visibility();
+  replies.shift()({places:[right]});await tick();assert.equal(delayed.selected.detail,undefined);
+  delayed.document.hidden=false;delayed.controller.visibility();await tick();
+  delayed.controller.open({url:'geo:52,18'});await tick();replies.shift()({places:[right]});await tick();
+  assert.equal(delayed.selected.lat,52);assert.equal(delayed.selected.detail,undefined);assert.equal(delayed.pinQueries.length,2);
+});
+
+test('plain shared websites restore missing query locality on a matching house and never apply it to a different city',async()=>{
+  const row={kind:'address',name:'Hauptplatz 1',...coords};
+  const h=harness({places:async()=>({places:[{...row,detail:'Wien'},{...row,detail:'Graz'}]})});
+  h.controller.open({text:'Hauptplatz 1\n8010 Graz'});await tick();
+  assert.deepEqual(h.selected,{...row,detail:'8010 Graz'});assert.deepEqual(h.pinQueries,[]);
 });
 
 test('journey search submits the real destination with a fresh GPS start or typed origin and preserves it after denial',async()=>{

@@ -1,4 +1,4 @@
-import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.12.2';
+import {normalizeApiDate,modeFromWl} from './core.mjs?v=0.12.3';
 
 export const TRAFFIC_CACHE_MS=15*60_000;
 export const TRAFFIC_STORAGE_KEY='foama.traffic.v1';

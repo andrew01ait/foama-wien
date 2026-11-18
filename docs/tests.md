@@ -1,3 +1,7 @@
+## PWA 0.12.3 · Adresse des geteilten Ziels
+
+526 Web- und Servertests sowie 22 Python-Prüfungen bestanden. Die Regressionstests decken mitgesendete Hausnummern mit Zusatz, PLZ und Ort, lange und kurze Kartenlinks, markierten Text, reine Koordinaten und Offline-Fälle ab. Eine verspätete Adressantwort kann ein neueres Ziel nicht überschreiben. Öffentliche Transitous-Beispiele lieferten Opernring 2 in 1010 Wien und Hauptplatz 1 in 8010 Graz.
+
 ## PWA 0.12.2 · Android-Teilen und Einfügen
 
 521 Web- und Servertests sowie 22 Python-Prüfungen bestanden. Die Teilentests prüfen das Manifest aller HTML-Einstiege, Text- und URI-Übergaben an Server und Offline-Service-Worker, die frühere Formularadresse, die Größenbegrenzung und das Einfügen ins Zielfeld mit gewähltem Start. Die Anzeige in der Android-App-Liste erfordert eine Prüfung auf dem Handy mit aktualisiertem WebAPK.

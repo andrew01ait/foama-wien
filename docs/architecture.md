@@ -1,13 +1,13 @@
 # Architektur und Datenflüsse
 
-Aktueller Stand: PWA 0.12.2 / Wear 0.9.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
+Aktueller Stand: PWA 0.12.3 / Wear 0.9.1. Die Clients verwalten ihre Favoriten unabhängig und teilen denselben Server für öffentliche Verkehrsdaten, zeitlich begrenzte verschlüsselte Übertragung und optionalen Push. [Projektstruktur](development.md) und [Konfiguration](configuration.md) ergänzen diese Übersicht.
 
 ## Bausteine
 
 | Baustein | Verantwortung und Grenzen |
 | --- | --- |
 | PWA `pwa/src/app.mjs` | Nähe/Favoriten, Browser-Standort, sichtbare Aktualisierung und lokaler Speicher |
-| Android-Teilen | Alle HTML-Einstiege verknüpfen dasselbe Manifest. Service Worker und Webserver empfangen Multipart-POSTs unter `/share-location` sowie frühere Formular-POSTs unter `/share-target`. Bis zu 32 KiB pro Übergabe, mit Vorrang für Text und URL vor einem einzelnen Textanhang. A nach B liest das Ziel aus einem kurzlebigen URL-Fragment. Der Kurzlink-Adapter ruft ausschließlich Google-Maps-Kurzcodes ab und wertet Weiterleitungsziele aus. |
+| Android-Teilen | Alle HTML-Einstiege verknüpfen dasselbe Manifest. Service Worker und Webserver empfangen Multipart-POSTs unter `/share-location` sowie frühere Formular-POSTs unter `/share-target`. Bis zu 32 KiB pro Übergabe, mit Vorrang für Text und URL vor einem einzelnen Textanhang. A nach B liest das Ziel aus einem kurzlebigen URL-Fragment. Der Kurzlink-Adapter ruft ausschließlich Google-Maps-Kurzcodes ab und wertet Weiterleitungsziele aus. Bei unvollständigen geteilten Pins fragt die sichtbare Zielkarte über den festen POST-Endpunkt /api/journeys/pin-address Transitous nach Adressen ab. Die Anfrage teilt das Ortsbudget. Ein Treffer bis 75 Meter kann den Anzeigetext ergänzen. Die Route behält die gewählten Koordinaten. |
 | PWA `journey-*` | A-nach-B-Suche, Adressen, Karten, Varianten und lokale zeitlose Routenfavoriten |
 | PWA `line-map-*`, `line-maps` | Geografische Wiener Shapes/Varianten, Version-/Quellprüfung, lokaler Cache; OSM-Kacheln nur für sichtbare Karte |
 | PWA `vehicle-data`, `vehicle-tracker`, `vehicle-strip` | Fahrzeuge im Anflug: quellgebundene Linienbasis, kurzlebige Schätzlagen, horizontale Stationsausschnitte; gemeinsame Monitorabfrage ohne eigenen Stations-Poller |

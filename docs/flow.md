@@ -1,6 +1,6 @@
 ## Ziel aus einer Android-App
 
-Teilen → foama-wien → Zielmarkierung oder Trefferauswahl → Route von meinem Standort oder anderen Start wählen → Verbindungen suchen. Bei verweigerter Ortung bleibt das Ziel im Formular. Ein neuer geteilter Ort ersetzt das vorherige Ziel. Zum Teilen einer markierten Adresse im Browser „Teilen“ wählen. Für kopierte Inhalte das Zielfeld öffnen und „Einfügen“ wählen. Dieser Weg behält den gewählten Start bei.
+Teilen → foama-wien → Zielmarkierung oder Trefferauswahl → Route von meinem Standort oder anderen Start wählen → Verbindungen suchen. Bei verweigerter Ortung bleibt das Ziel im Formular. Ein neuer geteilter Ort ersetzt das vorherige Ziel und verwirft offene Adressabfragen. Straße und Hausnummer sowie PLZ und Ort stehen bei der Zielmarkierung und am Zielfeld. Eine ergänzend ermittelte Nachbaradresse ist als „Adresse in der Nähe“ gekennzeichnet. Zum Teilen einer markierten Adresse im Browser „Teilen“ wählen. Für kopierte Inhalte das Zielfeld öffnen und „Einfügen“ wählen. Dieser Weg behält den gewählten Start bei.
 
 ## PWA 0.11.29 / Wear 0.9.1 · Update-Hinweis und Kartenliste · 12.11.2026
 
